@@ -1,0 +1,33 @@
+# .gitignore
+
+# Node modules (React frontend)
+/frontend/node_modules/
+
+# Build directory (React frontend)
+/frontend/build/
+
+# Environment files
+.env
+
+# Python virtual environment (Flask backend)
+/backend/.venv/
+
+# Python cache files (Flask backend)
+__pycache__/
+/backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+/backend/*.pyc
+/backend/*.pyo
+/backend/*.pyd
+
+# Database file (if using SQLite for example)
+/backend/*.db
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
