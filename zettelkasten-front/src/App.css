@@ -1,38 +1,108 @@
-.App {
-  text-align: center;
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Container for the entire app */
+.app-container {
+    display: flex;
+    height: 100vh;
+    
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Sidebar Styles */
+.sidebar {
+    width: 20%;
+    border-right: 1px solid #ccc;
+    padding: 20px;
+    overflow-y: auto;
+    height: 100vh;
+    
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.sidebar button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    
 }
 
-.App-link {
-  color: #61dafb;
+.sidebar input {
+    width: calc(100% - 40px);
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sidebar div {
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 5px;
+    
+}
+
+.sidebar div:hover {
+    background-color: #f0f0f0;
+    
+}
+
+/* Main Content Area Styles */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow: hidden;
+    float: 'left';
+    height: 100vh;
+    
+}
+
+.main-content h2, .main-content h3 {
+    margin-bottom: 20px;
+    
+}
+
+.main-content p {
+    margin-bottom: 20px;
+    
+}
+
+.main-content ul {
+    list-style-type: none;
+    margin-bottom: 20px;
+    
+}
+
+.main-content li {
+    background-color: #f0f0f0;
+    padding: 5px;
+    margin-bottom: 5px;
+    
+}
+
+.main-content button {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    
+}
+
+/* Editing Card Styles */
+.editing-card {
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.editing-card input, .editing-card textarea {
+    margin-bottom: 20px;
+    padding: 10px;
+    font-size: 16px;
+    
 }
