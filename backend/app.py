@@ -17,8 +17,9 @@ cur.execute(
             CREATE TABLE IF NOT EXISTS cards (
                 id TEXT PRIMARY KEY,
                 title TEXT,
-                body TEXT
-            
+                body TEXT,
+                is_reference INT DEFAULT 0,
+                link TEXT
         );
             """
     )
@@ -72,15 +73,19 @@ def extract_backlinks(text):
 @app.route('/cards', methods=['GET'])
 def get_cards():
     cur = conn.cursor()
-    cur.execute("SELECT id, title, body FROM cards;")
+    cur.execute("SELECT id, title, body, is_reference, link FROM cards;")
     cards = cur.fetchall()
     results = []
     for x in cards:
-        id = x[0]
+        is_ref = False
+        if x[3] == 1:
+            is_ref = True
         card = {
             "id": x[0],
             "title": x[1],
             "body": x[2],
+            "is_reference": is_ref,
+            "link": x[4],
             "backlinks": get_backlinks(x[0])
         }
         results.append(card)
@@ -95,10 +100,16 @@ def create_card():
     id = request.json.get("id")
     title = request.json.get("title")
     body = request.json.get("body")
+    is_reference = request.json.get("is_reference")
+    if is_reference:
+        is_reference = 1
+    else:
+        is_reference = 0
+    link = request.json.get("link")
     
     # Insert card into database
     try:
-        cur.execute("INSERT INTO cards (id, title, body) VALUES (?, ?, ?);", (id, title, body))
+        cur.execute("INSERT INTO cards (id, title, body, is_reference, link) VALUES (?, ?, ?, ?, ?);", (id, title, body, is_reference, link))
         conn.commit()
     except sqlite3.IntegrityError:
         return jsonify({"error": "id already used"})
@@ -119,10 +130,15 @@ def get_card(id):
     cur.execute("SELECT * FROM cards WHERE id = ?;", (id,))
     card = cur.fetchone()
     if card:
+        is_ref = False
+        if card[3] == 1:
+            is_ref = True
         card = {
             "id": card[0],
             "title": card[1],
             "body": card[2],
+            "is_reference": is_ref,
+            "link": card[4],
             "backlinks": get_backlinks(card[0])
             
         }
@@ -135,9 +151,15 @@ def update_card(id):
     cur = conn.cursor()
     title = request.json.get("title")
     body = request.json.get("body")
+    is_reference = request.json.get("is_reference")
+    if is_reference:
+        is_reference = 1
+    else:
+        is_reference = 0
+    link = request.json.get("link")
     
     # Update card in database
-    cur.execute("UPDATE cards SET title = ?, body = ? WHERE id = ?;", (title, body, id))
+    cur.execute("UPDATE cards SET title = ?, body = ?, is_reference = ?, link = ? WHERE id = ?;", (title, body, is_reference, link, id))
     conn.commit()
     
     # Update backlinks
@@ -145,7 +167,7 @@ def update_card(id):
     update_backlinks(id, backlinks)
     
     cur.close()
-    return jsonify({"id": id, "title": title, "body": body})
+    return jsonify({"id": id, "title": title, "body": body, "is_reference": is_reference, "link": link})
 
 
 if __name__ == "__main__":

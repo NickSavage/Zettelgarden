@@ -8,6 +8,8 @@ function App() {
     const [viewingCard, setViewingCard] = useState(null);
     const [editingCard, setEditingCard] = useState(null);
     const [search, setSearch] = useState('');
+    const [viewReference, setViewReference] = useState(false);
+    const [viewMeeting, setViewMeeting] = useState(false);
 
     useEffect(() => {
 	fetch('http://192.168.0.72:5000/cards')
@@ -15,6 +17,7 @@ function App() {
 	    .then(data => setCards(data));
 	  
     }, []);
+    console.log(cards);
 
     function getCard(id) {
 	// Assuming your backend is running on the same IP and port as in previous example
@@ -65,7 +68,25 @@ function App() {
 	setEditingCard(null);
 	  
     }
-    // ...
+
+    function handleReferenceClick() {
+	if (viewReference) {
+	    setViewReference(false);
+	} else {
+	    setViewReference(true);
+	}
+    }
+    function handleMeetingClick() {
+	if (viewMeeting) {
+	    setViewMeeting(false);
+	} else {
+	    setViewMeeting(true);
+	}
+    }
+    function handleAllClick() {
+	setViewReference(false);
+	setViewMeeting(false);
+    }
 
     async function handleViewBacklink(backlink) {
 	// Assuming backlink is an object with id and title, you can just use the id to view the card.
@@ -94,14 +115,15 @@ function App() {
 	      `http://192.168.0.72:5000/cards/${encodeURIComponent(editingCard.id)}` ;
 	const method = newCard ? 'POST' : 'PUT';
 
-	console.log([newCard, url, method])
+	let card = editingCard;
+
 	fetch(url, {
 	    method: method,
 	    headers: {
 		'Content-Type': 'application/json',
 		        
 	    },
-	    body: JSON.stringify(editingCard),
+	    body: JSON.stringify(card),
 	        
 	})
 	    .then(response => response.json())
@@ -134,7 +156,7 @@ function App() {
 			    // call the function to handle viewing the card, passing the cardId
 			    handleViewBacklink({"target_id": cardId});
 			}}
-			style={{ color: 'blue' }}
+			style={{ fontWeight: 'bold', color: 'blue' }}
 		    >
 			{part}
 		    </a>
@@ -145,10 +167,21 @@ function App() {
 	});
     }
     
-    const mainCards = cards.filter(card => !card.id.includes('/'));
+    const mainCards = cards
+	  .filter(card => !card.id.includes('/'))
+	  .filter(card => !card.is_reference)
+	  .filter(card => !card.id.startsWith('SM'));
     const filteredCards = mainCards.filter(
 	card => card.id.includes(search) || card.title.includes(search)
 	  
+    );
+    const referenceCards = cards.filter(card => card.is_reference);
+    const filteredReference = referenceCards.filter(
+	card => card.id.includes(search) || card.title.includes(search)
+    );
+    const meetingCards = cards.filter(card => card.id.startsWith('SM'));
+    const filteredMeeting = meetingCards.filter(
+	card => card.id.includes(search) || card.title.includes(search)
     );
 
     return (
@@ -156,19 +189,48 @@ function App() {
 	    <div className="sidebar" style={{ width: '20%', float: 'left', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
 		<button onClick={handleNewCard}>New Card</button>
 		<input type="text" value={search} onChange={handleSearch} placeholder="Search" />
-		<div>
-		    {filteredCards.map(card => (
-			<div key={card.id} onClick={() => handleSidebarCardClick(card)}>
-
-
-					<span style={{ color: 'blue', fontWeight: 'bold' }}>
-					    {card.id}
-					</span>			    
-			    : {card.title}
-			</div>
-			          
-		    ))}
-		</div>
+		<button onClick={handleReferenceClick}>Reference Cards</button>
+		<button onClick={handleMeetingClick}>Meeting Cards</button>
+		<button onClick={handleAllClick}>All Cards</button>
+		{viewReference && (
+		    <div>
+			{filteredReference.map(card => (
+			    <div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<span style={{ color: 'blue', fontWeight: 'bold' }}>
+				    {card.id}
+				</span>			    
+				: {card.title}
+			    </div>
+			))}
+		    </div>
+		    
+		)}
+		{viewMeeting && (
+		    <div>
+			{filteredMeeting.map(card => (
+			    <div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<span style={{ color: 'blue', fontWeight: 'bold' }}>
+				    {card.id}
+				</span>			    
+				: {card.title}
+			    </div>
+			))}
+		    </div>
+		    
+		)}
+		{!viewReference && !viewMeeting && (
+		    <div>
+			{filteredCards.map(card => (
+			    <div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<span style={{ color: 'blue', fontWeight: 'bold' }}>
+				    {card.id}
+				</span>			    
+				: {card.title}
+			    </div>
+			    
+			))}
+		    </div>
+		)}
 	    </div>
 	    <div className="main-content" style={{ width: '80%', float: 'left', padding: '20px', height: '100vh' }}>
 		{viewingCard && (
@@ -178,6 +240,16 @@ function App() {
 			</h2>
 			<div style={{ marginBottom: '10px' }}>
 			    {renderCardText(viewingCard.body)}
+			</div>
+			<div>
+			    {viewingCard.is_reference && <>
+				<span style={{ fontWeight: 'bold' }}>
+				    Link: 
+				</span>
+				<span>
+				    {viewingCard.link}
+				</span>
+			    </>}
 			</div>
 			<h4>Backlinks:</h4>
 			<ul>
@@ -262,6 +334,23 @@ function App() {
 			    placeholder="Body"
 			/>
 			
+			<label htmlFor="title">Is Reference:</label>
+			<input
+			    type="checkbox"
+			    id="is_reference"
+			    checked={editingCard.is_reference}
+			    onChange={e => setEditingCard({ ...editingCard, is_reference: e.target.checked })}
+			    style={{ marginBottom: '10px' }} // Updated style here
+			/>
+			<label htmlFor="title">Link:</label>
+			<input
+			    style={{ display: 'block', width: '100%', marginBottom: '10px' }} // Updated style here
+			    type="text"
+			    id="link"
+			    value={editingCard.link}
+			    onChange={e => setEditingCard({ ...editingCard, link: e.target.value })}
+			    placeholder="Title"
+			/>
 			<button onClick={handleSaveCard}>Save</button>
 		    </div>
 		)}
