@@ -56,6 +56,28 @@
     background-color: #f0f0f0;
     
 }
+/* Dropdown Styles */
+select {
+    width: 100%; /* Make select take the full width of its container */
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px; /* Rounded corners */
+    appearance: none; /* Remove default appearance */
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    
+}
+
+/* Option Styles */
+option {
+    padding: 10px;
+    font-size: 16px;
+    
+}
+
 
 .scroll-cards {
     overflow-y: auto;

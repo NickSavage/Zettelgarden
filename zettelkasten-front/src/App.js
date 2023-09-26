@@ -6,11 +6,12 @@ function App() {
     const [cards, setCards] = useState([]);
     const [newCard, setNewCard]= useState(null);
     const [viewingCard, setViewingCard] = useState(null);
+    const [parentCard, setParentCard] = useState(null);
     const [editingCard, setEditingCard] = useState(null);
     const [search, setSearch] = useState('');
-    const [sidebarVisible, setSidebarVisible] = useState(true);
     const [viewReference, setViewReference] = useState(false);
     const [viewMeeting, setViewMeeting] = useState(false);
+    const [viewRead, setViewRead] = useState(false);
 
     useEffect(() => {
 	fetch('http://192.168.0.72:5000/cards')
@@ -18,7 +19,6 @@ function App() {
 	    .then(data => setCards(data));
 	  
     }, []);
-    console.log(cards);
 
     function getCard(id) {
 	// Assuming your backend is running on the same IP and port as in previous example
@@ -38,13 +38,10 @@ function App() {
 		} else {
 		    // Throw an error if the response is not successful
 		    throw new Error('Failed to fetch card');
-		          
 		}
-		    
 	    })
 	    .then(cardData => {
 		// Process the card data here (if needed) and return it
-		setViewingCard(cardData);
 		return cardData;
 		    
 	    });
@@ -70,46 +67,61 @@ function App() {
 	  
     }
 
-    function handleReferenceClick() {
-	if (viewReference) {
-	    setViewReference(false);
-	} else {
-	    setViewReference(true);
+    const handleSelectChange = (event) => {
+	const value = event.target.value;
+	if (value === "reference") {
+	    handleReferenceClick();
+	        
+	} else if (value === "meeting") {
+	    handleMeetingClick();
+	        
+	} else if (value === "all") {
+	    handleAllClick();
+	        
+	} else if (value === "read") {
+	    handleReadClick();
 	}
+    }
+    
+    function handleReferenceClick() {
+	setViewReference(true);
+	setViewMeeting(false);
+	setViewRead(false);
 	setSearch('');
     }
     function handleMeetingClick() {
-	if (viewMeeting) {
-	    setViewMeeting(false);
-	} else {
-	    setViewMeeting(true);
-	}
+	setViewReference(false);
+	setViewMeeting(true);
+	setViewRead(false);
+	setSearch('');
+    }
+    function handleReadClick() {
+	setViewReference(false);
+	setViewMeeting(false);
+	setViewRead(true);
 	setSearch('');
     }
     function handleAllClick() {
 	setViewReference(false);
 	setViewMeeting(false);
+	setViewRead(false);
 	setSearch('');
-    }
-    function toggleSidebar() {
-	setSidebarVisible(!sidebarVisible);
-	console.log(sidebarVisible);
     }
     
     async function handleViewBacklink(backlink) {
 	// Assuming backlink is an object with id and title, you can just use the id to view the card.
+	const parentCard = await getCard(backlink.target_id.split('/')[0])
+	setParentCard(parentCard);
 	const cardData = await getCard(backlink.target_id)
 	handleViewCard(cardData);
     }
-    function handleSidebarCardClick(card) {
+    async function handleSidebarCardClick(card) {
 	// Call getCard with the card's id and then call handleViewCard with the fetched cardData
-	getCard(card.id)
-            .then(cardData => {
-		handleViewCard(cardData);
-            });
+	const parentCard = await getCard(card.id.split('/')[0])
+	setParentCard(parentCard);
+	const cardData = await getCard(card.id)
+	handleViewCard(cardData);
     }
-
-
 
     function handleEditCard() {
 	setEditingCard(viewingCard);
@@ -201,15 +213,23 @@ function App() {
     const filteredMeeting = meetingCards.filter(
 	card => card.id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
     );
+    
+    const readCards = cards.filter(card => card.id.startsWith('READ'));
+    const filteredRead = readCards.filter(
+	card => card.id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+    );
 
     return (
 	<div>
 	    <div className="sidebar" style={{ width: '20%', float: 'left', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
 		<button onClick={handleNewCard}>New Card</button>
 		<input type="text" value={search} onChange={handleSearch} placeholder="Search" />
-		<button onClick={handleReferenceClick}>Reference Cards</button>
-		<button onClick={handleMeetingClick}>Meeting Cards</button>
-		<button onClick={handleAllClick}>All Cards</button>
+		<select onChange={handleSelectChange}>
+		    <option value="reference">Reference Cards</option>
+		    <option value="meeting">Meeting Cards</option>
+		    <option value="read">Read Cards</option>
+		    <option value="all">All Cards</option>
+		</select>
 		<div class="scroll-cards">
 		    {viewReference && (
 			<div>
@@ -237,7 +257,20 @@ function App() {
 			</div>
 			
 		    )}
-		    {!viewReference && !viewMeeting && (
+		    {viewRead && (
+			<div>
+			    {filteredRead.map(card => (
+				<div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+					{card.id}
+				    </span>			    
+				    : {card.title}
+				</div>
+			    ))}
+			</div>
+			
+		    )}
+		    {!viewReference && !viewMeeting && !viewRead &&(
 			<div>
 			    {filteredCards.map(card => (
 				<div key={card.id} onClick={() => handleSidebarCardClick(card)}>
@@ -285,6 +318,23 @@ function App() {
 			    Updated At: {viewingCard.updated_at}
 			</p>
 			<hr />
+			<h4>Parent:</h4>
+			<ul>
+			    <li style={{ marginBottom: '10px' }}>
+				<a
+				    href="#"
+				    onClick={(e) => {
+					e.preventDefault();
+					handleViewCard(parentCard);
+				    }}
+				    style={{ color: 'black', textDecoration: 'none' }}
+				>
+				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+					{parentCard.id}
+				    </span>: {parentCard.title}
+				</a>
+			    </li>
+			</ul>
 			<h4>Backlinks:</h4>
 			<ul>
 			    {console.log(viewingCard)}
