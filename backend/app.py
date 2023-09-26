@@ -38,6 +38,18 @@ cur.execute(
         );
             """
     )
+cur.execute(
+        """
+            CREATE TABLE IF NOT EXISTS unsorted_cards (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                body TEXT,
+                created_at TEXT,
+                updated_at TEXT
+            
+        );
+            """
+    )
 conn.commit()
 cur.close()
 
@@ -179,6 +191,54 @@ def update_card(id):
     
     cur.close()
     return jsonify({"id": id, "title": title, "body": body, "is_reference": is_reference, "link": link})
+
+# endpoint to get all unsorted_cards or a specific unsorted_card by id
+@app.route('/unsorted', methods=['GET'])
+@app.route('/unsorted/<int:card_id>', methods=['GET'])
+def get_unsorted_cards(card_id=None):
+    query = "id, title, body, created_at, updated_at"
+    cur = conn.cursor()
+    if card_id:
+        cur.execute("SELECT " + query + " FROM unsorted_cards WHERE id=?", (card_id,))
+    else:
+        cur.execute("SELECT " + query + " FROM unsorted_cards;")
+    cards = cur.fetchall()
+    results = []
+    for card in cards:
+        x = {
+            "id": card[0],
+            "title": card[1],
+            "body": card[2],
+            "created_at": card[3],
+            "updated_at": card[4],
+        }
+        results.append(x)
+    
+    cur.close()
+    return jsonify(results)
+
+
+# endpoint to create an unsorted_card
+@app.route('/unsorted', methods=['POST'])
+def create_unsorted_card():
+    cur = conn.cursor()
+    title = request.json['title']
+    body = request.json['body']
+    cur.execute("INSERT INTO unsorted_cards (title, body, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))", (title, body))
+    conn.commit()
+    cur.close()
+    return jsonify({"message": "Card created successfully"}), 201
+
+# endpoint to edit an unsorted_card
+@app.route('/unsorted/<int:card_id>', methods=['PUT'])
+def update_unsorted_card(card_id):
+    cur = conn.cursor()
+    title = request.json['title']
+    body = request.json['body']
+    cur.execute("UPDATE unsorted_cards SET title=?, body=?, updated_at=datetime('now') WHERE id=?", (title, body, card_id))
+    conn.commit()
+    cur.close()
+    return jsonify({"message": "Card updated successfully"}), 200
 
 
 if __name__ == "__main__":
