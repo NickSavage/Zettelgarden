@@ -15,7 +15,8 @@ cur = conn.cursor()
 cur.execute(
         """
             CREATE TABLE IF NOT EXISTS cards (
-                id TEXT PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                card_id TEXT,
                 title TEXT,
                 body TEXT,
                 is_reference INT DEFAULT 0,
@@ -32,8 +33,8 @@ cur.execute(
                 target_id TEXT,
                 created_at TEXT,
                 updated_at TEXT,
-                FOREIGN KEY (source_id) REFERENCES cards (id),
-                FOREIGN KEY (target_id) REFERENCES cards (id)
+                FOREIGN KEY (source_id) REFERENCES cards (card_id),
+                FOREIGN KEY (target_id) REFERENCES cards (card_id)
             
         );
             """
@@ -63,7 +64,7 @@ def sort_ids(id):
 
 def get_backlinks(card_id):
     cur = conn.cursor()
-    cur.execute("SELECT backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.id WHERE target_id = ?;", (card_id,))
+    cur.execute("SELECT backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.card_id WHERE target_id = ?;", (card_id,))
     backlinks = [{"target_id": row[0], "title": row[1]} for row in cur.fetchall()]
     cur.close()
     return backlinks
@@ -86,12 +87,23 @@ def extract_backlinks(text):
 
 # Routes
 
+def check_is_card_id_unique(card_id: str) -> bool:
+    cur = conn.cursor()
+    cur.execute("SELECT card_id FROM cards;")
+    ids = cur.fetchall()
+    for id in ids:
+        print(id)
+        if card_id == id[0]:
+            return False
+    return True
+    
+
 
 
 @app.route('/cards', methods=['GET'])
 def get_cards():
     cur = conn.cursor()
-    cur.execute("SELECT id, title, body, is_reference, link, created_at, updated_at FROM cards;")
+    cur.execute("SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards;")
     cards = cur.fetchall()
     results = []
     for x in cards:
@@ -100,16 +112,17 @@ def get_cards():
             is_ref = True
         card = {
             "id": x[0],
-            "title": x[1],
-            "body": x[2],
+            "card_id": x[1],
+            "title": x[2],
+            "body": x[3],
             "is_reference": is_ref,
-            "link": x[4],
-            "created_at": x[5],
-            "updated_at": x[6],
-            "backlinks": get_backlinks(x[0])
+            "link": x[5],
+            "created_at": x[6],
+            "updated_at": x[7],
+            "backlinks": get_backlinks(x[1])
         }
         results.append(card)
-    results = sorted(results, key=lambda x: sort_ids(x["id"]), reverse=True)
+    results = sorted(results, key=lambda x: sort_ids(x["card_id"]), reverse=True)
     cur.close()
     return jsonify(results)
 
@@ -117,10 +130,14 @@ def get_cards():
 @app.route('/cards', methods=['POST'])
 def create_card():
     cur = conn.cursor()
-    id = request.json.get("id")
     title = request.json.get("title")
     body = request.json.get("body")
+    card_id = request.json.get("card_id")
     is_reference = request.json.get("is_reference")
+
+    if not check_is_card_id_unique(card_id):
+        return jsonify({"error": "id already used"})
+        
     if is_reference:
         is_reference = 1
     else:
@@ -129,17 +146,17 @@ def create_card():
     
     # Insert card into database
     try:
-        cur.execute("INSERT INTO cards (id, title, body, is_reference, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'));", (id, title, body, is_reference, link))
+        cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'));", (card_id, title, body, is_reference, link))
         conn.commit()
     except sqlite3.IntegrityError:
         return jsonify({"error": "id already used"})
 
     # Update backlinks
     backlinks = extract_backlinks(body)
-    update_backlinks(id, backlinks)
+    update_backlinks(card_id, backlinks)
     cur.close()
     
-    return jsonify({"id": id, "title": title, "body": body})
+    return jsonify({"card_id":card_id, "title": title, "body": body})
                                                         
 
 @app.route('/cards/<path:id>', methods=['GET'])
@@ -147,7 +164,7 @@ def get_card(id):
     id = unquote(id)
     print(id)
     cur = conn.cursor()
-    cur.execute("SELECT id, title, body, is_reference, link, created_at, updated_at FROM cards WHERE id = ?;", (id,))
+    cur.execute("SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards WHERE id = ?;", (id,))
     card = cur.fetchone()
     if card:
         is_ref = False
@@ -155,13 +172,14 @@ def get_card(id):
             is_ref = True
         card = {
             "id": card[0],
-            "title": card[1],
-            "body": card[2],
+            "card_id": card[1],
+            "title": card[2],
+            "body": card[3],
             "is_reference": is_ref,
-            "link": card[4],
-            "created_at": card[5],
-            "updated_at": card[5],
-            "backlinks": get_backlinks(card[0])
+            "link": card[5],
+            "created_at": card[6],
+            "updated_at": card[7],
+            "backlinks": get_backlinks(card[1])
             
         }
     cur.close()
@@ -173,6 +191,7 @@ def update_card(id):
     cur = conn.cursor()
     title = request.json.get("title")
     body = request.json.get("body")
+    card_id = request.json.get("card_id")
     is_reference = request.json.get("is_reference")
     if is_reference:
         is_reference = 1
@@ -181,7 +200,7 @@ def update_card(id):
     link = request.json.get("link")
     
     # Update card in database
-    cur.execute("UPDATE cards SET title = ?, body = ?, is_reference = ?, link = ?, updated_at = datetime('now') WHERE id = ?;", (title, body, is_reference, link, id))
+    cur.execute("UPDATE cards SET title = ?, body = ?, is_reference = ?, link = ?, updated_at = datetime('now'), card_id = ? WHERE id = ?;", (title, body, is_reference, link, card_id, id))
     conn.commit()
     
     # Update backlinks
@@ -190,55 +209,7 @@ def update_card(id):
     update_backlinks(id, backlinks)
     
     cur.close()
-    return jsonify({"id": id, "title": title, "body": body, "is_reference": is_reference, "link": link})
-
-# endpoint to get all unsorted_cards or a specific unsorted_card by id
-@app.route('/unsorted', methods=['GET'])
-@app.route('/unsorted/<int:card_id>', methods=['GET'])
-def get_unsorted_cards(card_id=None):
-    query = "id, title, body, created_at, updated_at"
-    cur = conn.cursor()
-    if card_id:
-        cur.execute("SELECT " + query + " FROM unsorted_cards WHERE id=?", (card_id,))
-    else:
-        cur.execute("SELECT " + query + " FROM unsorted_cards;")
-    cards = cur.fetchall()
-    results = []
-    for card in cards:
-        x = {
-            "id": card[0],
-            "title": card[1],
-            "body": card[2],
-            "created_at": card[3],
-            "updated_at": card[4],
-        }
-        results.append(x)
-    
-    cur.close()
-    return jsonify(results)
-
-
-# endpoint to create an unsorted_card
-@app.route('/unsorted', methods=['POST'])
-def create_unsorted_card():
-    cur = conn.cursor()
-    title = request.json['title']
-    body = request.json['body']
-    cur.execute("INSERT INTO unsorted_cards (title, body, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))", (title, body))
-    conn.commit()
-    cur.close()
-    return jsonify({"message": "Card created successfully"}), 201
-
-# endpoint to edit an unsorted_card
-@app.route('/unsorted/<int:card_id>', methods=['PUT'])
-def update_unsorted_card(card_id):
-    cur = conn.cursor()
-    title = request.json['title']
-    body = request.json['body']
-    cur.execute("UPDATE unsorted_cards SET title=?, body=?, updated_at=datetime('now') WHERE id=?", (title, body, card_id))
-    conn.commit()
-    cur.close()
-    return jsonify({"message": "Card updated successfully"}), 200
+    return jsonify({"id": id, "card_id": card_id, "title": title, "body": body, "is_reference": is_reference, "link": link})
 
 
 if __name__ == "__main__":

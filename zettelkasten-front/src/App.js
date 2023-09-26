@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
+    const [error, setError] = useState("");
     const [cards, setCards] = useState([]);
     const [newCard, setNewCard]= useState(null);
     const [viewingCard, setViewingCard] = useState(null);
@@ -12,12 +13,13 @@ function App() {
     const [viewReference, setViewReference] = useState(false);
     const [viewMeeting, setViewMeeting] = useState(false);
     const [viewRead, setViewRead] = useState(false);
+    const [viewWork, setViewWork] = useState(false);
+    const [viewUnsorted, setViewUnsorted] = useState(false);
 
     useEffect(() => {
 	fetch('http://192.168.0.72:5000/cards')
 	    .then(response => response.json())
 	    .then(data => setCards(data));
-	  
     }, []);
 
     function getCard(id) {
@@ -47,8 +49,7 @@ function App() {
 	    });
 	
     }
-    
-    
+
     function handleSearch(e) {
 	setSearch(e.target.value);
 	  
@@ -56,15 +57,15 @@ function App() {
 
     function handleNewCard() {
 	setNewCard(true);
-	setEditingCard({ id: '', title: '', body: '' });
+	setEditingCard({ card_id: '', title: '', body: '' });
 	setViewingCard(null);
 	  
     }
 
     function handleViewCard(card) {
+	setError(null);
 	setViewingCard(card);
 	setEditingCard(null);
-	  
     }
 
     const handleSelectChange = (event) => {
@@ -80,28 +81,58 @@ function App() {
 	        
 	} else if (value === "read") {
 	    handleReadClick();
+	} else if (value === "work") {
+	    handleWorkClick();
+	} else if (value === "unsorted") {
+	    handleUnsortedClick();
 	}
+
+    }
+
+    function handleWorkClick() {
+	setViewUnsorted(false);
+	setViewWork(true);
+	setViewReference(false);
+	setViewMeeting(false);
+	setViewRead(false);
+	setSearch('');
     }
     
     function handleReferenceClick() {
+	setViewUnsorted(false);
+	setViewWork(false);
 	setViewReference(true);
 	setViewMeeting(false);
 	setViewRead(false);
 	setSearch('');
     }
     function handleMeetingClick() {
+	setViewUnsorted(false);
+	setViewWork(false);
 	setViewReference(false);
 	setViewMeeting(true);
 	setViewRead(false);
 	setSearch('');
     }
     function handleReadClick() {
+	setViewUnsorted(false);
+	setViewWork(false);
 	setViewReference(false);
 	setViewMeeting(false);
 	setViewRead(true);
 	setSearch('');
     }
     function handleAllClick() {
+	setViewUnsorted(false);
+	setViewWork(false);
+	setViewReference(false);
+	setViewMeeting(false);
+	setViewRead(false);
+	setSearch('');
+    }
+    function handleUnsortedClick() {
+	setViewUnsorted(true);
+	setViewWork(false);
 	setViewReference(false);
 	setViewMeeting(false);
 	setViewRead(false);
@@ -110,15 +141,21 @@ function App() {
     
     async function handleViewBacklink(backlink) {
 	// Assuming backlink is an object with id and title, you can just use the id to view the card.
-	const parentCard = await getCard(backlink.target_id.split('/')[0])
+	const parentId = backlink.target_id.split('/')[0];
+	const parentCard = await getCard(parentId);
 	setParentCard(parentCard);
 	const cardData = await getCard(backlink.target_id)
 	handleViewCard(cardData);
     }
     async function handleSidebarCardClick(card) {
 	// Call getCard with the card's id and then call handleViewCard with the fetched cardData
-	const parentCard = await getCard(card.id.split('/')[0])
-	setParentCard(parentCard);
+	const parentCardId = card.card_id.split('/')[0];
+	if (parentCardId !== "") {
+	    const parentCard = await getCard(parentCardId);
+	    setParentCard(parentCard);
+	} else {
+	    setParentCard(null);
+	}
 	const cardData = await getCard(card.id)
 	handleViewCard(cardData);
     }
@@ -126,7 +163,6 @@ function App() {
     function handleEditCard() {
 	setEditingCard(viewingCard);
 	setViewingCard(null);
-	  
     }
 
     async function handleSaveCard() {
@@ -153,6 +189,8 @@ function App() {
 		if (!("error" in response)) {
 		    setEditingCard(null);
 		    setNewCard(null);
+		} else {
+		    setError(response["error"]);
 		}
 		fetch('http://192.168.0.72:5000/cards')
 		    .then(response => response.json())
@@ -197,27 +235,40 @@ function App() {
 	});
     }
     
+    console.log(cards);
     const mainCards = cards
-	  .filter(card => !card.id.includes('/'))
+	  .filter(card => !card.card_id.includes('/'))
 	  .filter(card => !card.is_reference)
-	  .filter(card => !card.id.startsWith('SM'));
+	  .filter(card => !card.card_id.startsWith('SM'))
+	  .filter(card => !card.card_id.startsWith('READ'));
     const filteredCards = mainCards.filter(
-	card => card.id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
 	  
     );
     const referenceCards = cards.filter(card => card.is_reference);
     const filteredReference = referenceCards.filter(
-	card => card.id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
     );
-    const meetingCards = cards.filter(card => card.id.startsWith('SM'));
+    const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
     const filteredMeeting = meetingCards.filter(
-	card => card.id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
     );
     
-    const readCards = cards.filter(card => card.id.startsWith('READ'));
+    const readCards = cards.filter(card => card.card_id.startsWith('READ'));
     const filteredRead = readCards.filter(
-	card => card.id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
     );
+
+    const workCards = mainCards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP'));
+    const filteredWork = workCards.filter(
+	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+    );
+
+    const unsortedCards = mainCards.filter(card => card.card_id === "");
+    const filteredUnsorted = unsortedCards.filter(
+	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+    );
+    console.log(unsortedCards);
 
     return (
 	<div>
@@ -228,15 +279,17 @@ function App() {
 		    <option value="reference">Reference Cards</option>
 		    <option value="meeting">Meeting Cards</option>
 		    <option value="read">Read Cards</option>
+		    <option value="work">Work Cards</option>
+		    <option value="unsorted">Unsorted Cards</option>
 		    <option value="all">All Cards</option>
 		</select>
 		<div class="scroll-cards">
 		    {viewReference && (
 			<div>
 			    {filteredReference.map(card => (
-				<div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
 				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.id}
+					{card.card_id}
 				    </span>			    
 				    : {card.title}
 				</div>
@@ -247,9 +300,9 @@ function App() {
 		    {viewMeeting && (
 			<div>
 			    {filteredMeeting.map(card => (
-				<div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
 				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.id}
+					{card.card_id}
 				    </span>			    
 				    : {card.title}
 				</div>
@@ -260,9 +313,9 @@ function App() {
 		    {viewRead && (
 			<div>
 			    {filteredRead.map(card => (
-				<div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
 				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.id}
+					{card.card_id}
 				    </span>			    
 				    : {card.title}
 				</div>
@@ -270,12 +323,38 @@ function App() {
 			</div>
 			
 		    )}
-		    {!viewReference && !viewMeeting && !viewRead &&(
+		    {viewWork && (
+			<div>
+			    {filteredWork.map(card => (
+				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
+				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+					{card.card_id}
+				    </span>			    
+				    : {card.title}
+				</div>
+			    ))}
+			</div>
+			
+		    )}
+		    {viewUnsorted && (
+			<div>
+			    {filteredUnsorted.map(card => (
+				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
+				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+					{card.card_id}
+				    </span>			    
+				    : {card.title}
+				</div>
+			    ))}
+			</div>
+			
+		    )}
+		    {!viewReference && !viewMeeting && !viewRead && !viewWork && !viewUnsorted && (
 			<div>
 			    {filteredCards.map(card => (
-				<div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
 				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.id}
+					{card.card_id}
 				    </span>			    
 				    : {card.title}
 				</div>
@@ -286,11 +365,16 @@ function App() {
 		</div>
 	    </div>
 	    <div className="main-content" style={{ width: '80%', float: 'left', padding: '20px', height: '100vh' }}>
+		{error && (
+		    <div>
+			<p>Error: {error}</p>
+		    </div>
+		)}
 		{viewingCard && (
 		    <div>
 			<h2 style={{ marginBottom: '10px' }}>
 			    <span style={{ fontWeight: 'bold', color: 'blue' }}>
-				{viewingCard.id} 
+				{viewingCard.card_id} 
 			    </span>
 			    <span>
 				{viewingCard.title}
@@ -318,23 +402,27 @@ function App() {
 			    Updated At: {viewingCard.updated_at}
 			</p>
 			<hr />
-			<h4>Parent:</h4>
-			<ul>
-			    <li style={{ marginBottom: '10px' }}>
-				<a
-				    href="#"
-				    onClick={(e) => {
-					e.preventDefault();
-					handleViewCard(parentCard);
-				    }}
-				    style={{ color: 'black', textDecoration: 'none' }}
-				>
-				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{parentCard.id}
-				    </span>: {parentCard.title}
-				</a>
-			    </li>
-			</ul>
+			{parentCard && (
+			    <div>
+			    <h4>Parent:</h4>
+			    <ul>
+				<li style={{ marginBottom: '10px' }}>
+				    <a
+					href="#"
+					onClick={(e) => {
+					    e.preventDefault();
+					    handleViewCard(parentCard);
+					}}
+					style={{ color: 'black', textDecoration: 'none' }}
+				    >
+					<span style={{ color: 'blue', fontWeight: 'bold' }}>
+					    {parentCard.id}
+					</span>: {parentCard.title}
+				    </a>
+				</li>
+			    </ul>
+			    </div>
+			)}
 			<h4>Backlinks:</h4>
 			<ul>
 			    {console.log(viewingCard)}
@@ -360,7 +448,7 @@ function App() {
 			<button onClick={handleEditCard}>Edit</button>
 			 <h4>Children:</h4>
 			<ul>
-			    {cards.filter(card => card.id.startsWith(`${viewingCard.id}/`)).map((childCard, index) => (
+			    {cards.filter(card => card.card_id.startsWith(`${viewingCard.id}/`)).map((childCard, index) => (
 				<li key={index} style={{ marginBottom: '10px' }}>
 				    <a
 					href="#"
@@ -384,19 +472,14 @@ function App() {
 
 		{editingCard && (
 		    <div>
-			{newCard ? (
-			// If it's a new card, render an input field for the ID
-			    <input
-				type="text"
-				value={editingCard.id}
-				onChange={e => setEditingCard({ ...editingCard, id: e.target.value })}
-				placeholder="ID"
-				style={{ display: 'block', marginBottom: '10px' }} // Added styles here
-			    />
-			) : (
-			    // If it's an existing card, just display the ID
-			    <div style={{ marginBottom: '10px' }}>ID: {editingCard.id}</div> // Added styles here
-			)}
+			<label htmlFor="title">Card ID:</label>
+			<input
+			    type="text"
+			    value={editingCard.card_id}
+			    onChange={e => setEditingCard({ ...editingCard, card_id: e.target.value })}
+			    placeholder="ID"
+			    style={{ display: 'block', marginBottom: '10px' }} // Added styles here
+			/>
 			{/* Title Section */}
 			<label htmlFor="title">Title:</label>
 			<input
@@ -438,9 +521,6 @@ function App() {
 			<button onClick={handleSaveCard}>Save</button>
 		    </div>
 		)}
-
-
-		
 	    </div>
 	</div>
     );
