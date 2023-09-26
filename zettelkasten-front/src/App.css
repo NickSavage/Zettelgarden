@@ -19,8 +19,12 @@
     width: 20%;
     border-right: 1px solid #ccc;
     padding: 20px;
-    overflow-y: auto;
-    height: 100vh;
+    
+}
+.hamburger {
+    font-size: 1.5rem;
+    margin: 1rem;
+    z-index: 2;
     
 }
 
@@ -51,6 +55,11 @@
 .sidebar div:hover {
     background-color: #f0f0f0;
     
+}
+
+.scroll-cards {
+    overflow-y: auto;
+    height: 75vh;
 }
 
 /* Main Content Area Styles */

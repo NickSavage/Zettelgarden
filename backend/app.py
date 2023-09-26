@@ -19,7 +19,9 @@ cur.execute(
                 title TEXT,
                 body TEXT,
                 is_reference INT DEFAULT 0,
-                link TEXT
+                link TEXT,
+                created_at TEXT,
+                updated_at TEXT
         );
             """
     )
@@ -28,6 +30,8 @@ cur.execute(
             CREATE TABLE IF NOT EXISTS backlinks (
                 source_id TEXT,
                 target_id TEXT,
+                created_at TEXT,
+                updated_at TEXT,
                 FOREIGN KEY (source_id) REFERENCES cards (id),
                 FOREIGN KEY (target_id) REFERENCES cards (id)
             
@@ -59,7 +63,7 @@ def update_backlinks(id, backlinks):
     cur.execute("DELETE FROM backlinks WHERE source_id = ?;", (id,))
     # Insert new backlinks
     for target_id in backlinks:
-        cur.execute("INSERT INTO backlinks (source_id, target_id) VALUES (?, ?);", (id, target_id))
+        cur.execute("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'));", (id, target_id))
         conn.commit()
     cur.close()
 
@@ -70,10 +74,12 @@ def extract_backlinks(text):
 
 # Routes
 
+
+
 @app.route('/cards', methods=['GET'])
 def get_cards():
     cur = conn.cursor()
-    cur.execute("SELECT id, title, body, is_reference, link FROM cards;")
+    cur.execute("SELECT id, title, body, is_reference, link, created_at, updated_at FROM cards;")
     cards = cur.fetchall()
     results = []
     for x in cards:
@@ -86,10 +92,12 @@ def get_cards():
             "body": x[2],
             "is_reference": is_ref,
             "link": x[4],
+            "created_at": x[5],
+            "updated_at": x[6],
             "backlinks": get_backlinks(x[0])
         }
         results.append(card)
-    results = sorted(results, key=lambda x: sort_ids(x["id"]))
+    results = sorted(results, key=lambda x: sort_ids(x["id"]), reverse=True)
     cur.close()
     return jsonify(results)
 
@@ -109,7 +117,7 @@ def create_card():
     
     # Insert card into database
     try:
-        cur.execute("INSERT INTO cards (id, title, body, is_reference, link) VALUES (?, ?, ?, ?, ?);", (id, title, body, is_reference, link))
+        cur.execute("INSERT INTO cards (id, title, body, is_reference, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'));", (id, title, body, is_reference, link))
         conn.commit()
     except sqlite3.IntegrityError:
         return jsonify({"error": "id already used"})
@@ -127,7 +135,7 @@ def get_card(id):
     id = unquote(id)
     print(id)
     cur = conn.cursor()
-    cur.execute("SELECT * FROM cards WHERE id = ?;", (id,))
+    cur.execute("SELECT id, title, body, is_reference, link, created_at, updated_at FROM cards WHERE id = ?;", (id,))
     card = cur.fetchone()
     if card:
         is_ref = False
@@ -139,6 +147,8 @@ def get_card(id):
             "body": card[2],
             "is_reference": is_ref,
             "link": card[4],
+            "created_at": card[5],
+            "updated_at": card[5],
             "backlinks": get_backlinks(card[0])
             
         }
@@ -159,11 +169,12 @@ def update_card(id):
     link = request.json.get("link")
     
     # Update card in database
-    cur.execute("UPDATE cards SET title = ?, body = ?, is_reference = ?, link = ? WHERE id = ?;", (title, body, is_reference, link, id))
+    cur.execute("UPDATE cards SET title = ?, body = ?, is_reference = ?, link = ?, updated_at = datetime('now') WHERE id = ?;", (title, body, is_reference, link, id))
     conn.commit()
     
     # Update backlinks
     backlinks = extract_backlinks(body)
+    print(backlinks)
     update_backlinks(id, backlinks)
     
     cur.close()
