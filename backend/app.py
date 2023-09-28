@@ -54,6 +54,75 @@ cur.execute(
 conn.commit()
 cur.close()
 
+# Serializers
+
+full_card_query = "SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards"
+partial_card_query = "SELECT id, card_id, title FROM cards"
+
+def serialize_full_card(card) -> dict:
+    is_ref = False
+    if card[3] == 1:
+        is_ref = True
+    card = {
+        "id": card[0],
+        "card_id": card[1],
+        "title": card[2],
+        "body": card[3],
+        "is_reference": is_ref,
+        "link": card[5],
+        "created_at": card[6],
+        "updated_at": card[7],
+        "backlinks": get_backlinks(card[1]),
+        "parent": get_parent(card[1])
+    }
+    return card
+
+def serialize_partial_card(card) -> dict:
+    card = {
+        "id": card[0],
+        "card_id": card[1],
+        "title": card[2],
+    }
+    return card
+
+def query_full_card(id) -> dict:
+    print(id)
+    cur = conn.cursor()
+    cur.execute(full_card_query + " WHERE id = ?;", (id,))
+    card = cur.fetchone()
+    if card:
+        card = serialize_full_card(card)
+    cur.close()
+    return card
+    
+def query_all_full_cards() -> list:
+    cur = conn.cursor()
+    cur.execute(full_card_query)
+    cards = cur.fetchall()
+    results = []
+    for x in cards:
+        card = serialize_full_card(x)
+        results.append(card)
+    cur.close()
+    return results
+    
+def query_partial_card(card_id) -> dict:
+    cur = conn.cursor()
+    parent_id = card_id.split('/')[0]
+    
+    cur.execute(partial_card_query + " WHERE card_id = '" + parent_id + "';")
+    cards = cur.fetchall()
+    results = []
+    for x in cards:
+        card = serialize_partial_card(x)
+        results.append(card)
+
+    cur.close()
+    if len(results) > 0:
+        return results[0]
+    else:
+        return {}
+
 
 def sort_ids(id):
     # Use regular expressions to split the id into numeric and non-numeric parts
@@ -64,8 +133,8 @@ def sort_ids(id):
 
 def get_backlinks(card_id):
     cur = conn.cursor()
-    cur.execute("SELECT backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.card_id WHERE target_id = ?;", (card_id,))
-    backlinks = [{"target_id": row[0], "title": row[1]} for row in cur.fetchall()]
+    cur.execute("SELECT cards.id, backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.card_id WHERE target_id = ?;", (card_id,))
+    backlinks = [{"id": row[0], "card_id": row[1], "title": row[2]} for row in cur.fetchall()]
     cur.close()
     return backlinks
 
@@ -97,33 +166,16 @@ def check_is_card_id_unique(card_id: str) -> bool:
             return False
     return True
     
-
-
+def get_parent(card_id: str) -> dict:
+    if card_id == '':
+        return {}
+    result = query_partial_card(card_id)
+    return result
 
 @app.route('/cards', methods=['GET'])
 def get_cards():
-    cur = conn.cursor()
-    cur.execute("SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards;")
-    cards = cur.fetchall()
-    results = []
-    for x in cards:
-        is_ref = False
-        if x[3] == 1:
-            is_ref = True
-        card = {
-            "id": x[0],
-            "card_id": x[1],
-            "title": x[2],
-            "body": x[3],
-            "is_reference": is_ref,
-            "link": x[5],
-            "created_at": x[6],
-            "updated_at": x[7],
-            "backlinks": get_backlinks(x[1])
-        }
-        results.append(card)
+    results = query_all_full_cards()
     results = sorted(results, key=lambda x: sort_ids(x["card_id"]), reverse=True)
-    cur.close()
     return jsonify(results)
 
 
@@ -135,7 +187,7 @@ def create_card():
     card_id = request.json.get("card_id")
     is_reference = request.json.get("is_reference")
 
-    if not check_is_card_id_unique(card_id):
+    if not card_id == "" and not check_is_card_id_unique(card_id):
         return jsonify({"error": "id already used"})
         
     if is_reference:
@@ -162,27 +214,7 @@ def create_card():
 @app.route('/cards/<path:id>', methods=['GET'])
 def get_card(id):
     id = unquote(id)
-    print(id)
-    cur = conn.cursor()
-    cur.execute("SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards WHERE id = ?;", (id,))
-    card = cur.fetchone()
-    if card:
-        is_ref = False
-        if card[3] == 1:
-            is_ref = True
-        card = {
-            "id": card[0],
-            "card_id": card[1],
-            "title": card[2],
-            "body": card[3],
-            "is_reference": is_ref,
-            "link": card[5],
-            "created_at": card[6],
-            "updated_at": card[7],
-            "backlinks": get_backlinks(card[1])
-            
-        }
-    cur.close()
+    card = query_full_card(id)
     return jsonify(card)
 
 
