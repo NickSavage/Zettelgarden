@@ -7,6 +7,7 @@ function App() {
     const [cards, setCards] = useState([]);
     const [mainCards, setMainCards] = useState([]);
     const [sidebarCards, setSidebarCards] = useState([]);
+    const [unfilteredSidebarCards, setUnfilteredSidebarCards] = useState([]);
     const [newCard, setNewCard]= useState(null);
     const [viewingCard, setViewingCard] = useState(null);
     const [parentCard, setParentCard] = useState(null);
@@ -17,9 +18,12 @@ function App() {
 
     // API
     const base_url = "http://zettel.nicksavage.ca/api"
+    const username = process.env.USERNAME;
+    const password = process.env.PASSWORD;
+    const creds = btoa(`${username}:${password}`);
 
     function fetchCards() {
-	return fetch(base_url + '/cards')
+	return fetch(base_url + '/cards', {headers: {"Authorization": `Basic ${creds}`}})
 	    .then(response => response.json())
 	
     }
@@ -30,7 +34,7 @@ function App() {
 	const url = base_url + `/cards/${encoded}`;
 
 	// Send a GET request to the URL
-	return fetch(url)
+	return fetch(url, {headers: {"Authorization": `Basic ${creds}`}})
 	    .then(response => {
 		// Check if the response is successful (status code in the range 200-299)
 		if (response.ok) {
@@ -62,6 +66,7 @@ function App() {
 	fetch(url, {
 	    method: method,
 	    headers: {
+		"Authorization": `Basic ${creds}`,
 		'Content-Type': 'application/json',
 		        
 	    },
@@ -94,11 +99,11 @@ function App() {
     }
     
     function handleFilter(e) {
-	setFilter(e.target.value);
+	let filter = e.target.value;
+	setFilter(filter);
 	  
-	const filteredCards = mainCards.filter(
+	const filteredCards = unfilteredSidebarCards.filter(
 	    card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
-	    
 	);
 	setSidebarCards(filteredCards);
     }
@@ -183,34 +188,39 @@ function App() {
 	setFilter('');
 	const workCards = cards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP')).filter(card => !card.card_id.includes('/'));
 	setSidebarCards(workCards);
+	setUnfilteredSidebarCards(workCards);
     }
     
     function handleReferenceClick() {
 	setFilter('');
 	const referenceCards = cards.filter(card => card.card_id.startsWith('REF'));
 	setSidebarCards(referenceCards);
+	setUnfilteredSidebarCards(referenceCards);
     }
     function handleMeetingClick() {
 	setFilter('');
 	const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
 	setSidebarCards(meetingCards);
+	setUnfilteredSidebarCards(meetingCards);
     }
     function handleReadClick() {
 	setFilter('');
 	const readCards = cards.filter(card => card.card_id.startsWith('READ'));
 	setSidebarCards(readCards);
+	setUnfilteredSidebarCards(readCards);
     }
 
     function handleAllClick() {
 	setFilter('');
 	setSidebarCards(mainCards);
+	setUnfilteredSidebarCards(mainCards);
     }
 
     function handleUnsortedClick() {
 	setFilter('');
 	const unsortedCards = cards.filter(card => card.card_id === "");
 	setSidebarCards(unsortedCards);
-
+	setUnfilteredSidebarCards(unsortedCards);
     }
     function handleOpenSearch() {
 	setSearchCard(true);
@@ -295,7 +305,9 @@ function App() {
 		return filtered
 	    })
 	    .then(data => {
-		setSidebarCards(data)});
+		setSidebarCards(data);
+		setUnfilteredSidebarCards(data);
+	    });
 	
     }, []);
 
