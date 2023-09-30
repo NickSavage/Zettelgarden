@@ -5,13 +5,14 @@ import './App.css';
 function App() {
     const [error, setError] = useState("");
     const [cards, setCards] = useState([]);
+    const [mainCards, setMainCards] = useState([]);
+    const [sidebarCards, setSidebarCards] = useState([]);
     const [newCard, setNewCard]= useState(null);
     const [viewingCard, setViewingCard] = useState(null);
     const [parentCard, setParentCard] = useState(null);
     const [editingCard, setEditingCard] = useState(null);
     const [searchCard, setSearchCard] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
     const [filter, setFilter] = useState('');
     const [viewReference, setViewReference] = useState(false);
     const [viewMeeting, setViewMeeting] = useState(false);
@@ -102,6 +103,11 @@ function App() {
     function handleFilter(e) {
 	setFilter(e.target.value);
 	  
+	const filteredCards = mainCards.filter(
+	    card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
+	    
+	);
+	setSidebarCards(filteredCards);
     }
     function handleSearch(e) {
 	setSearchTerm(e.target.value);
@@ -150,6 +156,8 @@ function App() {
 	setViewMeeting(false);
 	setViewRead(false);
 	setFilter('');
+	const workCards = cards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP')).filter(card => !card.card_id.includes('/'));
+	setSidebarCards(workCards);
     }
     
     function handleReferenceClick() {
@@ -159,6 +167,8 @@ function App() {
 	setViewMeeting(false);
 	setViewRead(false);
 	setFilter('');
+	const referenceCards = cards.filter(card => card.card_id.startsWith('REF'));
+	setSidebarCards(referenceCards);
     }
     function handleMeetingClick() {
 	setViewUnsorted(false);
@@ -167,6 +177,8 @@ function App() {
 	setViewMeeting(true);
 	setViewRead(false);
 	setFilter('');
+	const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
+	setSidebarCards(meetingCards);
     }
     function handleReadClick() {
 	setViewUnsorted(false);
@@ -175,7 +187,10 @@ function App() {
 	setViewMeeting(false);
 	setViewRead(true);
 	setFilter('');
+	const readCards = cards.filter(card => card.card_id.startsWith('READ'));
+	setSidebarCards(readCards);
     }
+
     function handleAllClick() {
 	setViewUnsorted(false);
 	setViewWork(false);
@@ -183,7 +198,9 @@ function App() {
 	setViewMeeting(false);
 	setViewRead(false);
 	setFilter('');
+	setSidebarCards(mainCards);
     }
+
     function handleUnsortedClick() {
 	setViewUnsorted(true);
 	setViewWork(false);
@@ -191,6 +208,9 @@ function App() {
 	setViewMeeting(false);
 	setViewRead(false);
 	setFilter('');
+	const unsortedCards = cards.filter(card => card.card_id === "");
+	setSidebarCards(unsortedCards);
+
     }
     function handleOpenSearch() {
 	setSearchCard(true);
@@ -212,7 +232,6 @@ function App() {
     }
     async function handleSidebarCardClick(card) {
 	// Call getCard with the card's id and then call handleViewCard with the fetched cardData
-	console.log(card)
 	if ('id' in card.parent) {
 	    let parentCardId = card.parent.id;
 	    const parentCard = await getCard(parentCardId);
@@ -242,7 +261,6 @@ function App() {
 	    else if (part && part.startsWith("[") && part.endsWith("]")) {
 		const cardId = part.substring(1, part.length - 1);
 		const id = getIdByCardId(cardId)
-		console.log(cardId);
 		return (
 		        <a
 		    key={i}
@@ -266,51 +284,27 @@ function App() {
 
     useEffect(() => {
 	fetchCards()
-	    .then(data => setCards(data));
+	    .then(data => {
+		setCards(data);
+	    	let filtered = data.filter(card => !card.card_id.includes('/'))
+		    .filter(card => !card.card_id.startsWith('REF'))
+		    .filter(card => !card.card_id.startsWith('SP'))
+		    .filter(card => !card.card_id.startsWith('SM'))
+		    .filter(card => !card.card_id.startsWith('READ'));
+		setMainCards(filtered);
+		return filtered
+	    })
+	    .then(data => {
+		setSidebarCards(data)});
+	
     }, []);
-
-    
-    const mainCards = cards
-	  .filter(card => !card.card_id.includes('/'))
-	  .filter(card => !card.card_id.startsWith('REF'))
-	  .filter(card => !card.card_id.startsWith('SP'))
-	  .filter(card => !card.card_id.startsWith('SM'))
-	  .filter(card => !card.card_id.startsWith('READ'));
-
-    const filteredCards = mainCards.filter(
-	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
-	  
-    );
-    const referenceCards = cards.filter(card => card.card_id.startsWith('REF'));
-    const filteredReference = referenceCards.filter(
-	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
-    );
-    const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
-    const filteredMeeting = meetingCards.filter(
-	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
-    );
-    
-    const readCards = cards.filter(card => card.card_id.startsWith('READ'));
-    const filteredRead = readCards.filter(
-	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
-    );
-
-    const workCards = cards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP')).filter(card => !card.card_id.includes('/'));
-    const filteredWork = workCards.filter(
-	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
-    );
-
-    const unsortedCards = cards.filter(card => card.card_id === "");
-    const filteredUnsorted = unsortedCards.filter(
-	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
-    );
 
     return (
 	<div>
 	    <div className="sidebar" style={{ width: '20%', float: 'left', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
-		<button class="sidebar-button" onClick={handleNewCard}>New Card</button>
+		<button className="sidebar-button" onClick={handleNewCard}>New Card</button>
 		<input type="text" value={filter} onChange={handleFilter} placeholder="Filter" />
-		<button class="icon-button" onClick={handleOpenSearch}>Search</button>
+		<button className="icon-button" onClick={handleOpenSearch}>Search</button>
 		<select onChange={handleSelectChange}>
 		    <option value="all">All Cards</option>
 		    <option value="meeting">Meeting Cards</option>
@@ -319,85 +313,17 @@ function App() {
 		    <option value="unsorted">Unsorted Cards</option>
 		    <option value="work">Work Cards</option>
 		</select>
-		<div class="scroll-cards">
-		    {viewReference && (
-			<div>
-			    {filteredReference.map(card => (
-				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
-				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.card_id}
-				    </span>			    
-				    : {card.title}
-				</div>
-			    ))}
-			</div>
-			
-		    )}
-		    {viewMeeting && (
-			<div>
-			    {filteredMeeting.map(card => (
-				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
-				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.card_id}
-				    </span>			    
-				    : {card.title}
-				</div>
-			    ))}
-			</div>
-			
-		    )}
-		    {viewRead && (
-			<div>
-			    {filteredRead.map(card => (
-				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
-				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.card_id}
-				    </span>			    
-				    : {card.title}
-				</div>
-			    ))}
-			</div>
-			
-		    )}
-		    {viewWork && (
-			<div>
-			    {filteredWork.map(card => (
-				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
-				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.card_id}
-				    </span>			    
-				    : {card.title}
-				</div>
-			    ))}
-			</div>
-			
-		    )}
-		    {viewUnsorted && (
-			<div>
-			    {filteredUnsorted.map(card => (
-				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
-				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.card_id}
-				    </span>			    
-				    : {card.title}
-				</div>
-			    ))}
-			</div>
-			
-		    )}
-		    {!viewReference && !viewMeeting && !viewRead && !viewWork && !viewUnsorted && (
-			<div>
-			    {filteredCards.map(card => (
-				<div key={card.card_id} onClick={() => handleSidebarCardClick(card)}>
-				    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					{card.card_id}
-				    </span>			    
-				    : {card.title}
-				</div>
-				
-			    ))}
-			</div>
-		    )}
+		<div className="scroll-cards">
+		    <div>
+			{sidebarCards.map(card => (
+			    <div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+				<span style={{ color: 'blue', fontWeight: 'bold' }}>
+				    {card.card_id}
+				</span>			    
+				: {card.title}
+			    </div>
+			))}
+		    </div>
 		</div>
 	    </div>
 	    <div className="main-content" style={{ width: '80%', float: 'left', padding: '20px', height: '100vh' }}>
@@ -417,7 +343,6 @@ function App() {
 			    onChange={handleSearch}
 			/>
 			<button onClick={handleSaveCard}>Search</button>
-			{searchResults && (
 			<ul>
 			    {cards.filter(card => card.title.toLowerCase().includes(searchTerm) || card.body.toLowerCase().includes(searchTerm))
 			     .map((card, index) => (
@@ -438,7 +363,6 @@ function App() {
 				 </li>
 			     ))}
 			</ul>
-			)}
 		    </div>
 		)}
 		{viewingCard && (
