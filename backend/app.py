@@ -9,7 +9,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # Database setup
-DB_FILE = "zettelkasten.db"
+DB_FILE = "/opt/zettelkasten.db"
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cur = conn.cursor()
 cur.execute(
