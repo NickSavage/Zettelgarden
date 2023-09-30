@@ -16,7 +16,7 @@ function App() {
     const [filter, setFilter] = useState('');
 
     // API
-    const base_url = "http://192.168.0.72:5000"
+    const base_url = "http:/zettel.nicksavage.ca"
 
     function fetchCards() {
 	return fetch(base_url + '/cards')
