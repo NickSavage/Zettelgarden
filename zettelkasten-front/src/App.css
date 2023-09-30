@@ -28,7 +28,16 @@
     
 }
 
-.sidebar button {
+.icon-button {
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 20px;
+    
+}
+
+.sidebar-button {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
@@ -38,11 +47,10 @@
 }
 
 .sidebar input {
-    width: calc(100% - 40px);
+    width: 60%;
     padding: 10px;
     margin-bottom: 20px;
     font-size: 16px;
-    
 }
 
 .sidebar div {
@@ -88,7 +96,7 @@ option {
 .main-content {
     flex-grow: 1;
     padding: 20px;
-    overflow: hidden;
+    overflow: auto;
     float: 'left';
     height: 100vh;
     

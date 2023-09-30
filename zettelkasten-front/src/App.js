@@ -9,25 +9,31 @@ function App() {
     const [viewingCard, setViewingCard] = useState(null);
     const [parentCard, setParentCard] = useState(null);
     const [editingCard, setEditingCard] = useState(null);
-    const [search, setSearch] = useState('');
+    const [searchCard, setSearchCard] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [filter, setFilter] = useState('');
     const [viewReference, setViewReference] = useState(false);
     const [viewMeeting, setViewMeeting] = useState(false);
     const [viewRead, setViewRead] = useState(false);
     const [viewWork, setViewWork] = useState(false);
     const [viewUnsorted, setViewUnsorted] = useState(false);
 
-    useEffect(() => {
-	fetch('http://192.168.0.72:5000/cards')
+
+
+    // API
+    const base_url = "http://192.168.0.72:5000"
+
+    function fetchCards() {
+	return fetch(base_url + '/cards')
 	    .then(response => response.json())
-	    .then(data => setCards(data));
-    }, []);
+	
+    }
 
     function getCard(id) {
 	// Assuming your backend is running on the same IP and port as in previous example
 	let encoded = encodeURIComponent(id)
-	console.log(encoded)
-	const url = `http://192.168.0.72:5000/cards/${encoded}`;
-	console.log(url)
+	const url = base_url + `/cards/${encoded}`;
 
 	// Send a GET request to the URL
 	return fetch(url)
@@ -50,15 +56,62 @@ function App() {
 	
     }
 
-    function handleSearch(e) {
-	setSearch(e.target.value);
+    async function handleSaveCard() {
+	const url = newCard ?
+	      base_url + `/cards`:
+	      base_url + `/cards/${encodeURIComponent(editingCard.id)}` ;
+	const method = newCard ? 'POST' : 'PUT';
+
+	let card = editingCard;
+	let id = card.id
+
+	fetch(url, {
+	    method: method,
+	    headers: {
+		'Content-Type': 'application/json',
+		        
+	    },
+	    body: JSON.stringify(card),
+	        
+	})
+	    .then(response => response.json())
+	    .then(response => {
+		if (!("error" in response)) {
+		    setEditingCard(null);
+		    setNewCard(null);
+		} else {
+		    setError(response["error"]);
+		}
+		fetchCards()
+		    .then(data => setCards(data));
+	    });
+	card = await getCard(id);
+	setViewingCard(card);
+	
+	
+    }
+
+    // helper
+
+    function getIdByCardId(targetCardId) {
+	const foundCard = cards.find(card => card.card_id === targetCardId);
+	return foundCard ? foundCard.id : null;
+	
+    }
+    
+    function handleFilter(e) {
+	setFilter(e.target.value);
 	  
+    }
+    function handleSearch(e) {
+	setSearchTerm(e.target.value);
     }
 
     function handleNewCard() {
 	setNewCard(true);
 	setEditingCard({ card_id: '', title: '', body: '' });
 	setViewingCard(null);
+	setSearchCard(null);
 	  
     }
 
@@ -66,6 +119,7 @@ function App() {
 	setError(null);
 	setViewingCard(card);
 	setEditingCard(null);
+	setSearchCard(null);
     }
 
     const handleSelectChange = (event) => {
@@ -95,7 +149,7 @@ function App() {
 	setViewReference(false);
 	setViewMeeting(false);
 	setViewRead(false);
-	setSearch('');
+	setFilter('');
     }
     
     function handleReferenceClick() {
@@ -104,7 +158,7 @@ function App() {
 	setViewReference(true);
 	setViewMeeting(false);
 	setViewRead(false);
-	setSearch('');
+	setFilter('');
     }
     function handleMeetingClick() {
 	setViewUnsorted(false);
@@ -112,7 +166,7 @@ function App() {
 	setViewReference(false);
 	setViewMeeting(true);
 	setViewRead(false);
-	setSearch('');
+	setFilter('');
     }
     function handleReadClick() {
 	setViewUnsorted(false);
@@ -120,7 +174,7 @@ function App() {
 	setViewReference(false);
 	setViewMeeting(false);
 	setViewRead(true);
-	setSearch('');
+	setFilter('');
     }
     function handleAllClick() {
 	setViewUnsorted(false);
@@ -128,7 +182,7 @@ function App() {
 	setViewReference(false);
 	setViewMeeting(false);
 	setViewRead(false);
-	setSearch('');
+	setFilter('');
     }
     function handleUnsortedClick() {
 	setViewUnsorted(true);
@@ -136,21 +190,31 @@ function App() {
 	setViewReference(false);
 	setViewMeeting(false);
 	setViewRead(false);
-	setSearch('');
+	setFilter('');
+    }
+    function handleOpenSearch() {
+	setSearchCard(true);
+	setViewingCard(null);
+	setEditingCard(null);
     }
     
     async function handleViewBacklink(backlink) {
 	// Assuming backlink is an object with id and title, you can just use the id to view the card.
-	const parentId = backlink.target_id.split('/')[0];
-	const parentCard = await getCard(parentId);
-	setParentCard(parentCard);
-	const cardData = await getCard(backlink.target_id)
+	const cardData = await getCard(backlink.id)
+	if ('id' in cardData.parent) {
+	    let parentCardId = cardData.parent.id;
+	    const parentCard = await getCard(parentCardId);
+	    setParentCard(parentCard);
+	} else {
+	    setParentCard(null);
+	}
 	handleViewCard(cardData);
     }
     async function handleSidebarCardClick(card) {
 	// Call getCard with the card's id and then call handleViewCard with the fetched cardData
-	const parentCardId = card.card_id.split('/')[0];
-	if (parentCardId !== "") {
+	console.log(card)
+	if ('id' in card.parent) {
+	    let parentCardId = card.parent.id;
 	    const parentCard = await getCard(parentCardId);
 	    setParentCard(parentCard);
 	} else {
@@ -165,43 +229,6 @@ function App() {
 	setViewingCard(null);
     }
 
-    async function handleSaveCard() {
-	const url = newCard ?
-	      `http://192.168.0.72:5000/cards`:
-	      `http://192.168.0.72:5000/cards/${encodeURIComponent(editingCard.id)}` ;
-	const method = newCard ? 'POST' : 'PUT';
-
-	let card = editingCard;
-	let id = card.id
-
-	fetch(url, {
-	    method: method,
-	    headers: {
-		'Content-Type': 'application/json',
-		        
-	    },
-	    body: JSON.stringify(card),
-	        
-	})
-	    .then(response => response.json())
-	    .then(response => {
-		console.log(response)
-		if (!("error" in response)) {
-		    setEditingCard(null);
-		    setNewCard(null);
-		} else {
-		    setError(response["error"]);
-		}
-		fetch('http://192.168.0.72:5000/cards')
-		    .then(response => response.json())
-		    .then(data => setCards(data));
-	    });
-	card = await getCard(id);
-	console.log(card)
-	setViewingCard(card);
-	
-	
-    }
 
     function renderCardText(body) {
 	const parts = body.split(/(\[[A-Za-z0-9_.-/]+\])|(\n)/);
@@ -214,13 +241,15 @@ function App() {
 	    // If part is a bracketed word, render a link
 	    else if (part && part.startsWith("[") && part.endsWith("]")) {
 		const cardId = part.substring(1, part.length - 1);
+		const id = getIdByCardId(cardId)
+		console.log(cardId);
 		return (
 		        <a
 		    key={i}
 		    href="#"
 		    onClick={(e) => {
 			e.preventDefault();
-			handleViewBacklink({"target_id": cardId
+				handleViewBacklink({"id": id, "card_id": cardId
 					   });
 		    }}
 		    style={{ fontWeight: 'bold', color: 'blue' }}
@@ -234,54 +263,61 @@ function App() {
 	    return part;
 	});
     }
+
+    useEffect(() => {
+	fetchCards()
+	    .then(data => setCards(data));
+    }, []);
+
     
-    console.log(cards);
     const mainCards = cards
 	  .filter(card => !card.card_id.includes('/'))
-	  .filter(card => !card.is_reference)
+	  .filter(card => !card.card_id.startsWith('REF'))
+	  .filter(card => !card.card_id.startsWith('SP'))
 	  .filter(card => !card.card_id.startsWith('SM'))
 	  .filter(card => !card.card_id.startsWith('READ'));
+
     const filteredCards = mainCards.filter(
-	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
 	  
     );
-    const referenceCards = cards.filter(card => card.is_reference);
+    const referenceCards = cards.filter(card => card.card_id.startsWith('REF'));
     const filteredReference = referenceCards.filter(
-	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
     );
     const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
     const filteredMeeting = meetingCards.filter(
-	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
     );
     
     const readCards = cards.filter(card => card.card_id.startsWith('READ'));
     const filteredRead = readCards.filter(
-	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
     );
 
-    const workCards = mainCards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP'));
+    const workCards = cards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP')).filter(card => !card.card_id.includes('/'));
     const filteredWork = workCards.filter(
-	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
     );
 
-    const unsortedCards = mainCards.filter(card => card.card_id === "");
+    const unsortedCards = cards.filter(card => card.card_id === "");
     const filteredUnsorted = unsortedCards.filter(
-	card => card.card_id.toLowerCase().includes(search) || card.title.toLowerCase().includes(search)
+	card => card.card_id.toLowerCase().includes(filter) || card.title.toLowerCase().includes(filter)
     );
-    console.log(unsortedCards);
 
     return (
 	<div>
 	    <div className="sidebar" style={{ width: '20%', float: 'left', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
-		<button onClick={handleNewCard}>New Card</button>
-		<input type="text" value={search} onChange={handleSearch} placeholder="Search" />
+		<button class="sidebar-button" onClick={handleNewCard}>New Card</button>
+		<input type="text" value={filter} onChange={handleFilter} placeholder="Filter" />
+		<button class="icon-button" onClick={handleOpenSearch}>Search</button>
 		<select onChange={handleSelectChange}>
-		    <option value="reference">Reference Cards</option>
+		    <option value="all">All Cards</option>
 		    <option value="meeting">Meeting Cards</option>
 		    <option value="read">Read Cards</option>
-		    <option value="work">Work Cards</option>
+		    <option value="reference">Reference Cards</option>
 		    <option value="unsorted">Unsorted Cards</option>
-		    <option value="all">All Cards</option>
+		    <option value="work">Work Cards</option>
 		</select>
 		<div class="scroll-cards">
 		    {viewReference && (
@@ -370,6 +406,41 @@ function App() {
 			<p>Error: {error}</p>
 		    </div>
 		)}
+		{searchCard && (
+		    <div>
+			<input
+			    style={{ display: 'block', width: '100%', marginBottom: '10px' }} // Updated style here
+			    type="text"
+			    id="title"
+			    value={searchTerm}
+			    placeholder="Search"
+			    onChange={handleSearch}
+			/>
+			<button onClick={handleSaveCard}>Search</button>
+			{searchResults && (
+			<ul>
+			    {cards.filter(card => card.title.toLowerCase().includes(searchTerm) || card.body.toLowerCase().includes(searchTerm))
+			     .map((card, index) => (
+				 
+				 <li key={index} style={{ marginBottom: '10px' }}>
+				     <a
+					 href="#"
+					 onClick={(e) => {
+					     e.preventDefault();
+					 }}
+					 style={{ color: 'black', textDecoration: 'none' }}
+				     >
+					 <span style={{ color: 'blue', fontWeight: 'bold' }}>
+					     {card.card_id}
+					 </span>: {card.title}<br /><br />
+					 <span>{card.body}</span>
+				     </a>
+				 </li>
+			     ))}
+			</ul>
+			)}
+		    </div>
+		)}
 		{viewingCard && (
 		    <div>
 			<h2 style={{ marginBottom: '10px' }}>
@@ -416,7 +487,7 @@ function App() {
 					style={{ color: 'black', textDecoration: 'none' }}
 				    >
 					<span style={{ color: 'blue', fontWeight: 'bold' }}>
-					    {parentCard.id}
+					    {parentCard.card_id}
 					</span>: {parentCard.title}
 				    </a>
 				</li>
@@ -425,7 +496,6 @@ function App() {
 			)}
 			<h4>Backlinks:</h4>
 			<ul>
-			    {console.log(viewingCard)}
 			    {viewingCard.backlinks.map((backlink, index) => (
 				<li key={index} style={{ marginBottom: '10px' }}>
 				    <a
@@ -438,7 +508,7 @@ function App() {
 					style={{ color: 'black', textDecoration: 'none' }}
 				    >
 					<span style={{ color: 'blue', fontWeight: 'bold' }}>
-					    {backlink.target_id}
+					    {backlink.card_id}
 					</span>: {backlink.title}
 				    </a>
 				</li>
@@ -448,7 +518,7 @@ function App() {
 			<button onClick={handleEditCard}>Edit</button>
 			 <h4>Children:</h4>
 			<ul>
-			    {cards.filter(card => card.card_id.startsWith(`${viewingCard.id}/`)).map((childCard, index) => (
+			    {cards.filter(card => card.card_id.startsWith(`${viewingCard.card_id}/`) || card.card_id.startsWith(`${viewingCard.card_id}.`)).map((childCard, index) => (
 				<li key={index} style={{ marginBottom: '10px' }}>
 				    <a
 					href="#"
@@ -459,7 +529,7 @@ function App() {
 					style={{ color: 'black', textDecoration: 'none' }}
 				    >
 					<span style={{ color: 'blue', fontWeight: 'bold' }}>
-					    {childCard.id}
+					    {childCard.card_id}
 					</span>: {childCard.title}
 				    </a>
 				</li>
