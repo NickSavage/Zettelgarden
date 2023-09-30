@@ -14,13 +14,6 @@ function App() {
     const [searchCard, setSearchCard] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('');
-    const [viewReference, setViewReference] = useState(false);
-    const [viewMeeting, setViewMeeting] = useState(false);
-    const [viewRead, setViewRead] = useState(false);
-    const [viewWork, setViewWork] = useState(false);
-    const [viewUnsorted, setViewUnsorted] = useState(false);
-
-
 
     // API
     const base_url = "http://192.168.0.72:5000"
@@ -128,6 +121,43 @@ function App() {
 	setSearchCard(null);
     }
 
+    const handleSortChange = (event) => {
+	const value = event.target.value;
+	let temp = [...sidebarCards];
+	if (value === "sortBigSmall" || value === "sortSmallBig") {
+	    temp.sort((a, b) => {
+		const partsA = a.card_id.match(/\D+|\d+/g) || [];
+		const partsB = b.card_id.match(/\D+|\d+/g) || [];
+		for (let i = 0; i < Math.min(partsA.length, partsB.length); i++) {
+		    if (isNaN(partsA[i]) || isNaN(partsB[i])) {
+			// Compare non-numeric parts lexicographically
+			const comparison = partsA[i].localeCompare(partsB[i]);
+			if (comparison !== 0) return value === "sortBigSmall" ? comparison : -comparison;
+		    } else {
+			// Compare numeric parts numerically
+			const comparison = parseInt(partsA[i]) - parseInt(partsB[i]);
+			if (comparison !== 0) return value === "sortBigSmall" ? comparison : -comparison;
+		    }
+		}
+		return (value === "sortBigSmall" ? 1 : -1) * (partsA.length - partsB.length);
+	    });
+	}
+	else if (value === "sortNewOld") {
+	    temp.sort((a, b) => {
+		return new Date(b.updated_at) - new Date(a.updated_at);
+	    });
+	} else if (value === "sortOldNew") {
+	    temp.sort((a, b) => {
+		return new Date(a.updated_at) - new Date(b.updated_at);
+	    });
+	    
+	} else {
+	    
+	}
+	console.log(temp);
+	setSidebarCards(temp);
+    }
+    
     const handleSelectChange = (event) => {
 	const value = event.target.value;
 	if (value === "reference") {
@@ -150,63 +180,33 @@ function App() {
     }
 
     function handleWorkClick() {
-	setViewUnsorted(false);
-	setViewWork(true);
-	setViewReference(false);
-	setViewMeeting(false);
-	setViewRead(false);
 	setFilter('');
 	const workCards = cards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP')).filter(card => !card.card_id.includes('/'));
 	setSidebarCards(workCards);
     }
     
     function handleReferenceClick() {
-	setViewUnsorted(false);
-	setViewWork(false);
-	setViewReference(true);
-	setViewMeeting(false);
-	setViewRead(false);
 	setFilter('');
 	const referenceCards = cards.filter(card => card.card_id.startsWith('REF'));
 	setSidebarCards(referenceCards);
     }
     function handleMeetingClick() {
-	setViewUnsorted(false);
-	setViewWork(false);
-	setViewReference(false);
-	setViewMeeting(true);
-	setViewRead(false);
 	setFilter('');
 	const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
 	setSidebarCards(meetingCards);
     }
     function handleReadClick() {
-	setViewUnsorted(false);
-	setViewWork(false);
-	setViewReference(false);
-	setViewMeeting(false);
-	setViewRead(true);
 	setFilter('');
 	const readCards = cards.filter(card => card.card_id.startsWith('READ'));
 	setSidebarCards(readCards);
     }
 
     function handleAllClick() {
-	setViewUnsorted(false);
-	setViewWork(false);
-	setViewReference(false);
-	setViewMeeting(false);
-	setViewRead(false);
 	setFilter('');
 	setSidebarCards(mainCards);
     }
 
     function handleUnsortedClick() {
-	setViewUnsorted(true);
-	setViewWork(false);
-	setViewReference(false);
-	setViewMeeting(false);
-	setViewRead(false);
 	setFilter('');
 	const unsortedCards = cards.filter(card => card.card_id === "");
 	setSidebarCards(unsortedCards);
@@ -312,6 +312,12 @@ function App() {
 		    <option value="reference">Reference Cards</option>
 		    <option value="unsorted">Unsorted Cards</option>
 		    <option value="work">Work Cards</option>
+		</select>
+		<select onChange={handleSortChange}>
+		    <option value="sortBigSmall">Sort Small to Big</option>
+		    <option value="sortSmallBig">Sort Big to Small</option>
+		    <option value="sortNewOld">Sort New to Old</option>
+		    <option value="sortOldNew">Sort Old to New</option>
 		</select>
 		<div className="scroll-cards">
 		    <div>
