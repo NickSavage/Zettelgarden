@@ -18,8 +18,8 @@ function App() {
 
     // API
     const base_url = "http://zettel.nicksavage.ca/api"
-    const username = process.env.USERNAME;
-    const password = process.env.PASSWORD;
+    const username = process.env.REACT_APP_USERNAME;
+    const password = process.env.REACT_APP_PASSWORD;
     const creds = btoa(`${username}:${password}`);
 
     function fetchCards() {
