@@ -172,14 +172,14 @@ def get_parent(card_id: str) -> dict:
     result = query_partial_card(card_id)
     return result
 
-@app.route('/cards', methods=['GET'])
+@app.route('/api/cards', methods=['GET'])
 def get_cards():
     results = query_all_full_cards()
     results = sorted(results, key=lambda x: sort_ids(x["card_id"]), reverse=True)
     return jsonify(results)
 
 
-@app.route('/cards', methods=['POST'])
+@app.route('/api/cards', methods=['POST'])
 def create_card():
     cur = conn.cursor()
     title = request.json.get("title")
@@ -211,14 +211,14 @@ def create_card():
     return jsonify({"card_id":card_id, "title": title, "body": body})
                                                         
 
-@app.route('/cards/<path:id>', methods=['GET'])
+@app.route('/api/cards/<path:id>', methods=['GET'])
 def get_card(id):
     id = unquote(id)
     card = query_full_card(id)
     return jsonify(card)
 
 
-@app.route('/cards/<path:id>', methods=['PUT'])
+@app.route('/api/cards/<path:id>', methods=['PUT'])
 def update_card(id):
     cur = conn.cursor()
     title = request.json.get("title")
