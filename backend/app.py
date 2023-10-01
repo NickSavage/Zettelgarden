@@ -138,14 +138,14 @@ def get_backlinks(card_id):
     cur.close()
     return backlinks
 
-def update_backlinks(id, backlinks):
-    print(id, backlinks)
+def update_backlinks(card_id, backlinks):
+    print(card_id, backlinks)
     cur = conn.cursor()
     # Delete existing backlinks for the card
-    cur.execute("DELETE FROM backlinks WHERE source_id = ?;", (id,))
+    cur.execute("DELETE FROM backlinks WHERE source_id = ?;", (card_id,))
     # Insert new backlinks
     for target_id in backlinks:
-        cur.execute("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'));", (id, target_id))
+        cur.execute("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'));", (card_id, target_id))
         conn.commit()
     cur.close()
 
@@ -237,8 +237,7 @@ def update_card(id):
     
     # Update backlinks
     backlinks = extract_backlinks(body)
-    print(backlinks)
-    update_backlinks(id, backlinks)
+    update_backlinks(card_id, backlinks)
     
     cur.close()
     return jsonify({"id": id, "card_id": card_id, "title": title, "body": body, "is_reference": is_reference, "link": link})
