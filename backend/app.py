@@ -200,6 +200,7 @@ def create_card():
     try:
         cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'));", (card_id, title, body, is_reference, link))
         conn.commit()
+        new_id = cur.lastrowid
     except sqlite3.IntegrityError:
         return jsonify({"error": "id already used"})
 
@@ -208,7 +209,8 @@ def create_card():
     update_backlinks(card_id, backlinks)
     cur.close()
     
-    return jsonify({"card_id":card_id, "title": title, "body": body})
+    result = query_full_card(new_id)
+    return jsonify(result)
                                                         
 
 @app.route('/api/cards/<path:id>', methods=['GET'])
@@ -240,7 +242,7 @@ def update_card(id):
     update_backlinks(card_id, backlinks)
     
     cur.close()
-    return jsonify({"id": id, "card_id": card_id, "title": title, "body": body, "is_reference": is_reference, "link": link})
+    return jsonify(query_full_card(id))
 
 
 if __name__ == "__main__":

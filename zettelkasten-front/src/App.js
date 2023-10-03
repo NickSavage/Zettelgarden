@@ -78,16 +78,13 @@ function App() {
 		if (!("error" in response)) {
 		    setEditingCard(null);
 		    setNewCard(null);
+		    setViewingCard(response);
 		} else {
 		    setError(response["error"]);
 		}
 		fetchCards()
-		    .then(data => setCards(data));
+		    .then(data => {setCards(data); return data})
 	    });
-	card = await getCard(id);
-	setViewingCard(card);
-	
-	
     }
 
     // helper
@@ -391,7 +388,7 @@ function App() {
 				{viewingCard.card_id} 
 			    </span>
 			    <span>
-				{viewingCard.title}
+				: {viewingCard.title}
 			    </span>
 			</h2>
 			<hr />
