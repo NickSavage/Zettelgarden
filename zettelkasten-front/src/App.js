@@ -370,6 +370,7 @@ function App() {
 					 href="#"
 					 onClick={(e) => {
 					     e.preventDefault();
+					     handleViewCard(card);
 					 }}
 					 style={{ color: 'black', textDecoration: 'none' }}
 				     >
