@@ -95,7 +95,6 @@ def serialize_partial_card(card) -> dict:
     return card
 
 def query_full_card(id) -> dict:
-    print(id)
     cur = conn.cursor()
     cur.execute(full_card_query + " WHERE id = %s;", (id,))
     card = cur.fetchone()
@@ -149,7 +148,6 @@ def get_backlinks(card_id):
     return backlinks
 
 def update_backlinks(card_id, backlinks):
-    print(card_id, backlinks)
     cur = conn.cursor()
     # Delete existing backlinks for the card
     cur.execute("DELETE FROM backlinks WHERE source_id = %s;", (card_id,))
@@ -171,7 +169,6 @@ def check_is_card_id_unique(card_id: str) -> bool:
     cur.execute("SELECT card_id FROM cards;")
     ids = cur.fetchall()
     for id in ids:
-        print(id)
         if card_id == id[0]:
             return False
     return True
@@ -211,7 +208,8 @@ def create_card():
         cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, datetime('now'), datetime('now'));", (card_id, title, body, is_reference, link))
         conn.commit()
         new_id = cur.lastrowid
-    except Exception:
+    except Exception as e:
+        print(e)
         conn.rollback()
         return jsonify({"error": "id already used"})
 
