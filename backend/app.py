@@ -153,7 +153,7 @@ def update_backlinks(card_id, backlinks):
     cur.execute("DELETE FROM backlinks WHERE source_id = %s;", (card_id,))
     # Insert new backlinks
     for target_id in backlinks:
-        cur.execute("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES (%s, %s, datetime('now'), datetime('now'));", (card_id, target_id))
+        cur.execute("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES (%s, %s, NOW(), NOW());", (card_id, target_id))
         conn.commit()
     cur.close()
 
@@ -205,7 +205,7 @@ def create_card():
     
     # Insert card into database
     try:
-        cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, datetime('now'), datetime('now'));", (card_id, title, body, is_reference, link))
+        cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW());", (card_id, title, body, is_reference, link))
         conn.commit()
         new_id = cur.lastrowid
     except Exception as e:
@@ -243,7 +243,7 @@ def update_card(id):
     link = request.json.get("link")
     
     # Update card in database
-    cur.execute("UPDATE cards SET title = %s, body = %s, is_reference = %s, link = %s, updated_at = datetime('now'), card_id = %s WHERE id = %s;", (title, body, is_reference, link, card_id, id))
+    cur.execute("UPDATE cards SET title = %s, body = %s, is_reference = %s, link = %s, updated_at = NOW(), card_id = %s WHERE id = %s;", (title, body, is_reference, link, card_id, id))
     conn.commit()
     
     # Update backlinks
