@@ -212,6 +212,7 @@ def create_card():
         conn.commit()
         new_id = cur.lastrowid
     except Exception:
+        conn.rollback()
         return jsonify({"error": "id already used"})
 
     # Update backlinks
