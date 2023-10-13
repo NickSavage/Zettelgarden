@@ -1,28 +1,37 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from urllib.parse import unquote
-import sqlite3
+import psycopg2
+import os
 import re
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-
 # Database setup
-DB_FILE = "/opt/zettelkasten.db"
-conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+DB_FILE = "zettelkasten.db"
+
+conn = psycopg2.connect(
+    dbname=os.getenv('DB_NAME'),
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASS'),
+    host=os.getenv('DB_HOST'),
+    port=os.getenv('DB_PORT'),
+    options='-c client_encoding=UTF8'
+)
+
 cur = conn.cursor()
 cur.execute(
         """
             CREATE TABLE IF NOT EXISTS cards (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 card_id TEXT,
                 title TEXT,
                 body TEXT,
                 is_reference INT DEFAULT 0,
                 link TEXT,
-                created_at TEXT,
-                updated_at TEXT
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP
         );
             """
     )
@@ -31,8 +40,8 @@ cur.execute(
             CREATE TABLE IF NOT EXISTS backlinks (
                 source_id TEXT,
                 target_id TEXT,
-                created_at TEXT,
-                updated_at TEXT,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP,
                 FOREIGN KEY (source_id) REFERENCES cards (card_id),
                 FOREIGN KEY (target_id) REFERENCES cards (card_id)
             
@@ -42,11 +51,11 @@ cur.execute(
 cur.execute(
         """
             CREATE TABLE IF NOT EXISTS unsorted_cards (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 title TEXT,
                 body TEXT,
-                created_at TEXT,
-                updated_at TEXT
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP
             
         );
             """
@@ -88,7 +97,7 @@ def serialize_partial_card(card) -> dict:
 def query_full_card(id) -> dict:
     print(id)
     cur = conn.cursor()
-    cur.execute(full_card_query + " WHERE id = ?;", (id,))
+    cur.execute(full_card_query + " WHERE id = %s;", (id,))
     card = cur.fetchone()
     if card:
         card = serialize_full_card(card)
@@ -105,6 +114,7 @@ def query_all_full_cards() -> list:
         results.append(card)
     cur.close()
     return results
+    
     
 def query_partial_card(card_id) -> dict:
     cur = conn.cursor()
@@ -133,7 +143,7 @@ def sort_ids(id):
 
 def get_backlinks(card_id):
     cur = conn.cursor()
-    cur.execute("SELECT cards.id, backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.card_id WHERE target_id = ?;", (card_id,))
+    cur.execute("SELECT cards.id, backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.card_id WHERE target_id = %s;", (card_id,))
     backlinks = [{"id": row[0], "card_id": row[1], "title": row[2]} for row in cur.fetchall()]
     cur.close()
     return backlinks
@@ -201,7 +211,7 @@ def create_card():
         cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'));", (card_id, title, body, is_reference, link))
         conn.commit()
         new_id = cur.lastrowid
-    except sqlite3.IntegrityError:
+    except Exception:
         return jsonify({"error": "id already used"})
 
     # Update backlinks
@@ -234,7 +244,7 @@ def update_card(id):
     link = request.json.get("link")
     
     # Update card in database
-    cur.execute("UPDATE cards SET title = ?, body = ?, is_reference = ?, link = ?, updated_at = datetime('now'), card_id = ? WHERE id = ?;", (title, body, is_reference, link, card_id, id))
+    cur.execute("UPDATE cards SET title = %s, body = %s, is_reference = %s, link = %s, updated_at = datetime('now'), card_id = ? WHERE id = %s;", (title, body, is_reference, link, card_id, id))
     conn.commit()
     
     # Update backlinks

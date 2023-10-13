@@ -17,7 +17,8 @@ function App() {
     const [filter, setFilter] = useState('');
 
     // API
-    const base_url = "http://zettel.nicksavage.ca/api"
+//    const base_url = "http://zettel.nicksavage.ca/api"
+    const base_url = "http://192.168.0.72:5000/api"
     const username = process.env.REACT_APP_USERNAME;
     const password = process.env.REACT_APP_PASSWORD;
     const creds = btoa(`${username}:${password}`);
