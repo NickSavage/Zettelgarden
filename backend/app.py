@@ -41,9 +41,7 @@ cur.execute(
                 source_id TEXT,
                 target_id TEXT,
                 created_at TIMESTAMP,
-                updated_at TIMESTAMP,
-                FOREIGN KEY (source_id) REFERENCES cards (card_id),
-                FOREIGN KEY (target_id) REFERENCES cards (card_id)
+                updated_at TIMESTAMP
             
         );
             """
