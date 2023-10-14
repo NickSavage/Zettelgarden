@@ -203,7 +203,7 @@ def create_card():
     
     # Insert card into database
     try:
-        cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW() RETURNING id);", (card_id, title, body, is_reference, link))
+        cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card_id, title, body, is_reference, link))
         new_id = cur.fetchone()[0]
         conn.commit()
     except Exception as e:
