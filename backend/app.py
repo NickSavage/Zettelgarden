@@ -209,7 +209,7 @@ def create_card():
     except Exception as e:
         print(e)
         conn.rollback()
-        return jsonify({"error": e})
+        return jsonify({"error": str(e)})
 
     # Update backlinks
     backlinks = extract_backlinks(body)
