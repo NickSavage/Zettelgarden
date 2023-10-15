@@ -19,12 +19,12 @@
     width: 20%;
     border-right: 1px solid #ccc;
     padding: 20px;
+    background-color: white;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(0);
     
 }
 .hamburger {
-    font-size: 1.5rem;
-    margin: 1rem;
-    z-index: 2;
     
 }
 
@@ -62,8 +62,45 @@
 
 .sidebar div:hover {
     background-color: #f0f0f0;
-    
 }
+    
+
+
+/* New CSS class to hide the sidebar on mobile */
+ .sidebar-hidden {
+      transform: translateX(-100%);
+     
+}
+
+/* Responsive Design */
+ @media only screen and (max-width: 768px) {
+     .sidebar {
+	 width: 100%;
+	 position: absolute;
+	 top: 0;
+	 left: 0;
+	 
+     }
+     .main-content {
+	 width: 100%;
+	 padding-top: 50px; /* Additional padding at the top to prevent content overlap with the hamburger menu */
+	 
+     }
+}
+
+ /* Hamburger Icon */
+ .hamburger {
+     display: block; /* Show it on mobile */
+     position: fixed;
+     top: 0px;
+     left: 0px;
+     cursor: pointer;
+     font-size: 1.5rem;
+     margin: 0rem;
+     z-index: 2;
+ }
+
+
 /* Dropdown Styles */
 select {
     width: 50%;

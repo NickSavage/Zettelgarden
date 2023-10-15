@@ -15,13 +15,20 @@ function App() {
     const [searchCard, setSearchCard] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('');
+    const [isSidebarHidden, setIsSidebarHidden] = useState(false);
 
     // API
-//    const base_url = "http://zettel.nicksavage.ca/api"
-    const base_url = "http://192.168.0.72:5000/api"
+    const base_url = "http://zettel.nicksavage.ca/api"
+//    const base_url = "http://192.168.0.72:5000/api"
     const username = process.env.REACT_APP_USERNAME;
     const password = process.env.REACT_APP_PASSWORD;
     const creds = btoa(`${username}:${password}`);
+
+
+    const toggleSidebar = () => {
+	setIsSidebarHidden(!isSidebarHidden);
+	console.log(isSidebarHidden);
+    };
 
     function fetchCards() {
 	return fetch(base_url + '/cards', {headers: {"Authorization": `Basic ${creds}`}})
@@ -311,7 +318,8 @@ function App() {
 
     return (
 	<div>
-	    <div className="sidebar" style={{ width: '20%', float: 'left', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
+	    <button className="hamburger" onClick={toggleSidebar}>☰</button>
+	    <div className={`sidebar ${isSidebarHidden ? 'sidebar-hidden' : ''}`}>
 		<button className="sidebar-button" onClick={handleNewCard}>New Card</button>
 		<input type="text" value={filter} onChange={handleFilter} placeholder="Filter" />
 		<button className="icon-button" onClick={handleOpenSearch}>Search</button>
