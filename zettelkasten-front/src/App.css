@@ -22,6 +22,8 @@
     background-color: white;
     transition: transform 0.3s ease-in-out;
     transform: translateX(0);
+    overflowY: auto;
+    float: left;
     
 }
 .hamburger {
