@@ -26,9 +26,6 @@
     float: left;
     
 }
-.hamburger {
-    
-}
 
 .icon-button {
     padding: 10px;
@@ -74,6 +71,18 @@
      
 }
 
+ /* Hamburger Icon */
+ .hamburger {
+     display: none; /* Show it on mobile */
+     position: fixed;
+     top: 0px;
+     left: 0px;
+     cursor: pointer;
+     font-size: 1.5rem;
+     margin: 0rem;
+     z-index: 2;
+ }
+
 /* Responsive Design */
  @media only screen and (max-width: 768px) {
      .sidebar {
@@ -83,24 +92,16 @@
 	 left: 0;
 	 
      }
+     .hamburger {
+	 display: block;
+	 
+     }
      .main-content {
 	 width: 100%;
 	 padding-top: 50px; /* Additional padding at the top to prevent content overlap with the hamburger menu */
 	 
      }
 }
-
- /* Hamburger Icon */
- .hamburger {
-     display: block; /* Show it on mobile */
-     position: fixed;
-     top: 0px;
-     left: 0px;
-     cursor: pointer;
-     font-size: 1.5rem;
-     margin: 0rem;
-     z-index: 2;
- }
 
 
 /* Dropdown Styles */
