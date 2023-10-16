@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './App.css';
 
 function App() {
@@ -269,8 +270,7 @@ function App() {
 	return parts.map((part, i) => {
 	    // If part is a new line character, return a break element
 	    if (part === "\n") {
-		return <br key={i
-			       } />;
+		return <br key={i} />;
 	    }
 	    // If part is a bracketed word, render a link
 	    else if (part && part.startsWith("[") && part.endsWith("]")) {
@@ -293,7 +293,7 @@ function App() {
 		);
 	    }
 	    // Otherwise, just render the text
-	    return part;
+	    return <ReactMarkdown key={i} children={part || ''} />;
 	});
     }
 
