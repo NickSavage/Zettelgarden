@@ -264,7 +264,8 @@ function App() {
     }
 
 
-    function renderCardText(body) {
+    function renderCardText(card) {
+	const body = card.body;
 	const parts = body.split(/(\[[A-Za-z0-9_.-/]+\])|(\n)/);
 	return parts.map((part, i) => {
 	    // If part is a new line character, return a break element
@@ -274,10 +275,15 @@ function App() {
 	    // If part is a bracketed word, render a link
 	    else if (part && part.startsWith("[") && part.endsWith("]")) {
 		const cardId = part.substring(1, part.length - 1);
-		const id = getIdByCardId(cardId)
+		const id = getIdByCardId(cardId);
+		
+		const linkedCard = card.direct_links.find(linked => linked.card_id === cardId);
+		const title = linkedCard ? linkedCard.title : "Card not found";
+		console.log(linkedCard);
 		return (
 		        <a
 		    key={i}
+		    title={title}
 		    href="#"
 		    onClick={(e) => {
 			e.preventDefault();
@@ -401,7 +407,7 @@ function App() {
 			</h2>
 			<hr />
 			<div style={{ marginBottom: '10px' }}>
-			    {renderCardText(viewingCard.body)}
+			    {renderCardText(viewingCard)}
 			</div>
 			<div>
 			    {viewingCard.is_reference && <>

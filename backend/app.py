@@ -79,9 +79,11 @@ def serialize_full_card(card) -> dict:
         "link": card[5],
         "created_at": card[6],
         "updated_at": card[7],
+        "direct_links": get_direct_links(card[3]),
         "backlinks": get_backlinks(card[1]),
         "parent": get_parent(card[1])
     }
+    print(extract_backlinks(card["body"]))
     return card
 
 def serialize_partial_card(card) -> dict:
@@ -171,6 +173,14 @@ def check_is_card_id_unique(card_id: str) -> bool:
             return False
     return True
     
+def get_direct_links(body: str) -> list:
+    links = extract_backlinks(body)
+    results = []
+    for card_id in links:
+        x = query_partial_card(card_id)
+        results.append(x)
+    return results
+
 def get_parent(card_id: str) -> dict:
     if card_id == '':
         return {}
