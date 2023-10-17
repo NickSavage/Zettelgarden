@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import './App.css';
 
 function App() {
@@ -298,7 +297,7 @@ function App() {
 		);
 	    }
 	    // Otherwise, just render the text
-	    return <ReactMarkdown key={i} children={part || ''} />;
+	    return part;
 	});
     }
 
