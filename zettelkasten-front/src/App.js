@@ -471,7 +471,9 @@ function App() {
 			<button onClick={handleEditCard}>Edit</button>
 			 <h4>Children:</h4>
 			<ul>
-			    {cards.filter(card => card.card_id.startsWith(`${viewingCard.card_id}/`) || card.card_id.startsWith(`${viewingCard.card_id}.`)).map((childCard, index) => (
+			    {cards.filter(card => card.card_id.startsWith(`${viewingCard.card_id}/`) || card.card_id.startsWith(`${viewingCard.card_id}.`))
+			     .sort((a, b) => a.card_id.localeCompare(b.card_id))
+			     .map((childCard, index) => (
 				<li key={index} style={{ marginBottom: '10px' }}>
 				    <a
 					href="#"
