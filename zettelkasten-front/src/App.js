@@ -16,6 +16,7 @@ function App() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('');
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
+    const [lastCardId, setLastCardId] = useState('');
 
     // API
     const base_url = process.env.REACT_APP_URL;
@@ -117,7 +118,7 @@ function App() {
 
     function handleNewCard() {
 	setNewCard(true);
-	setEditingCard({ card_id: '', title: '', body: '' });
+	setEditingCard({ card_id: lastCardId, title: '', body: '' });
 	document.title = "Zettelkasten - New Card";
 	setViewingCard(null);
 	setSearchCard(null);
@@ -127,6 +128,7 @@ function App() {
     function handleViewCard(card) {
 	setError(null);
 	setViewingCard(card);
+	setLastCardId(card.card_id)
 	document.title = "Zettelkasten - " + card.card_id + " - "+ card.title;
 	setEditingCard(null);
 	setSearchCard(null);
