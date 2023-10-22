@@ -118,6 +118,7 @@ function App() {
     function handleNewCard() {
 	setNewCard(true);
 	setEditingCard({ card_id: '', title: '', body: '' });
+	document.title = "Zettelkasten - New Card";
 	setViewingCard(null);
 	setSearchCard(null);
 	  
@@ -126,6 +127,7 @@ function App() {
     function handleViewCard(card) {
 	setError(null);
 	setViewingCard(card);
+	document.title = "Zettelkasten - " + card.card_id + " - "+ card.title;
 	setEditingCard(null);
 	setSearchCard(null);
     }
@@ -227,6 +229,7 @@ function App() {
 	setUnfilteredSidebarCards(unsortedCards);
     }
     function handleOpenSearch() {
+	document.title = "Zettelkasten - Search"
 	setSearchCard(true);
 	setViewingCard(null);
 	setEditingCard(null);
@@ -258,6 +261,7 @@ function App() {
     }
 
     function handleEditCard() {
+	document.title = "Zettelkasten - Edit Card";
 	setEditingCard(viewingCard);
 	setViewingCard(null);
     }
