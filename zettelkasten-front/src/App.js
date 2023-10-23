@@ -115,6 +115,7 @@ function App() {
     }
 
     function handleNewCard() {
+	setError(null);
 	setNewCard(true);
 	setEditingCard({ card_id: lastCardId, title: '', body: '' });
 	document.title = "Zettelkasten - New Card";
@@ -124,12 +125,22 @@ function App() {
     }
 
     function handleViewCard(card) {
+	document.title = "Zettelkasten - " + card.card_id + " - "+ card.title;
 	setError(null);
 	setViewingCard(card);
 	setLastCardId(card.card_id)
-	document.title = "Zettelkasten - " + card.card_id + " - "+ card.title;
 	setEditingCard(null);
 	setSearchCard(null);
+	setNewCard(null);
+    }
+
+    function handleEditCard() {
+	document.title = "Zettelkasten - Edit Card";
+	setError(null);
+	setViewingCard(null);
+	setEditingCard(viewingCard);
+	setSearchCard(null);
+	setNewCard(null);
     }
 
     const handleSortChange = (event) => {
@@ -258,12 +269,6 @@ function App() {
 	}
 	const cardData = await getCard(card.id)
 	handleViewCard(cardData);
-    }
-
-    function handleEditCard() {
-	document.title = "Zettelkasten - Edit Card";
-	setEditingCard(viewingCard);
-	setViewingCard(null);
     }
 
 
