@@ -345,8 +345,8 @@ function App() {
 		    <option value="work">Work Cards</option>
 		</select>
 		<select onChange={handleSortChange}>
-		    <option value="sortBigSmall">Sort Small to Big</option>
 		    <option value="sortSmallBig">Sort Big to Small</option>
+		    <option value="sortBigSmall">Sort Small to Big</option>
 		    <option value="sortNewOld">Sort New to Old</option>
 		    <option value="sortOldNew">Sort Old to New</option>
 		</select>
