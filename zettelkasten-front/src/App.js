@@ -84,9 +84,7 @@ function App() {
 	    .then(response => response.json())
 	    .then(response => {
 		if (!("error" in response)) {
-		    setEditingCard(null);
-		    setNewCard(null);
-		    setViewingCard(response);
+		    handleViewCard(response);
 		} else {
 		    setError(response["error"]);
 		}
