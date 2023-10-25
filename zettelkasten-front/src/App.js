@@ -87,8 +87,7 @@ function App() {
 		} else {
 		    setError(response["error"]);
 		}
-		fetchCards()
-		    .then(data => {setCards(data); return data})
+		setAllCards();
 	    });
     }
 
@@ -312,7 +311,7 @@ function App() {
 	});
     }
 
-    useEffect(() => {
+    async function setAllCards() {
 	fetchCards()
 	    .then(data => {
 		setCards(data);
@@ -328,6 +327,10 @@ function App() {
 		setSidebarCards(data);
 		setUnfilteredSidebarCards(data);
 	    });
+    }
+
+    useEffect(() => {
+	setAllCards();
 	
     }, []);
 
