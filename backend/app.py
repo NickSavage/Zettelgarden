@@ -96,6 +96,8 @@ def serialize_partial_card(card) -> dict:
 
 def query_full_card(id) -> dict:
     cur = conn.cursor()
+    if id == 'null':
+        return {"error": "Card not found"}
     try:
         cur.execute(full_card_query + " WHERE id = %s;", (id,))
         card = cur.fetchone()
