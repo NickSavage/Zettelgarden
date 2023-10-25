@@ -96,8 +96,11 @@ def serialize_partial_card(card) -> dict:
 
 def query_full_card(id) -> dict:
     cur = conn.cursor()
-    cur.execute(full_card_query + " WHERE id = %s;", (id,))
-    card = cur.fetchone()
+    try:
+        cur.execute(full_card_query + " WHERE id = %s;", (id,))
+        card = cur.fetchone()
+    except Exception as e:
+        return {"error": str(e)}
     if card:
         card = serialize_full_card(card)
     cur.close()
@@ -189,8 +192,11 @@ def get_parent(card_id: str) -> dict:
 
 @app.route('/api/cards', methods=['GET'])
 def get_cards():
-    results = query_all_full_cards()
-    results = sorted(results, key=lambda x: sort_ids(x["card_id"]), reverse=True)
+    try:
+        results = query_all_full_cards()
+        results = sorted(results, key=lambda x: sort_ids(x["card_id"]), reverse=True)
+    except Exception as e:
+        return jsonify({"error": str(e)})
     return jsonify(results)
 
 

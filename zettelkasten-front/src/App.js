@@ -27,7 +27,6 @@ function App() {
 
     const toggleSidebar = () => {
 	setIsSidebarHidden(!isSidebarHidden);
-	console.log(isSidebarHidden);
     };
 
     function fetchCards() {
@@ -176,7 +175,6 @@ function App() {
 	} else {
 	    
 	}
-	console.log(temp);
 	setSidebarCards(temp);
     }
     
@@ -249,14 +247,19 @@ function App() {
     async function handleViewBacklink(backlink) {
 	// Assuming backlink is an object with id and title, you can just use the id to view the card.
 	const cardData = await getCard(backlink.id)
-	if ('id' in cardData.parent) {
-	    let parentCardId = cardData.parent.id;
-	    const parentCard = await getCard(parentCardId);
-	    setParentCard(parentCard);
+	if ('error' in cardData) {
+	    setError(cardData["error"]);
 	} else {
-	    setParentCard(null);
+
+	    if ('id' in cardData.parent) {
+		let parentCardId = cardData.parent.id;
+		const parentCard = await getCard(parentCardId);
+		setParentCard(parentCard);
+	    } else {
+		setParentCard(null);
+	    }
+	    handleViewCard(cardData);
 	}
-	handleViewCard(cardData);
     }
     async function handleSidebarCardClick(card) {
 	// Call getCard with the card's id and then call handleViewCard with the fetched cardData
@@ -287,7 +290,6 @@ function App() {
 		
 		const linkedCard = card.direct_links.find(linked => linked.card_id === cardId);
 		const title = linkedCard ? linkedCard.title : "Card not found";
-		console.log(linkedCard);
 		return (
 		        <a
 		    key={i}
