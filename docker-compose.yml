@@ -6,7 +6,7 @@ services:
       context: ./zettelkasten-front
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3001:3000"
 
   backend:
     build:
