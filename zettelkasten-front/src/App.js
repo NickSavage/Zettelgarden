@@ -238,6 +238,7 @@ function App() {
 	setUnfilteredSidebarCards(unsortedCards);
     }
     function handleOpenSearch() {
+	console.log([username, password]);
 	document.title = "Zettelkasten - Search"
 	setSearchCard(true);
 	setViewingCard(null);
@@ -331,7 +332,6 @@ function App() {
     }
 
     useEffect(() => {
-	console.log([username, password]);
 	setAllCards();
 	
     }, []);
