@@ -24,6 +24,7 @@ function App() {
     const password = process.env.REACT_APP_PASSWORD;
     const creds = btoa(`${username}:${password}`);
 
+    console.log(creds)''
 
     const toggleSidebar = () => {
 	setIsSidebarHidden(!isSidebarHidden);
@@ -330,6 +331,7 @@ function App() {
     }
 
     useEffect(() => {
+	console.log([username, password]);
 	setAllCards();
 	
     }, []);
