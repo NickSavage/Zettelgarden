@@ -24,8 +24,6 @@ function App() {
     const password = process.env.REACT_APP_PASSWORD;
     const creds = btoa(`${username}:${password}`);
 
-    console.log(creds)''
-
     const toggleSidebar = () => {
 	setIsSidebarHidden(!isSidebarHidden);
     };
@@ -238,7 +236,6 @@ function App() {
 	setUnfilteredSidebarCards(unsortedCards);
     }
     function handleOpenSearch() {
-	console.log([username, password]);
 	document.title = "Zettelkasten - Search"
 	setSearchCard(true);
 	setViewingCard(null);
