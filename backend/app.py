@@ -10,6 +10,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Database setup
 DB_FILE = "zettelkasten.db"
+print([os.getenv('DB_NAME'),os.getenv('DB_USER'),os.getenv('DB_PASS'),os.getenv('DB_HOST'), os.getenv('DB_PORT')])
 
 conn = psycopg2.connect(
     dbname=os.getenv('DB_NAME'),
