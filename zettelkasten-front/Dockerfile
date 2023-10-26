@@ -1,5 +1,8 @@
 # Dockerfile-frontend
 
+ARG REACT_APP_URL
+ENV REACT_APP_URL=$REACT_APP_URL
+
 # Use an official Node runtime as a parent image
 FROM node:18
 
