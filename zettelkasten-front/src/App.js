@@ -7,6 +7,7 @@ function App() {
     const [cards, setCards] = useState([]);
     const [mainCards, setMainCards] = useState([]);
     const [sidebarCards, setSidebarCards] = useState([]);
+    const [sidebarView, setSidebarView] = useState('all');
     const [unfilteredSidebarCards, setUnfilteredSidebarCards] = useState([]);
     const [newCard, setNewCard]= useState(null);
     const [viewingCard, setViewingCard] = useState(null);
@@ -175,65 +176,42 @@ function App() {
 	}
 	setSidebarCards(temp);
     }
-    
-    const handleSelectChange = (event) => {
+    function handleSelectChange (event) {
 	const value = event.target.value;
+	setSidebarView(value);
+	changeSidebarView(value)
+    }
+
+    function changeSidebarView(value) {
+	setFilter('');
 	if (value === "reference") {
-	    handleReferenceClick();
+	    const referenceCards = cards.filter(card => card.card_id.startsWith('REF'));
+	    setSidebarCards(referenceCards);
+	    setUnfilteredSidebarCards(referenceCards);
 	        
 	} else if (value === "meeting") {
-	    handleMeetingClick();
+	    const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
+	    setSidebarCards(meetingCards);
+	    setUnfilteredSidebarCards(meetingCards);
 	        
 	} else if (value === "all") {
-	    handleAllClick();
+	    setSidebarCards(mainCards);
+	    setUnfilteredSidebarCards(mainCards);
 	        
 	} else if (value === "read") {
-	    handleReadClick();
+	    const readCards = cards.filter(card => card.card_id.startsWith('READ'));
+	    setSidebarCards(readCards);
+	    setUnfilteredSidebarCards(readCards);
 	} else if (value === "work") {
-	    handleWorkClick();
+	    const workCards = cards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP')).filter(card => !card.card_id.includes('/'));
+	    setSidebarCards(workCards);
+	    setUnfilteredSidebarCards(workCards);
 	} else if (value === "unsorted") {
-	    handleUnsortedClick();
+	    const unsortedCards = cards.filter(card => card.card_id === "");
+	    setSidebarCards(unsortedCards);
+	    setUnfilteredSidebarCards(unsortedCards);
 	}
 
-    }
-
-    function handleWorkClick() {
-	setFilter('');
-	const workCards = cards.filter(card => card.card_id.startsWith('SP') || card.card_id.startsWith('SYMP')).filter(card => !card.card_id.includes('/'));
-	setSidebarCards(workCards);
-	setUnfilteredSidebarCards(workCards);
-    }
-    
-    function handleReferenceClick() {
-	setFilter('');
-	const referenceCards = cards.filter(card => card.card_id.startsWith('REF'));
-	setSidebarCards(referenceCards);
-	setUnfilteredSidebarCards(referenceCards);
-    }
-    function handleMeetingClick() {
-	setFilter('');
-	const meetingCards = cards.filter(card => card.card_id.startsWith('SM'));
-	setSidebarCards(meetingCards);
-	setUnfilteredSidebarCards(meetingCards);
-    }
-    function handleReadClick() {
-	setFilter('');
-	const readCards = cards.filter(card => card.card_id.startsWith('READ'));
-	setSidebarCards(readCards);
-	setUnfilteredSidebarCards(readCards);
-    }
-
-    function handleAllClick() {
-	setFilter('');
-	setSidebarCards(mainCards);
-	setUnfilteredSidebarCards(mainCards);
-    }
-
-    function handleUnsortedClick() {
-	setFilter('');
-	const unsortedCards = cards.filter(card => card.card_id === "");
-	setSidebarCards(unsortedCards);
-	setUnfilteredSidebarCards(unsortedCards);
     }
     function handleOpenSearch() {
 	document.title = "Zettelkasten - Search"
