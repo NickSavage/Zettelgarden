@@ -17,6 +17,7 @@ function App() {
     const [filter, setFilter] = useState('');
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
     const [lastCardId, setLastCardId] = useState('');
+    const [inputBlurred, setInputBlurred] = useState(false);
 
     // API
     const base_url = process.env.REACT_APP_URL;
@@ -69,6 +70,8 @@ function App() {
 	let card = editingCard;
 	let id = card.id
 
+	setInputBlurred(false);
+
 	fetch(url, {
 	    method: method,
 	    headers: {
@@ -109,6 +112,13 @@ function App() {
     }
     function handleSearch(e) {
 	setSearchTerm(e.target.value);
+    }
+
+    function handleOpenSearch() {
+	document.title = "Zettelkasten - Search"
+	setSearchCard(true);
+	setViewingCard(null);
+	setEditingCard(null);
     }
 
     function handleNewCard() {
@@ -211,12 +221,6 @@ function App() {
 	}
 
     }
-    function handleOpenSearch() {
-	document.title = "Zettelkasten - Search"
-	setSearchCard(true);
-	setViewingCard(null);
-	setEditingCard(null);
-    }
     
     async function handleViewBacklink(backlink) {
 	// Assuming backlink is an object with id and title, you can just use the id to view the card.
@@ -285,6 +289,23 @@ function App() {
 	    return part;
 	});
     }
+
+    // Function to check if card_id is unique
+    const isCardIdUnique = (id) => {
+	return !cards.some(card => card.card_id === id);
+	  
+    };
+
+    // Render the warning label
+    const renderWarningLabel = () => {
+	if (!editingCard.card_id) return null;
+	if (!isCardIdUnique(editingCard.card_id)) {
+	    return <span style={{ color: 'red' 
+				}
+			       }>Card ID is not unique!</span>;
+	}
+	return null;
+    };
 
     async function setAllCards() {
 	fetchCards()
@@ -487,13 +508,17 @@ function App() {
 		{editingCard && (
 		    <div>
 			<label htmlFor="title">Card ID:</label>
-			<input
-			    type="text"
-			    value={editingCard.card_id}
-			    onChange={e => setEditingCard({ ...editingCard, card_id: e.target.value })}
-			    placeholder="ID"
-			    style={{ display: 'block', marginBottom: '10px' }} // Added styles here
-			/>
+			<div style={{ display: 'flex'}}>
+			    <input
+				type="text"
+				value={editingCard.card_id}
+				onChange={e => setEditingCard({ ...editingCard, card_id: e.target.value })}
+				onBlur={() => setInputBlurred(true)}
+				placeholder="ID"
+				style={{ display: 'block', marginBottom: '10px' }} // Added styles here
+			    />
+			    {inputBlurred && renderWarningLabel()}
+			</div>
 			{/* Title Section */}
 			<label htmlFor="title">Title:</label>
 			<input
