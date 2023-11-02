@@ -100,6 +100,13 @@ function App() {
 	return foundCard ? foundCard.id : null;
 	
     }
+
+    // Function to check if card_id is unique
+    const isCardIdUnique = (id) => {
+	return !cards.some(card => card.card_id === id);
+	  
+    };
+
     
     function handleFilter(e) {
 	let filter = e.target.value;
@@ -114,40 +121,42 @@ function App() {
 	setSearchTerm(e.target.value);
     }
 
+    // changing pages
+
+    function changePage() {
+	setError(null);
+	setViewingCard(null);
+	setLastCardId(null);
+	setEditingCard(null);
+	setSearchCard(null);
+	setNewCard(null);
+	setInputBlurred(false);
+    }
+
     function handleOpenSearch() {
+	changePage();
 	document.title = "Zettelkasten - Search"
 	setSearchCard(true);
-	setViewingCard(null);
-	setEditingCard(null);
     }
 
     function handleNewCard() {
-	setError(null);
+	changePage();
 	setNewCard(true);
 	setEditingCard({ card_id: lastCardId, title: '', body: '' });
 	document.title = "Zettelkasten - New Card";
-	setViewingCard(null);
-	setSearchCard(null);
-	  
     }
 
     function handleViewCard(card) {
+	changePage();
 	document.title = "Zettelkasten - " + card.card_id + " - "+ card.title;
-	setError(null);
 	setViewingCard(card);
 	setLastCardId(card.card_id)
-	setEditingCard(null);
-	setSearchCard(null);
-	setNewCard(null);
     }
 
     function handleEditCard() {
+	changePage();
 	document.title = "Zettelkasten - Edit Card";
-	setError(null);
-	setViewingCard(null);
 	setEditingCard(viewingCard);
-	setSearchCard(null);
-	setNewCard(null);
     }
 
     const handleSortChange = (event) => {
@@ -289,12 +298,6 @@ function App() {
 	    return part;
 	});
     }
-
-    // Function to check if card_id is unique
-    const isCardIdUnique = (id) => {
-	return !cards.some(card => card.card_id === id);
-	  
-    };
 
     // Render the warning label
     const renderWarningLabel = () => {
