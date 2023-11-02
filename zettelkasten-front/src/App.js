@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import {fetchCards, getCard} from './api';
+import {fetchCards, getCard, saveCard} from './api';
 
 function App() {
     const [error, setError] = useState("");
@@ -25,9 +25,6 @@ function App() {
     };
 
     const base_url = process.env.REACT_APP_URL;
-    const username = process.env.REACT_APP_USERNAME;
-    const password = process.env.REACT_APP_PASSWORD;
-    const creds = btoa(`${username}:${password}`);
 
     async function handleSaveCard() {
 	const url = newCard ?
@@ -36,20 +33,10 @@ function App() {
 	const method = newCard ? 'POST' : 'PUT';
 	
 	let card = editingCard;
-	let id = card.id
 	
 	setInputBlurred(false);
 	
-	fetch(url, {
-	    method: method,
-	    headers: {
-		"Authorization": `Basic ${creds}`,
-		'Content-Type': 'application/json',
-		
-	    },
-	    body: JSON.stringify(card),
-	    
-	})
+	saveCard(url, method, card)
 	    .then(response => response.json())
 	    .then(response => {
 		if (!("error" in response)) {
