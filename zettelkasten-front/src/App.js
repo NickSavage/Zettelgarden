@@ -7,7 +7,6 @@ function App() {
     const [cards, setCards] = useState([]);
     const [mainCards, setMainCards] = useState([]);
     const [sidebarCards, setSidebarCards] = useState([]);
-    const [sidebarView, setSidebarView] = useState('all');
     const [unfilteredSidebarCards, setUnfilteredSidebarCards] = useState([]);
     const [newCard, setNewCard]= useState(null);
     const [viewingCard, setViewingCard] = useState(null);
@@ -178,7 +177,6 @@ function App() {
     }
     function handleSelectChange (event) {
 	const value = event.target.value;
-	setSidebarView(value);
 	changeSidebarView(value)
     }
 
