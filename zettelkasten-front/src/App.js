@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import {fetchCards, getCard, saveCard} from './api';
+import {getIdByCardId, isCardIdUnique} from './utils';
 
 function App() {
     const [error, setError] = useState("");
@@ -49,19 +50,6 @@ function App() {
     }
     // helper
 
-    function getIdByCardId(targetCardId) {
-	const foundCard = cards.find(card => card.card_id === targetCardId);
-	return foundCard ? foundCard.id : null;
-	
-    }
-
-    // Function to check if card_id is unique
-    const isCardIdUnique = (id) => {
-	return !cards.some(card => card.card_id === id);
-	  
-    };
-
-    
     function handleFilter(e) {
 	let filter = e.target.value;
 	setFilter(filter);
@@ -227,7 +215,7 @@ function App() {
 	    // If part is a bracketed word, render a link
 	    else if (part && part.startsWith("[") && part.endsWith("]")) {
 		const cardId = part.substring(1, part.length - 1);
-		const id = getIdByCardId(cardId);
+		const id = getIdByCardId(cards, cardId);
 		
 		const linkedCard = card.direct_links.find(linked => linked.card_id === cardId);
 		const title = linkedCard ? linkedCard.title : "Card not found";
@@ -256,7 +244,7 @@ function App() {
     // Render the warning label
     const renderWarningLabel = () => {
 	if (!editingCard.card_id) return null;
-	if (!isCardIdUnique(editingCard.card_id)) {
+	if (!isCardIdUnique(cards, editingCard.card_id)) {
 	    return <span style={{ color: 'red' 
 				}
 			       }>Card ID is not unique!</span>;
