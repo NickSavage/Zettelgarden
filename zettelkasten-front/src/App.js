@@ -88,11 +88,18 @@ function App() {
 	document.title = "Zettelkasten - New Card";
     }
 
-    function handleViewCard(card) {
+    async function handleViewCard(card) {
 	changePage();
 	document.title = "Zettelkasten - " + card.card_id + " - "+ card.title;
 	setViewingCard(card);
 	setLastCardId(card.card_id)
+	if ('id' in card.parent) {
+	    let parentCardId = card.parent.id;
+	    const parentCard = await getCard(parentCardId);
+	    setParentCard(parentCard);
+	} else {
+	    setParentCard(null);
+	}
     }
 
     function handleEditCard() {
@@ -179,26 +186,11 @@ function App() {
 	if ('error' in cardData) {
 	    setError(cardData["error"]);
 	} else {
-
-	    if ('id' in cardData.parent) {
-		let parentCardId = cardData.parent.id;
-		const parentCard = await getCard(parentCardId);
-		setParentCard(parentCard);
-	    } else {
-		setParentCard(null);
-	    }
 	    handleViewCard(cardData);
 	}
     }
     async function handleSidebarCardClick(card) {
 	// Call getCard with the card's id and then call handleViewCard with the fetched cardData
-	if ('id' in card.parent) {
-	    let parentCardId = card.parent.id;
-	    const parentCard = await getCard(parentCardId);
-	    setParentCard(parentCard);
-	} else {
-	    setParentCard(null);
-	}
 	const cardData = await getCard(card.id)
 	handleViewCard(cardData);
     }
