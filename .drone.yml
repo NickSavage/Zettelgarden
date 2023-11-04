@@ -3,8 +3,28 @@ type: docker
 name: default
 
 steps:
-- name: greeting
-  image: alpine
-  commands:
-  - echo hello
-  - echo world
+  - name: build-frontend
+    image: docker
+    commands:
+      - docker build -t your-username/zettelkasten-front -f ./zettelkasten-front/Dockerfile ./zettelkasten-front
+    environment:
+      - DOCKER_HOST=tcp://docker:2375
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+
+  - name: build-backend
+    image: docker
+    commands:
+      - docker build -t your-username/backend -f ./backend/Dockerfile ./backend
+    environment:
+      - DOCKER_HOST=tcp://docker:2375
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+	    
