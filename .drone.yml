@@ -5,12 +5,5 @@ name: default
 steps:
   - name: build-frontend
     image: plugins/docker
-    settings:
-      repo: nsavage/zettelkasten
-      context: ./zettelkasten-front
-      dockerfile: ./zettelkasten-front/Dockerfile
     commands:
-      - "docker build -t nsavage-zettelkasten -f Dockerfile-frontend ."
-    when:
-      event:
-        - push
+      - "docker build -t nsavage-zettelkasten -f ./zettelkasten-front/Dockerfile-frontend ."
