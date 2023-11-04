@@ -15,6 +15,7 @@ function App() {
   const [editingCard, setEditingCard] = useState(null);
   const [searchCard, setSearchCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
+  const [refreshSidebar, setRefreshSidebar] = useState(false);
 
   const base_url = process.env.REACT_APP_URL;
 
@@ -34,6 +35,7 @@ function App() {
         } else {
           setError(response["error"]);
         }
+        setRefreshSidebar(true);
         //fetchCards().then(data => setCards(data));
       });
   }
@@ -110,6 +112,8 @@ function App() {
         handleNewCard={handleNewCard}
         handleOpenSearch={handleOpenSearch}
         handleSidebarCardClick={handleSidebarCardClick}
+        refreshSidebar={refreshSidebar}
+        setRefreshSidebar={setRefreshSidebar}
       />
       <div
         className="main-content"

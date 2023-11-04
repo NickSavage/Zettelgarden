@@ -8,6 +8,8 @@ export function Sidebar({
   handleNewCard,
   handleOpenSearch,
   handleSidebarCardClick,
+  refreshSidebar,
+  setRefreshSidebar,
 }) {
   const [filter, setFilter] = useState("");
   const [isSidebarHidden, setIsSidebarHidden] = useState(false);
@@ -100,10 +102,11 @@ export function Sidebar({
 
   useEffect(() => {
     setAllCards();
-  }, []);
+  }, [refreshSidebar]);
 
   useEffect(() => {
     changeSidebarView(cards, sidebarView);
+    setRefreshSidebar(false);
   }, [cards, sidebarView]);
 
   return (
