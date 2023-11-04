@@ -1,5 +1,20 @@
-export function EditPage({editingCard, setEditingCard, setInputBlurred, inputBlurred, renderWarningLabel, handleSaveCard}) {
+import React, { useState } from 'react';
+import {isCardIdUnique} from '../utils';
 
+// Render the warning label
+function renderWarningLabel(cards, editingCard) {
+    if (!editingCard.card_id) return null;
+    if (!isCardIdUnique(cards, editingCard.card_id)) {
+	return <span style={{ color: 'red' 
+			    }
+			   }>Card ID is not unique!</span>;
+    }
+    return null;
+};
+
+export function EditPage({cards, editingCard, setEditingCard, handleSaveCard}) {
+    const [inputBlurred, setInputBlurred] = useState(false);
+    
     return (
 	    <div>
 	    <label htmlFor="title">Card ID:</label>
@@ -12,7 +27,7 @@ export function EditPage({editingCard, setEditingCard, setInputBlurred, inputBlu
 	placeholder="ID"
 	style={{ display: 'block', marginBottom: '10px' }} // Added styles here
 	    />
-	    {inputBlurred && renderWarningLabel()}
+		{inputBlurred && renderWarningLabel(cards, editingCard)}
 	</div>
 	    {/* Title Section */}
 	    <label htmlFor="title">Title:</label>

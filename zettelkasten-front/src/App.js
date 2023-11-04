@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import {fetchCards, getCard, saveCard} from './api';
-import {getIdByCardId, isCardIdUnique} from './utils';
 import {ViewingPage} from './components/ViewingPage';
 import {EditPage} from './components/EditPage';
 
@@ -21,7 +20,6 @@ function App() {
     const [filter, setFilter] = useState('');
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
     const [lastCardId, setLastCardId] = useState('');
-    const [inputBlurred, setInputBlurred] = useState(false);
 
     const toggleSidebar = () => {
 	setIsSidebarHidden(!isSidebarHidden);
@@ -36,8 +34,6 @@ function App() {
 	const method = newCard ? 'POST' : 'PUT';
 	
 	let card = editingCard;
-	
-	setInputBlurred(false);
 	
 	saveCard(url, method, card)
 	    .then(response => response.json())
@@ -74,7 +70,6 @@ function App() {
 	setEditingCard(null);
 	setSearchCard(null);
 	setNewCard(null);
-	setInputBlurred(false);
     }
 
     function handleOpenSearch() {
@@ -198,17 +193,6 @@ function App() {
     }
 
 
-    // Render the warning label
-    const renderWarningLabel = () => {
-	if (!editingCard.card_id) return null;
-	if (!isCardIdUnique(cards, editingCard.card_id)) {
-	    return <span style={{ color: 'red' 
-				}
-			       }>Card ID is not unique!</span>;
-	}
-	return null;
-    };
-
     async function setAllCards() {
 	fetchCards()
 	    .then(data => {
@@ -320,11 +304,9 @@ function App() {
 
 		{editingCard && (
 			<EditPage
+			    cards={cards}
 			    editingCard={editingCard}
 			    setEditingCard={setEditingCard}
-			    setInputBlurred={setInputBlurred}
-			    inputBlurred={inputBlurred}
-			    renderWarningLabel={renderWarningLabel}
 			    handleSaveCard={handleSaveCard}
 			/>
 		)}
