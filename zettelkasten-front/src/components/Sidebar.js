@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import {fetchCards} from '../api';
+import {sortCards} from '../utils';
 
 export function Sidebar({cards, setCards, handleNewCard, handleOpenSearch, handleSidebarCardClick}) {
     const [filter, setFilter] = useState('');
@@ -15,37 +16,7 @@ export function Sidebar({cards, setCards, handleNewCard, handleOpenSearch, handl
     
     const handleSortChange = (event) => {
 	const value = event.target.value;
-	let temp = [...sidebarCards];
-	if (value === "sortBigSmall" || value === "sortSmallBig") {
-	    temp.sort((a, b) => {
-		const partsA = a.card_id.match(/\D+|\d+/g) || [];
-		const partsB = b.card_id.match(/\D+|\d+/g) || [];
-		for (let i = 0; i < Math.min(partsA.length, partsB.length); i++) {
-		    if (isNaN(partsA[i]) || isNaN(partsB[i])) {
-			// Compare non-numeric parts lexicographically
-			const comparison = partsA[i].localeCompare(partsB[i]);
-			if (comparison !== 0) return value === "sortBigSmall" ? comparison : -comparison;
-		    } else {
-			// Compare numeric parts numerically
-			const comparison = parseInt(partsA[i]) - parseInt(partsB[i]);
-			if (comparison !== 0) return value === "sortBigSmall" ? comparison : -comparison;
-		    }
-		}
-		return (value === "sortBigSmall" ? 1 : -1) * (partsA.length - partsB.length);
-	    });
-	}
-	else if (value === "sortNewOld") {
-	    temp.sort((a, b) => {
-		return new Date(b.updated_at) - new Date(a.updated_at);
-	    });
-	} else if (value === "sortOldNew") {
-	    temp.sort((a, b) => {
-		return new Date(a.updated_at) - new Date(b.updated_at);
-	    });
-	    
-	} else {
-	    
-	}
+	let temp = sortCards(sidebarCards, value);
 	setSidebarCards(temp);
     }
     
