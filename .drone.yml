@@ -4,26 +4,11 @@ name: default
 
 steps:
   - name: build-frontend
-    image: docker
-    commands:
-      - docker build -t nsavage/zettelkasten-front -f ./zettelkasten-front/Dockerfile ./zettelkasten-front
-    environment:
-      DOCKER_HOST: tcp://docker:2375
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-
-  - name: build-backend
-    image: docker
-    commands:
-      - docker build -t nsavage/backend -f ./backend/Dockerfile ./backend
-    environment:
-      DOCKER_HOST: tcp://docker:2375
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
+    image: plugins/docker
+    settings:
+      repo: nsavage/zettelkasten-front
+      context: ./zettelkasten-front
+      dockerfile: ./zettelkasten-front/Dockerfile
+    when:
+      event:
+        - push
