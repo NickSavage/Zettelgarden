@@ -8,7 +8,7 @@ steps:
     commands:
       - docker build -t nsavage/zettelkasten-front -f ./zettelkasten-front/Dockerfile ./zettelkasten-front
     environment:
-      - DOCKER_HOST=tcp://docker:2375
+      DOCKER_HOST: tcp://docker:2375
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
