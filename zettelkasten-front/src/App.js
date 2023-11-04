@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import {fetchCards, getCard, saveCard} from './api';
 import {getIdByCardId, isCardIdUnique} from './utils';
-import {CardBody} from './components/CardBody';
 import {ViewingPage} from './components/ViewingPage';
+import {EditPage} from './components/EditPage';
 
 function App() {
     const [error, setError] = useState("");
@@ -319,59 +319,14 @@ function App() {
 		)}
 
 		{editingCard && (
-		    <div>
-			<label htmlFor="title">Card ID:</label>
-			<div style={{ display: 'flex'}}>
-			    <input
-				type="text"
-				value={editingCard.card_id}
-				onChange={e => setEditingCard({ ...editingCard, card_id: e.target.value })}
-				onBlur={() => setInputBlurred(true)}
-				placeholder="ID"
-				style={{ display: 'block', marginBottom: '10px' }} // Added styles here
-			    />
-			    {inputBlurred && renderWarningLabel()}
-			</div>
-			{/* Title Section */}
-			<label htmlFor="title">Title:</label>
-			<input
-			    style={{ display: 'block', width: '100%', marginBottom: '10px' }} // Updated style here
-			    type="text"
-			    id="title"
-			    value={editingCard.title}
-			    onChange={e => setEditingCard({ ...editingCard, title: e.target.value })}
-			    placeholder="Title"
+			<EditPage
+			    editingCard={editingCard}
+			    setEditingCard={setEditingCard}
+			    setInputBlurred={setInputBlurred}
+			    inputBlurred={inputBlurred}
+			    renderWarningLabel={renderWarningLabel}
+			    handleSaveCard={handleSaveCard}
 			/>
-			
-			{/* Body Section */}
-			<label htmlFor="body">Body:</label>
-			<textarea
-			    style={{ display: 'block', width: '100%', height: '200px' }} // Updated style here
-			    id="body"
-			    value={editingCard.body}
-			    onChange={e => setEditingCard({ ...editingCard, body: e.target.value })}
-			    placeholder="Body"
-			/>
-			
-			<label htmlFor="title">Is Reference:</label>
-			<input
-			    type="checkbox"
-			    id="is_reference"
-			    checked={editingCard.is_reference}
-			    onChange={e => setEditingCard({ ...editingCard, is_reference: e.target.checked })}
-			    style={{ marginBottom: '10px' }} // Updated style here
-			/>
-			<label htmlFor="title">Link:</label>
-			<input
-			    style={{ display: 'block', width: '100%', marginBottom: '10px' }} // Updated style here
-			    type="text"
-			    id="link"
-			    value={editingCard.link}
-			    onChange={e => setEditingCard({ ...editingCard, link: e.target.value })}
-			    placeholder="Title"
-			/>
-			<button onClick={handleSaveCard}>Save</button>
-		    </div>
 		)}
 	    </div>
 	</div>
