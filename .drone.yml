@@ -6,4 +6,4 @@ steps:
   - name: build-frontend
     image: plugins/docker
     commands:
-      - "docker build -t nsavage-zettelkasten -f ./zettelkasten-front/Dockerfile-frontend ."
+      - "docker build -t nsavage-zettelkasten -f ./zettelkasten-front/Dockerfile ."
