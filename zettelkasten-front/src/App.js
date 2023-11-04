@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import {fetchCards, getCard, saveCard} from './api';
+import {SearchPage} from './components/SearchPage'
 import {ViewPage} from './components/ViewPage';
 import {EditPage} from './components/EditPage';
 
@@ -16,7 +17,6 @@ function App() {
     const [parentCard, setParentCard] = useState(null);
     const [editingCard, setEditingCard] = useState(null);
     const [searchCard, setSearchCard] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('');
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
     const [lastCardId, setLastCardId] = useState('');
@@ -57,10 +57,6 @@ function App() {
 	);
 	setSidebarCards(filteredCards);
     }
-    function handleSearch(e) {
-	setSearchTerm(e.target.value);
-    }
-
     // changing pages
 
     function changePage() {
@@ -257,38 +253,10 @@ function App() {
 		    </div>
 		)}
 		{searchCard && (
-		    <div>
-			<input
-			    style={{ display: 'block', width: '100%', marginBottom: '10px' }} // Updated style here
-			    type="text"
-			    id="title"
-			    value={searchTerm}
-			    placeholder="Search"
-			    onChange={handleSearch}
-			/>
-			<button onClick={handleSaveCard}>Search</button>
-			<ul>
-			    {cards.filter(card => card.title.toLowerCase().includes(searchTerm) || card.body.toLowerCase().includes(searchTerm))
-			     .map((card, index) => (
-				 
-				 <li key={index} style={{ marginBottom: '10px' }}>
-				     <a
-					 href="#"
-					 onClick={(e) => {
-					     e.preventDefault();
-					     handleViewCard(card);
-					 }}
-					 style={{ color: 'black', textDecoration: 'none' }}
-				     >
-					 <span style={{ color: 'blue', fontWeight: 'bold' }}>
-					     {card.card_id}
-					 </span>: {card.title}<br /><br />
-					 <span>{card.body}</span>
-				     </a>
-				 </li>
-			     ))}
-			</ul>
-		    </div>
+		    <SearchPage
+			cards={cards}
+			handleViewCard={handleViewCard}
+		    />
 		)}
 		{viewingCard && (
 
