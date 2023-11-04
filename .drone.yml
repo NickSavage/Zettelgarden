@@ -9,6 +9,8 @@ steps:
       repo: nsavage/zettelkasten
       context: ./zettelkasten-front
       dockerfile: ./zettelkasten-front/Dockerfile
+    commands:
+      - "docker build -t nsavage-zettelkasten -f Dockerfile-frontend ."
     when:
       event:
         - push
