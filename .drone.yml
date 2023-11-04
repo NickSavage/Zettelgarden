@@ -6,7 +6,7 @@ steps:
   - name: build-frontend
     image: plugins/docker
     settings:
-      repo: nsavage/zettelkasten-front
+      repo: nsavage/zettelkasten
       context: ./zettelkasten-front
       dockerfile: ./zettelkasten-front/Dockerfile
     when:
