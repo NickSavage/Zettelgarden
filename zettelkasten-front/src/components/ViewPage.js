@@ -1,6 +1,6 @@
 import {CardBody} from './CardBody';
 
-export function ViewingPage({viewingCard, cards, handleViewBacklink, parentCard, handleViewCard, handleEditCard}) {
+export function ViewPage({viewingCard, cards, handleViewBacklink, parentCard, handleViewCard, handleEditCard}) {
     return (
 	    <div>
 	    <h2 style={{ marginBottom: '10px' }}>

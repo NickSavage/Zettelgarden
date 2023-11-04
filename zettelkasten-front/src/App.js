@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import {fetchCards, getCard, saveCard} from './api';
-import {ViewingPage} from './components/ViewingPage';
+import {ViewPage} from './components/ViewPage';
 import {EditPage} from './components/EditPage';
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
     const [sidebarCards, setSidebarCards] = useState([]);
     const [unfilteredSidebarCards, setUnfilteredSidebarCards] = useState([]);
     const [newCard, setNewCard]= useState(null);
-    const [viewingCard, setViewingCard] = useState(null);
+    const [viewingCard, setViewCard] = useState(null);
     const [parentCard, setParentCard] = useState(null);
     const [editingCard, setEditingCard] = useState(null);
     const [searchCard, setSearchCard] = useState(null);
@@ -65,7 +65,7 @@ function App() {
 
     function changePage() {
 	setError(null);
-	setViewingCard(null);
+	setViewCard(null);
 	setLastCardId(null);
 	setEditingCard(null);
 	setSearchCard(null);
@@ -88,7 +88,7 @@ function App() {
     async function handleViewCard(card) {
 	changePage();
 	document.title = "Zettelkasten - " + card.card_id + " - "+ card.title;
-	setViewingCard(card);
+	setViewCard(card);
 	setLastCardId(card.card_id)
 	if ('id' in card.parent) {
 	    let parentCardId = card.parent.id;
@@ -292,7 +292,7 @@ function App() {
 		)}
 		{viewingCard && (
 
-		    <ViewingPage
+		    <ViewPage
 			viewingCard={viewingCard}
 			cards={cards}
 			handleViewBacklink={handleViewBacklink}
