@@ -11,6 +11,7 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
+      
     - name: Build and Push Frontend Docker Image
       run: |
         docker build ./zettelkasten-front \
@@ -19,11 +20,4 @@ jobs:
           --build-arg REACT_APP_USERNAME=${{ secrets.REACT_APP_USERNAME }} \
           --build-arg REACT_APP_PASSWORD=${{ secrets.REACT_APP_PASSWORD }} \
           --tag 192.168.0.129:50000/zettelkasten_frontend:latest \
-          --push
-
-      - name: Build and Push Backend Docker Image
-        run: |
-          docker build ./backend \
-	    --file ./backend/Dockerfile \
-	    --tag 192.168.0.129:50000/zettelkasten_backend:latest \
-	    --push
+         docker push 192.168.0.129:50000/zettelkasten_frontend:latest
