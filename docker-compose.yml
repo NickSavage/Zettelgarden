@@ -16,7 +16,7 @@ services:
       - REACT_APP_USERNAME=${REACT_APP_USERNAME}
       - REACT_APP_PASSWORD=${REACT_APP_PASSWORD}
     env_file:
-      - .env
+      - stack.env
 
   backend:
     build:
@@ -25,4 +25,4 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - .env
+      - stack.env
