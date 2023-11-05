@@ -5,10 +5,12 @@ services:
     build:
       context: ./zettelkasten-front
       dockerfile: Dockerfile
+      args:
+        REACT_APP_URL: http://192.168.0.72:5000/api
     ports:
       - "3001:3000"
     env_file:
-      - stack.env
+      - .env
 
   backend:
     build:
@@ -17,4 +19,4 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - stack.env
+      - .env

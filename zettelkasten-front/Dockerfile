@@ -1,9 +1,10 @@
 # Dockerfile-frontend
 
-ARG=REACT_APP_URL
-
 # Use an official Node runtime as a parent image
 FROM node:18
+
+ARG REACT_APP_URL
+ENV REACT_APP_URL=${REACT_APP_URL}
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -16,8 +17,6 @@ RUN npm install
 
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
-
-ECHO "REACT_APP_URL='http://192.168.0.129:5000/api'" > ./.env"
 
 # Build the app
 RUN npm run build
