@@ -6,9 +6,15 @@ services:
       context: ./zettelkasten-front
       dockerfile: Dockerfile
       args:
-        REACT_APP_URL: http://192.168.0.72:5000/api
+        REACT_APP_URL: ${REACT_APP_URL}
+        REACT_APP_USERNAME: ${REACT_APP_USERNAME}
+        REACT_APP_PASSWORD: ${REACT_APP_PASSWORD}
     ports:
-      - "3001:3000"
+      - "3000:3000"
+    environment:
+      - REACT_APP_URL=${REACT_APP_URL}
+      - REACT_APP_USERNAME=${REACT_APP_USERNAME}
+      - REACT_APP_PASSWORD=${REACT_APP_PASSWORD}
     env_file:
       - .env
 
