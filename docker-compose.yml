@@ -10,7 +10,7 @@ services:
         REACT_APP_USERNAME: ${REACT_APP_USERNAME}
         REACT_APP_PASSWORD: ${REACT_APP_PASSWORD}
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - REACT_APP_URL=${REACT_APP_URL}
       - REACT_APP_USERNAME=${REACT_APP_USERNAME}
