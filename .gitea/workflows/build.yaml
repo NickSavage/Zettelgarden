@@ -1,12 +1,8 @@
-name: Docker Compose Build
-
-on [push]:
+name: Zettelkasten Build
+run-name: Zettelkasten Build
+on: [push]
 
 jobs:
-  Explore-Gitea-Actions:
-    runs-on: ubuntu-latest
-    steps:
-    - run: echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
   build:
     runs-on: ubuntu-latest
     steps:
