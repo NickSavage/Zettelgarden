@@ -48,10 +48,10 @@ function App() {
       if ("error" in refreshed) {
 	  setError(refreshed["error"]);
       } else {
-	  setViewCard(card);
-	  setLastCardId(card.card_id);
-	  if ("id" in card.parent) {
-	      let parentCardId = card.parent.id;
+	  setViewCard(refreshed);
+	  setLastCardId(refreshed.card_id);
+	  if ("id" in refreshed.parent) {
+	      let parentCardId = refreshed.parent.id;
 	      const parentCard = await getCard(parentCardId);
 	      setParentCard(parentCard);
 	  } else {
