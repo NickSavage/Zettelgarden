@@ -1,5 +1,5 @@
 import { CardBody } from "./CardBody";
-import { CardItem} from "./CardItem";
+import { CardItem } from "./CardItem";
 
 export function ViewPage({
   viewingCard,
@@ -22,10 +22,10 @@ export function ViewPage({
       </div>
       <div>
         {viewingCard.is_reference && (
-		<div>
+          <div>
             <span style={{ fontWeight: "bold" }}>Link:</span>
             <span>{viewingCard.link}</span>
-		</div>
+          </div>
         )}
       </div>
       <hr />
@@ -36,20 +36,14 @@ export function ViewPage({
         <div>
           <h4>Parent:</h4>
           <ul>
-	      <CardItem
-	  handleViewCard={handleViewCard}
-	  card={parentCard}
-	      />
-              </ul>
+            <CardItem handleViewCard={handleViewCard} card={parentCard} />
+          </ul>
         </div>
       )}
       <h4>Backlinks:</h4>
       <ul>
         {viewingCard.backlinks.map((backlink, index) => (
-		<CardItem
-	    handleViewCard={handleViewCard}
-	    card={backlink}
-	    />
+          <CardItem handleViewCard={handleViewCard} card={backlink} />
         ))}
       </ul>
       <button onClick={handleEditCard}>Edit</button>
@@ -63,10 +57,7 @@ export function ViewPage({
           )
           .sort((a, b) => a.card_id.localeCompare(b.card_id))
           .map((childCard, index) => (
-		  <CardItem
-	      handleViewCard={handleViewCard}
-	      card={childCard}
-	      />
+            <CardItem handleViewCard={handleViewCard} card={childCard} />
           ))}
       </ul>
     </div>

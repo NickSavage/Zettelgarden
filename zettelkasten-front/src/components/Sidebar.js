@@ -7,7 +7,7 @@ export function Sidebar({
   setCards,
   handleNewCard,
   handleOpenSearch,
-    handleViewCard,
+  handleViewCard,
   refreshSidebar,
   setRefreshSidebar,
 }) {

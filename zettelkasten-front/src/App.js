@@ -44,20 +44,20 @@ function App() {
   async function handleViewCard(card) {
     changePage();
     document.title = "Zettelkasten - " + card.card_id + " - " + card.title;
-      let refreshed = await getCard(card.id);
-      if ("error" in refreshed) {
-	  setError(refreshed["error"]);
+    let refreshed = await getCard(card.id);
+    if ("error" in refreshed) {
+      setError(refreshed["error"]);
+    } else {
+      setViewCard(refreshed);
+      setLastCardId(refreshed.card_id);
+      if ("id" in refreshed.parent) {
+        let parentCardId = refreshed.parent.id;
+        const parentCard = await getCard(parentCardId);
+        setParentCard(parentCard);
       } else {
-	  setViewCard(refreshed);
-	  setLastCardId(refreshed.card_id);
-	  if ("id" in refreshed.parent) {
-	      let parentCardId = refreshed.parent.id;
-	      const parentCard = await getCard(parentCardId);
-	      setParentCard(parentCard);
-	  } else {
-	      setParentCard(null);
-	  }
+        setParentCard(null);
       }
+    }
   }
 
   async function handleSaveCard() {
@@ -93,7 +93,7 @@ function App() {
         setCards={setCards}
         handleNewCard={handleNewCard}
         handleOpenSearch={handleOpenSearch}
-	  handleViewCard={handleViewCard}
+        handleViewCard={handleViewCard}
         refreshSidebar={refreshSidebar}
         setRefreshSidebar={setRefreshSidebar}
       />
