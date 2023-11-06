@@ -139,6 +139,7 @@ option {
     overflow: auto;
     float: 'left';
     height: 100vh;
+    width: "80%";
     
 }
 

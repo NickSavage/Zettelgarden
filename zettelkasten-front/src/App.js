@@ -117,12 +117,6 @@ function App() {
       />
       <div
         className="main-content"
-        style={{
-          width: "80%",
-          float: "left",
-          padding: "20px",
-          height: "100vh",
-        }}
       >
         {error && (
           <div>
