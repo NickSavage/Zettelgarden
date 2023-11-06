@@ -1,4 +1,5 @@
 import { CardBody } from "./CardBody";
+import { CardItem} from "./CardItem";
 
 export function ViewPage({
   viewingCard,
@@ -36,42 +37,20 @@ export function ViewPage({
         <div>
           <h4>Parent:</h4>
           <ul>
-            <li style={{ marginBottom: "10px" }}>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleViewCard(parentCard);
-                }}
-                style={{ color: "black", textDecoration: "none" }}
-              >
-                <span style={{ color: "blue", fontWeight: "bold" }}>
-                  {parentCard.card_id}
-                </span>
-                : {parentCard.title}
-              </a>
-            </li>
-          </ul>
+	      <CardItem
+	  handleViewCard={handleViewCard}
+	  card={parentCard}
+	      />
+              </ul>
         </div>
       )}
       <h4>Backlinks:</h4>
       <ul>
         {viewingCard.backlinks.map((backlink, index) => (
-          <li key={index} style={{ marginBottom: "10px" }}>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handleViewBacklink(backlink);
-              }}
-              style={{ color: "black", textDecoration: "none" }}
-            >
-              <span style={{ color: "blue", fontWeight: "bold" }}>
-                {backlink.card_id}
-              </span>
-              : {backlink.title}
-            </a>
-          </li>
+		<CardItem
+	    handleViewCard={handleViewBacklink}
+	    card={backlink}
+	    />
         ))}
       </ul>
       <button onClick={handleEditCard}>Edit</button>
@@ -85,21 +64,10 @@ export function ViewPage({
           )
           .sort((a, b) => a.card_id.localeCompare(b.card_id))
           .map((childCard, index) => (
-            <li key={index} style={{ marginBottom: "10px" }}>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleViewCard(childCard);
-                }}
-                style={{ color: "black", textDecoration: "none" }}
-              >
-                <span style={{ color: "blue", fontWeight: "bold" }}>
-                  {childCard.card_id}
-                </span>
-                : {childCard.title}
-              </a>
-            </li>
+		  <CardItem
+	      handleViewCard={handleViewCard}
+	      card={childCard}
+	      />
           ))}
       </ul>
     </div>

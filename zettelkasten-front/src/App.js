@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import { fetchCards, getCard, saveCard } from "./api";
+import { getCard, saveNewCard, saveExistingCard } from "./api";
 import { SearchPage } from "./components/SearchPage";
 import { ViewPage } from "./components/ViewPage";
 import { EditPage } from "./components/EditPage";
@@ -16,30 +16,6 @@ function App() {
   const [searchCard, setSearchCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
-
-  const base_url = process.env.REACT_APP_URL;
-
-  async function handleSaveCard() {
-    const url = newCard
-      ? base_url + `/cards`
-      : base_url + `/cards/${encodeURIComponent(editingCard.id)}`;
-    const method = newCard ? "POST" : "PUT";
-
-    let card = editingCard;
-
-    saveCard(url, method, card)
-      .then((response) => response.json())
-      .then((response) => {
-        if (!("error" in response)) {
-          handleViewCard(response);
-        } else {
-          setError(response["error"]);
-        }
-        setRefreshSidebar(true);
-        //fetchCards().then(data => setCards(data));
-      });
-  }
-  // helper
 
   // changing pages
 
@@ -79,6 +55,22 @@ function App() {
     }
   }
 
+  async function handleSaveCard() {
+    let response;
+    if (newCard) {
+      response = await saveNewCard(editingCard);
+    } else {
+      response = await saveExistingCard(editingCard);
+    }
+
+    if (!("error" in response)) {
+      handleViewCard(response);
+    } else {
+      setError(response["error"]);
+    }
+    setRefreshSidebar(true);
+  }
+
   function handleEditCard() {
     changePage();
     document.title = "Zettelkasten - Edit Card";
@@ -115,9 +107,7 @@ function App() {
         refreshSidebar={refreshSidebar}
         setRefreshSidebar={setRefreshSidebar}
       />
-      <div
-        className="main-content"
-      >
+      <div className="main-content">
         {error && (
           <div>
             <p>Error: {error}</p>

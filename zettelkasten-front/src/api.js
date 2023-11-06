@@ -32,6 +32,17 @@ export function getCard(id) {
       return cardData;
     });
 }
+export function saveNewCard(card) {
+  const url = base_url + `/cards`;
+  const method = "POST";
+  return saveCard(url, method, card);
+}
+
+export function saveExistingCard(card) {
+  const url = base_url + `/cards/${encodeURIComponent(card.id)}`;
+  const method = "PUT";
+  return saveCard(url, method, card);
+}
 export function saveCard(url, method, card) {
   return fetch(url, {
     method: method,
@@ -40,5 +51,5 @@ export function saveCard(url, method, card) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(card),
-  });
+  }).then((response) => response.json());
 }
