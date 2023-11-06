@@ -69,7 +69,7 @@ partial_card_query = "SELECT id, card_id, title FROM cards"
 
 def serialize_full_card(card) -> dict:
     is_ref = False
-    if card[3] == 1:
+    if card[4] == 1:
         is_ref = True
     card = {
         "id": card[0],
