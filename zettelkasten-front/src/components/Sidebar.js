@@ -7,7 +7,7 @@ export function Sidebar({
   setCards,
   handleNewCard,
   handleOpenSearch,
-  handleSidebarCardClick,
+    handleViewCard,
   refreshSidebar,
   setRefreshSidebar,
 }) {
@@ -144,7 +144,7 @@ export function Sidebar({
         <div className="scroll-cards">
           <div>
             {sidebarCards.map((card) => (
-              <div key={card.id} onClick={() => handleSidebarCardClick(card)}>
+              <div key={card.id} onClick={() => handleViewCard(card)}>
                 <span style={{ color: "blue", fontWeight: "bold" }}>
                   {card.card_id}
                 </span>

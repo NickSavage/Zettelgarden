@@ -44,15 +44,20 @@ function App() {
   async function handleViewCard(card) {
     changePage();
     document.title = "Zettelkasten - " + card.card_id + " - " + card.title;
-    setViewCard(card);
-    setLastCardId(card.card_id);
-    if ("id" in card.parent) {
-      let parentCardId = card.parent.id;
-      const parentCard = await getCard(parentCardId);
-      setParentCard(parentCard);
-    } else {
-      setParentCard(null);
-    }
+      let refreshed = await getCard(card.id);
+      if ("error" in refreshed) {
+	  setError(refreshed["error"]);
+      } else {
+	  setViewCard(card);
+	  setLastCardId(card.card_id);
+	  if ("id" in card.parent) {
+	      let parentCardId = card.parent.id;
+	      const parentCard = await getCard(parentCardId);
+	      setParentCard(parentCard);
+	  } else {
+	      setParentCard(null);
+	  }
+      }
   }
 
   async function handleSaveCard() {
@@ -77,21 +82,6 @@ function App() {
     setEditingCard(viewingCard);
   }
 
-  async function handleViewBacklink(backlink) {
-    // Assuming backlink is an object with id and title, you can just use the id to view the card.
-    const cardData = await getCard(backlink.id);
-    if ("error" in cardData) {
-      setError(cardData["error"]);
-    } else {
-      handleViewCard(cardData);
-    }
-  }
-  async function handleSidebarCardClick(card) {
-    // Call getCard with the card's id and then call handleViewCard with the fetched cardData
-    const cardData = await getCard(card.id);
-    handleViewCard(cardData);
-  }
-
   useEffect(() => {
     //fetchCards().then(data => setCards(data));
   }, []);
@@ -103,7 +93,7 @@ function App() {
         setCards={setCards}
         handleNewCard={handleNewCard}
         handleOpenSearch={handleOpenSearch}
-        handleSidebarCardClick={handleSidebarCardClick}
+	  handleViewCard={handleViewCard}
         refreshSidebar={refreshSidebar}
         setRefreshSidebar={setRefreshSidebar}
       />
@@ -120,7 +110,6 @@ function App() {
           <ViewPage
             viewingCard={viewingCard}
             cards={cards}
-            handleViewBacklink={handleViewBacklink}
             parentCard={parentCard}
             handleViewCard={handleViewCard}
             handleEditCard={handleEditCard}

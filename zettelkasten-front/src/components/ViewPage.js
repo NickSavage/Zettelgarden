@@ -4,7 +4,6 @@ import { CardItem} from "./CardItem";
 export function ViewPage({
   viewingCard,
   cards,
-  handleViewBacklink,
   parentCard,
   handleViewCard,
   handleEditCard,
@@ -19,14 +18,14 @@ export function ViewPage({
       </h2>
       <hr />
       <div style={{ marginBottom: "10px" }}>
-        {CardBody(viewingCard, cards, handleViewBacklink)}
+        {CardBody(viewingCard, cards, handleViewCard)}
       </div>
       <div>
         {viewingCard.is_reference && (
-          <>
+		<div>
             <span style={{ fontWeight: "bold" }}>Link:</span>
             <span>{viewingCard.link}</span>
-          </>
+		</div>
         )}
       </div>
       <hr />
@@ -48,7 +47,7 @@ export function ViewPage({
       <ul>
         {viewingCard.backlinks.map((backlink, index) => (
 		<CardItem
-	    handleViewCard={handleViewBacklink}
+	    handleViewCard={handleViewCard}
 	    card={backlink}
 	    />
         ))}
