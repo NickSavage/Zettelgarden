@@ -59,6 +59,16 @@ cur.execute(
         );
             """
     )
+cur.execute(
+        """
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name TEXT,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP
+        );
+            """
+    )
 conn.commit()
 cur.close()
 
@@ -66,6 +76,8 @@ cur.close()
 
 full_card_query = "SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards"
 partial_card_query = "SELECT id, card_id, title FROM cards"
+
+full_user_query = "SELECT id, name, created_at, updated_at FROM users"
 
 def serialize_full_card(card) -> dict:
     is_ref = False
@@ -95,6 +107,16 @@ def serialize_partial_card(card) -> dict:
     }
     return card
 
+def serialize_full_user(user: list) -> dict:
+    user = {
+        "id": user[0],
+        "name": user[1],
+        "created_at": user[2],
+        "updated_at": user[3],
+    }
+    return user
+    
+
 def query_full_card(id) -> dict:
     cur = conn.cursor()
     if id == 'null':
@@ -109,6 +131,21 @@ def query_full_card(id) -> dict:
     cur.close()
     return card
     
+def query_full_user(id: int) -> dict:
+    cur = conn.cursor()
+    if id == 'null':
+        return {"error": "User not found"}
+    try:
+        cur.execute(full_user_query + " WHERE id = %s;", (id,))
+        user = cur.fetchone()
+    except Exception as e:
+        return {"error": str(e)}
+    if user:
+        user = serialize_full_user(user)
+    cur.close()
+    return user
+    
+
 def query_all_full_cards() -> list:
     cur = conn.cursor()
     cur.execute(full_card_query)
@@ -270,6 +307,12 @@ def update_card(id):
     cur.close()
     return jsonify(query_full_card(id))
 
+@app.route('/api/users/<path:id>', methods=['GET'])
+def get_user(id):
+    id = unquote(id)
+    user = query_full_user(id)
+    return jsonify(user)
+    
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)

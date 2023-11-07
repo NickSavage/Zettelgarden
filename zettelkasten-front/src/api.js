@@ -53,3 +53,26 @@ export function saveCard(url, method, card) {
     body: JSON.stringify(card),
   }).then((response) => response.json());
 }
+
+export function getUser(id) {
+  let encoded = encodeURIComponent(id);
+  const url = base_url + `/users/${encoded}`;
+
+  // Send a GET request to the URL
+  return fetch(url, { headers: { Authorization: `Basic ${creds}` } })
+    .then((response) => {
+      // Check if the response is successful (status code in the range 200-299)
+      if (response.ok) {
+        // Parse and return the JSON response
+        return response.json();
+      } else {
+        // Throw an error if the response is not successful
+        throw new Error("Failed to fetch user");
+      }
+    })
+    .then((userData) => {
+      // Process the card data here (if needed) and return it
+      return userData;
+    }
+	 );
+}

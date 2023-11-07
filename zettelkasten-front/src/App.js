@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import { getCard, saveNewCard, saveExistingCard } from "./api";
 import { SearchPage } from "./components/SearchPage";
+import { SettingsPage } from "./components/SettingsPage";
 import { ViewPage } from "./components/ViewPage";
 import { EditPage } from "./components/EditPage";
 import { Sidebar } from "./components/Sidebar";
@@ -135,7 +136,7 @@ function App() {
             handleSaveCard={handleSaveCard}
           />
         )}
-        {viewSettings && <div></div>}
+        {viewSettings && <SettingsPage />}
 	      </div>
       </div>
     </div>
