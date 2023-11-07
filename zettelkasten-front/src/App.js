@@ -5,12 +5,14 @@ import { SearchPage } from "./components/SearchPage";
 import { ViewPage } from "./components/ViewPage";
 import { EditPage } from "./components/EditPage";
 import { Sidebar } from "./components/Sidebar";
+import { Topbar } from "./components/Topbar";
 
 function App() {
   const [error, setError] = useState("");
   const [cards, setCards] = useState([]);
   const [newCard, setNewCard] = useState(null);
   const [viewingCard, setViewCard] = useState(null);
+  const [viewSettings, setViewSettings] = useState(null);
   const [parentCard, setParentCard] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
   const [searchCard, setSearchCard] = useState(null);
@@ -40,6 +42,11 @@ function App() {
     setEditingCard({ card_id: lastCardId, title: "", body: "" });
     document.title = "Zettelkasten - New Card";
   }
+    function handleViewSettings() {
+	changePage();
+	setViewSettings(true);
+	document.title = "Zettelkasten - Settings";
+    }
 
   async function handleViewCard(card) {
     changePage();
@@ -88,16 +95,20 @@ function App() {
 
   return (
     <div>
+	<Topbar
+	handleNewCard={handleNewCard}
+	handleOpenSearch={handleOpenSearch}
+	handleViewSettings={handleViewSettings}
+	/>
+      <div className="main-content">
       <Sidebar
         cards={cards}
         setCards={setCards}
-        handleNewCard={handleNewCard}
-        handleOpenSearch={handleOpenSearch}
         handleViewCard={handleViewCard}
         refreshSidebar={refreshSidebar}
         setRefreshSidebar={setRefreshSidebar}
       />
-      <div className="main-content">
+	  <div className="content">
         {error && (
           <div>
             <p>Error: {error}</p>
@@ -124,6 +135,8 @@ function App() {
             handleSaveCard={handleSaveCard}
           />
         )}
+        {viewSettings && <div></div>}
+	      </div>
       </div>
     </div>
   );

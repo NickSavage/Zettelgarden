@@ -5,8 +5,6 @@ import { sortCards } from "../utils";
 export function Sidebar({
   cards,
   setCards,
-  handleNewCard,
-  handleOpenSearch,
   handleViewCard,
   refreshSidebar,
   setRefreshSidebar,
@@ -110,23 +108,15 @@ export function Sidebar({
   }, [cards, sidebarView]);
 
   return (
-    <div>
-      <button className="hamburger" onClick={toggleSidebar}>
-        ☰
-      </button>
       <div className={`sidebar ${isSidebarHidden ? "sidebar-hidden" : ""}`}>
-        <button className="sidebar-button" onClick={handleNewCard}>
-          New Card
-        </button>
+	  <div>
         <input
           type="text"
           value={filter}
           onChange={handleFilter}
           placeholder="Filter"
         />
-        <button className="icon-button" onClick={handleOpenSearch}>
-          Search
-        </button>
+	  </div>
         <select onChange={handleSelectChange}>
           <option value="all">All Cards</option>
           <option value="meeting">Meeting Cards</option>
@@ -154,6 +144,5 @@ export function Sidebar({
           </div>
         </div>
       </div>
-    </div>
   );
 }
