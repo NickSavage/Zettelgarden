@@ -152,6 +152,7 @@ option {
 }
 /* Sidebar Styles */
 .sidebar {
+    flex-shrink: 0;
     width: 20%;
     overflow-y: auto;
     height: 100vh;
