@@ -1,3 +1,4 @@
+import { useAuth } from "./AuthContext";
 // API
 const base_url = process.env.REACT_APP_URL;
 const username = process.env.REACT_APP_USERNAME;
@@ -5,9 +6,17 @@ const password = process.env.REACT_APP_PASSWORD;
 const creds = btoa(`${username}:${password}`);
 
 export function fetchCards() {
+  let token = localStorage.getItem("token");
+    console.log('fetchCards');
+    console.log(token);
   return fetch(base_url + "/cards", {
-    headers: { Authorization: `Basic ${creds}` },
-  }).then((response) => response.json());
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((response) => {
+    let results = response.json();
+      console.log('aasdsa')
+    console.log(results);
+    return results;
+  });
 }
 
 export function getCard(id) {
@@ -15,8 +24,9 @@ export function getCard(id) {
   let encoded = encodeURIComponent(id);
   const url = base_url + `/cards/${encoded}`;
 
+  let token = localStorage.getItem("token");
   // Send a GET request to the URL
-  return fetch(url, { headers: { Authorization: `Basic ${creds}` } })
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then((response) => {
       // Check if the response is successful (status code in the range 200-299)
       if (response.ok) {
@@ -44,10 +54,11 @@ export function saveExistingCard(card) {
   return saveCard(url, method, card);
 }
 export function saveCard(url, method, card) {
+  let token = localStorage.getItem("token");
   return fetch(url, {
     method: method,
     headers: {
-      Authorization: `Basic ${creds}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(card),
@@ -57,9 +68,10 @@ export function saveCard(url, method, card) {
 export function getUser(id) {
   let encoded = encodeURIComponent(id);
   const url = base_url + `/users/${encoded}`;
+  let token = localStorage.getItem("token");
 
   // Send a GET request to the URL
-  return fetch(url, { headers: { Authorization: `Basic ${creds}` } })
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then((response) => {
       // Check if the response is successful (status code in the range 200-299)
       if (response.ok) {
@@ -73,6 +85,5 @@ export function getUser(id) {
     .then((userData) => {
       // Process the card data here (if needed) and return it
       return userData;
-    }
-	 );
+    });
 }

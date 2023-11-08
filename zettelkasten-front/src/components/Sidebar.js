@@ -81,7 +81,7 @@ export function Sidebar({
   }
 
   async function setAllCards() {
-    fetchCards()
+    await fetchCards()
       .then((data) => {
         setCards(data);
         let filtered = data
@@ -108,41 +108,41 @@ export function Sidebar({
   }, [cards, sidebarView]);
 
   return (
-      <div className={`sidebar ${isSidebarHidden ? "sidebar-hidden" : ""}`}>
-	  <div>
+    <div className={`sidebar ${isSidebarHidden ? "sidebar-hidden" : ""}`}>
+      <div>
         <input
           type="text"
           value={filter}
           onChange={handleFilter}
           placeholder="Filter"
         />
-	  </div>
-        <select onChange={handleSelectChange}>
-          <option value="all">All Cards</option>
-          <option value="meeting">Meeting Cards</option>
-          <option value="read">Read Cards</option>
-          <option value="reference">Reference Cards</option>
-          <option value="unsorted">Unsorted Cards</option>
-          <option value="work">Work Cards</option>
-        </select>
-        <select onChange={handleSortChange}>
-          <option value="sortSmallBig">Sort Big to Small</option>
-          <option value="sortBigSmall">Sort Small to Big</option>
-          <option value="sortNewOld">Sort New to Old</option>
-          <option value="sortOldNew">Sort Old to New</option>
-        </select>
-        <div className="scroll-cards">
-          <div>
-            {sidebarCards.map((card) => (
-              <div key={card.id} onClick={() => handleViewCard(card)}>
-                <span style={{ color: "blue", fontWeight: "bold" }}>
-                  {card.card_id}
-                </span>
-                : {card.title}
-              </div>
-            ))}
-          </div>
+      </div>
+      <select onChange={handleSelectChange}>
+        <option value="all">All Cards</option>
+        <option value="meeting">Meeting Cards</option>
+        <option value="read">Read Cards</option>
+        <option value="reference">Reference Cards</option>
+        <option value="unsorted">Unsorted Cards</option>
+        <option value="work">Work Cards</option>
+      </select>
+      <select onChange={handleSortChange}>
+        <option value="sortSmallBig">Sort Big to Small</option>
+        <option value="sortBigSmall">Sort Small to Big</option>
+        <option value="sortNewOld">Sort New to Old</option>
+        <option value="sortOldNew">Sort Old to New</option>
+      </select>
+      <div className="scroll-cards">
+        <div>
+          {sidebarCards.map((card) => (
+            <div key={card.id} onClick={() => handleViewCard(card)}>
+              <span style={{ color: "blue", fontWeight: "bold" }}>
+                {card.card_id}
+              </span>
+              : {card.title}
+            </div>
+          ))}
         </div>
       </div>
+    </div>
   );
 }

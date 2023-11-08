@@ -7,6 +7,8 @@ import { ViewPage } from "./components/ViewPage";
 import { EditPage } from "./components/EditPage";
 import { Sidebar } from "./components/Sidebar";
 import { Topbar } from "./components/Topbar";
+import { useAuth } from "./AuthContext";
+import LoginForm from "./components/LoginForm";
 
 function App() {
   const [error, setError] = useState("");
@@ -19,6 +21,7 @@ function App() {
   const [searchCard, setSearchCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   // changing pages
 
@@ -43,11 +46,11 @@ function App() {
     setEditingCard({ card_id: lastCardId, title: "", body: "" });
     document.title = "Zettelkasten - New Card";
   }
-    function handleViewSettings() {
-	changePage();
-	setViewSettings(true);
-	document.title = "Zettelkasten - Settings";
-    }
+  function handleViewSettings() {
+    changePage();
+    setViewSettings(true);
+    document.title = "Zettelkasten - Settings";
+  }
 
   async function handleViewCard(card) {
     changePage();
@@ -94,50 +97,56 @@ function App() {
     //fetchCards().then(data => setCards(data));
   }, []);
 
+  console.log(isAuthenticated);
+  if (!isAuthenticated) {
+    // User is not authenticated, render only the LoginForm
+    return <LoginForm />;
+  }
+
   return (
     <div>
-	<Topbar
-	handleNewCard={handleNewCard}
-	handleOpenSearch={handleOpenSearch}
-	handleViewSettings={handleViewSettings}
-	/>
-      <div className="main-content">
-      <Sidebar
-        cards={cards}
-        setCards={setCards}
-        handleViewCard={handleViewCard}
-        refreshSidebar={refreshSidebar}
-        setRefreshSidebar={setRefreshSidebar}
+      <Topbar
+        handleNewCard={handleNewCard}
+        handleOpenSearch={handleOpenSearch}
+        handleViewSettings={handleViewSettings}
       />
-	  <div className="content">
-        {error && (
-          <div>
-            <p>Error: {error}</p>
-          </div>
-        )}
-        {searchCard && (
-          <SearchPage cards={cards} handleViewCard={handleViewCard} />
-        )}
-        {viewingCard && (
-          <ViewPage
-            viewingCard={viewingCard}
-            cards={cards}
-            parentCard={parentCard}
-            handleViewCard={handleViewCard}
-            handleEditCard={handleEditCard}
-          />
-        )}
+      <div className="main-content">
+        <Sidebar
+          cards={cards}
+          setCards={setCards}
+          handleViewCard={handleViewCard}
+          refreshSidebar={refreshSidebar}
+          setRefreshSidebar={setRefreshSidebar}
+        />
+        <div className="content">
+          {error && (
+            <div>
+              <p>Error: {error}</p>
+            </div>
+          )}
+          {searchCard && (
+            <SearchPage cards={cards} handleViewCard={handleViewCard} />
+          )}
+          {viewingCard && (
+            <ViewPage
+              viewingCard={viewingCard}
+              cards={cards}
+              parentCard={parentCard}
+              handleViewCard={handleViewCard}
+              handleEditCard={handleEditCard}
+            />
+          )}
 
-        {editingCard && (
-          <EditPage
-            cards={cards}
-            editingCard={editingCard}
-            setEditingCard={setEditingCard}
-            handleSaveCard={handleSaveCard}
-          />
-        )}
-        {viewSettings && <SettingsPage />}
-	      </div>
+          {editingCard && (
+            <EditPage
+              cards={cards}
+              editingCard={editingCard}
+              setEditingCard={setEditingCard}
+              handleSaveCard={handleSaveCard}
+            />
+          )}
+          {viewSettings && <SettingsPage />}
+        </div>
       </div>
     </div>
   );

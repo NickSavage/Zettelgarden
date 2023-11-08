@@ -4,9 +4,13 @@ from urllib.parse import unquote
 import psycopg2
 import os
 import re
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this!
+jwt = JWTManager(app)
 
 # Database setup
 DB_FILE = "zettelkasten.db"
@@ -63,7 +67,9 @@ cur.execute(
         """
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
-                name TEXT,
+                username TEXT,
+                email TEXT,
+                password TEXT,
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP
         );
@@ -72,12 +78,37 @@ cur.execute(
 conn.commit()
 cur.close()
 
+# login
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get('password')
+    
+    user = query_username(username, True)
+
+    print(user)
+    if "error" in user:
+        return jsonify({"message": "Invalid credentials"}), 401
+        
+    if user and user['password'] == password:
+        access_token = create_access_token(identity=username)
+        return jsonify(access_token=access_token), 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
 # Serializers
 
 full_card_query = "SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards"
 partial_card_query = "SELECT id, card_id, title FROM cards"
 
-full_user_query = "SELECT id, name, created_at, updated_at FROM users"
+full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
 
 def serialize_full_card(card) -> dict:
     is_ref = False
@@ -107,14 +138,17 @@ def serialize_partial_card(card) -> dict:
     }
     return card
 
-def serialize_full_user(user: list) -> dict:
-    user = {
+def serialize_full_user(user: list, include_password=False) -> dict:
+    print(user)
+    result = {
         "id": user[0],
         "name": user[1],
-        "created_at": user[2],
-        "updated_at": user[3],
+        "created_at": user[3],
+        "updated_at": user[4],
     }
-    return user
+    if include_password:
+        result["password"] = user[2]
+    return result
     
 
 def query_full_card(id) -> dict:
@@ -131,7 +165,7 @@ def query_full_card(id) -> dict:
     cur.close()
     return card
     
-def query_full_user(id: int) -> dict:
+def query_full_user(id: int, include_password=False) -> dict:
     cur = conn.cursor()
     if id == 'null':
         return {"error": "User not found"}
@@ -141,7 +175,21 @@ def query_full_user(id: int) -> dict:
     except Exception as e:
         return {"error": str(e)}
     if user:
-        user = serialize_full_user(user)
+        user = serialize_full_user(user, include_password)
+    cur.close()
+    return user
+
+def query_username(username: str, include_password=False) -> dict:
+    cur = conn.cursor()
+    if not username:
+        return {"error": "User not found"}
+    try:
+        cur.execute(full_user_query + " WHERE username = %s;", (username,))
+        user = cur.fetchone()
+    except Exception as e:
+        return {"error": str(e)}
+    if user:
+        user = serialize_full_user(user, include_password)
     cur.close()
     return user
     
@@ -231,6 +279,7 @@ def get_parent(card_id: str) -> dict:
     return result
 
 @app.route('/api/cards', methods=['GET'])
+@jwt_required()
 def get_cards():
     try:
         results = query_all_full_cards()
@@ -241,6 +290,7 @@ def get_cards():
 
 
 @app.route('/api/cards', methods=['POST'])
+@jwt_required()
 def create_card():
     cur = conn.cursor()
     title = request.json.get("title")
@@ -277,6 +327,7 @@ def create_card():
                                                         
 
 @app.route('/api/cards/<path:id>', methods=['GET'])
+@jwt_required()
 def get_card(id):
     id = unquote(id)
     card = query_full_card(id)
@@ -284,6 +335,7 @@ def get_card(id):
 
 
 @app.route('/api/cards/<path:id>', methods=['PUT'])
+@jwt_required()
 def update_card(id):
     cur = conn.cursor()
     title = request.json.get("title")
@@ -308,6 +360,7 @@ def update_card(id):
     return jsonify(query_full_card(id))
 
 @app.route('/api/users/<path:id>', methods=['GET'])
+@jwt_required()
 def get_user(id):
     id = unquote(id)
     user = query_full_user(id)

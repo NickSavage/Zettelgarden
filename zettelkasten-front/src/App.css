@@ -214,3 +214,62 @@ option {
 	outline: none; /* Removes the outline on focus for buttons */
 	
     }
+
+/* Updated CSS for the login form, attempting to match the main app page style */
+
+    .login-form {
+	max-width: 300px;
+	margin: 50px auto;
+	padding: 20px;
+	background-color: #ffffff; /* Matching the light background */
+	border: 1px solid #dddddd; /* Slightly darker border for definition */
+	border-radius: 4px; /* Softer corner radius to match main page elements */
+	box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+	text-align: center;
+	
+    }
+
+    .login-input {
+	width: 100%;
+	margin-bottom: 10px;
+	padding: 8px 10px; /* Slightly less padding for a more compact feel */
+	border: 1px solid #cccccc; /* Lighter border color */
+	border-radius: 2px; /* Softer corners to match your main page inputs */
+	box-sizing: border-box; /* Ensuring padding does not affect width */
+	background-color: #f8f8f8; /* Light gray background for input */
+	
+    }
+
+    .login-button {
+	width: 100%;
+	padding: 8px 10px; /* Padding to match inputs */
+	border: none;
+	border-radius: 2px;
+	background-color: #4c7cf3; /* Using a primary color that seems to match the buttons on your main page */
+	color: white;
+	font-size: 16px;
+	font-weight: bold; /* Assuming your main buttons have a bold font */
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	margin-top: 10px; /* Adding a margin-top to separate from inputs */
+	
+    }
+
+    .login-button:hover {
+	background-color: #405dcf; /* A slightly darker hue on hover */
+	
+    }
+
+    /* Focus styles for inputs */
+    .login-input:focus {
+	outline: none;
+	border-color: #4c7cf3; /* Using the same blue for focus to match the button */
+	
+    }
+
+    /* Placeholder styling for consistency */
+    .login-input::placeholder {
+	color: #999999; /* A neutral color for placeholders */
+	
+    }
+    

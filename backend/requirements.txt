@@ -10,3 +10,4 @@ packaging==23.1
 psycopg2==2.9.9
 zipp==3.17.0
 gunicorn==21.2.0
+Flask-JWT-Extended==4.5.3
