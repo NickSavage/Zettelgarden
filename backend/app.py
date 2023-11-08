@@ -80,7 +80,7 @@ cur.close()
 
 # login
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
     username = data.get("username")
@@ -98,11 +98,6 @@ def login():
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
-@app.route('/protected', methods=['GET'])
-@jwt_required()
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
 # Serializers
 
 full_card_query = "SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards"
