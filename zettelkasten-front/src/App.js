@@ -100,6 +100,7 @@ function App() {
   console.log(isAuthenticated);
   if (!isAuthenticated) {
     // User is not authenticated, render only the LoginForm
+    document.title = "Zettelkasten";
     return <LoginForm />;
   }
 
