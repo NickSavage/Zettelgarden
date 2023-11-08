@@ -7,14 +7,10 @@ const creds = btoa(`${username}:${password}`);
 
 export function fetchCards() {
   let token = localStorage.getItem("token");
-    console.log('fetchCards');
-    console.log(token);
   return fetch(base_url + "/cards", {
     headers: { Authorization: `Bearer ${token}` },
   }).then((response) => {
     let results = response.json();
-      console.log('aasdsa')
-    console.log(results);
     return results;
   });
 }
