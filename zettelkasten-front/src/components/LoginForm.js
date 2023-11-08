@@ -8,8 +8,9 @@ const LoginForm = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    const base_url = process.env.REACT_APP_URL;
     try {
-      const response = await fetch("http://192.168.0.72:5000/login", {
+      const response = await fetch(base_url + "/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
