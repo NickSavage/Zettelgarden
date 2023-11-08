@@ -93,13 +93,14 @@ def login():
     if "error" in user:
         return jsonify({"message": "Invalid credentials"}), 401
         
-    if user and user['password'] == password:
-    #if user and bcrypt.check_password_hash(user['password'], password):
+#    if user and user['password'] == password:
+    if user and bcrypt.check_password_hash(user['password'], password):
         access_token = create_access_token(identity=username)
         return jsonify(access_token=access_token), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
-
+    
+    
 # Serializers
 
 full_card_query = "SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards"
@@ -362,6 +363,23 @@ def get_user(id):
     id = unquote(id)
     user = query_full_user(id)
     return jsonify(user)
+    
+@app.route('/api/user/<path:id>/password', methods=['PUT'])
+def update_password(id):
+    cur = conn.cursor()
+    data = request.get_json()
+    password = data.get('password')
+
+    user = query_full_user(id)
+
+    if "error" in user:
+        return jsonify({"message": "Wrong user"}), 401
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    cur.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, id))
+    conn.commit()
+    cur.close()
+    return jsonify({"message": "success"})
     
 
 if __name__ == "__main__":
