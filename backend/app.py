@@ -93,7 +93,8 @@ def login():
     if "error" in user:
         return jsonify({"message": "Invalid credentials"}), 401
         
-    if user and bcrypt.check_password_hash(user['password'], password):
+    if user and user['password'] == password:
+    #if user and bcrypt.check_password_hash(user['password'], password):
         access_token = create_access_token(identity=username)
         return jsonify(access_token=access_token), 200
     else:
