@@ -5,12 +5,14 @@ import psycopg2
 import os
 import re
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_bcrypt import Bcrypt
 
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this!
 jwt = JWTManager(app)
+bcrypt = Bcrypt(app)  # app is your Flask app instance
 
 # Database setup
 DB_FILE = "zettelkasten.db"
@@ -88,11 +90,10 @@ def login():
     
     user = query_username(username, True)
 
-    print(user)
     if "error" in user:
         return jsonify({"message": "Invalid credentials"}), 401
         
-    if user and user['password'] == password:
+    if user and bcrypt.check_password_hash(user['password'], password):
         access_token = create_access_token(identity=username)
         return jsonify(access_token=access_token), 200
     else:
