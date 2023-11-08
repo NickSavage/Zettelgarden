@@ -365,6 +365,7 @@ def get_user(id):
     return jsonify(user)
     
 @app.route('/api/user/<path:id>/password', methods=['PUT'])
+@jwt_required()
 def update_password(id):
     cur = conn.cursor()
     data = request.get_json()

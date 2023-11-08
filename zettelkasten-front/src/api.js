@@ -83,3 +83,20 @@ export function getUser(id) {
       return userData;
     });
 }
+
+export function changePassword(id, password) {
+  let encoded = encodeURIComponent(id);
+  const url = base_url + `/user/${encoded}/password`;
+  let token = localStorage.getItem("token");
+
+    return fetch(url, {
+	method: 'PUT',
+	headers: {
+	    Authorization: `Bearer ${token}`,
+	    "Content-Type": "application/json",
+	},
+	body: JSON.stringify({"password": password})
+    }).then((response) => response.json())
+	.then((response) => localStorage.removeItem('token'))
+	.catch((error) => console.log(error))
+}
