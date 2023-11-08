@@ -1,9 +1,6 @@
 import { useAuth } from "./AuthContext";
 // API
 const base_url = process.env.REACT_APP_URL;
-const username = process.env.REACT_APP_USERNAME;
-const password = process.env.REACT_APP_PASSWORD;
-const creds = btoa(`${username}:${password}`);
 
 export function fetchCards() {
   let token = localStorage.getItem("token");
@@ -89,14 +86,14 @@ export function changePassword(id, password) {
   const url = base_url + `/user/${encoded}/password`;
   let token = localStorage.getItem("token");
 
-    return fetch(url, {
-	method: 'PUT',
-	headers: {
-	    Authorization: `Bearer ${token}`,
-	    "Content-Type": "application/json",
-	},
-	body: JSON.stringify({"password": password})
-    }).then((response) => response.json())
-	.then((response) => localStorage.removeItem('token'))
-	.catch((error) => console.log(error))
+  return fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ password: password }),
+  })
+    .then((response) => response.json())
+    .catch((error) => console.log(error));
 }

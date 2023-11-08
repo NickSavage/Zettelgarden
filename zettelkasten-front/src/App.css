@@ -1,275 +1,242 @@
 /* General Reset */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 /* Container for the entire app */
 .app-container {
-    display: flex;
-    height: 100vh;
-    
+  display: flex;
+  height: 100vh;
 }
 
-
 .icon-button {
-    padding: 10px;
-    margin-bottom: 20px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-left: 20px;
-    
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 20px;
 }
 
 .sidebar-button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    font-size: 16px;
-    cursor: pointer;
-    
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .sidebar input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    font-size: 16px;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
 }
 
 .sidebar div {
-    margin-bottom: 10px;
-    cursor: pointer;
-    padding: 5px;
-    
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 5px;
 }
 
 .sidebar div:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
-    
-
 
 /* New CSS class to hide the sidebar on mobile */
- .sidebar-hidden {
-      transform: translateX(-100%);
-     
+.sidebar-hidden {
+  transform: translateX(-100%);
 }
 
- /* Hamburger Icon */
- .hamburger {
-     display: none; /* Show it on mobile */
-     position: fixed;
-     top: 0px;
-     left: 0px;
-     cursor: pointer;
-     font-size: 1.5rem;
-     margin: 0rem;
-     z-index: 2;
- }
+/* Hamburger Icon */
+.hamburger {
+  display: none; /* Show it on mobile */
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  margin: 0rem;
+  z-index: 2;
+}
 
 /* Dropdown Styles */
 select {
-    width: 50%;
-    padding: 10px;
-    margin-bottom: 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 5px; /* Rounded corners */
-    appearance: none; /* Remove default appearance */
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-    
+  width: 50%;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 5px; /* Rounded corners */
+  appearance: none; /* Remove default appearance */
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
 }
 
 /* Option Styles */
 option {
-    padding: 10px;
-    font-size: 16px;
-    
+  padding: 10px;
+  font-size: 16px;
 }
-
 
 .scroll-cards {
-    overflow-y: auto;
-    height: 75vh;
+  overflow-y: auto;
+  height: 75vh;
 }
 
-
-.main-content h2, .main-content h3 {
-    margin-bottom: 20px;
-    
+.main-content h2,
+.main-content h3 {
+  margin-bottom: 20px;
 }
 
 .main-content p {
-    margin-bottom: 20px;
-    
+  margin-bottom: 20px;
 }
 
 .main-content ul {
-    list-style-type: none;
-    margin-bottom: 20px;
-    
+  list-style-type: none;
+  margin-bottom: 20px;
 }
 
 .main-content li {
-    background-color: #f0f0f0;
-    padding: 5px;
-    margin-bottom: 5px;
-    
+  background-color: #f0f0f0;
+  padding: 5px;
+  margin-bottom: 5px;
 }
 
 .main-content button {
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 /* Editing Card Styles */
 .editing-card {
-    display: flex;
-    flex-direction: column;
-    
+  display: flex;
+  flex-direction: column;
 }
 
-.editing-card input, .editing-card textarea {
-    margin-bottom: 20px;
-    padding: 10px;
-    font-size: 16px;
-    
+.editing-card input,
+.editing-card textarea {
+  margin-bottom: 20px;
+  padding: 10px;
+  font-size: 16px;
 }
 
 /* Main Content Area Styles */
 .main-content {
-    display: flex;
-    padding-top: 10;
-    
+  display: flex;
+  padding-top: 10;
 }
 /* Sidebar Styles */
 .sidebar {
-    flex-shrink: 0;
-    width: 20%;
-    overflow-y: auto;
-    height: 100vh;
-    border-right: 1px solid #ccc;
-    background-color: white;
+  flex-shrink: 0;
+  width: 20%;
+  overflow-y: auto;
+  height: 100vh;
+  border-right: 1px solid #ccc;
+  background-color: white;
 }
 .content {
-    flex-grow: 1; /* takes the remaining space */
-    height: 100vh; /* 100% of the viewport height */
-    overflow-y: auto; /* enables scrolling */
-    padding: 10px;
-    
+  flex-grow: 1; /* takes the remaining space */
+  height: 100vh; /* 100% of the viewport height */
+  overflow-y: auto; /* enables scrolling */
+  padding: 10px;
 }
 .top-bar {
-    display: flex;
-    background-color: grey; /* A nice blue shade */
-    color: white;
-    width: 100%;
-    padding: 10px 15px; /* Add some padding around the contents */
-    top: 0;
-    align-items: center; /* Center items vertically */
-    justify-content: space-between;
-    
+  display: flex;
+  background-color: grey; /* A nice blue shade */
+  color: white;
+  width: 100%;
+  padding: 10px 15px; /* Add some padding around the contents */
+  top: 0;
+  align-items: center; /* Center items vertically */
+  justify-content: space-between;
 }
 
 .top-bar-left {
-    
 }
 
 .top-bar-right {
-    justify-content: flex-end;
-    display: flex;
-    align-items: center; /* Center items vertically */
-    
+  justify-content: flex-end;
+  display: flex;
+  align-items: center; /* Center items vertically */
 }
 
-    /* Button-like styles */
-    .btn {
-	padding: 10px 20px;
-	background-color: #007BFF; /* Blue background */
-	color: white; /* White text */
-	text-decoration: none; /* Removes underline from links */
-	border: none; /* Removes border from buttons */
-	border-radius: 5px; /* Optional: rounds the corners */
-	cursor: pointer; /* Changes cursor to pointer */
-	font-size: 16px; /* Sets the font size */
-	display: inline-block; /* Allows setting padding and width */
-	margin: 0 5px; /* Optional: adds some space around the buttons */
-	transition: background-color 0.3s; /* Smooth background color transition on hover */
-	
-    }
+/* Button-like styles */
+.btn {
+  padding: 10px 20px;
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  text-decoration: none; /* Removes underline from links */
+  border: none; /* Removes border from buttons */
+  border-radius: 5px; /* Optional: rounds the corners */
+  cursor: pointer; /* Changes cursor to pointer */
+  font-size: 16px; /* Sets the font size */
+  display: inline-block; /* Allows setting padding and width */
+  margin: 0 5px; /* Optional: adds some space around the buttons */
+  transition: background-color 0.3s; /* Smooth background color transition on hover */
+}
 
-    .btn:hover {
-	background-color: #0056b3; /* Darker blue on hover */
-	
-    }
+.btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
 
-    .btn:focus {
-	outline: none; /* Removes the outline on focus for buttons */
-	
-    }
+.btn:focus {
+  outline: none; /* Removes the outline on focus for buttons */
+}
 
 /* Updated CSS for the login form, attempting to match the main app page style */
 
-    .login-form {
-	max-width: 300px;
-	margin: 50px auto;
-	padding: 20px;
-	background-color: #ffffff; /* Matching the light background */
-	border: 1px solid #dddddd; /* Slightly darker border for definition */
-	border-radius: 4px; /* Softer corner radius to match main page elements */
-	box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for depth */
-	text-align: center;
-	
-    }
+.login-form {
+  max-width: 300px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #ffffff; /* Matching the light background */
+  border: 1px solid #dddddd; /* Slightly darker border for definition */
+  border-radius: 4px; /* Softer corner radius to match main page elements */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+  text-align: center;
+}
 
-    .login-input {
-	width: 100%;
-	margin-bottom: 10px;
-	padding: 8px 10px; /* Slightly less padding for a more compact feel */
-	border: 1px solid #cccccc; /* Lighter border color */
-	border-radius: 2px; /* Softer corners to match your main page inputs */
-	box-sizing: border-box; /* Ensuring padding does not affect width */
-	background-color: #f8f8f8; /* Light gray background for input */
-	
-    }
+.login-input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px 10px; /* Slightly less padding for a more compact feel */
+  border: 1px solid #cccccc; /* Lighter border color */
+  border-radius: 2px; /* Softer corners to match your main page inputs */
+  box-sizing: border-box; /* Ensuring padding does not affect width */
+  background-color: #f8f8f8; /* Light gray background for input */
+}
 
-    .login-button {
-	width: 100%;
-	padding: 8px 10px; /* Padding to match inputs */
-	border: none;
-	border-radius: 2px;
-	background-color: #4c7cf3; /* Using a primary color that seems to match the buttons on your main page */
-	color: white;
-	font-size: 16px;
-	font-weight: bold; /* Assuming your main buttons have a bold font */
-	cursor: pointer;
-	transition: background-color 0.3s ease;
-	margin-top: 10px; /* Adding a margin-top to separate from inputs */
-	
-    }
+.login-button {
+  width: 100%;
+  padding: 8px 10px; /* Padding to match inputs */
+  border: none;
+  border-radius: 2px;
+  background-color: #4c7cf3; /* Using a primary color that seems to match the buttons on your main page */
+  color: white;
+  font-size: 16px;
+  font-weight: bold; /* Assuming your main buttons have a bold font */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px; /* Adding a margin-top to separate from inputs */
+}
 
-    .login-button:hover {
-	background-color: #405dcf; /* A slightly darker hue on hover */
-	
-    }
+.login-button:hover {
+  background-color: #405dcf; /* A slightly darker hue on hover */
+}
 
-    /* Focus styles for inputs */
-    .login-input:focus {
-	outline: none;
-	border-color: #4c7cf3; /* Using the same blue for focus to match the button */
-	
-    }
+/* Focus styles for inputs */
+.login-input:focus {
+  outline: none;
+  border-color: #4c7cf3; /* Using the same blue for focus to match the button */
+}
 
-    /* Placeholder styling for consistency */
-    .login-input::placeholder {
-	color: #999999; /* A neutral color for placeholders */
-	
-    }
-    
+/* Placeholder styling for consistency */
+.login-input::placeholder {
+  color: #999999; /* A neutral color for placeholders */
+}
