@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from urllib.parse import unquote
@@ -95,7 +96,7 @@ def login():
         
 #    if user and user['password'] == password:
     if user and bcrypt.check_password_hash(user['password'], password):
-        access_token = create_access_token(identity=username)
+        access_token = create_access_token(identity=username, expires_delta=timedelta(days=15))
         del user['password']
         results = {
             "access_token": access_token,
@@ -104,7 +105,6 @@ def login():
         return jsonify(results), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
-    
     
 # Serializers
 
