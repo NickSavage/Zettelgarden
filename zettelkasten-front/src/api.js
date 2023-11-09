@@ -1,14 +1,30 @@
-import { useAuth } from "./AuthContext";
 // API
 const base_url = process.env.REACT_APP_URL;
+
+
+
+function checkStatus(response) {
+    if (response.status === 401 || response.status === 422) {
+	localStorage.removeItem('token');
+	return;
+    }
+    // If the response is ok, return the response to continue the promise chain
+    if (response.ok) {
+	return response;
+    }
+    // If the response is not ok and not 401, throw an error
+    throw new Error(`Request failed with status: ${response.status}`);
+}
+
 
 export function fetchCards() {
   let token = localStorage.getItem("token");
   return fetch(base_url + "/cards", {
-    headers: { Authorization: `Bearer ${token}` },
-  }).then((response) => {
-    let results = response.json();
-    return results;
+      headers: { Authorization: `Bearer ${token}` },
+  }).then(checkStatus)
+	.then((response) => {
+	    let results = response.json();
+	    return results;
   });
 }
 
@@ -20,17 +36,8 @@ export function getCard(id) {
   let token = localStorage.getItem("token");
   // Send a GET request to the URL
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-    .then((response) => {
-      // Check if the response is successful (status code in the range 200-299)
-      if (response.ok) {
-        // Parse and return the JSON response
-        return response.json();
-      } else {
-        // Throw an error if the response is not successful
-        throw new Error("Failed to fetch card");
-      }
-    })
-    .then((cardData) => {
+	.then(checkStatus)
+	.then((cardData) => {
       // Process the card data here (if needed) and return it
       return cardData;
     });
@@ -55,7 +62,9 @@ export function saveCard(url, method, card) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(card),
-  }).then((response) => response.json());
+  })
+	.then(checkStatus)
+	.then((response) => response.json());
 }
 
 export function getUser(id) {
@@ -65,16 +74,7 @@ export function getUser(id) {
 
   // Send a GET request to the URL
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-    .then((response) => {
-      // Check if the response is successful (status code in the range 200-299)
-      if (response.ok) {
-        // Parse and return the JSON response
-        return response.json();
-      } else {
-        // Throw an error if the response is not successful
-        throw new Error("Failed to fetch user");
-      }
-    })
+	.then(checkStatus)
     .then((userData) => {
       // Process the card data here (if needed) and return it
       return userData;

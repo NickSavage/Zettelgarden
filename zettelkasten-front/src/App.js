@@ -21,7 +21,7 @@ function App() {
   const [searchCard, setSearchCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
-  const { isAuthenticated } = useAuth();
+    const { isAuthenticated, logoutUser } = useAuth();
 
   // changing pages
 
@@ -98,11 +98,15 @@ function App() {
   }, []);
 
   console.log(isAuthenticated);
-  if (!isAuthenticated) {
-    // User is not authenticated, render only the LoginForm
-    document.title = "Zettelkasten";
-    return <LoginForm />;
-  }
+    
+    if (!localStorage.getItem('token')) {
+	logoutUser();
+    }
+    if (!isAuthenticated) {
+	// User is not authenticated, render only the LoginForm
+	document.title = "Zettelkasten";
+	return <LoginForm />;
+    }
 
   return (
     <div>
