@@ -15,10 +15,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // You would call this function when the user logs in successfully
-  const loginUser = (token) => {
-    localStorage.setItem("token", token["access_token"]);
-    console.log(token);
-    console.log(localStorage.getItem("token"));
+  const loginUser = (data) => {
+      console.log(data)
+    localStorage.setItem("token", data["access_token"]);
+    localStorage.setItem("username", data["user"]["name"]);
+    console.log(data);
     setIsAuthenticated(true);
   };
 

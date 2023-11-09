@@ -96,7 +96,12 @@ def login():
 #    if user and user['password'] == password:
     if user and bcrypt.check_password_hash(user['password'], password):
         access_token = create_access_token(identity=username)
-        return jsonify(access_token=access_token), 200
+        del user['password']
+        results = {
+            "access_token": access_token,
+            "user": user
+        }
+        return jsonify(results), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
     
