@@ -4,6 +4,7 @@ const base_url = process.env.REACT_APP_URL;
 
 
 function checkStatus(response) {
+    console.log(response)
     if (response.status === 401 || response.status === 422) {
 	localStorage.removeItem('token');
 	return;
@@ -38,8 +39,9 @@ export function getCard(id) {
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
 	.then(checkStatus)
 	.then((cardData) => {
+	    console.log(cardData)
       // Process the card data here (if needed) and return it
-      return cardData;
+	    return cardData.json();
     });
 }
 export function saveNewCard(card) {
