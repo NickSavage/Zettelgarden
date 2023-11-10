@@ -1,9 +1,19 @@
 import React, { useState } from "react";
+import { fetchCards } from "../api";
 
-export function SearchPage({ cards, handleViewCard }) {
+export function SearchPage({ handleViewCard }) {
   const [searchTerm, setSearchTerm] = useState("");
-  function handleSearch(e) {
+  const [cards, setCards] = useState([]);
+  function handleSearchUpdate(e) {
     setSearchTerm(e.target.value);
+  }
+
+  function handleSearch() {
+    console.log("this is happening for real");
+    fetchCards(searchTerm).then((data) => {
+      console.log(data);
+      setCards(data);
+    });
   }
 
   return (
@@ -14,35 +24,33 @@ export function SearchPage({ cards, handleViewCard }) {
         id="title"
         value={searchTerm}
         placeholder="Search"
-        onChange={handleSearch}
+        onChange={handleSearchUpdate}
       />
+
+      <button className="btn" onClick={handleSearch}>
+        Search
+      </button>
       <ul>
-        {cards
-          .filter(
-            (card) =>
-              card.title.toLowerCase().includes(searchTerm) ||
-              card.body.toLowerCase().includes(searchTerm),
-          )
-          .map((card, index) => (
-            <li key={index} style={{ marginBottom: "10px" }}>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleViewCard(card);
-                }}
-                style={{ color: "black", textDecoration: "none" }}
-              >
-                <span style={{ color: "blue", fontWeight: "bold" }}>
-                  {card.card_id}
-                </span>
-                : {card.title}
-                <br />
-                <br />
-                <span>{card.body}</span>
-              </a>
-            </li>
-          ))}
+        {cards.map((card, index) => (
+          <li key={index} style={{ marginBottom: "10px" }}>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleViewCard(card);
+              }}
+              style={{ color: "black", textDecoration: "none" }}
+            >
+              <span style={{ color: "blue", fontWeight: "bold" }}>
+                {card.card_id}
+              </span>
+              : {card.title}
+              <br />
+              <br />
+              <span>{card.body}</span>
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   );

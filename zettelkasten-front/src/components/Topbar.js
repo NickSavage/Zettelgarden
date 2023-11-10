@@ -6,15 +6,13 @@ export function Topbar({
   handleViewSettings,
 }) {
   const { logoutUser } = useAuth();
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const username = localStorage.getItem('username');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const username = localStorage.getItem("username");
 
-    // Function to toggle the dropdown
-    const toggleDropdown = () => {
-	setIsDropdownOpen(!isDropdownOpen);
-	  
-    };
-    
+  // Function to toggle the dropdown
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   function handleLogout() {
     logoutUser();
@@ -31,21 +29,24 @@ export function Topbar({
         <button className="btn" onClick={handleOpenSearch}>
           Search
         </button>
-	  <div className="dropdown">
-	  <button className="btn" onClick={toggleDropdown}>
-	      {username}
-      </button>
-	  
-      {/* Dropdown Content */}
-      {isDropdownOpen && (
-	      <div className="dropdown-content">
-		  <a href="#settings" onClick={handleViewSettings}>Settings</a>
-		  <a href="#logout" onClick={handleLogout}>Logout</a>
-	      </div>
-	      
-      )}
+        <div className="dropdown">
+          <button className="btn" onClick={toggleDropdown}>
+            {username}
+          </button>
+
+          {/* Dropdown Content */}
+          {isDropdownOpen && (
+            <div className="dropdown-content">
+              <a href="#settings" onClick={handleViewSettings}>
+                Settings
+              </a>
+              <a href="#logout" onClick={handleLogout}>
+                Logout
+              </a>
+            </div>
+          )}
+        </div>
       </div>
-	  </div>
     </div>
   );
 }

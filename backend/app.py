@@ -91,8 +91,10 @@ def login():
     
     user = query_username(username, True)
 
+    if not user:
+        return jsonify({"error": "User not found"}), 404
     if "error" in user:
-        return jsonify({"message": "Invalid credentials"}), 401
+        return jsonify({"error": "Invalid credentials"}), 401
         
 #    if user and user['password'] == password:
     if user and bcrypt.check_password_hash(user['password'], password):
@@ -110,6 +112,9 @@ def login():
 
 full_card_query = "SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards"
 partial_card_query = "SELECT id, card_id, title FROM cards"
+
+def full_card_query_filtered(search_term) -> str:
+    return full_card_query + " WHERE title like '%" + search_term + "%' OR body LIKE '%" + search_term +"%';"
 
 full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
 
@@ -197,9 +202,15 @@ def query_username(username: str, include_password=False) -> dict:
     return user
     
 
-def query_all_full_cards() -> list:
+def query_all_full_cards(search_term=None) -> list:
     cur = conn.cursor()
-    cur.execute(full_card_query)
+    if search_term:
+        print(full_card_query_filtered(search_term))
+        cur.execute(full_card_query_filtered(search_term))
+        print("yes")
+
+    else:
+        cur.execute(full_card_query)
     cards = cur.fetchall()
     results = []
     for x in cards:
@@ -284,8 +295,10 @@ def get_parent(card_id: str) -> dict:
 @app.route('/api/cards', methods=['GET'])
 @jwt_required()
 def get_cards():
+    search_term = request.args.get('search_term', None)
     try:
-        results = query_all_full_cards()
+        print(search_term)
+        results = query_all_full_cards(search_term)
         results = sorted(results, key=lambda x: sort_ids(x["card_id"]), reverse=True)
     except Exception as e:
         return jsonify({"error": str(e)})

@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
 
   // You would call this function when the user logs in successfully
   const loginUser = (data) => {
-      console.log(data)
+    console.log(data);
     localStorage.setItem("token", data["access_token"]);
     localStorage.setItem("username", data["user"]["name"]);
     console.log(data);
