@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchCards } from "../api";
+import { fetchPartialCards } from "../api";
 import { sortCards } from "../utils";
 
 export function Sidebar({
@@ -81,7 +81,7 @@ export function Sidebar({
   }
 
   async function setAllCards() {
-    await fetchCards()
+    await fetchPartialCards()
       .then((data) => {
         setCards(data);
         let filtered = data
