@@ -16,7 +16,6 @@ export function EditPage({
   setEditingCard,
   handleSaveCard,
 }) {
-  const [inputBlurred, setInputBlurred] = useState(false);
         const [linktitle, setLinktitle] = useState("");
     const [link, setLink] = useState("");
 
@@ -52,11 +51,10 @@ export function EditPage({
           onChange={(e) =>
             setEditingCard({ ...editingCard, card_id: e.target.value })
           }
-          onBlur={() => setInputBlurred(true)}
           placeholder="ID"
           style={{ display: "block", marginBottom: "10px" }} // Added styles here
         />
-        {inputBlurred && renderWarningLabel(cards, editingCard)}
+        {renderWarningLabel(cards, editingCard)}
       </div>
       {/* Title Section */}
       <label htmlFor="title">Title:</label>
