@@ -8,7 +8,6 @@ import re
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_bcrypt import Bcrypt
 
-
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this!
@@ -36,7 +35,6 @@ cur.execute(
                 card_id TEXT,
                 title TEXT,
                 body TEXT,
-                is_reference INT DEFAULT 0,
                 link TEXT,
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP
@@ -110,7 +108,7 @@ def login():
     
 # Serializers
 
-full_card_query = "SELECT id, card_id, title, body, is_reference, link, created_at, updated_at FROM cards"
+full_card_query = "SELECT id, card_id, title, body, link, created_at, updated_at FROM cards"
 partial_card_query = "SELECT id, card_id, title FROM cards"
 
 def full_card_query_filtered(search_term) -> str:
@@ -122,23 +120,18 @@ def partial_card_query_filtered(search_term) -> str:
 full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
 
 def serialize_full_card(card) -> dict:
-    is_ref = False
-    if card[4] == 1:
-        is_ref = True
     card = {
         "id": card[0],
         "card_id": card[1],
         "title": card[2],
         "body": card[3],
-        "is_reference": is_ref,
-        "link": card[5],
-        "created_at": card[6],
-        "updated_at": card[7],
+        "link": card[4],
+        "created_at": card[5],
+        "updated_at": card[6],
         "direct_links": get_direct_links(card[3]),
         "backlinks": get_backlinks(card[1]),
         "parent": get_parent(card[1])
     }
-    print(extract_backlinks(card["body"]))
     return card
 
 def serialize_partial_card(card) -> dict:
@@ -150,7 +143,6 @@ def serialize_partial_card(card) -> dict:
     return card
 
 def serialize_full_user(user: list, include_password=False) -> dict:
-    print(user)
     result = {
         "id": user[0],
         "name": user[1],
@@ -329,24 +321,18 @@ def create_card():
     title = request.json.get("title")
     body = request.json.get("body")
     card_id = request.json.get("card_id")
-    is_reference = request.json.get("is_reference")
 
     if not card_id == "" and not check_is_card_id_unique(card_id):
         return jsonify({"error": "id already used"})
         
-    if is_reference:
-        is_reference = 1
-    else:
-        is_reference = 0
     link = request.json.get("link")
     
     # Insert card into database
     try:
-        cur.execute("INSERT INTO cards (card_id, title, body, is_reference, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card_id, title, body, is_reference, link))
+        cur.execute("INSERT INTO cards (card_id, title, body, link, created_at, updated_at) VALUES (%s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card_id, title, body, link))
         new_id = cur.fetchone()[0]
         conn.commit()
     except Exception as e:
-        print(e)
         conn.rollback()
         return jsonify({"error": str(e)})
 
@@ -374,15 +360,10 @@ def update_card(id):
     title = request.json.get("title")
     body = request.json.get("body")
     card_id = request.json.get("card_id")
-    is_reference = request.json.get("is_reference")
-    if is_reference:
-        is_reference = 1
-    else:
-        is_reference = 0
     link = request.json.get("link")
     
     # Update card in database
-    cur.execute("UPDATE cards SET title = %s, body = %s, is_reference = %s, link = %s, updated_at = NOW(), card_id = %s WHERE id = %s;", (title, body, is_reference, link, card_id, id))
+    cur.execute("UPDATE cards SET title = %s, body = %s, link = %s, updated_at = NOW(), card_id = %s WHERE id = %s;", (title, body, link, card_id, id))
     conn.commit()
     
     # Update backlinks

@@ -21,7 +21,7 @@ export function ViewPage({
         {CardBody(viewingCard, cards, handleViewCard)}
       </div>
       <div>
-        {viewingCard.is_reference && (
+        {viewingCard.link && (
           <div>
             <span style={{ fontWeight: "bold" }}>Link:</span>
             <span>{viewingCard.link}</span>

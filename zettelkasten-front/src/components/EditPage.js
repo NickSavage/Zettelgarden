@@ -93,16 +93,6 @@ export function EditPage({
 		{linktitle && (<div><span>{linktitle}</span></div>)}
 
 	    </div>
-      <label htmlFor="title">Is Reference:</label>
-      <input
-        type="checkbox"
-        id="is_reference"
-        checked={editingCard.is_reference}
-        onChange={(e) =>
-          setEditingCard({ ...editingCard, is_reference: e.target.checked })
-        }
-        style={{ marginBottom: "10px" }} // Updated style here
-      />
       <label htmlFor="title">Link:</label>
       <input
         style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
