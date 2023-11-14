@@ -228,9 +228,8 @@ def query_all_full_cards(search_term=None) -> list:
     
 def query_partial_card(card_id) -> dict:
     cur = conn.cursor()
-    parent_id = card_id.split('/')[0]
     
-    cur.execute(partial_card_query + " WHERE card_id = '" + parent_id + "';")
+    cur.execute(partial_card_query + " WHERE card_id = '" + card_id + "';")
     cards = cur.fetchall()
     results = []
     for x in cards:
@@ -292,10 +291,49 @@ def get_direct_links(body: str) -> list:
         results.append(x)
     return results
 
+
+def _get_parent_id_alternating(card_id):
+    parts = []
+    current_part = ""
+
+    # Iterate through each character in the card_id
+    for char in card_id:
+        if char in ['/', '.']:
+            # When a separator is encountered, add the current part to the parts list
+            parts.append(current_part)
+            current_part = ""
+        else:
+            current_part += char
+
+    # Add the last part if it's not empty
+    if current_part:
+        parts.append(current_part)
+
+    # If there's only one part, there's no parent
+    if len(parts) <= 1:
+        return None
+
+    # Reassemble the parent ID
+    parent_id = ""
+    for i in range(len(parts) - 1):
+        parent_id += parts[i]
+        if i < len(parts) - 2:  # Add the separator back
+            parent_id += '/' if i % 2 == 0 else '.'
+
+    return parent_id
+
+
+# Test the function with a longer ID
+long_id = "SP170/A.1/A.1/A.1/A.1"
+assert(_get_parent_id_alternating("SP170/A.1/A.1/A.1/A.1") == "SP170/A.1/A.1/A.1/A")
+
 def get_parent(card_id: str) -> dict:
-    if card_id == '':
-        return {}
-    result = query_partial_card(card_id)
+    parent_id = _get_parent_id_alternating(card_id)
+    if parent_id is None:
+        result = query_partial_card(card_id)
+    else:
+        result = query_partial_card(parent_id)
+
     return result
 
 @app.route('/api/cards', methods=['GET'])
