@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { fetchCards } from "../api";
 
 export function SearchPage({ handleViewCard }) {
@@ -25,6 +25,11 @@ export function SearchPage({ handleViewCard }) {
         value={searchTerm}
         placeholder="Search"
         onChange={handleSearchUpdate}
+        onKeyPress={(event) => {
+          if (event.key === "Enter") {
+            handleSearch();
+          }
+        }}
       />
 
       <button className="btn" onClick={handleSearch}>
