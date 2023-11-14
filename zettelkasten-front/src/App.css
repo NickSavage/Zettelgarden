@@ -136,13 +136,13 @@ option {
   flex-shrink: 0;
   width: 20%;
   overflow-y: auto;
-  height: 100vh;
+  height: 95vh;
   border-right: 1px solid #ccc;
   background-color: white;
 }
 .content {
   flex-grow: 1; /* takes the remaining space */
-  height: 100vh; /* 100% of the viewport height */
+  height: 95vh; /* 100% of the viewport height */
   overflow-y: auto; /* enables scrolling */
   padding: 10px;
 }
@@ -151,13 +151,14 @@ option {
   background-color: grey; /* A nice blue shade */
   color: white;
   width: 100%;
-  padding: 10px 15px; /* Add some padding around the contents */
+  height: 5vh;
   top: 0;
   align-items: center; /* Center items vertically */
   justify-content: space-between;
 }
 
 .top-bar-left {
+    padding-left: 10px;
 }
 
 .top-bar-right {
