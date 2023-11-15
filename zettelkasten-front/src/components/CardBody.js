@@ -1,41 +1,51 @@
 import Markdown from "react-markdown";
 import { getIdByCardId } from "../utils";
 
-function renderCardText(card, cards, handleViewBacklink) {
-  const body = card.body;
-  const parts = body.split(/(\[[A-Za-z0-9_.-/]+\])|(\n)/);
-  return parts.map((part, i) => {
-    // If part is a new line character, return a break element
-    if (part === "\n") {
-      return <br key={i} />;
-    }
-    // If part is a bracketed word, render a link
-    else if (part && part.startsWith("[") && part.endsWith("]")) {
-      const cardId = part.substring(1, part.length - 1);
-      const id = getIdByCardId(cards, cardId);
+function preprocessCardLinks(body) {
+  // This will find instances of [SomeText] and replace with [SomeText](#)
+  return body.replace(/\[([A-Za-z0-9_.-/]+)\]/g, "[$1](#)");
+}
 
-      const linkedCard = card.direct_links.find(
-        (linked) => linked.card_id === cardId,
-      );
-      const title = linkedCard ? linkedCard.title : "Card not found";
-      return (
-        <a
-          key={i}
-          title={title}
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            handleViewBacklink({ id: id, card_id: cardId });
-          }}
-          style={{ fontWeight: "bold", color: "blue" }}
-        >
-          {part}
-        </a>
-      );
-    }
-    // Otherwise, just render the text
-    return part;
-  });
+function renderCardText(card, cards, handleViewBacklink) {
+  let body = card.body;
+  // Convert bracketed text to markdown links
+  body = preprocessCardLinks(body);
+
+  // Custom link component
+  const LinkRenderer = ({ children, href }) => {
+    const cardId = children;
+    console.log([cardId, href]);
+    const id = getIdByCardId(cards, cardId);
+
+    const linkedCard = card.direct_links.find(
+      (linked) => linked.card_id === cardId,
+    );
+    const title = linkedCard ? linkedCard.title : "Card not found";
+
+    console.log([cardId, id, linkedCard, title]);
+    return (
+      <a
+        href="#"
+        title={title}
+        onClick={(e) => {
+          e.preventDefault();
+          handleViewBacklink({ id: id, card_id: cardId });
+        }}
+        style={{ fontWeight: "bold", color: "blue" }}
+      >
+        [{cardId}]
+      </a>
+    );
+  };
+
+  return (
+    <Markdown
+      children={body}
+      components={{
+        a: LinkRenderer,
+      }}
+    />
+  );
 }
 
 export function CardBody(viewingCard, cards, handleViewBacklink) {

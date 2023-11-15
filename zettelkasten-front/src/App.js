@@ -146,7 +146,7 @@ function App() {
               editingCard={editingCard}
               setEditingCard={setEditingCard}
               handleSaveCard={handleSaveCard}
-		newCard={newCard}
+              newCard={newCard}
             />
           )}
           {viewSettings && <SettingsPage />}

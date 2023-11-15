@@ -15,7 +15,7 @@ export function EditPage({
   editingCard,
   setEditingCard,
   handleSaveCard,
-    newCard,
+  newCard,
 }) {
   const [linktitle, setLinktitle] = useState("");
   const [link, setLink] = useState("");
@@ -55,7 +55,7 @@ export function EditPage({
           placeholder="ID"
           style={{ display: "block", marginBottom: "10px" }} // Added styles here
         />
-          {newCard && renderWarningLabel(cards, editingCard)}
+        {newCard && renderWarningLabel(cards, editingCard)}
       </div>
       {/* Title Section */}
       <label htmlFor="title">Title:</label>
