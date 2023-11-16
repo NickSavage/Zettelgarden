@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { isCardIdUnique } from "../utils";
-import { CardBody } from "./CardBody";
 
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
@@ -112,12 +111,6 @@ export function EditPage({
         placeholder="Title"
       />
       <button onClick={handleSaveCard}>Save</button>
-      <h3>Preview</h3>
-      <CardBody
-        viewingCard={editingCard}
-        cards={[]}
-        handleViewBacklink={() => {}}
-      />
     </div>
   );
 }

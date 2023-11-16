@@ -38,7 +38,6 @@ function renderCardText(card, cards, handleViewBacklink) {
     );
   };
 
-
   return (
     <Markdown
       children={body}
@@ -49,7 +48,6 @@ function renderCardText(card, cards, handleViewBacklink) {
   );
 }
 
-export function CardBody({viewingCard, cards, handleViewBacklink}) {
-    console.log(viewingCard);
+export function CardBody(viewingCard, cards, handleViewBacklink) {
   return <div>{renderCardText(viewingCard, cards, handleViewBacklink)}</div>;
 }
