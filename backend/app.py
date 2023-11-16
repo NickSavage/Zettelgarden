@@ -113,9 +113,9 @@ full_card_query = "SELECT id, card_id, title, body, link, created_at, updated_at
 partial_card_query = "SELECT id, card_id, title FROM cards"
 
 def full_card_query_filtered(search_term) -> str:
-    return full_card_query + " WHERE title like '%" + search_term + "%' OR body LIKE '%" + search_term +"%';"
+    return full_card_query + " WHERE title ILIKE '%" + search_term + "%' OR body ILIKE '%" + search_term +"%';"
 def partial_card_query_filtered(search_term) -> str:
-    return partial_card_query + " WHERE title like '%" + search_term + "%';"
+    return partial_card_query + " WHERE title ILIKE '%" + search_term + "%';"
 
 
 full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
