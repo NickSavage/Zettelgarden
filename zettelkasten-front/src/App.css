@@ -167,6 +167,11 @@ option {
   align-items: center; /* Center items vertically */
 }
 
+.top-bar-index {
+    color: white;
+    text-decoration: none;
+}
+
 /* Button-like styles */
 .btn {
   padding: 10px 20px;

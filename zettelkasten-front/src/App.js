@@ -51,6 +51,9 @@ function App() {
     setViewSettings(true);
     document.title = "Zettelkasten - Settings";
   }
+    function handleIndexClick() {
+	changePage();
+    }
 
   async function handleViewCard(card) {
     changePage();
@@ -114,6 +117,7 @@ function App() {
         handleNewCard={handleNewCard}
         handleOpenSearch={handleOpenSearch}
         handleViewSettings={handleViewSettings}
+	  handleIndexClick={handleIndexClick}
       />
       <div className="main-content">
         <Sidebar

@@ -4,6 +4,7 @@ export function Topbar({
   handleNewCard,
   handleOpenSearch,
   handleViewSettings,
+    handleIndexClick,
 }) {
   const { logoutUser } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -20,7 +21,9 @@ export function Topbar({
   return (
     <div className="top-bar">
       <div className="top-bar-left">
-        <h2>Zettelkasten</h2>
+	  <a href="#" onClick={handleIndexClick} className="top-bar-index">
+              <h2>Zettelkasten</h2>
+	  </a>
       </div>
       <div className="top-bar-right">
         <button className="btn" onClick={handleNewCard}>
