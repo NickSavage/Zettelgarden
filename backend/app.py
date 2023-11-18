@@ -77,6 +77,16 @@ cur.execute(
         );
             """
     )
+cur.execute(
+    """
+        CREATE TABLE IF NOT EXISTS card_views (
+            id SERIAL PRIMARY KEY,
+            card_pk INT, 
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (card_pk) REFERENCES cards(id)
+    )
+    """
+)
 conn.commit()
 cur.close()
 
@@ -119,6 +129,22 @@ def partial_card_query_filtered(search_term) -> str:
 
 
 full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
+
+def log_card_view(card_pk):
+    cur = conn.cursor()
+    try:
+        # Assuming 'card_id' is the primary key of the card in your cards table
+        if card_pk is not None and card_pk != 'null':
+            cur.execute("INSERT INTO card_views (card_pk, created_at) VALUES (%s, CURRENT_TIMESTAMP);", (card_pk,))
+            conn.commit()  # Commit the transaction
+            return {"success": "View logged"}
+        else:
+            return {"error": "Invalid card ID"}
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}
+    finally:
+        cur.close()
 
 def serialize_full_card(card) -> dict:
     card = {
@@ -389,6 +415,7 @@ def create_card():
 def get_card(id):
     id = unquote(id)
     card = query_full_card(id)
+    log_card_view(id)
     return jsonify(card)
 
 
