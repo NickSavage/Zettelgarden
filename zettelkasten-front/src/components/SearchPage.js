@@ -4,7 +4,7 @@ import { fetchCards } from "../api";
 export function SearchPage({ handleViewCard }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [cards, setCards] = useState([]);
-    const [sortBy, setSortBy] = useState('relevant')
+  const [sortBy, setSortBy] = useState("relevant");
   function handleSearchUpdate(e) {
     setSearchTerm(e.target.value);
   }
@@ -15,27 +15,30 @@ export function SearchPage({ handleViewCard }) {
       setCards(data);
     });
   }
-    function handleSortChange(e) {
-	setSortBy(e.target.value); // Update sort state when user selects a different option
+  function handleSortChange(e) {
+    setSortBy(e.target.value); // Update sort state when user selects a different option
+  }
+
+  function sortCards() {
+    switch (sortBy) {
+      case "newest":
+        return [...cards].sort(
+          (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+        );
+      case "oldest":
+        return [...cards].sort(
+          (a, b) => new Date(a.updated_at) - new Date(b.updated_at),
+        );
+      case "a-z":
+        return [...cards].sort((a, b) => a.title.localeCompare(b.title));
+      case "z-a":
+        return [...cards].sort((a, b) => b.title.localeCompare(a.title));
+      default:
+        return cards; // Default case for relevance or other non-sorting options
     }
-    
-    function sortCards() {
-	
-	switch (sortBy) {
-	case "newest":
-	    return [...cards].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-	case "oldest":
-	    return [...cards].sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at));
-	case "a-z":
-	    return [...cards].sort((a, b) => a.title.localeCompare(b.title));
-	case "z-a":
-	    return [...cards].sort((a, b) => b.title.localeCompare(a.title));
-	default:
-	    return cards; // Default case for relevance or other non-sorting options
-	}
-    }
+  }
   const sortedCards = sortCards(); // Call sortCards to get the sorted cards
-    console.log(sortedCards)
+  console.log(sortedCards);
   return (
     <div>
       <input
@@ -63,7 +66,7 @@ export function SearchPage({ handleViewCard }) {
         <option value="z-a">Z to A</option>
       </select>
       <ul>
-          {sortedCards.map((card, index) => (
+        {sortedCards.map((card, index) => (
           <li key={index} style={{ marginBottom: "10px" }}>
             <a
               href="#"
