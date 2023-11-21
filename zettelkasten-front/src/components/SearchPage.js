@@ -49,10 +49,12 @@ export function SearchPage({ handleViewCard }) {
               <span style={{ color: "blue", fontWeight: "bold" }}>
                 {card.card_id}
               </span>
-              : {card.title}
-              <br />
-              <br />
-              <span>{card.body}</span>
+              <span>: {card.title} - </span>
+              <span>
+                {card.body.length > 50
+                  ? `${card.body.substring(0, 50)}...`
+                  : card.body}
+              </span>
             </a>
           </li>
         ))}
