@@ -29,7 +29,7 @@ export function EditPage({
   }
   function handleEnterPress(e) {
     if (e.key === "Enter") {
-      let text = "\n[" + link + "] - " + linktitle;
+      let text = "\n\n[" + link + "] - " + linktitle;
       // Call the function you want to run when Enter is pressed
       console.log("Enter was pressed!");
 
