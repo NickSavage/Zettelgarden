@@ -31,7 +31,7 @@ export function EditPage({
       const matchingCards = cards.filter(
         (card) =>
           card.card_id.toLowerCase().startsWith(search.toLowerCase()) ||
-          card.title.toLowerCase().startsWith(search.toLowerCase()),
+          card.title.toLowerCase().includes(search.toLowerCase()),
       );
 
       // If an exact match is found, make sure it is at the front of the array
