@@ -35,15 +35,17 @@ export function EditPage({
       );
 
       // If an exact match is found, make sure it is at the front of the array
-      const filteredCards = exactMatchCard
+      let filteredCards = exactMatchCard
         ? [
             exactMatchCard,
-            ...matchingCards.filter(
-              (card) => card.card_id.toLowerCase() !== search,
-            ),
+            ...matchingCards,
           ]
         : matchingCards;
-
+	filteredCards = filteredCards.filter((card, index, self) => 
+	    index === self.findIndex((t) => (
+		t.card_id === card.card_id
+	    ))
+	);
       // Update linktitle with the title of the matching card, or an empty string if no match is found
       setLinktitle(
         exactMatchCard
@@ -52,7 +54,8 @@ export function EditPage({
           ? matchingCards[0].title
           : "",
       );
-      setTopResults(filteredCards.slice(0, 5));
+	let results = filteredCards.slice(0, 5);
+	setTopResults(results);
     } else {
       setLinktitle("");
       setTopResults([]);
@@ -60,9 +63,10 @@ export function EditPage({
   }
 
   function handleEnterPress(e) {
+
     if (e.key === "Enter") {
+	setTopResults([]);
       let enteredCard = topResults.find((card) => card.card_id === searchTerm);
-      console.log([topResults, enteredCard, searchTerm]);
       let text = "";
       if (enteredCard) {
         text = "\n\n[" + enteredCard.card_id + "] - " + enteredCard.title;
@@ -80,6 +84,24 @@ export function EditPage({
     }
   }
 
+    function createInputDropdown(cards) {
+        return (
+          <ul className="input-link-dropdown">
+            {cards.map((card, index) => (
+              <li
+                key={card.card_id}
+                style={{
+                  background: "lightgrey",
+                  cursor: "pointer",
+                }}
+              >
+                {card.card_id} - {card.title}
+              </li>
+            ))}
+          </ul>
+        )
+    }
+    
   return (
     <div>
       <label htmlFor="title">Card ID:</label>
@@ -138,21 +160,7 @@ export function EditPage({
             <span>{linktitle}</span>
           </div>
         )}
-        {topResults && (
-          <ul className="input-link-dropdown">
-            {topResults.map((card, index) => (
-              <li
-                key={card.card_id}
-                style={{
-                  background: "lightgrey",
-                  cursor: "pointer",
-                }}
-              >
-                {card.card_id} - {card.title}
-              </li>
-            ))}
-          </ul>
-        )}
+	  {topResults && createInputDropdown(topResults)}
       </div>
       <label htmlFor="title">Link:</label>
       <input
