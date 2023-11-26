@@ -18,22 +18,60 @@ export function EditPage({
   newCard,
 }) {
   const [linktitle, setLinktitle] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [link, setLink] = useState("");
+  const [topResults, setTopResults] = useState([]);
 
   function handleLinkInputChange(e) {
     setLink(e.target.value);
-    const matchingCard = cards.find((card) => card.card_id === e.target.value);
+    const search = e.target.value; // assuming you want case-insensitive matching
+    setSearchTerm(search);
+    if (search !== "") {
+      const exactMatchCard = cards.find((card) => card.card_id === search);
+      const matchingCards = cards.filter(
+        (card) =>
+          card.card_id.toLowerCase().includes(search.toLowerCase()) ||
+          card.title.toLowerCase().includes(search.toLowerCase()),
+      );
 
-    // Update linktitle with the title of the matching card, or an empty string if no match is found
-    setLinktitle(matchingCard ? matchingCard.title : "");
+      // If an exact match is found, make sure it is at the front of the array
+      const filteredCards = exactMatchCard
+        ? [
+            exactMatchCard,
+            ...matchingCards.filter(
+              (card) => card.card_id.toLowerCase() !== search,
+            ),
+          ]
+        : matchingCards;
+
+      // Update linktitle with the title of the matching card, or an empty string if no match is found
+      setLinktitle(
+        exactMatchCard
+          ? exactMatchCard.title
+          : matchingCards.length > 0
+          ? matchingCards[0].title
+          : "",
+      );
+      setTopResults(filteredCards.slice(0, 5));
+    } else {
+      setLinktitle("");
+      setTopResults([]);
+    }
   }
+
   function handleEnterPress(e) {
     if (e.key === "Enter") {
-      let text = "\n\n[" + link + "] - " + linktitle;
-      // Call the function you want to run when Enter is pressed
-      console.log("Enter was pressed!");
-
+      let enteredCard = topResults.find((card) => card.card_id === searchTerm);
+      console.log([topResults, enteredCard, searchTerm]);
+      let text = "";
+      if (enteredCard) {
+        text = "\n\n[" + enteredCard.card_id + "] - " + enteredCard.title;
+      } else {
+        text = "";
+      }
       setLink("");
+      setSearchTerm("");
+      setTopResults([]);
       // Your specific function to run
       setEditingCard((prevEditingCard) => ({
         ...editingCard,
@@ -81,7 +119,9 @@ export function EditPage({
         }
         placeholder="Body"
       />
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div
+        style={{ display: "flex", alignItems: "center", position: "relative" }}
+      >
         <label htmlFor="refInput" style={{ marginRight: "10px" }}>
           Add Link:
         </label>
@@ -97,6 +137,21 @@ export function EditPage({
           <div>
             <span>{linktitle}</span>
           </div>
+        )}
+        {topResults && (
+          <ul className="input-link-dropdown">
+            {topResults.map((card, index) => (
+              <li
+                key={card.card_id}
+                style={{
+                  background: "lightgrey",
+                  cursor: "pointer",
+                }}
+              >
+                {card.card_id} - {card.title}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       <label htmlFor="title">Link:</label>
