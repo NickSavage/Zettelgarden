@@ -30,8 +30,8 @@ export function EditPage({
       const exactMatchCard = cards.find((card) => card.card_id === search);
       const matchingCards = cards.filter(
         (card) =>
-          card.card_id.toLowerCase().includes(search.toLowerCase()) ||
-          card.title.toLowerCase().includes(search.toLowerCase()),
+          card.card_id.toLowerCase().startsWith(search.toLowerCase()) ||
+          card.title.toLowerCase().startsWith(search.toLowerCase()),
       );
 
       // If an exact match is found, make sure it is at the front of the array
