@@ -55,18 +55,6 @@ cur.execute(
     )
 cur.execute(
         """
-            CREATE TABLE IF NOT EXISTS unsorted_cards (
-                id SERIAL PRIMARY KEY,
-                title TEXT,
-                body TEXT,
-                created_at TIMESTAMP,
-                updated_at TIMESTAMP
-            
-        );
-            """
-    )
-cur.execute(
-        """
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username TEXT,
@@ -82,8 +70,10 @@ cur.execute(
         CREATE TABLE IF NOT EXISTS card_views (
             id SERIAL PRIMARY KEY,
             card_pk INT, 
+            user_id INT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (card_pk) REFERENCES cards(id)
+            FOREIGN KEY (card_pk) REFERENCES cards(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
     )
     """
 )
@@ -107,7 +97,7 @@ def login():
         
 #    if user and user['password'] == password:
     if user and bcrypt.check_password_hash(user['password'], password):
-        access_token = create_access_token(identity=username, expires_delta=timedelta(days=15))
+        access_token = create_access_token(identity=user["id"], expires_delta=timedelta(days=15))
         del user['password']
         results = {
             "access_token": access_token,
@@ -148,12 +138,12 @@ def partial_card_query_filtered(search_term) -> str:
 
 full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
 
-def log_card_view(card_pk):
+def log_card_view(card_pk, user_id):
     cur = conn.cursor()
     try:
         # Assuming 'card_id' is the primary key of the card in your cards table
         if card_pk is not None and card_pk != 'null':
-            cur.execute("INSERT INTO card_views (card_pk, created_at) VALUES (%s, CURRENT_TIMESTAMP);", (card_pk,))
+            cur.execute("INSERT INTO card_views (card_pk, user_id, created_at) VALUES (%s, CURRENT_TIMESTAMP);", (card_pk, user_id,))
             conn.commit()  # Commit the transaction
             return {"success": "View logged"}
         else:
@@ -431,9 +421,10 @@ def create_card():
 @app.route('/api/cards/<path:id>', methods=['GET'])
 @jwt_required()
 def get_card(id):
+    current_user = get_jwt_identity()  # Extract the user identity from the token
     id = unquote(id)
     card = query_full_card(id)
-    log_card_view(id)
+    log_card_view(id, current_user)
     return jsonify(card)
 
 
