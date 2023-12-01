@@ -16,8 +16,8 @@ bcrypt = Bcrypt(app)  # app is your Flask app instance
 
 # Database setup
 DB_FILE = "zettelkasten.db"
-print('start')
-print([os.getenv('DB_NAME'),os.getenv('DB_USER'),os.getenv('DB_PASS'),os.getenv('DB_HOST'), os.getenv('DB_PORT')])
+print('start', flush=True)
+print([os.getenv('DB_NAME'),os.getenv('DB_USER'),os.getenv('DB_PASS'),os.getenv('DB_HOST'), os.getenv('DB_PORT')], flush=True)
 
 conn = psycopg2.connect(
     dbname=os.getenv('DB_NAME'),
@@ -143,13 +143,13 @@ def log_card_view(card_pk, user_id):
     try:
         # Assuming 'card_id' is the primary key of the card in your cards table
         if card_pk is not None and card_pk != 'null':
-            cur.execute("INSERT INTO card_views (card_pk, user_id, created_at) VALUES (%s, CURRENT_TIMESTAMP);", (card_pk, user_id,))
+            cur.execute("INSERT INTO card_views (card_pk, user_id, created_at) VALUES (%s, %s, CURRENT_TIMESTAMP);", (card_pk, user_id,))
             conn.commit()  # Commit the transaction
             return {"success": "View logged"}
         else:
             return {"error": "Invalid card ID"}
     except Exception as e:
-        print(e)
+        print(e, flush=True)
         return {"error": str(e)}
     finally:
         cur.close()
