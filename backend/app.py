@@ -34,11 +34,13 @@ cur.execute(
             CREATE TABLE IF NOT EXISTS cards (
                 id SERIAL PRIMARY KEY,
                 card_id TEXT,
+                user_id INT,
                 title TEXT,
                 body TEXT,
                 link TEXT,
                 created_at TIMESTAMP,
-                updated_at TIMESTAMP
+                updated_at TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
         );
             """
     )
@@ -390,6 +392,7 @@ def get_cards():
 @app.route('/api/cards', methods=['POST'])
 @jwt_required()
 def create_card():
+    user_id = get_jwt_identity()  # Extract the user identity from the token
     cur = conn.cursor()
     title = request.json.get("title")
     body = request.json.get("body")
@@ -402,7 +405,7 @@ def create_card():
     
     # Insert card into database
     try:
-        cur.execute("INSERT INTO cards (card_id, title, body, link, created_at, updated_at) VALUES (%s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card_id, title, body, link))
+        cur.execute("INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card_id, user_id, title, body, link))
         new_id = cur.fetchone()[0]
         conn.commit()
     except Exception as e:
