@@ -86,10 +86,6 @@ export function Sidebar({
         setCards(data);
         let filtered = data
           .filter((card) => !card.card_id.includes("/"))
-          .filter((card) => !card.card_id.startsWith("REF"))
-          .filter((card) => !card.card_id.startsWith("SP"))
-          .filter((card) => !card.card_id.startsWith("SM"))
-          .filter((card) => !card.card_id.startsWith("READ"));
         setMainCards(filtered);
         return filtered;
       })
