@@ -70,12 +70,12 @@ export function Sidebar({
 
   function handleFilter(e) {
     let filter = e.target.value;
-    setFilter(filter);
+      setFilter(filter);
 
     const filteredCards = unfilteredSidebarCards.filter(
       (card) =>
-        card.card_id.toLowerCase().includes(filter) ||
-        card.title.toLowerCase().includes(filter),
+        card.card_id.toLowerCase().includes(filter.toLowerCase()) ||
+            card.title.toLowerCase().includes(filter.toLowerCase()),
     );
     setSidebarCards(filteredCards);
   }
