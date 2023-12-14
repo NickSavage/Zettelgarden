@@ -72,7 +72,9 @@ export function Sidebar({
     let filter = e.target.value;
     setFilter(filter);
 
-    const filteredCards = unfilteredSidebarCards.filter(
+    document.getElementById("select-filters").value = "all";
+
+    const filteredCards = mainCards.filter(
       (card) =>
         card.card_id.toLowerCase().includes(filter.toLowerCase()) ||
         card.title.toLowerCase().includes(filter.toLowerCase()),
@@ -112,7 +114,7 @@ export function Sidebar({
           placeholder="Filter"
         />
       </div>
-      <select onChange={handleSelectChange}>
+      <select onChange={handleSelectChange} id="select-filters">
         <option value="all">All Cards</option>
         <option value="meeting">Meeting Cards</option>
         <option value="read">Read Cards</option>
