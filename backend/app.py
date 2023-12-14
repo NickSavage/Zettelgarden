@@ -79,6 +79,25 @@ cur.execute(
     )
     """
 )
+cur.execute(
+    """
+        CREATE TABLE IF NOT EXISTS categories (
+            id SERIAL PRIMARY KEY,
+            user_id INT,
+            name TEXT,
+            description TEXT,
+            regex TEXT,
+            is_active BOOLEAN DEFAULT TRUE,
+            created_by INT,
+            updated_by INT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (created_by) REFERENCES users(id),
+            FOREIGN KEY (updated_by) REFERENCES users(id)
+    )
+    """
+)
 conn.commit()
 cur.close()
 
@@ -189,7 +208,20 @@ def serialize_full_user(user: list, include_password=False) -> dict:
     if include_password:
         result["password"] = user[2]
     return result
-    
+
+def serialize_category(category: list) -> dict:
+    return {
+        "id": category[0],
+        "user_id": category[1],
+        "name": category[2],
+        "description": category[3],
+        "regex": category[4],
+        "is_active": category[5],
+        "created_by": category[6],
+        "updated_by": category[7],
+        "created_at": category[8],
+        "updated_at": category[9]
+    }   
 
 def query_full_card(id) -> dict:
     cur = conn.cursor()
@@ -475,7 +507,69 @@ def update_password(id):
     conn.commit()
     cur.close()
     return jsonify({"message": "success"})
-    
+
+@app.route('/api/users/<int:user_id>/categories', methods=['GET'])
+@jwt_required()
+def get_user_categories(user_id):
+    cur = conn.cursor()
+
+    # Query to fetch all categories for the specified user
+    cur.execute("SELECT * FROM categories WHERE user_id = %s AND is_active = TRUE", (user_id,))
+    categories = cur.fetchall()
+    cur.close()
+
+    # Formatting the result into a list of dictionaries for better JSON serialization
+    categories_list = [serialize_category(category) for category in categories]
+
+    return jsonify(categories_list)
+
+@app.route('/api/categories', methods=['POST'])
+@jwt_required()
+def create_category():
+    cur = conn.cursor()
+    data = request.get_json()
+
+    user_id = data.get('user_id')
+    name = data.get('name')
+    description = data.get('description')
+    regex = data.get('regex')
+    is_active = data.get('is_active', True)
+    created_by = data.get('created_by')
+
+    cur.execute("""
+        INSERT INTO categories (user_id, name, description, regex, is_active, created_by, updated_by) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;
+    """, (user_id, name, description, regex, is_active, created_by, created_by))
+
+    new_category_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+
+    return jsonify({"message": "success", "category_id": new_category_id}), 201
+
+@app.route('/api/categories/<int:category_id>', methods=['PUT'])
+@jwt_required()
+def update_category(category_id):
+    cur = conn.cursor()
+    data = request.get_json()
+
+    # Fields that can be updated
+    name = data.get('name')
+    description = data.get('description')
+    regex = data.get('regex')
+    updated_by = data.get('updated_by')
+
+    cur.execute("""
+        UPDATE categories
+        SET name = %s, description = %s, regex = %s, updated_by = %s, updated_at = CURRENT_TIMESTAMP
+        WHERE id = %s;
+    """, (name, description, regex, updated_by, category_id))
+
+    conn.commit()
+    cur.close()
+
+    return jsonify({"message": "success"}), 200
+  
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
