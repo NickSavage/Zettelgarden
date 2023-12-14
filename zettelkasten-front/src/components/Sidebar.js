@@ -74,11 +74,16 @@ export function Sidebar({
 
     document.getElementById("select-filters").value = "all";
 
-    const filteredCards = mainCards.filter(
-      (card) =>
-        card.card_id.toLowerCase().includes(filter.toLowerCase()) ||
-        card.title.toLowerCase().includes(filter.toLowerCase()),
-    );
+    const filteredCards = mainCards.filter((card) => {
+      // Check if any of the search terms are present in the card title or ID
+      return filter.split(" ").every((keyword) => {
+        return (
+          keyword.trim().toLowerCase() === "" ||
+          card.title.toLowerCase().includes(keyword.trim().toLowerCase()) ||
+          card.card_id.toLowerCase().includes(keyword.trim().toLowerCase())
+        );
+      });
+    });
     setSidebarCards(filteredCards);
   }
 
