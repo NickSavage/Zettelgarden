@@ -19,12 +19,12 @@ const LoginForm = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
-
       const data = await response.json();
-      loginUser(data); // pass the token you received from the backend
+      if (!response.ok) {
+        setError(data["error"]);
+      } else {
+        loginUser(data); // pass the token you received from the backend
+      }
       // Redirect to a protected route or dashboard here.
     } catch (message) {
       setError("Login Failed: " + message);

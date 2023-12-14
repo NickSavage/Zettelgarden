@@ -111,9 +111,7 @@ def login():
     
     user = query_username(username, True)
 
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    if "error" in user:
+    if not user or "error" in user:
         return jsonify({"error": "Invalid credentials"}), 401
         
 #    if user and user['password'] == password:
