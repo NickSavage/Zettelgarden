@@ -197,6 +197,24 @@ option {
 
 /* Updated CSS for the login form, attempting to match the main app page style */
 
+.login-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20%;
+  border: 1px solid lightgrey;
+}
+
+.login-title {
+  text-align: center;
+}
+
+.login-error {
+  text-align: center;
+  color: red;
+}
+
 .login-form {
   max-width: 300px;
   margin: 50px auto;

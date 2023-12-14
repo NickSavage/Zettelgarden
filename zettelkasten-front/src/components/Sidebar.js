@@ -70,12 +70,12 @@ export function Sidebar({
 
   function handleFilter(e) {
     let filter = e.target.value;
-      setFilter(filter);
+    setFilter(filter);
 
     const filteredCards = unfilteredSidebarCards.filter(
       (card) =>
         card.card_id.toLowerCase().includes(filter.toLowerCase()) ||
-            card.title.toLowerCase().includes(filter.toLowerCase()),
+        card.title.toLowerCase().includes(filter.toLowerCase()),
     );
     setSidebarCards(filteredCards);
   }
@@ -84,8 +84,7 @@ export function Sidebar({
     await fetchPartialCards()
       .then((data) => {
         setCards(data);
-        let filtered = data
-          .filter((card) => !card.card_id.includes("/"))
+        let filtered = data.filter((card) => !card.card_id.includes("/"));
         setMainCards(filtered);
         return filtered;
       })

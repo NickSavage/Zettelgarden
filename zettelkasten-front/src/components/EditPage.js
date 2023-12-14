@@ -36,16 +36,12 @@ export function EditPage({
 
       // If an exact match is found, make sure it is at the front of the array
       let filteredCards = exactMatchCard
-        ? [
-            exactMatchCard,
-            ...matchingCards,
-          ]
+        ? [exactMatchCard, ...matchingCards]
         : matchingCards;
-	filteredCards = filteredCards.filter((card, index, self) => 
-	    index === self.findIndex((t) => (
-		t.card_id === card.card_id
-	    ))
-	);
+      filteredCards = filteredCards.filter(
+        (card, index, self) =>
+          index === self.findIndex((t) => t.card_id === card.card_id),
+      );
       // Update linktitle with the title of the matching card, or an empty string if no match is found
       setLinktitle(
         exactMatchCard
@@ -54,8 +50,8 @@ export function EditPage({
           ? matchingCards[0].title
           : "",
       );
-	let results = filteredCards.slice(0, 5);
-	setTopResults(results);
+      let results = filteredCards.slice(0, 5);
+      setTopResults(results);
     } else {
       setLinktitle("");
       setTopResults([]);
@@ -63,9 +59,8 @@ export function EditPage({
   }
 
   function handleEnterPress(e) {
-
     if (e.key === "Enter") {
-	setTopResults([]);
+      setTopResults([]);
       let enteredCard = topResults.find((card) => card.card_id === searchTerm);
       let text = "";
       if (enteredCard) {
@@ -84,24 +79,24 @@ export function EditPage({
     }
   }
 
-    function createInputDropdown(cards) {
-        return (
-          <ul className="input-link-dropdown">
-            {cards.map((card, index) => (
-              <li
-                key={card.card_id}
-                style={{
-                  background: "lightgrey",
-                  cursor: "pointer",
-                }}
-              >
-                {card.card_id} - {card.title}
-              </li>
-            ))}
-          </ul>
-        )
-    }
-    
+  function createInputDropdown(cards) {
+    return (
+      <ul className="input-link-dropdown">
+        {cards.map((card, index) => (
+          <li
+            key={card.card_id}
+            style={{
+              background: "lightgrey",
+              cursor: "pointer",
+            }}
+          >
+            {card.card_id} - {card.title}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <div>
       <label htmlFor="title">Card ID:</label>
@@ -160,7 +155,7 @@ export function EditPage({
             <span>{linktitle}</span>
           </div>
         )}
-	  {topResults && createInputDropdown(topResults)}
+        {topResults && createInputDropdown(topResults)}
       </div>
       <label htmlFor="title">Link:</label>
       <input
