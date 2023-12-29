@@ -118,3 +118,24 @@ export function changePassword(id, password) {
     .then((response) => response.json())
     .catch((error) => console.log(error));
 }
+
+export function uploadFile(file) {
+  let token = localStorage.getItem("token");
+  const url = base_url + '/files/upload';
+
+  // Create a FormData object and append the file
+  let formData = new FormData();
+  formData.append('file', file);
+
+  // Send a POST request with the FormData
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // Don't set 'Content-Type' for FormData, as the browser sets it with the correct boundary
+    },
+    body: formData,
+  })
+  .then(checkStatus)
+  .then(response => response.json());
+}

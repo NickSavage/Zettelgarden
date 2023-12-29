@@ -24,5 +24,7 @@ services:
     image: 192.168.0.129:50000/zettelkasten_backend:latest
     ports:
       - "5000:5000"
+    volumes:
+      - /home/media/.config/zettelkasten:/usr/src/app/files
     env_file:
       - .env

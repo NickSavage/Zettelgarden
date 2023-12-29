@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { isCardIdUnique } from "../utils";
+import { uploadFile } from "../api";
 
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
@@ -58,6 +59,39 @@ export function EditPage({
     }
   }
 
+  function handleBodyChange(event) {
+      console.log(event)
+    setEditingCard({ ...editingCard, body: event.target.value });
+  };
+    
+
+const handleDrop = async (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const files = event.dataTransfer.files;
+
+  if (files.length > 0) {
+    // Process each file
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const response = await uploadFile(files[i]);
+        console.log('File uploaded successfully:', response);
+        // Handle the response here
+        // For example, append the file URL to the textarea or update state
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        // Handle the error here
+      }
+    }
+  }
+};
+
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+    
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       setTopResults([]);
@@ -131,9 +165,9 @@ export function EditPage({
         style={{ display: "block", width: "100%", height: "200px" }} // Updated style here
         id="body"
         value={editingCard.body}
-        onChange={(e) =>
-          setEditingCard({ ...editingCard, body: e.target.value })
-        }
+          onChange={handleBodyChange}
+	  onDrop={handleDrop}
+	  onDragOver={handleDragOver}
         placeholder="Body"
       />
       <div

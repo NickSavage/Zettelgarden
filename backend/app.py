@@ -7,10 +7,13 @@ import os
 import re
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_bcrypt import Bcrypt
+import uuid
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this!
+app.config['UPLOAD_FOLDER'] = "/home/nick/staging/files"
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)  # app is your Flask app instance
 
@@ -95,6 +98,26 @@ cur.execute(
             FOREIGN KEY (user_id) REFERENCES users(id),
             FOREIGN KEY (created_by) REFERENCES users(id),
             FOREIGN KEY (updated_by) REFERENCES users(id)
+    )
+    """
+)
+cur.execute(
+    """
+    CREATE TABLE IF NOT EXISTS files (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        type TEXT,
+        path TEXT,
+        filename TEXT,
+        size INT,
+        created_by INT,
+        updated_by INT,
+        card_pk INT, 
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (created_by) REFERENCES users(id),
+        FOREIGN KEY (updated_by) REFERENCES users(id),
+        FOREIGN KEY (card_pk) REFERENCES cards(id)
     )
     """
 )
@@ -489,7 +512,6 @@ def get_user(id):
     return jsonify(user)
     
 @app.route('/api/user/<path:id>/password', methods=['PUT'])
-@jwt_required()
 def update_password(id):
     cur = conn.cursor()
     data = request.get_json()
@@ -567,7 +589,61 @@ def update_category(category_id):
     cur.close()
 
     return jsonify({"message": "success"}), 200
-  
+
+@app.route('/api/files/upload', methods=['POST'])
+@jwt_required()
+def upload_file():
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file:  # You can add more file validation here
+        original_filename = secure_filename(file.filename)
+        file_extension = os.path.splitext(original_filename)[1]
+        filename = str(uuid.uuid4()) + file_extension  # UUID as filename
+
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        cur = conn.cursor()
+        cur.execute("INSERT INTO files (name, type, path, filename, size, created_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, NOW());", 
+                    (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), current_user))
+        conn.commit()
+        cur.close()
+
+        return jsonify({'message': 'File uploaded successfully'}), 201
+ 
+@app.route('/api/files/<int:file_id>', methods=['GET'])
+@jwt_required()
+def get_file_metadata(file_id):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM files WHERE id = %s;", (file_id,))
+    file_data = cur.fetchone()
+    cur.close()
+
+    if file_data:
+        return jsonify(file_data)
+    else:
+        return jsonify({'error': 'File not found'}), 404
+    
+@app.route('/api/files/download/<int:file_id>', methods=['GET'])
+@jwt_required()
+def download_file(file_id):
+    cur = conn.cursor()
+    cur.execute("SELECT name, path FROM files WHERE id = %s;", (file_id,))
+    file_data = cur.fetchone()
+    cur.close()
+
+    if file_data:
+        return send_from_directory(directory=os.path.dirname(file_data['path']),
+                                   filename=file_data['name'],
+                                   as_attachment=True)
+    else:
+        return jsonify({'error': 'File not found'}), 404
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
