@@ -598,6 +598,7 @@ def upload_file():
         return jsonify({'error': 'No file part'}), 400
 
     file = request.files['file']
+    card_pk = request.form['card_pk']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
@@ -610,8 +611,8 @@ def upload_file():
         file.save(file_path)
 
         cur = conn.cursor()
-        cur.execute("INSERT INTO files (name, type, path, filename, size, created_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, NOW());", 
-                    (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), current_user))
+        cur.execute("INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW());", 
+                    (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), card_pk, current_user, current_user))
         conn.commit()
         cur.close()
 

@@ -75,7 +75,7 @@ const handleDrop = async (event) => {
     // Process each file
     for (let i = 0; i < files.length; i++) {
       try {
-        const response = await uploadFile(files[i]);
+          const response = await uploadFile(files[i], editingCard["id"]);
         console.log('File uploaded successfully:', response);
         // Handle the response here
         // For example, append the file URL to the textarea or update state

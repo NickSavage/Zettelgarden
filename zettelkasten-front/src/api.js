@@ -119,13 +119,14 @@ export function changePassword(id, password) {
     .catch((error) => console.log(error));
 }
 
-export function uploadFile(file) {
+export function uploadFile(file, card_pk) {
   let token = localStorage.getItem("token");
   const url = base_url + '/files/upload';
 
   // Create a FormData object and append the file
   let formData = new FormData();
   formData.append('file', file);
+  formData.append('card_pk', card_pk); // Append card_pk to the form data
 
   // Send a POST request with the FormData
   return fetch(url, {
