@@ -8,6 +8,8 @@ export function ViewPage({
   handleViewCard,
   handleEditCard,
 }) {
+
+    
   return (
     <div>
       <h2 style={{ marginBottom: "10px" }}>
@@ -40,6 +42,13 @@ export function ViewPage({
           </ul>
         </div>
       )}
+	  <h4>Files:</h4>
+      <ul>
+        {viewingCard.files.map((file, index) => (
+		<li>{file["name"]}</li>
+        ))}
+      </ul>
+	  
       <h4>Backlinks:</h4>
       <ul>
         {viewingCard.backlinks.map((backlink, index) => (

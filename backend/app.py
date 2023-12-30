@@ -207,7 +207,8 @@ def serialize_full_card(card) -> dict:
         "updated_at": card[6],
         "direct_links": get_direct_links(card[3]),
         "backlinks": get_backlinks(card[1]),
-        "parent": get_parent(card[1])
+        "parent": get_parent(card[1]),
+        "files": get_files_from_card_id(card[0]),
     }
     return card
 
@@ -243,6 +244,19 @@ def serialize_category(category: list) -> dict:
         "created_at": category[8],
         "updated_at": category[9]
     }   
+
+def serialize_file(file: list) -> dict:
+    return {
+        "id": file[0],
+        "name": file[1],
+        "type": file[2],
+        "filename": file[4],
+        "size": file[5],
+        "created_by": file[6],
+        "updated_by": file[7],
+        "created_at": file[9],
+        "updated_at": file[10]
+    }
 
 def query_full_card(id) -> dict:
     cur = conn.cursor()
@@ -426,6 +440,15 @@ def get_parent(card_id: str) -> dict:
 
     return result
 
+def get_files_from_card_id(card_id: int) -> list:
+
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM files WHERE card_pk = %s;", (card_id,))
+    data = cur.fetchall()
+    results = [serialize_file(x) for x in data]
+    cur.close()
+    return results
+
 @app.route('/api/cards', methods=['GET'])
 @jwt_required()
 def get_cards():
@@ -590,6 +613,15 @@ def update_category(category_id):
 
     return jsonify({"message": "success"}), 200
 
+def query_file(file_id) -> dict:
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM files WHERE id = %s;", (file_id,))
+    file_data = cur.fetchone()
+    results = serialize_file(file_data)
+    cur.close()
+    return results
+    
+
 @app.route('/api/files/upload', methods=['POST'])
 @jwt_required()
 def upload_file():
@@ -611,21 +643,20 @@ def upload_file():
         file.save(file_path)
 
         cur = conn.cursor()
-        cur.execute("INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW());", 
+        cur.execute("INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id;", 
                     (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), card_pk, current_user, current_user))
+        file_id = cur.fetchone()[0]
+        file = query_file(file_id)
         conn.commit()
         cur.close()
 
-        return jsonify({'message': 'File uploaded successfully'}), 201
+        return jsonify({'message': 'File uploaded successfully', 'file': file}), 201
  
 @app.route('/api/files/<int:file_id>', methods=['GET'])
 @jwt_required()
 def get_file_metadata(file_id):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM files WHERE id = %s;", (file_id,))
-    file_data = cur.fetchone()
-    cur.close()
 
+    file_data = query_file(file_id)
     if file_data:
         return jsonify(file_data)
     else:
