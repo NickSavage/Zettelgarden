@@ -58,7 +58,6 @@ export function ViewPage({
             <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
               {file.name}
             </a>
-		{file["name"]}
 	    </li>
         ))}
       </ul>
