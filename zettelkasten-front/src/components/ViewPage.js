@@ -1,6 +1,8 @@
 import { CardBody } from "./CardBody";
 import { CardItem } from "./CardItem";
 
+import { downloadFile } from "../api";
+
 export function ViewPage({
   viewingCard,
   cards,
@@ -8,6 +10,13 @@ export function ViewPage({
   handleViewCard,
   handleEditCard,
 }) {
+  const handleFileDownload = (fileId, e) => {
+    e.preventDefault(); // Prevent the default anchor behavior
+    downloadFile(fileId).catch(error => {
+      // Handle any errors here, such as displaying a notification to the user
+      console.error('Error downloading file:', error);
+    });
+  };
 
     
   return (
@@ -45,7 +54,12 @@ export function ViewPage({
 	  <h4>Files:</h4>
       <ul>
         {viewingCard.files.map((file, index) => (
-		<li>{file["name"]}</li>
+		<li key={file["id"]}>
+            <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
+              {file.name}
+            </a>
+		{file["name"]}
+	    </li>
         ))}
       </ul>
 	  

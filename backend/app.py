@@ -1,5 +1,5 @@
 from datetime import timedelta
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from urllib.parse import unquote
 import psycopg2
@@ -258,6 +258,19 @@ def serialize_file(file: list) -> dict:
         "updated_at": file[10]
     }
 
+def serialize_internal_file(file: list) -> dict:
+    return {
+        "id": file[0],
+        "name": file[1],
+        "type": file[2],
+        "path": file[3],
+        "filename": file[4],
+        "size": file[5],
+        "created_by": file[6],
+        "updated_by": file[7],
+        "created_at": file[9],
+        "updated_at": file[10]
+    }
 def query_full_card(id) -> dict:
     cur = conn.cursor()
     if id == 'null':
@@ -613,11 +626,14 @@ def update_category(category_id):
 
     return jsonify({"message": "success"}), 200
 
-def query_file(file_id) -> dict:
+def query_file(file_id, internal=False) -> dict:
     cur = conn.cursor()
     cur.execute("SELECT * FROM files WHERE id = %s;", (file_id,))
     file_data = cur.fetchone()
-    results = serialize_file(file_data)
+    if internal:
+        results = serialize_internal_file(file_data)
+    else:
+        results = serialize_file(file_data)
     cur.close()
     return results
     
@@ -665,15 +681,12 @@ def get_file_metadata(file_id):
 @app.route('/api/files/download/<int:file_id>', methods=['GET'])
 @jwt_required()
 def download_file(file_id):
-    cur = conn.cursor()
-    cur.execute("SELECT name, path FROM files WHERE id = %s;", (file_id,))
-    file_data = cur.fetchone()
-    cur.close()
+    file = query_file(file_id, internal=True)
 
-    if file_data:
-        return send_from_directory(directory=os.path.dirname(file_data['path']),
-                                   filename=file_data['name'],
-                                   as_attachment=True)
+    print(file)
+    if file:
+        return send_from_directory(app.config['UPLOAD_FOLDER'],
+                                   file['filename'])
     else:
         return jsonify({'error': 'File not found'}), 404
 
