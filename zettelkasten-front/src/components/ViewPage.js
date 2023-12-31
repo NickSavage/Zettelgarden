@@ -12,13 +12,12 @@ export function ViewPage({
 }) {
   const handleFileDownload = (fileId, e) => {
     e.preventDefault(); // Prevent the default anchor behavior
-    downloadFile(fileId).catch(error => {
+    downloadFile(fileId).catch((error) => {
       // Handle any errors here, such as displaying a notification to the user
-      console.error('Error downloading file:', error);
+      console.error("Error downloading file:", error);
     });
   };
 
-    
   return (
     <div>
       <h2 style={{ marginBottom: "10px" }}>
@@ -51,17 +50,17 @@ export function ViewPage({
           </ul>
         </div>
       )}
-	  <h4>Files:</h4>
+      <h4>Files:</h4>
       <ul>
         {viewingCard.files.map((file, index) => (
-		<li key={file["id"]}>
+          <li key={file["id"]}>
             <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
               {file.name}
             </a>
-	    </li>
+          </li>
         ))}
       </ul>
-	  
+
       <h4>Backlinks:</h4>
       <ul>
         {viewingCard.backlinks.map((backlink, index) => (

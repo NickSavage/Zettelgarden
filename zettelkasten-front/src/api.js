@@ -121,24 +121,24 @@ export function changePassword(id, password) {
 
 export function uploadFile(file, card_pk) {
   let token = localStorage.getItem("token");
-  const url = base_url + '/files/upload';
+  const url = base_url + "/files/upload";
 
   // Create a FormData object and append the file
   let formData = new FormData();
-  formData.append('file', file);
-  formData.append('card_pk', card_pk); // Append card_pk to the form data
+  formData.append("file", file);
+  formData.append("card_pk", card_pk); // Append card_pk to the form data
 
   // Send a POST request with the FormData
   return fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       // Don't set 'Content-Type' for FormData, as the browser sets it with the correct boundary
     },
     body: formData,
   })
-  .then(checkStatus)
-  .then(response => response.json());
+    .then(checkStatus)
+    .then((response) => response.json());
 }
 
 export function downloadFile(fileId) {
@@ -146,29 +146,29 @@ export function downloadFile(fileId) {
   const url = `${base_url}/files/download/${fileId}`;
 
   return fetch(url, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   })
-  .then(response => {
-    if (response.ok) return response.blob();
-    throw new Error('Network response was not ok.');
-  })
-  .then(blob => {
-    // Create a local URL for the blob object
-    const localUrl = window.URL.createObjectURL(blob);
+    .then((response) => {
+      if (response.ok) return response.blob();
+      throw new Error("Network response was not ok.");
+    })
+    .then((blob) => {
+      // Create a local URL for the blob object
+      const localUrl = window.URL.createObjectURL(blob);
 
-    // Create a temporary anchor tag to trigger the download
-    const a = document.createElement('a');
-    a.href = localUrl;
-    a.download = ''; // Optional: Provide a default download name for the file
-    document.body.appendChild(a);
-    a.click();
+      // Create a temporary anchor tag to trigger the download
+      const a = document.createElement("a");
+      a.href = localUrl;
+      a.download = ""; // Optional: Provide a default download name for the file
+      document.body.appendChild(a);
+      a.click();
 
-    // Clean up by revoking the object URL and removing the temporary anchor tag
-    window.URL.revokeObjectURL(localUrl);
-    a.remove();
-  })
-  .catch(error => console.error('Download error:', error));
+      // Clean up by revoking the object URL and removing the temporary anchor tag
+      window.URL.revokeObjectURL(localUrl);
+      a.remove();
+    })
+    .catch((error) => console.error("Download error:", error));
 }
