@@ -18,6 +18,7 @@ export function EditPage({
   handleSaveCard,
   newCard,
 }) {
+  const [message, setMessage] = useState("");
   const [linktitle, setLinktitle] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [link, setLink] = useState("");
@@ -60,38 +61,36 @@ export function EditPage({
   }
 
   function handleBodyChange(event) {
-      console.log(event)
+    console.log(event);
     setEditingCard({ ...editingCard, body: event.target.value });
-  };
-    
+  }
 
-const handleDrop = async (event) => {
-  event.preventDefault();
-  event.stopPropagation();
+  const handleDrop = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-  const files = event.dataTransfer.files;
+    const files = event.dataTransfer.files;
 
-  if (files.length > 0) {
-    // Process each file
-    for (let i = 0; i < files.length; i++) {
-      try {
+    if (files.length > 0) {
+      // Process each file
+      for (let i = 0; i < files.length; i++) {
+        try {
           const response = await uploadFile(files[i], editingCard["id"]);
-        console.log('File uploaded successfully:', response);
-        // Handle the response here
-        // For example, append the file URL to the textarea or update state
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        // Handle the error here
+          setMessage("File uploaded successfully:", response);
+          // Handle the response here
+          // For example, append the file URL to the textarea or update state
+        } catch (error) {
+          setMessage("Error uploading file:", error);
+          // Handle the error here
+        }
       }
     }
-  }
-};
-
+  };
 
   const handleDragOver = (event) => {
     event.preventDefault();
   };
-    
+
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       setTopResults([]);
@@ -133,6 +132,7 @@ const handleDrop = async (event) => {
 
   return (
     <div>
+      <div>{message && <span>{message}</span>}</div>
       <label htmlFor="title">Card ID:</label>
       <div style={{ display: "flex" }}>
         <input
@@ -165,9 +165,9 @@ const handleDrop = async (event) => {
         style={{ display: "block", width: "100%", height: "200px" }} // Updated style here
         id="body"
         value={editingCard.body}
-          onChange={handleBodyChange}
-	  onDrop={handleDrop}
-	  onDragOver={handleDragOver}
+        onChange={handleBodyChange}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
         placeholder="Body"
       />
       <div
