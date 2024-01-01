@@ -12,8 +12,8 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this!
-app.config['UPLOAD_FOLDER'] = "/home/nick/staging/files"
+app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)  # app is your Flask app instance
 
