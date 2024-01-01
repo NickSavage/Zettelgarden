@@ -11,13 +11,13 @@ function renderWarningLabel(cards, editingCard) {
   return null;
 }
 
-  const handleFileDownload = (fileId, e) => {
-    e.preventDefault(); // Prevent the default anchor behavior
-    downloadFile(fileId).catch((error) => {
-      // Handle any errors here, such as displaying a notification to the user
-      console.error("Error downloading file:", error);
-    });
-  };
+const handleFileDownload = (fileId, e) => {
+  e.preventDefault(); // Prevent the default anchor behavior
+  downloadFile(fileId).catch((error) => {
+    // Handle any errors here, such as displaying a notification to the user
+    console.error("Error downloading file:", error);
+  });
+};
 
 export function EditPage({
   cards,
@@ -77,10 +77,12 @@ export function EditPage({
     event.preventDefault();
     event.stopPropagation();
 
-      if (newCard) {
-	  setMessage("Error: Cannot upload files for new cards, please save the card first");
-	  return;
-      }
+    if (newCard) {
+      setMessage(
+        "Error: Cannot upload files for new cards, please save the card first",
+      );
+      return;
+    }
     const files = event.dataTransfer.files;
 
     if (files.length > 0) {
@@ -94,6 +96,42 @@ export function EditPage({
         } catch (error) {
           setMessage("Error uploading file:", error);
           // Handle the error here
+        }
+      }
+    }
+  };
+  const handlePaste = async (event) => {
+    // Prevent the default pasting action
+    event.preventDefault();
+
+    // Check if there are any items being pasted
+    if (event.clipboardData && event.clipboardData.items) {
+      const items = event.clipboardData.items;
+
+      for (const item of items) {
+        // Check if the item is an image
+        if (item.type.indexOf("image") !== -1) {
+          const file = item.getAsFile();
+
+          if (newCard) {
+            setMessage(
+              "Error: Cannot upload images for new cards, please save the card first",
+            );
+            return;
+          }
+
+          try {
+            const response = await uploadFile(file, editingCard["id"]);
+            setMessage(`File uploaded successfully: ${response}`);
+            // Handle the response here, e.g., append the file URL to the textarea
+          } catch (error) {
+            setMessage(`Error uploading file: ${error}`);
+            // Handle the error here
+          }
+        } else {
+          // If the pasted content is not an image, handle the usual text pasting
+          const text = event.clipboardData.getData("text/plain");
+          document.execCommand("insertText", false, text);
         }
       }
     }
@@ -180,6 +218,7 @@ export function EditPage({
         onChange={handleBodyChange}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
+        onPaste={handlePaste}
         placeholder="Body"
       />
       <div
@@ -215,21 +254,21 @@ export function EditPage({
         placeholder="Title"
       />
       <button onClick={handleSaveCard}>Save</button>
-	{!newCard &&
-	 <div>
-      <h4>Files:</h4>
-      <ul>
-        {editingCard.files.map((file, index) => (
-          <li key={file["id"]}>
-		<span>{file.id} - </span>
-            <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
-		{file.name}
-            </a>
-          </li>
-        ))}
-      </ul>
-	     </div>
-	}
+      {!newCard && (
+        <div>
+          <h4>Files:</h4>
+          <ul>
+            {editingCard.files.map((file, index) => (
+              <li key={file["id"]}>
+                <span>{file.id} - </span>
+                <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
+                  {file.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
