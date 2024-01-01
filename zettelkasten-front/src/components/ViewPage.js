@@ -54,8 +54,9 @@ export function ViewPage({
       <ul>
         {viewingCard.files.map((file, index) => (
           <li key={file["id"]}>
+		<span>{file.id} - </span>
             <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
-              {file.name}
+		{file.name}
             </a>
           </li>
         ))}

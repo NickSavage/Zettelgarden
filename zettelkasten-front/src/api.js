@@ -156,19 +156,7 @@ export function downloadFile(fileId) {
       throw new Error("Network response was not ok.");
     })
     .then((blob) => {
-      // Create a local URL for the blob object
-      const localUrl = window.URL.createObjectURL(blob);
-
-      // Create a temporary anchor tag to trigger the download
-      const a = document.createElement("a");
-      a.href = localUrl;
-      a.download = ""; // Optional: Provide a default download name for the file
-      document.body.appendChild(a);
-      a.click();
-
-      // Clean up by revoking the object URL and removing the temporary anchor tag
-      window.URL.revokeObjectURL(localUrl);
-      a.remove();
+	return window.URL.createObjectURL(blob);
     })
     .catch((error) => console.error("Download error:", error));
 }
