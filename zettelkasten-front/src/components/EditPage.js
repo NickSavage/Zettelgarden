@@ -122,7 +122,13 @@ export function EditPage({
 
           try {
             const response = await uploadFile(file, editingCard["id"]);
+            let append_text = "\n\n![](" + response["file"]["id"] + ")";
             setMessage(`File uploaded successfully: ${response}`);
+
+            setEditingCard((prevEditingCard) => ({
+              ...editingCard,
+              body: editingCard.body + append_text, // Append the text
+            }));
             // Handle the response here, e.g., append the file URL to the textarea
           } catch (error) {
             setMessage(`Error uploading file: ${error}`);
