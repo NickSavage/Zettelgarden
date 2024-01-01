@@ -69,6 +69,10 @@ export function EditPage({
     event.preventDefault();
     event.stopPropagation();
 
+      if (newCard) {
+	  setMessage("Error: Cannot upload files for new cards, please save the card first");
+	  return;
+      }
     const files = event.dataTransfer.files;
 
     if (files.length > 0) {
