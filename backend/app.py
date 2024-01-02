@@ -634,7 +634,7 @@ def update_category(category_id):
 
 def query_file(file_id, internal=False) -> dict:
     cur = conn.cursor()
-    cur.execute("SELECT * FROM files WHERE id = %s;", (file_id,))
+    cur.execute("SELECT * FROM files WHERE is_deleted = FALSE AND id = %s;", (file_id,))
     file_data = cur.fetchone()
     print(file_data)
     if not file_data:
@@ -693,7 +693,7 @@ def get_file_metadata(file_id):
 def get_all_files():
 
     cur = conn.cursor()
-    cur.execute(full_file_query)
+    cur.execute(full_file_query + " WHERE is_deleted = FALSE")
     data = cur.fetchall()
     file_data = [serialize_file(x) for x in data]
     cur.close()
@@ -737,5 +737,52 @@ def delete_file(file_id):
     else:
         return jsonify({'error': 'File not found'}), 404
     
+@app.route('/api/files/<int:file_id>', methods=['PATCH'])
+@jwt_required()
+def edit_file(file_id):
+    data = request.get_json()
+    
+    # Check if the request has the necessary data to perform an update
+    if not data:
+        return jsonify({'error': 'No update data provided'}), 400
+
+    # Here you would validate the data contents, e.g., check if the name key exists
+    # and maybe check if the new name is not empty or already taken, etc.
+
+    set_clauses = []
+    values = []
+    
+    if 'name' in data:
+        set_clauses.append("name = %s")
+        values.append(data['name'])
+    
+    # Add more fields to update here as needed
+    # if 'other_field' in data:
+    #     set_clauses.append("other_field = %s")
+    #     values.append(data['other_field'])
+    
+    if not set_clauses:
+        return jsonify({'error': 'No valid fields to update'}), 400
+    
+    # Add the file_id to the values list
+    values.append(file_id)
+    
+    # Build the update query dynamically
+    update_query = "UPDATE files SET " + ", ".join(set_clauses) + ", updated_at = NOW() WHERE id = %s AND is_deleted = FALSE"
+    
+    # Execute the query
+    cur = conn.cursor()
+    cur.execute(update_query, tuple(values))
+    
+    if cur.rowcount == 0:
+        cur.close()
+        return jsonify({'error': 'File not found or no update was made'}), 404
+
+    conn.commit()
+    cur.close()
+    
+    updated_file = query_file(file_id)
+    return jsonify(updated_file), 200
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)

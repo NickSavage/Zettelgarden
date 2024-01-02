@@ -226,3 +226,18 @@ export function deleteFile(fileId) {
       return results;
     });
 }
+export function editFile(fileId, updateData) {
+  let token = localStorage.getItem("token");
+  const url = `${base_url}/files/${fileId}`;
+
+  return fetch(url, {
+    method: "PATCH",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updateData)
+  })
+    .then(checkStatus)
+    .then(response => response.json());
+}
