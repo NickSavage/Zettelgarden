@@ -172,6 +172,22 @@ option {
   text-decoration: none;
 }
 
+.file-item {
+  display: flex;
+  width: 100%;
+  align-items: center; /* Center items vertically */
+  justify-content: space-between;
+}
+
+.file-item-left {
+}
+
+.file-item-right {
+  justify-content: flex-end;
+  display: flex;
+  align-items: center; /* Center items vertically */
+}
+
 /* Button-like styles */
 .btn {
   padding: 10px 20px;
