@@ -46,12 +46,11 @@ function renderCardText(card, cards, handleViewBacklink) {
   // Custom link component
   const LinkRenderer = ({ children, href }) => {
     const cardId = children;
-    console.log([cardId, href]);
     const id = getIdByCardId(cards, cardId);
 
-    const linkedCard = card.direct_links.find(
-      (linked) => linked.card_id === cardId,
-    );
+    const linkedCard = card.direct_links
+      .filter((x) => x !== null)
+      .find((linked) => linked.card_id === cardId);
     const title = linkedCard ? linkedCard.title : "Card not found";
 
     console.log([cardId, id, linkedCard, title]);
