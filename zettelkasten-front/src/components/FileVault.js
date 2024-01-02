@@ -13,13 +13,17 @@ export function FileVault({ handleViewCard }) {
   };
   const handleFileDelete = (fileId, e) => {
     e.preventDefault();
-    deleteFile(fileId)
-      .then(() => {
-        setFiles(files.filter((file) => file.id !== fileId));
-      })
-      .catch((error) => {
-        console.error("Error deleting file:", error);
-      });
+
+    // Show confirmation dialog
+    if (window.confirm("Are you sure you want to delete this file?")) {
+      deleteFile(fileId)
+        .then(() => {
+          setFiles(files.filter((file) => file.id !== fileId));
+        })
+        .catch((error) => {
+          console.error("Error deleting file:", error);
+        });
+    }
   };
 
   useEffect(() => {
