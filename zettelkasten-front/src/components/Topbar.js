@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
 export function Topbar({
   handleNewCard,
-    handleViewFileVault,
+  handleViewFileVault,
   handleOpenSearch,
   handleViewSettings,
   handleIndexClick,

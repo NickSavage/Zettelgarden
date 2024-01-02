@@ -16,7 +16,7 @@ function App() {
   const [cards, setCards] = useState([]);
   const [newCard, setNewCard] = useState(null);
   const [viewingCard, setViewCard] = useState(null);
-    const [viewFileVault, setViewFileVault] = useState(null);
+  const [viewFileVault, setViewFileVault] = useState(null);
   const [viewSettings, setViewSettings] = useState(null);
   const [parentCard, setParentCard] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
@@ -34,8 +34,8 @@ function App() {
     setEditingCard(null);
     setSearchCard(null);
     setNewCard(null);
-      setViewSettings(null);
-      setViewFileVault(null);
+    setViewSettings(null);
+    setViewFileVault(null);
   }
 
   function handleOpenSearch() {
@@ -50,11 +50,11 @@ function App() {
     setEditingCard({ card_id: lastCardId, title: "", body: "" });
     document.title = "Zettelkasten - New Card";
   }
-    function handleViewFileVault() {
-	changePage();
-	document.title = "Zettelkasten - File Vault";
-	setViewFileVault(true);
-    }
+  function handleViewFileVault() {
+    changePage();
+    document.title = "Zettelkasten - File Vault";
+    setViewFileVault(true);
+  }
   function handleViewSettings() {
     changePage();
     setViewSettings(true);
@@ -124,7 +124,7 @@ function App() {
     <div>
       <Topbar
         handleNewCard={handleNewCard}
-	  handleViewFileVault={handleViewFileVault}
+        handleViewFileVault={handleViewFileVault}
         handleOpenSearch={handleOpenSearch}
         handleViewSettings={handleViewSettings}
         handleIndexClick={handleIndexClick}
@@ -164,7 +164,7 @@ function App() {
             />
           )}
           {viewSettings && <SettingsPage />}
-	    {viewFileVault && <FileVault />}
+          {viewFileVault && <FileVault handleViewCard={handleViewCard} />}
         </div>
       </div>
     </div>

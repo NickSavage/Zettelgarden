@@ -156,7 +156,7 @@ export function renderFile(fileId) {
       throw new Error("Network response was not ok.");
     })
     .then((blob) => {
-          // Create a local URL for the blob object
+      // Create a local URL for the blob object
       const localUrl = window.URL.createObjectURL(blob);
 
       // Create a temporary anchor tag to trigger the download
@@ -194,7 +194,6 @@ export function downloadFile(fileId) {
 }
 
 export function getAllFiles() {
-
   let token = localStorage.getItem("token");
   const url = `${base_url}/files`;
 
