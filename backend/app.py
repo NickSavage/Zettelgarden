@@ -782,6 +782,7 @@ def edit_file(file_id):
     cur.close()
     
     updated_file = query_file(file_id)
+    updated_file["card"] = query_partial_card_by_id(updated_file["card_pk"])
     return jsonify(updated_file), 200
 
 if __name__ == "__main__":

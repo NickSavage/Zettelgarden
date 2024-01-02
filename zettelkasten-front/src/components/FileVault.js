@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { renderFile, uploadFile, getAllFiles, deleteFile, editFile } from "../api";
+import {
+  renderFile,
+  uploadFile,
+  getAllFiles,
+  deleteFile,
+  editFile,
+} from "../api";
 import { sortCards } from "../utils";
-import { FileRenameModal } from "./FileRenameModal.js"
+import { FileRenameModal } from "./FileRenameModal.js";
 
 export function FileVault({ handleViewCard }) {
   const [files, setFiles] = useState([]);
-    const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
-    const [fileToRename, setFileToRename] = useState(null);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [fileToRename, setFileToRename] = useState(null);
 
   const handleFileDownload = (fileId, e) => {
     e.preventDefault();
@@ -14,10 +20,10 @@ export function FileVault({ handleViewCard }) {
       console.error("Error downloading file:", error);
     });
   };
-    const openRenameModal = (file) => {
-	setFileToRename(file);
-	setIsRenameModalOpen(true);
-    };
+  const openRenameModal = (file) => {
+    setFileToRename(file);
+    setIsRenameModalOpen(true);
+  };
   const handleFileDelete = (fileId, e) => {
     e.preventDefault();
 
@@ -37,24 +43,31 @@ export function FileVault({ handleViewCard }) {
     getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
   }, []);
   return (
-      <>
-	  <FileRenameModal
-	      isOpen={isRenameModalOpen}
-	      onClose={() => setIsRenameModalOpen(false)}
-	      onRename={(file, newName) => {
-		  // Handle the renaming logic here
-		  editFile(file["id"], { name: newName })
-		      .then(data => {
-			  console.log('File successfully updated', data);
-		      })
-		      .catch(error => {
-			  console.error('Error updating file:', error);
-		      });
-		  console.log(newName);
-		  setIsRenameModalOpen(false);
-	      }}
-	      file={fileToRename}
-	  />
+    <>
+      <FileRenameModal
+        isOpen={isRenameModalOpen}
+        onClose={() => setIsRenameModalOpen(false)}
+        onRename={(file, newName) => {
+          // Handle the renaming logic here
+          editFile(file["id"], { name: newName })
+            .then((updatedFile) => {
+              console.log("File successfully updated", updatedFile);
+              // Update the local state to reflect the changed file
+              setFiles((prevFiles) =>
+                prevFiles.map((f) =>
+                  f.id === updatedFile.id ? updatedFile : f,
+                ),
+              );
+            })
+            .catch((error) => {
+              console.error("Error updating file:", error);
+            });
+
+          console.log(newName);
+          setIsRenameModalOpen(false);
+        }}
+        file={fileToRename}
+      />
       <h3>File Vault</h3>
       <ul>
         {files &&

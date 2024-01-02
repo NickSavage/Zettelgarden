@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-export function FileRenameModal ({ isOpen, onClose, onRename, file }) {
-  const [newName, setNewName] = useState('');
+export function FileRenameModal({ isOpen, onClose, onRename, file }) {
+  const [newName, setNewName] = useState("");
 
   useEffect(() => {
     if (isOpen && file) {
@@ -10,7 +10,7 @@ export function FileRenameModal ({ isOpen, onClose, onRename, file }) {
   }, [isOpen, file]);
 
   if (!isOpen) return null;
-    console.log(file);
+  console.log(file);
   return (
     <div className="modal-backdrop">
       <div className="modal">
@@ -19,9 +19,9 @@ export function FileRenameModal ({ isOpen, onClose, onRename, file }) {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />
-          <button onClick={() => onRename(file, newName)}>Rename</button>
+        <button onClick={() => onRename(file, newName)}>Rename</button>
         <button onClick={onClose}>Cancel</button>
       </div>
     </div>
   );
-};
+}

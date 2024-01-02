@@ -233,11 +233,11 @@ export function editFile(fileId, updateData) {
   return fetch(url, {
     method: "PATCH",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(updateData)
+    body: JSON.stringify(updateData),
   })
     .then(checkStatus)
-    .then(response => response.json());
+    .then((response) => response.json());
 }
