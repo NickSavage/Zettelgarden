@@ -209,3 +209,20 @@ export function getAllFiles() {
       return results;
     });
 }
+
+export function deleteFile(fileId) {
+  let token = localStorage.getItem("token");
+  const url = `${base_url}/files/${fileId}`;
+
+  return fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      let results = response.json();
+      return results;
+    });
+}

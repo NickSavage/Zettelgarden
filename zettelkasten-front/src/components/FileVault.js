@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { renderFile, uploadFile, getAllFiles } from "../api";
+import { renderFile, uploadFile, getAllFiles, deleteFile } from "../api";
 import { sortCards } from "../utils";
 
 export function FileVault({ handleViewCard }) {
@@ -10,6 +10,16 @@ export function FileVault({ handleViewCard }) {
     renderFile(fileId).catch((error) => {
       console.error("Error downloading file:", error);
     });
+  };
+  const handleFileDelete = (fileId, e) => {
+    e.preventDefault();
+    deleteFile(fileId)
+      .then(() => {
+        setFiles(files.filter((file) => file.id !== fileId));
+      })
+      .catch((error) => {
+        console.error("Error deleting file:", error);
+      });
   };
 
   useEffect(() => {
@@ -44,6 +54,14 @@ export function FileVault({ handleViewCard }) {
               </a>
               <br />
               <span>Created At: {file["created_at"]}</span>
+              <div>
+                <button
+                  className="btn"
+                  onClick={(e) => handleFileDelete(file.id, e)}
+                >
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
       </ul>

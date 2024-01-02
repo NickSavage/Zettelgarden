@@ -113,6 +113,7 @@ cur.execute(
         created_by INT,
         updated_by INT,
         card_pk INT, 
+        is_deleted BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (created_by) REFERENCES users(id),
@@ -635,6 +636,9 @@ def query_file(file_id, internal=False) -> dict:
     cur = conn.cursor()
     cur.execute("SELECT * FROM files WHERE id = %s;", (file_id,))
     file_data = cur.fetchone()
+    print(file_data)
+    if not file_data:
+        return None
     if internal:
         results = serialize_internal_file(file_data)
     else:
@@ -715,5 +719,23 @@ def download_file(file_id):
     else:
         return jsonify({'error': 'File not found'}), 404
 
+@app.route('/api/files/<int:file_id>', methods=['DELETE'])
+@jwt_required()
+def delete_file(file_id):
+    print(file_id)
+    file = query_file(file_id)
+
+    if file:
+        cur = conn.cursor()
+        cur.execute("UPDATE files SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s", (file_id,))
+        if cur.rowcount == 0:
+            cur.close()
+            return jsonify({'error': 'File not found'}), 404
+        conn.commit()
+        cur.close()
+        return jsonify({'message': 'File successfully deleted'}), 200
+    else:
+        return jsonify({'error': 'File not found'}), 404
+    
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
