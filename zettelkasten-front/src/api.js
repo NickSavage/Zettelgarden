@@ -141,6 +141,38 @@ export function uploadFile(file, card_pk) {
     .then((response) => response.json());
 }
 
+export function renderFile(fileId) {
+  let token = localStorage.getItem("token");
+  const url = `${base_url}/files/download/${fileId}`;
+
+  return fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      if (response.ok) return response.blob();
+      throw new Error("Network response was not ok.");
+    })
+    .then((blob) => {
+          // Create a local URL for the blob object
+      const localUrl = window.URL.createObjectURL(blob);
+
+      // Create a temporary anchor tag to trigger the download
+      const a = document.createElement("a");
+      a.href = localUrl;
+      a.download = ""; // Optional: Provide a default download name for the file
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up by revoking the object URL and removing the temporary anchor tag
+      window.URL.revokeObjectURL(localUrl);
+      a.remove();
+    })
+    .catch((error) => console.error("Download error:", error));
+}
+
 export function downloadFile(fileId) {
   let token = localStorage.getItem("token");
   const url = `${base_url}/files/download/${fileId}`;
@@ -156,7 +188,25 @@ export function downloadFile(fileId) {
       throw new Error("Network response was not ok.");
     })
     .then((blob) => {
-	return window.URL.createObjectURL(blob);
+      return window.URL.createObjectURL(blob);
     })
     .catch((error) => console.error("Download error:", error));
+}
+
+export function getAllFiles() {
+
+  let token = localStorage.getItem("token");
+  const url = `${base_url}/files`;
+
+  return fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      let results = response.json();
+      return results;
+    });
 }

@@ -153,6 +153,7 @@ def login():
 
 full_card_query = "SELECT id, card_id, title, body, link, created_at, updated_at FROM cards"
 partial_card_query = "SELECT id, card_id, title FROM cards"
+full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
 
 def full_card_query_filtered(search_terms) -> str:
     # Split the search string into separate terms
@@ -197,7 +198,7 @@ def log_card_view(card_pk, user_id):
         cur.close()
 
 def serialize_full_card(card) -> dict:
-    card = {
+   card = {
         "id": card[0],
         "card_id": card[1],
         "title": card[2],
@@ -210,7 +211,7 @@ def serialize_full_card(card) -> dict:
         "parent": get_parent(card[1]),
         "files": get_files_from_card_id(card[0]),
     }
-    return card
+   return card
 
 def serialize_partial_card(card) -> dict:
     card = {
@@ -254,6 +255,7 @@ def serialize_file(file: list) -> dict:
         "size": file[5],
         "created_by": file[6],
         "updated_by": file[7],
+        "card_pk": file[8],
         "created_at": file[9],
         "updated_at": file[10]
     }
@@ -268,6 +270,7 @@ def serialize_internal_file(file: list) -> dict:
         "size": file[5],
         "created_by": file[6],
         "updated_by": file[7],
+        "card_pk": file[8],
         "created_at": file[9],
         "updated_at": file[10]
     }
@@ -343,21 +346,23 @@ def query_all_full_cards(search_term=None) -> list:
     return results
     
     
+def query_partial_card_by_id(id) -> dict:
+    cur = conn.cursor()
+    
+    cur.execute(partial_card_query + " WHERE id = %s;", (id,))
+    card = cur.fetchone()
+    cur.close()
+    if card:
+        return serialize_partial_card(card)
+
 def query_partial_card(card_id) -> dict:
     cur = conn.cursor()
     
-    cur.execute(partial_card_query + " WHERE card_id = '" + card_id + "';")
-    cards = cur.fetchall()
-    results = []
-    for x in cards:
-        card = serialize_partial_card(x)
-        results.append(card)
-
+    cur.execute(partial_card_query + " WHERE card_id = %s;", (card_id,))
+    card = cur.fetchone()
     cur.close()
-    if len(results) > 0:
-        return results[0]
-    else:
-        return {}
+    if card:
+        return serialize_partial_card(card)
 
 
 def sort_ids(id):
@@ -456,7 +461,7 @@ def get_parent(card_id: str) -> dict:
 def get_files_from_card_id(card_id: int) -> list:
 
     cur = conn.cursor()
-    cur.execute("SELECT * FROM files WHERE card_pk = %s;", (card_id,))
+    cur.execute(full_file_query + " WHERE card_pk = %s;", (card_id,))
     data = cur.fetchall()
     results = [serialize_file(x) for x in data]
     cur.close()
@@ -672,12 +677,32 @@ def upload_file():
 @jwt_required()
 def get_file_metadata(file_id):
 
+
     file_data = query_file(file_id)
     if file_data:
         return jsonify(file_data)
     else:
         return jsonify({'error': 'File not found'}), 404
     
+@app.route('/api/files', methods=['GET'])
+@jwt_required()
+def get_all_files():
+
+    cur = conn.cursor()
+    cur.execute(full_file_query)
+    data = cur.fetchall()
+    file_data = [serialize_file(x) for x in data]
+    cur.close()
+    if file_data:
+        results = []
+        for file in file_data:
+            new = file
+            print(new)
+            new["card"] = query_partial_card_by_id(file["card_pk"])
+            results.append(new)
+        return jsonify(results)
+    else:
+        return jsonify({'error': 'File not found'}), 404
 @app.route('/api/files/download/<int:file_id>', methods=['GET'])
 @jwt_required()
 def download_file(file_id):

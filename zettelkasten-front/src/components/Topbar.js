@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
 export function Topbar({
   handleNewCard,
+    handleViewFileVault,
   handleOpenSearch,
   handleViewSettings,
   handleIndexClick,
@@ -28,6 +29,9 @@ export function Topbar({
       <div className="top-bar-right">
         <button className="btn" onClick={handleNewCard}>
           New Card
+        </button>
+        <button className="btn" onClick={handleViewFileVault}>
+          File Vault
         </button>
         <button className="btn" onClick={handleOpenSearch}>
           Search
