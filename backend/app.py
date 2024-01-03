@@ -462,7 +462,7 @@ def get_parent(card_id: str) -> dict:
 def get_files_from_card_id(card_id: int) -> list:
 
     cur = conn.cursor()
-    cur.execute(full_file_query + " WHERE card_pk = %s;", (card_id,))
+    cur.execute(full_file_query + " WHERE is_deleted = FALSE AND card_pk = %s;", (card_id,))
     data = cur.fetchall()
     results = [serialize_file(x) for x in data]
     cur.close()
