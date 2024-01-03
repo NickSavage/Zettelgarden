@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { isCardIdUnique } from "../utils";
-import { downloadFile, uploadFile, deleteFile } from "../api";
+import { uploadFile } from "../api";
 import { FileListItem } from "./FileListItem";
+import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList"
 
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
@@ -160,24 +161,6 @@ export function EditPage({
     }
   }
 
-  function createInputDropdown(cards) {
-    return (
-      <ul className="input-link-dropdown">
-        {cards.map((card, index) => (
-          <li
-            key={card.card_id}
-            style={{
-              background: "lightgrey",
-              cursor: "pointer",
-            }}
-          >
-            {card.card_id} - {card.title}
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
   return (
     <div>
       <div>{message && <span>{message}</span>}</div>
@@ -238,7 +221,7 @@ export function EditPage({
             <span>{linktitle}</span>
           </div>
         )}
-        {topResults && createInputDropdown(topResults)}
+          {topResults && <BacklinkInputDropdownList cards={topResults} />}
       </div>
       <label htmlFor="title">Link:</label>
       <input
