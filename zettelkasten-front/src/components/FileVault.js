@@ -20,6 +20,10 @@ export function FileVault({ handleViewCard }) {
     setIsRenameModalOpen(true);
   };
 
+  function onDelete(file_id) {
+    setFiles(files.filter((file) => file.id !== file_id));
+  }
+
   useEffect(() => {
     getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
   }, [files]);
@@ -55,8 +59,7 @@ export function FileVault({ handleViewCard }) {
           files.map((file, index) => (
             <FileListItem
               file={file}
-              files={files}
-              setFiles={setFiles}
+              onDelete={onDelete}
               handleViewCard={handleViewCard}
               openRenameModal={openRenameModal}
               displayCard={true}

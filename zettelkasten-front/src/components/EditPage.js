@@ -25,6 +25,8 @@ export function EditPage({
   const [link, setLink] = useState("");
   const [topResults, setTopResults] = useState([]);
 
+  function onFileDelete(file_id) {}
+
   function handleLinkInputChange(e) {
     setLink(e.target.value);
     const search = e.target.value; // assuming you want case-insensitive matching
@@ -257,8 +259,7 @@ export function EditPage({
             {editingCard.files.map((file, index) => (
               <FileListItem
                 file={file}
-                files={editingCard.files}
-                setFiles={null}
+                onDelete={onFileDelete}
                 handleViewCard={null}
                 openRenameModal={null}
                 displayCard={false}

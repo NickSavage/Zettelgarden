@@ -2,8 +2,7 @@ import { renderFile, deleteFile } from "../api";
 
 export function FileListItem({
   file,
-  files,
-  setFiles,
+  onDelete,
   handleViewCard,
   openRenameModal,
   displayCard,
@@ -14,16 +13,14 @@ export function FileListItem({
       console.error("Error downloading file:", error);
     });
   };
-  const handleFileDelete = (fileId, e) => {
+  const handleFileDelete = (file_id, e) => {
     e.preventDefault();
 
     // Show confirmation dialog
     if (window.confirm("Are you sure you want to delete this file?")) {
-      deleteFile(fileId)
+      deleteFile(file_id)
         .then(() => {
-          if (setFiles) {
-            setFiles(files.filter((file) => file.id !== fileId));
-          }
+          onDelete(file_id);
         })
         .catch((error) => {
           console.error("Error deleting file:", error);

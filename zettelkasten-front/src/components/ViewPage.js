@@ -9,6 +9,8 @@ export function ViewPage({
   handleViewCard,
   handleEditCard,
 }) {
+  function onFileDelete(file_id) {}
+
   return (
     <div>
       <h2 style={{ marginBottom: "10px" }}>
@@ -46,8 +48,7 @@ export function ViewPage({
         {viewingCard.files.map((file, index) => (
           <FileListItem
             file={file}
-            files={viewingCard.files}
-            setFiles={null}
+            onDelete={onFileDelete}
             handleViewCard={null}
             openRenameModal={null}
             displayCard={false}
