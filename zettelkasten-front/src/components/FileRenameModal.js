@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from "react";
 
+import { editFile } from "../api";
+
 export function FileRenameModal({ isOpen, onClose, onRename, file }) {
   const [newName, setNewName] = useState("");
+
+  function handleRename() {
+      console.log("handleRename")
+    editFile(file["id"], { name: newName })
+      .then((updatedFile) => {
+        onRename(file["id"], updatedFile);
+      })
+      .catch((error) => {
+        console.error("Error updating file:", error);
+      });
+
+    console.log(newName);
+  }
 
   useEffect(() => {
     if (isOpen && file) {
@@ -19,7 +34,7 @@ export function FileRenameModal({ isOpen, onClose, onRename, file }) {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />
-        <button onClick={() => onRename(file, newName)}>Rename</button>
+        <button onClick={() => handleRename()}>Rename</button>
         <button onClick={onClose}>Cancel</button>
       </div>
     </div>

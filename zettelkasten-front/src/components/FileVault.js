@@ -24,33 +24,22 @@ export function FileVault({ handleViewCard }) {
     setFiles(files.filter((file) => file.id !== file_id));
   }
 
+  function onRename(fileId, updatedFile) {
+    setFiles((prevFiles) =>
+      prevFiles.map((f) => (f.id === updatedFile.id ? updatedFile : f)),
+    );
+    setIsRenameModalOpen(false);
+  }
+
   useEffect(() => {
     getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
-  }, [files]);
+  }, []);
   return (
     <>
       <FileRenameModal
         isOpen={isRenameModalOpen}
         onClose={() => setIsRenameModalOpen(false)}
-        onRename={(file, newName) => {
-          // Handle the renaming logic here
-          editFile(file["id"], { name: newName })
-            .then((updatedFile) => {
-              console.log("File successfully updated", updatedFile);
-              // Update the local state to reflect the changed file
-              setFiles((prevFiles) =>
-                prevFiles.map((f) =>
-                  f.id === updatedFile.id ? updatedFile : f,
-                ),
-              );
-            })
-            .catch((error) => {
-              console.error("Error updating file:", error);
-            });
-
-          console.log(newName);
-          setIsRenameModalOpen(false);
-        }}
+        onRename={onRename}
         file={fileToRename}
       />
       <h3>File Vault</h3>
