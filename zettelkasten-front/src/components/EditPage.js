@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { isCardIdUnique } from "../utils";
 import { uploadFile } from "../api";
 import { FileListItem } from "./FileListItem";
-import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList"
+import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
@@ -221,7 +221,7 @@ export function EditPage({
             <span>{linktitle}</span>
           </div>
         )}
-          {topResults && <BacklinkInputDropdownList cards={topResults} />}
+        {topResults && <BacklinkInputDropdownList cards={topResults} />}
       </div>
       <label htmlFor="title">Link:</label>
       <input
