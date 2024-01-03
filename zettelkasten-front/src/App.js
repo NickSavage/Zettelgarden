@@ -109,8 +109,6 @@ function App() {
     //fetchCards().then(data => setCards(data));
   }, []);
 
-  console.log(isAuthenticated);
-
   if (!localStorage.getItem("token")) {
     logoutUser();
   }

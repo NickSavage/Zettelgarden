@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { isCardIdUnique } from "../utils";
-import { downloadFile, uploadFile } from "../api";
+import { downloadFile, uploadFile, deleteFile } from "../api";
+import { FileListItem } from "./FileListItem";
 
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
@@ -10,14 +11,6 @@ function renderWarningLabel(cards, editingCard) {
   }
   return null;
 }
-
-const handleFileDownload = (fileId, e) => {
-  e.preventDefault(); // Prevent the default anchor behavior
-  downloadFile(fileId).catch((error) => {
-    // Handle any errors here, such as displaying a notification to the user
-    console.error("Error downloading file:", error);
-  });
-};
 
 export function EditPage({
   cards,
@@ -262,12 +255,14 @@ export function EditPage({
           <h4>Files:</h4>
           <ul>
             {editingCard.files.map((file, index) => (
-              <li key={file["id"]}>
-                <span>{file.id} - </span>
-                <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
-                  {file.name}
-                </a>
-              </li>
+              <FileListItem
+                file={file}
+                files={editingCard.files}
+                setFiles={null}
+                handleViewCard={null}
+                openRenameModal={null}
+                displayCard={false}
+              />
             ))}
           </ul>
         </div>
