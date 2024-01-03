@@ -86,16 +86,12 @@ export function EditPage({
     const files = event.dataTransfer.files;
 
     if (files.length > 0) {
-      // Process each file
       for (let i = 0; i < files.length; i++) {
         try {
           const response = await uploadFile(files[i], editingCard["id"]);
-          setMessage("File uploaded successfully:", response);
-          // Handle the response here
-          // For example, append the file URL to the textarea or update state
+          setMessage("File uploaded successfully: " + response["file"]["name"]);
         } catch (error) {
-          setMessage("Error uploading file:", error);
-          // Handle the error here
+          setMessage("Error uploading file: " + error, error);
         }
       }
     }
@@ -123,16 +119,17 @@ export function EditPage({
           try {
             const response = await uploadFile(file, editingCard["id"]);
             let append_text = "\n\n![](" + response["file"]["id"] + ")";
-            setMessage(`File uploaded successfully: ${response}`);
+            setMessage(
+              `File uploaded successfully: ${response["file"]["name"]}`,
+            );
 
+            // if uploading an image, we want to automatically link it in the body
             setEditingCard((prevEditingCard) => ({
               ...editingCard,
               body: editingCard.body + append_text, // Append the text
             }));
-            // Handle the response here, e.g., append the file URL to the textarea
           } catch (error) {
             setMessage(`Error uploading file: ${error}`);
-            // Handle the error here
           }
         } else {
           // If the pasted content is not an image, handle the usual text pasting
