@@ -1,6 +1,5 @@
 full_card_query = "SELECT id, card_id, title, body, link, created_at, updated_at FROM cards"
 partial_card_query = "SELECT id, card_id, title FROM cards"
-full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
 
 def full_card_query_filtered(search_terms) -> str:
     # Split the search string into separate terms

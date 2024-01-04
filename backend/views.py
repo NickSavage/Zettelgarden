@@ -17,6 +17,7 @@ import models.card
 bp = Blueprint('bp', __name__)
 
 full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
+full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
 
 def log_card_view(card_pk, user_id):
     conn = get_db()
