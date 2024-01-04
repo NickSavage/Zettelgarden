@@ -126,6 +126,11 @@ option {
   font-size: 16px;
 }
 
+.editing-card-preview {
+  border: 1px solid black;
+  padding: 10px;
+}
+
 /* Main Content Area Styles */
 .main-content {
   display: flex;

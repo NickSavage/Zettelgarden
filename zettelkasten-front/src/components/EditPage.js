@@ -4,6 +4,8 @@ import { uploadFile } from "../api";
 import { FileListItem } from "./FileListItem";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 
+import { CardBody } from "./CardBody";
+
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
   if (!editingCard.card_id) return null;
@@ -251,6 +253,11 @@ export function EditPage({
           </ul>
         </div>
       )}
+
+      <div className="editing-card-preview">
+        <h3>Preview</h3>
+        {CardBody(editingCard, cards, null)}
+      </div>
     </div>
   );
 }
