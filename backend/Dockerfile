@@ -21,4 +21,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Run app.py when the container launches
-CMD ["gunicorn", "-w 4", "app:app", "-b 0.0.0.0:5000", "--log-level", "debug", "--capture-output", "--access-logfile", "/var/log/zettelkasten.access.log", "--error-logfile", "/var/log/zettelkasten.error.log"]
+CMD ["gunicorn", "-w 4", "app:create_app()", "-b 0.0.0.0:5000", "--log-level", "debug", "--capture-output", "--access-logfile", "/var/log/zettelkasten.access.log", "--error-logfile", "/var/log/zettelkasten.error.log"]
