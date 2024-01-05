@@ -104,9 +104,6 @@ def create_card():
         return jsonify({"error": "Unknown error"}), 500
 
     # Update backlinks
-    backlinks = utils.extract_backlinks(card["body"])
-
-    services.update_backlinks(card["card_id"], backlinks)
     cur.close()
     
     result = services.query_full_card(new_id)
@@ -126,23 +123,17 @@ def get_card(id):
 @bp.route('/api/cards/<path:id>', methods=['PUT'])
 @jwt_required()
 def update_card(id):
-    conn = get_db()
-    cur = conn.cursor()
-
-    title = request.json.get("title")
-    body = request.json.get("body")
-    card_id = request.json.get("card_id")
-    link = request.json.get("link")
+    card = {
+        "title": request.json.get("title"),
+        "body": request.json.get("body"),
+        "card_id": request.json.get("card_id"),
+        "link": request.json.get("link"),
+    }
     
     # Update card in database
-    cur.execute("UPDATE cards SET title = %s, body = %s, link = %s, updated_at = NOW(), card_id = %s WHERE id = %s;", (title, body, link, card_id, id))
-    conn.commit()
+    services.update_card(id, card)
     
     # Update backlinks
-    backlinks = utils.extract_backlinks(body)
-    services.update_backlinks(card_id, backlinks)
-    
-    cur.close()
     return jsonify(services.query_full_card(id))
 
 @bp.route('/api/users/<path:id>', methods=['GET'])

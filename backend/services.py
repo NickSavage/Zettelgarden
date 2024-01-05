@@ -50,7 +50,7 @@ def get_files_from_card_id(card_id: int) -> list:
     cur.close()
     return results
 
-def create_card(card, user_id) -> int:
+def create_card(card, user_id) -> dict:
 
     if not card["card_id"] == "" and not utils.check_is_card_id_unique(card["card_id"]):
         return {"error": "id already used"}
@@ -67,7 +67,21 @@ def create_card(card, user_id) -> int:
 
     cur.close()
 
+    backlinks = utils.extract_backlinks(card["body"])
+    update_backlinks(card["card_id"], backlinks)
+
     return {"new_id": new_id}
+
+def update_card(id, card):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE cards SET title = %s, body = %s, link = %s, updated_at = NOW(), card_id = %s WHERE id = %s;", (card["title"], card["body"], card["link"], card["card_id"], id))
+    conn.commit()
+
+    cur.close()
+    backlinks = utils.extract_backlinks(card["body"])
+    update_backlinks(card["card_id"], backlinks)
 
 def serialize_full_card(card) -> dict:
    card = {
