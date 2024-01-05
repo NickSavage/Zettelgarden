@@ -28,6 +28,8 @@ def create_app(test_config=None):
     def before_request():
         """Connect to the database before each request."""
         g.db = connect_to_database()
+        g.bcrypt = bcrypt
+        g.config = app.config
 
     @app.teardown_request
     def teardown_request(exception=None):
