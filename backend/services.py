@@ -4,6 +4,7 @@ import models.card
 import utils
 
 full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
+full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
 
 def get_direct_links(body: str) -> list:
     links = utils.extract_backlinks(body)
@@ -165,6 +166,7 @@ def query_partial_card_by_id(id) -> dict:
     cur.close()
     if card:
         return serialize_partial_card(card)
+    return {}
 
 def query_partial_card(card_id) -> dict:
     cur = get_db().cursor()
@@ -174,6 +176,7 @@ def query_partial_card(card_id) -> dict:
     cur.close()
     if card:
         return serialize_partial_card(card)
+    return {}
 
 def query_full_card(id) -> dict:
     cur = get_db().cursor()
@@ -194,7 +197,7 @@ def query_full_user(id: int, include_password=False) -> dict:
     if id == 'null':
         return {"error": "User not found"}
     try:
-        cur.execute(models.card.full_user_query + " WHERE id = %s;", (id,))
+        cur.execute(full_user_query + " WHERE id = %s;", (id,))
         user = cur.fetchone()
     except Exception as e:
         return {"error": str(e)}

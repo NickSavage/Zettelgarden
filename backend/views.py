@@ -263,7 +263,7 @@ def query_file(file_id, internal=False) -> dict:
     file_data = cur.fetchone()
     print(file_data)
     if not file_data:
-        return None
+        return {}
     if internal:
         results = services.serialize_internal_file(file_data)
     else:
