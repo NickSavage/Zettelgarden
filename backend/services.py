@@ -205,3 +205,18 @@ def query_full_user(id: int, include_password=False) -> dict:
         user = serialize_full_user(user, include_password)
     cur.close()
     return user
+
+def query_user_by_username(username: str, include_password=False) -> dict:
+    cur = get_db().cursor()
+    if not username:
+        return {"error": "User not found"}
+    try:
+        cur.execute(full_user_query + " WHERE username = %s;", (username,))
+        user = cur.fetchone()
+    except Exception as e:
+        return {"error": str(e)}
+    if user:
+        user = serialize_full_user(user, include_password)
+    cur.close()
+    return user
+    

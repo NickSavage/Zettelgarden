@@ -18,7 +18,6 @@ import utils
 
 bp = Blueprint('bp', __name__)
 
-full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
 full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
 
 def log_card_view(card_pk, user_id):
@@ -39,20 +38,6 @@ def log_card_view(card_pk, user_id):
         cur.close()
 
 
-def query_username(username: str, include_password=False) -> dict:
-    cur = get_db().cursor()
-    if not username:
-        return {"error": "User not found"}
-    try:
-        cur.execute(full_user_query + " WHERE username = %s;", (username,))
-        user = cur.fetchone()
-    except Exception as e:
-        return {"error": str(e)}
-    if user:
-        user = services.serialize_full_user(user, include_password)
-    cur.close()
-    return user
-    
 
 def sort_ids(id):
     # Use regular expressions to split the id into numeric and non-numeric parts
@@ -70,7 +55,7 @@ def login():
     username = data.get("username")
     password = data.get('password')
     
-    user = query_username(username, True)
+    user = services.query_user_by_username(username, True)
 
     if not user or "error" in user:
         return jsonify({"error": "Invalid credentials"}), 401
