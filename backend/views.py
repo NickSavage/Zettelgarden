@@ -39,13 +39,6 @@ def log_card_view(card_pk, user_id):
 
 
 
-def sort_ids(id):
-    # Use regular expressions to split the id into numeric and non-numeric parts
-    parts = re.split(r'(\D+)', id)
-    # Convert numeric parts to integers
-    parts = [part.zfill(5) if part.isdigit() else part for part in parts]
-    return parts
-
 # Routes
 
 
@@ -82,7 +75,7 @@ def get_cards():
             results = services.query_all_partial_cards(search_term)
         else:
             results = services.query_all_full_cards(search_term)
-        results = sorted(results, key=lambda x: sort_ids(x["card_id"]), reverse=True)
+        results = sorted(results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True)
     except Exception as e:
         return jsonify({"error": str(e)})
     return jsonify(results)
@@ -94,27 +87,26 @@ def create_card():
     user_id = get_jwt_identity()  # Extract the user identity from the token
     conn = get_db()
     cur = conn.cursor()
-    title = request.json.get("title")
-    body = request.json.get("body")
-    card_id = request.json.get("card_id")
+    card = {
+        "title": request.json.get("title"),
+        "body": request.json.get("body"),
+        "card_id": request.json.get("card_id"),
+        "link": request.json.get("link"),
+    }
 
-    if not card_id == "" and not utils.check_is_card_id_unique(card_id):
-        return jsonify({"error": "id already used"})
-        
-    link = request.json.get("link")
-    
     # Insert card into database
-    try:
-        cur.execute("INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card_id, user_id, title, body, link))
-        new_id = cur.fetchone()[0]
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"error": str(e)})
+    result = services.create_card(card, user_id)
+    if "error" in result:
+        return jsonify(result)
+    elif "new_id" in result:
+        new_id = result["new_id"]
+    else:
+        return jsonify({"error": "Unknown error"}), 500
 
     # Update backlinks
-    backlinks = utils.extract_backlinks(body)
-    services.update_backlinks(card_id, backlinks)
+    backlinks = utils.extract_backlinks(card["body"])
+
+    services.update_backlinks(card["card_id"], backlinks)
     cur.close()
     
     result = services.query_full_card(new_id)

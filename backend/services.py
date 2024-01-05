@@ -50,6 +50,24 @@ def get_files_from_card_id(card_id: int) -> list:
     cur.close()
     return results
 
+def create_card(card, user_id) -> int:
+
+    if not card["card_id"] == "" and not utils.check_is_card_id_unique(card["card_id"]):
+        return {"error": "id already used"}
+    
+    conn = get_db()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card["card_id"], user_id, card["title"], card["body"], card["link"]))
+        new_id = cur.fetchone()[0]
+        conn.commit()
+    except Exception as e:
+        return {"error": str(e)}
+
+    cur.close()
+
+    return {"new_id": new_id}
 
 def serialize_full_card(card) -> dict:
    card = {

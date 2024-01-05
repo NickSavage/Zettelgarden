@@ -51,3 +51,11 @@ def check_is_card_id_unique(card_id: str) -> bool:
             return False
     return True
     
+
+def sort_ids(id):
+    # Use regular expressions to split the id into numeric and non-numeric parts
+    parts = re.split(r'(\D+)', id)
+    # Convert numeric parts to integers
+    parts = [part.zfill(5) if part.isdigit() else part for part in parts]
+    return parts
+
