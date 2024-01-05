@@ -118,20 +118,6 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         result["password"] = user[2]
     return result
 
-def serialize_category(category: list) -> dict:
-    return {
-        "id": category[0],
-        "user_id": category[1],
-        "name": category[2],
-        "description": category[3],
-        "regex": category[4],
-        "is_active": category[5],
-        "created_by": category[6],
-        "updated_by": category[7],
-        "created_at": category[8],
-        "updated_at": category[9]
-    }   
-
 def serialize_file(file: list) -> dict:
     return {
         "id": file[0],

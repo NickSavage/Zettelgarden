@@ -74,25 +74,6 @@ cur.execute(
 )
 cur.execute(
     """
-        CREATE TABLE IF NOT EXISTS categories (
-            id SERIAL PRIMARY KEY,
-            user_id INT,
-            name TEXT,
-            description TEXT,
-            regex TEXT,
-            is_active BOOLEAN DEFAULT TRUE,
-            created_by INT,
-            updated_by INT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id),
-            FOREIGN KEY (created_by) REFERENCES users(id),
-            FOREIGN KEY (updated_by) REFERENCES users(id)
-    )
-    """
-)
-cur.execute(
-    """
     CREATE TABLE IF NOT EXISTS files (
         id SERIAL PRIMARY KEY,
         name TEXT,

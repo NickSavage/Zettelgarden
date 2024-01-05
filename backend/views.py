@@ -161,69 +161,6 @@ def update_password(id):
     cur.close()
     return jsonify({"message": "success"})
 
-@bp.route('/api/users/<int:user_id>/categories', methods=['GET'])
-@jwt_required()
-def get_user_categories(user_id):
-    cur = get_db().cursor()
-
-    # Query to fetch all categories for the specified user
-    cur.execute("SELECT * FROM categories WHERE user_id = %s AND is_active = TRUE", (user_id,))
-    categories = cur.fetchall()
-    cur.close()
-
-    # Formatting the result into a list of dictionaries for better JSON serialization
-    categories_list = [services.serialize_category(category) for category in categories]
-
-    return jsonify(categories_list)
-
-@bp.route('/api/categories', methods=['POST'])
-@jwt_required()
-def create_category():
-    conn = get_db()
-    cur = conn.cursor()
-    data = request.get_json()
-
-    user_id = data.get('user_id')
-    name = data.get('name')
-    description = data.get('description')
-    regex = data.get('regex')
-    is_active = data.get('is_active', True)
-    created_by = data.get('created_by')
-
-    cur.execute("""
-        INSERT INTO categories (user_id, name, description, regex, is_active, created_by, updated_by) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;
-    """, (user_id, name, description, regex, is_active, created_by, created_by))
-
-    new_category_id = cur.fetchone()[0]
-    conn.commit()
-    cur.close()
-
-    return jsonify({"message": "success", "category_id": new_category_id}), 201
-
-@bp.route('/api/categories/<int:category_id>', methods=['PUT'])
-@jwt_required()
-def update_category(category_id):
-    conn = get_db()
-    cur = conn.cursor()
-    data = request.get_json()
-
-    # Fields that can be updated
-    name = data.get('name')
-    description = data.get('description')
-    regex = data.get('regex')
-    updated_by = data.get('updated_by')
-
-    cur.execute("""
-        UPDATE categories
-        SET name = %s, description = %s, regex = %s, updated_by = %s, updated_at = CURRENT_TIMESTAMP
-        WHERE id = %s;
-    """, (name, description, regex, updated_by, category_id))
-
-    conn.commit()
-    cur.close()
-
-    return jsonify({"message": "success"}), 200
 
 def query_file(file_id, internal=False) -> dict:
     cur = get_db().cursor()
