@@ -11,6 +11,7 @@ import utils
 full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
 full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
 
+
 def get_direct_links(body: str) -> list:
     links = utils.extract_backlinks(body)
     results = []
@@ -19,12 +20,19 @@ def get_direct_links(body: str) -> list:
         results.append(x)
     return results
 
+
 def get_backlinks(card_id):
     cur = get_db().cursor()
-    cur.execute("SELECT cards.id, backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.card_id WHERE target_id = %s;", (card_id,))
-    backlinks = [{"id": row[0], "card_id": row[1], "title": row[2]} for row in cur.fetchall()]
+    cur.execute(
+        "SELECT cards.id, backlinks.source_id, cards.title FROM backlinks JOIN cards ON backlinks.source_id = cards.card_id WHERE target_id = %s;",
+        (card_id,),
+    )
+    backlinks = [
+        {"id": row[0], "card_id": row[1], "title": row[2]} for row in cur.fetchall()
+    ]
     cur.close()
     return backlinks
+
 
 def update_backlinks(card_id, backlinks):
     conn = get_db()
@@ -33,9 +41,13 @@ def update_backlinks(card_id, backlinks):
     cur.execute("DELETE FROM backlinks WHERE source_id = %s;", (card_id,))
     # Insert new backlinks
     for target_id in backlinks:
-        cur.execute("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES (%s, %s, NOW(), NOW());", (card_id, target_id))
+        cur.execute(
+            "INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES (%s, %s, NOW(), NOW());",
+            (card_id, target_id),
+        )
         conn.commit()
     cur.close()
+
 
 def get_parent(card_id: str) -> dict:
     parent_id = utils._get_parent_id_alternating(card_id)
@@ -46,25 +58,30 @@ def get_parent(card_id: str) -> dict:
 
     return result
 
-def get_files_from_card_id(card_id: int) -> list:
 
+def get_files_from_card_id(card_id: int) -> list:
     cur = get_db().cursor()
-    cur.execute(full_file_query + " WHERE is_deleted = FALSE AND card_pk = %s;", (card_id,))
+    cur.execute(
+        full_file_query + " WHERE is_deleted = FALSE AND card_pk = %s;", (card_id,)
+    )
     data = cur.fetchall()
     results = [serialize_file(x) for x in data]
     cur.close()
     return results
 
-def create_card(card, user_id) -> dict:
 
+def create_card(card, user_id) -> dict:
     if not card["card_id"] == "" and not utils.check_is_card_id_unique(card["card_id"]):
         return {"error": "id already used"}
-    
+
     conn = get_db()
     cur = conn.cursor()
 
     try:
-        cur.execute("INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW()) RETURNING id;", (card["card_id"], user_id, card["title"], card["body"], card["link"]))
+        cur.execute(
+            "INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW()) RETURNING id;",
+            (card["card_id"], user_id, card["title"], card["body"], card["link"]),
+        )
         new_id = cur.fetchone()[0]
         conn.commit()
     except Exception as e:
@@ -77,19 +94,24 @@ def create_card(card, user_id) -> dict:
 
     return {"new_id": new_id}
 
+
 def update_card(id, card):
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("UPDATE cards SET title = %s, body = %s, link = %s, updated_at = NOW(), card_id = %s WHERE id = %s;", (card["title"], card["body"], card["link"], card["card_id"], id))
+    cur.execute(
+        "UPDATE cards SET title = %s, body = %s, link = %s, updated_at = NOW(), card_id = %s WHERE id = %s;",
+        (card["title"], card["body"], card["link"], card["card_id"], id),
+    )
     conn.commit()
 
     cur.close()
     backlinks = utils.extract_backlinks(card["body"])
     update_backlinks(card["card_id"], backlinks)
 
+
 def serialize_full_card(card) -> dict:
-   card = {
+    card = {
         "id": card[0],
         "card_id": card[1],
         "title": card[2],
@@ -102,7 +124,8 @@ def serialize_full_card(card) -> dict:
         "parent": get_parent(card[1]),
         "files": get_files_from_card_id(card[0]),
     }
-   return card
+    return card
+
 
 def serialize_partial_card(card) -> dict:
     card = {
@@ -111,6 +134,7 @@ def serialize_partial_card(card) -> dict:
         "title": card[2],
     }
     return card
+
 
 def serialize_full_user(user: list, include_password=False) -> dict:
     result = {
@@ -122,6 +146,7 @@ def serialize_full_user(user: list, include_password=False) -> dict:
     if include_password:
         result["password"] = user[2]
     return result
+
 
 def query_file(file_id, internal=False) -> dict:
     cur = get_db().cursor()
@@ -136,7 +161,8 @@ def query_file(file_id, internal=False) -> dict:
         results = serialize_file(file_data)
     cur.close()
     return results
-    
+
+
 def query_all_files(internal=False) -> list:
     cur = get_db().cursor()
     cur.execute(full_file_query + " WHERE is_deleted = FALSE")
@@ -152,43 +178,64 @@ def query_all_files(internal=False) -> list:
             results.append(new)
     return results
 
+
 def update_file(file_id, data) -> None:
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("UPDATE files SET name = %s, updated_at = NOW() WHERE id = %s;", (data["name"], file_id))
+    cur.execute(
+        "UPDATE files SET name = %s, updated_at = NOW() WHERE id = %s;",
+        (data["name"], file_id),
+    )
     conn.commit()
 
     cur.close()
-    
+
+
 def delete_file(file_id) -> None:
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("UPDATE files SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s", (file_id,))
+    cur.execute(
+        "UPDATE files SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s",
+        (file_id,),
+    )
     if cur.rowcount == 0:
         cur.close()
         raise ValueError
     conn.commit()
     cur.close()
-    
+
+
 def upload_file(card_pk: str, file: dict, current_user: int) -> int:
     original_filename = secure_filename(file.filename)
     file_extension = os.path.splitext(original_filename)[1]
     filename = str(uuid.uuid4()) + file_extension  # UUID as filename
 
-    file_path = os.path.join(g.config['UPLOAD_FOLDER'], filename)
+    file_path = os.path.join(g.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)
 
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id;", 
-                    (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), card_pk, current_user, current_user))
+    cur.execute(
+        "INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id;",
+        (
+            original_filename,
+            file.content_type,
+            file_path,
+            filename,
+            os.path.getsize(file_path),
+            card_pk,
+            current_user,
+            current_user,
+        ),
+    )
     file_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
-    
+
     result = query_file(file_id)
     return result
+
 
 def serialize_file(file: list) -> dict:
     return {
@@ -201,8 +248,9 @@ def serialize_file(file: list) -> dict:
         "updated_by": file[7],
         "card_pk": file[8],
         "created_at": file[9],
-        "updated_at": file[10]
+        "updated_at": file[10],
     }
+
 
 def serialize_internal_file(file: list) -> dict:
     return {
@@ -216,8 +264,10 @@ def serialize_internal_file(file: list) -> dict:
         "updated_by": file[7],
         "card_pk": file[8],
         "created_at": file[9],
-        "updated_at": file[10]
+        "updated_at": file[10],
     }
+
+
 def query_all_partial_cards(search_term=None) -> list:
     cur = get_db().cursor()
     if search_term:
@@ -231,7 +281,7 @@ def query_all_partial_cards(search_term=None) -> list:
         results.append(card)
     cur.close()
     return results
-    
+
 
 def query_all_full_cards(search_term=None) -> list:
     cur = get_db().cursor()
@@ -246,11 +296,11 @@ def query_all_full_cards(search_term=None) -> list:
         results.append(card)
     cur.close()
     return results
-    
-    
+
+
 def query_partial_card_by_id(id) -> dict:
     cur = get_db().cursor()
-    
+
     cur.execute(models.card.partial_card_query + " WHERE id = %s;", (id,))
     card = cur.fetchone()
     cur.close()
@@ -258,9 +308,10 @@ def query_partial_card_by_id(id) -> dict:
         return serialize_partial_card(card)
     return {}
 
+
 def query_partial_card(card_id) -> dict:
     cur = get_db().cursor()
-    
+
     cur.execute(models.card.partial_card_query + " WHERE card_id = %s;", (card_id,))
     card = cur.fetchone()
     cur.close()
@@ -268,9 +319,10 @@ def query_partial_card(card_id) -> dict:
         return serialize_partial_card(card)
     return {}
 
+
 def query_full_card(id) -> dict:
     cur = get_db().cursor()
-    if id == 'null':
+    if id == "null":
         return {"error": "Card not found"}
     try:
         cur.execute(models.card.full_card_query + " WHERE id = %s;", (id,))
@@ -281,10 +333,11 @@ def query_full_card(id) -> dict:
         card = serialize_full_card(card)
     cur.close()
     return card
-    
+
+
 def query_full_user(id: int, include_password=False) -> dict:
     cur = get_db().cursor()
-    if id == 'null':
+    if id == "null":
         return {"error": "User not found"}
     try:
         cur.execute(full_user_query + " WHERE id = %s;", (id,))
@@ -295,6 +348,7 @@ def query_full_user(id: int, include_password=False) -> dict:
         user = serialize_full_user(user, include_password)
     cur.close()
     return user
+
 
 def query_user_by_username(username: str, include_password=False) -> dict:
     cur = get_db().cursor()
@@ -309,4 +363,3 @@ def query_user_by_username(username: str, include_password=False) -> dict:
         user = serialize_full_user(user, include_password)
     cur.close()
     return user
-    

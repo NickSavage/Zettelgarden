@@ -5,7 +5,12 @@ from urllib.parse import unquote
 import psycopg2
 import os
 import re
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+)
 from flask_bcrypt import Bcrypt
 import uuid
 from werkzeug.utils import secure_filename
@@ -13,12 +18,12 @@ from werkzeug.utils import secure_filename
 from views import bp
 from database import connect_to_database, get_db
 
+
 def create_app(test_config=None):
-    
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "*"}})
-    app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
-    app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
+    app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY")
+    app.config["UPLOAD_FOLDER"] = os.getenv("UPLOAD_FOLDER")
     jwt = JWTManager(app)
     bcrypt = Bcrypt(app)  # app is your Flask app instance
 
@@ -34,7 +39,7 @@ def create_app(test_config=None):
     @app.teardown_request
     def teardown_request(exception=None):
         """Close the database connection after each request."""
-        db = getattr(g, 'db', None)
+        db = getattr(g, "db", None)
         if db is not None:
             db.close()
 
@@ -43,4 +48,4 @@ def create_app(test_config=None):
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host="0.0.0.0", debug=True)

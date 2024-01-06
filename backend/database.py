@@ -2,28 +2,31 @@ from flask import g
 import os
 import psycopg2
 
+
 def connect_to_database():
     """Create a database connection."""
     return psycopg2.connect(
-        dbname=os.getenv('DB_NAME'),
-        user=os.getenv('DB_USER'),
-        password=os.getenv('DB_PASS'),
-        host=os.getenv('DB_HOST'),
-        port=os.getenv('DB_PORT'),
-        options='-c client_encoding=UTF8'
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS"),
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        options="-c client_encoding=UTF8",
     )
+
 
 def get_db():
     """Get a database connection from the global object, g."""
-    if 'db' not in g:
+    if "db" not in g:
         g.db = connect_to_database()
     return g.db
+
 
 conn = connect_to_database()
 
 cur = conn.cursor()
 cur.execute(
-        """
+    """
             CREATE TABLE IF NOT EXISTS cards (
                 id SERIAL PRIMARY KEY,
                 card_id TEXT,
@@ -36,9 +39,9 @@ cur.execute(
                 FOREIGN KEY (user_id) REFERENCES users(id)
         );
             """
-    )
+)
 cur.execute(
-        """
+    """
             CREATE TABLE IF NOT EXISTS backlinks (
                 source_id TEXT,
                 target_id TEXT,
@@ -47,9 +50,9 @@ cur.execute(
             
         );
             """
-    )
+)
 cur.execute(
-        """
+    """
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username TEXT,
@@ -59,7 +62,7 @@ cur.execute(
                 updated_at TIMESTAMP
         );
             """
-    )
+)
 cur.execute(
     """
         CREATE TABLE IF NOT EXISTS card_views (
