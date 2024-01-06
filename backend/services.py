@@ -1,5 +1,10 @@
-from database import get_db
+import os
+import uuid
 
+from flask import g
+from werkzeug.utils import secure_filename
+
+from database import get_db
 import models.card
 import utils
 
@@ -132,6 +137,21 @@ def query_file(file_id, internal=False) -> dict:
     cur.close()
     return results
     
+def query_all_files(internal=False) -> list:
+    cur = get_db().cursor()
+    cur.execute(full_file_query + " WHERE is_deleted = FALSE")
+    data = cur.fetchall()
+    file_data = [serialize_file(x) for x in data]
+    cur.close()
+    if file_data:
+        results = []
+        for file in file_data:
+            new = file
+            print(new)
+            new["card"] = query_partial_card_by_id(file["card_pk"])
+            results.append(new)
+    return results
+
 def update_file(file_id, data) -> None:
     conn = get_db()
     cur = conn.cursor()
@@ -151,6 +171,24 @@ def delete_file(file_id) -> None:
     conn.commit()
     cur.close()
     
+def upload_file(card_pk: str, file: dict, current_user: int) -> int:
+    original_filename = secure_filename(file.filename)
+    file_extension = os.path.splitext(original_filename)[1]
+    filename = str(uuid.uuid4()) + file_extension  # UUID as filename
+
+    file_path = os.path.join(g.config['UPLOAD_FOLDER'], filename)
+    file.save(file_path)
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id;", 
+                    (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), card_pk, current_user, current_user))
+    file_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    
+    result = query_file(file_id)
+    return result
 
 def serialize_file(file: list) -> dict:
     return {

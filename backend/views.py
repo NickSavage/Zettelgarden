@@ -8,7 +8,6 @@ import re
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_bcrypt import Bcrypt
 import uuid
-from werkzeug.utils import secure_filename
 
 from database import connect_to_database, get_db
 
@@ -174,29 +173,14 @@ def upload_file():
         return jsonify({'error': 'No selected file'}), 400
 
     if file:  # You can add more file validation here
-        original_filename = secure_filename(file.filename)
-        file_extension = os.path.splitext(original_filename)[1]
-        filename = str(uuid.uuid4()) + file_extension  # UUID as filename
-
-        file_path = os.path.join(g.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id;", 
-                    (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), card_pk, current_user, current_user))
-        file_id = cur.fetchone()[0]
-        file = services.query_file(file_id)
-        conn.commit()
-        cur.close()
-
+        file = services.upload_file(card_pk, file, current_user)
         return jsonify({'message': 'File uploaded successfully', 'file': file}), 201
+    else:
+        return jsonify({"error": "Unspecified Problem"}), 400
  
 @bp.route('/api/files/<int:file_id>', methods=['GET'])
 @jwt_required()
 def get_file_metadata(file_id):
-
-
     file_data = services.query_file(file_id)
     if file_data:
         return jsonify(file_data)
@@ -206,21 +190,12 @@ def get_file_metadata(file_id):
 @bp.route('/api/files', methods=['GET'])
 @jwt_required()
 def get_all_files():
-    cur = get_db().cursor()
-    cur.execute(full_file_query + " WHERE is_deleted = FALSE")
-    data = cur.fetchall()
-    file_data = [services.serialize_file(x) for x in data]
-    cur.close()
-    if file_data:
-        results = []
-        for file in file_data:
-            new = file
-            print(new)
-            new["card"] = services.query_partial_card_by_id(file["card_pk"])
-            results.append(new)
+    results = services.query_all_files()
+    if results:
         return jsonify(results)
     else:
         return jsonify({'error': 'File not found'}), 404
+
 @bp.route('/api/files/download/<int:file_id>', methods=['GET'])
 @jwt_required()
 def download_file(file_id):
