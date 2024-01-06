@@ -240,14 +240,10 @@ def delete_file(file_id):
     file = services.query_file(file_id)
 
     if file:
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE files SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s", (file_id,))
-        if cur.rowcount == 0:
-            cur.close()
+        try:
+            services.delete_file(file_id)
+        except ValueError:
             return jsonify({'error': 'File not found'}), 404
-        conn.commit()
-        cur.close()
         return jsonify({'message': 'File successfully deleted'}), 200
     else:
         return jsonify({'error': 'File not found'}), 404

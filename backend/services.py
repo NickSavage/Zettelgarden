@@ -132,13 +132,23 @@ def query_file(file_id, internal=False) -> dict:
     cur.close()
     return results
     
-def update_file(file_id, data):
+def update_file(file_id, data) -> None:
     conn = get_db()
     cur = conn.cursor()
 
     cur.execute("UPDATE files SET name = %s, updated_at = NOW() WHERE id = %s;", (data["name"], file_id))
     conn.commit()
 
+    cur.close()
+    
+def delete_file(file_id) -> None:
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE files SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s", (file_id,))
+    if cur.rowcount == 0:
+        cur.close()
+        raise ValueError
+    conn.commit()
     cur.close()
     
 
