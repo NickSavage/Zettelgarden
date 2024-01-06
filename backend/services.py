@@ -132,6 +132,16 @@ def query_file(file_id, internal=False) -> dict:
     cur.close()
     return results
     
+def update_file(file_id, data):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE files SET name = %s, updated_at = NOW() WHERE id = %s;", (data["name"], file_id))
+    conn.commit()
+
+    cur.close()
+    
+
 def serialize_file(file: list) -> dict:
     return {
         "id": file[0],

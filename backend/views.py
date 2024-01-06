@@ -257,45 +257,13 @@ def delete_file(file_id):
 def edit_file(file_id):
     data = request.get_json()
     
-    # Check if the request has the necessary data to perform an update
     if not data:
         return jsonify({'error': 'No update data provided'}), 400
 
-    # Here you would validate the data contents, e.g., check if the name key exists
-    # and maybe check if the new name is not empty or already taken, etc.
-
-    set_clauses = []
-    values = []
-    
-    if 'name' in data:
-        set_clauses.append("name = %s")
-        values.append(data['name'])
-    
-    # Add more fields to update here as needed
-    # if 'other_field' in data:
-    #     set_clauses.append("other_field = %s")
-    #     values.append(data['other_field'])
-    
-    if not set_clauses:
-        return jsonify({'error': 'No valid fields to update'}), 400
-    
-    # Add the file_id to the values list
-    values.append(file_id)
-    
-    # Build the update query dynamically
-    update_query = "UPDATE files SET " + ", ".join(set_clauses) + ", updated_at = NOW() WHERE id = %s AND is_deleted = FALSE"
-    
-    # Execute the query
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(update_query, tuple(values))
-    
-    if cur.rowcount == 0:
-        cur.close()
-        return jsonify({'error': 'File not found or no update was made'}), 404
-
-    conn.commit()
-    cur.close()
+    data = {
+        "name": data["name"]
+    }
+    services.update_file(file_id, data)
     
     updated_file = services.query_file(file_id)
     updated_file["card"] = services.query_partial_card_by_id(updated_file["card_pk"])
