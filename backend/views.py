@@ -17,8 +17,6 @@ import utils
 
 bp = Blueprint('bp', __name__)
 
-full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
-
 def log_card_view(card_pk, user_id):
     conn = get_db()
     cur = conn.cursor()
@@ -35,11 +33,6 @@ def log_card_view(card_pk, user_id):
         return {"error": str(e)}
     finally:
         cur.close()
-
-
-
-# Routes
-
 
 @bp.route('/api/login', methods=['POST'])
 def login():
