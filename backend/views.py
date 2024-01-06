@@ -161,22 +161,6 @@ def update_password(id):
     cur.close()
     return jsonify({"message": "success"})
 
-
-def query_file(file_id, internal=False) -> dict:
-    cur = get_db().cursor()
-    cur.execute("SELECT * FROM files WHERE is_deleted = FALSE AND id = %s;", (file_id,))
-    file_data = cur.fetchone()
-    print(file_data)
-    if not file_data:
-        return {}
-    if internal:
-        results = services.serialize_internal_file(file_data)
-    else:
-        results = services.serialize_file(file_data)
-    cur.close()
-    return results
-    
-
 @bp.route('/api/files/upload', methods=['POST'])
 @jwt_required()
 def upload_file():
@@ -202,7 +186,7 @@ def upload_file():
         cur.execute("INSERT INTO files (name, type, path, filename, size, card_pk, created_by, updated_by, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW()) RETURNING id;", 
                     (original_filename, file.content_type, file_path, filename, os.path.getsize(file_path), card_pk, current_user, current_user))
         file_id = cur.fetchone()[0]
-        file = query_file(file_id)
+        file = services.query_file(file_id)
         conn.commit()
         cur.close()
 
@@ -213,7 +197,7 @@ def upload_file():
 def get_file_metadata(file_id):
 
 
-    file_data = query_file(file_id)
+    file_data = services.query_file(file_id)
     if file_data:
         return jsonify(file_data)
     else:
@@ -240,7 +224,7 @@ def get_all_files():
 @bp.route('/api/files/download/<int:file_id>', methods=['GET'])
 @jwt_required()
 def download_file(file_id):
-    file = query_file(file_id, internal=True)
+    file = services.query_file(file_id, internal=True)
 
     print(file)
     if file:
@@ -253,7 +237,7 @@ def download_file(file_id):
 @jwt_required()
 def delete_file(file_id):
     print(file_id)
-    file = query_file(file_id)
+    file = services.query_file(file_id)
 
     if file:
         conn = get_db()
@@ -313,6 +297,6 @@ def edit_file(file_id):
     conn.commit()
     cur.close()
     
-    updated_file = query_file(file_id)
+    updated_file = services.query_file(file_id)
     updated_file["card"] = services.query_partial_card_by_id(updated_file["card_pk"])
     return jsonify(updated_file), 200

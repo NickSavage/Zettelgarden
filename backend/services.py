@@ -118,6 +118,20 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         result["password"] = user[2]
     return result
 
+def query_file(file_id, internal=False) -> dict:
+    cur = get_db().cursor()
+    cur.execute("SELECT * FROM files WHERE is_deleted = FALSE AND id = %s;", (file_id,))
+    file_data = cur.fetchone()
+    print(file_data)
+    if not file_data:
+        return {}
+    if internal:
+        results = serialize_internal_file(file_data)
+    else:
+        results = serialize_file(file_data)
+    cur.close()
+    return results
+    
 def serialize_file(file: list) -> dict:
     return {
         "id": file[0],
