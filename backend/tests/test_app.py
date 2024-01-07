@@ -13,11 +13,4 @@ def test_hello(app, db):
     cur = db.cursor()
     cur.execute("SELECT * FROM cards")
     results = cur.fetchall()
-    assert len(results) == 0
-
-
-def test_hello(app, db):
-    cur = db.cursor()
-    cur.execute("SELECT * FROM cards")
-    results = cur.fetchall()
-    assert len(results) == 0
+    assert len(results) == 20

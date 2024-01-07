@@ -1,3 +1,7 @@
+import random
+import string
+from datetime import datetime, timedelta
+
 import pytest
 from app import create_app
 import database
@@ -19,9 +23,30 @@ def app():
 def db(app):
     database.setup_db(app.config["TESTING"])
     db = database.connect_to_database(app.config["TESTING"])
+    import_test_data(db)
     yield db
     db_cleanup(db)
 
+@pytest.fixture()
+def client(app):
+    return app.test_client()
+
+def import_test_data(db) -> None:
+    cursor = db.cursor()
+    
+    data = generate_data()
+    users = data["users"]
+    cards = data["cards"]
+    backlinks = data["backlinks"]
+    
+    for user in users:
+        cursor.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (user["username"], user["email"], user["password"]))
+        
+    for card in cards:
+        cursor.execute("INSERT INTO cards (card_id, user_id, title, body, link) VALUES (%s, %s, %s, %s, %s)", (card["card_id"], card["user_id"], card["title"], card["body"], card["link"]))
+
+    for backlink in backlinks:
+        cursor.execute("INSERT INTO backlinks (source_id, target_id) VALUES (%s, %s)", (backlink["source_id"], backlink["target_id"]))
 
 def db_cleanup(db):
     cursor = db.cursor()
@@ -36,4 +61,61 @@ def db_cleanup(db):
     cursor.execute("DROP TABLE card_views CASCADE")
     cursor.execute("DROP TABLE files CASCADE")
 
+    db.commit()
     cursor.close()
+
+def generate_data() -> list:
+    
+    def random_string(length=10):
+        return ''.join(random.choice(string.ascii_letters) for _ in range(length))
+
+    def random_email():
+        return f"{random_string(5)}@{random_string(5)}.com"
+
+    def random_date(start, end):
+        return start + timedelta(
+            seconds=random.randint(0, int((end - start).total_seconds())),
+        )
+    # Generate test data for users
+    users = []
+    for i in range(1, 11):  # Adjust the range for more users
+        users.append({
+            "id": i,
+            "username": random_string(),
+            "email": random_email(),
+            "password": random_string(15),
+            "created_at": random_date(datetime(2020, 1, 1), datetime(2024, 1, 1)),
+            "updated_at": random_date(datetime(2024, 1, 1), datetime(2024, 12, 31))
+        })
+
+    # Generate test data for cards
+    cards = []
+    for i in range(1, 21):  # Adjust the range for more cards
+        cards.append({
+            "id": i,
+            "card_id": random_string(20),
+            "user_id": random.choice(users)["id"],
+            "title": random_string(20),
+            "body": random_string(100),
+            "link": f"https://{random_string(10)}.com",
+            "created_at": random_date(datetime(2020, 1, 1), datetime(2024, 1, 1)),
+            "updated_at": random_date(datetime(2024, 1, 1), datetime(2024, 12, 31))
+        })
+
+    # Generate test data for backlinks
+    backlinks = []
+    for i in range(1, 31):  # Adjust the range for more backlinks
+        backlinks.append({
+            "source_id": random.choice(cards)['card_id'],
+            "target_id": random.choice(cards)['card_id'],
+            "created_at": random_date(datetime(2020, 1, 1), datetime(2024, 1, 1)),
+            "updated_at": random_date(datetime(2024, 1, 1), datetime(2024, 12, 31))
+        })
+
+
+    results = {
+        "users": users,
+        "cards": cards,
+        "backlinks": backlinks,
+    }
+    return results
