@@ -3,10 +3,13 @@ import os
 import psycopg2
 
 
-def connect_to_database():
-    """Create a database connection."""
+def connect_to_database(testing=False):
+    if testing:
+        db_name = "zettelkasten_testing"
+    else:
+        db_name = os.getenv("DB_NAME")
     return psycopg2.connect(
-        dbname=os.getenv("DB_NAME"),
+        dbname=db_name,
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASS"),
         host=os.getenv("DB_HOST"),
@@ -22,11 +25,24 @@ def get_db():
     return g.db
 
 
-conn = connect_to_database()
+def setup_db(testing=False):
+    conn = connect_to_database(testing)
 
-cur = conn.cursor()
-cur.execute(
-    """
+    cur = conn.cursor()
+    cur.execute(
+        """
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username TEXT,
+                email TEXT,
+                password TEXT,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP
+        );
+            """
+    )
+    cur.execute(
+        """
             CREATE TABLE IF NOT EXISTS cards (
                 id SERIAL PRIMARY KEY,
                 card_id TEXT,
@@ -39,9 +55,9 @@ cur.execute(
                 FOREIGN KEY (user_id) REFERENCES users(id)
         );
             """
-)
-cur.execute(
-    """
+    )
+    cur.execute(
+        """
             CREATE TABLE IF NOT EXISTS backlinks (
                 source_id TEXT,
                 target_id TEXT,
@@ -50,21 +66,9 @@ cur.execute(
             
         );
             """
-)
-cur.execute(
-    """
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username TEXT,
-                email TEXT,
-                password TEXT,
-                created_at TIMESTAMP,
-                updated_at TIMESTAMP
-        );
-            """
-)
-cur.execute(
-    """
+    )
+    cur.execute(
+        """
         CREATE TABLE IF NOT EXISTS card_views (
             id SERIAL PRIMARY KEY,
             card_pk INT, 
@@ -74,9 +78,9 @@ cur.execute(
             FOREIGN KEY (user_id) REFERENCES users(id)
     )
     """
-)
-cur.execute(
-    """
+    )
+    cur.execute(
+        """
     CREATE TABLE IF NOT EXISTS files (
         id SERIAL PRIMARY KEY,
         name TEXT,
@@ -95,6 +99,6 @@ cur.execute(
         FOREIGN KEY (card_pk) REFERENCES cards(id)
     )
     """
-)
-conn.commit()
-cur.close()
+    )
+    conn.commit()
+    cur.close()

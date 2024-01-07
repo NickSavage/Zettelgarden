@@ -16,7 +16,8 @@ import uuid
 from werkzeug.utils import secure_filename
 
 from views import bp
-from database import connect_to_database, get_db
+
+import database
 
 
 def create_app(test_config=None):
@@ -27,12 +28,13 @@ def create_app(test_config=None):
     jwt = JWTManager(app)
     bcrypt = Bcrypt(app)  # app is your Flask app instance
 
+    database.setup_db()
     app.register_blueprint(bp)
 
     @app.before_request
     def before_request():
         """Connect to the database before each request."""
-        g.db = connect_to_database()
+        g.db = database.connect_to_database()
         g.bcrypt = bcrypt
         g.config = app.config
 
