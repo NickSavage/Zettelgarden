@@ -34,7 +34,7 @@ def create_app(test_config=None):
     @app.before_request
     def before_request():
         """Connect to the database before each request."""
-        g.db = database.connect_to_database()
+        g.db = database.connect_to_database(app.config.get("TESTING", False))
         g.bcrypt = bcrypt
         g.config = app.config
 

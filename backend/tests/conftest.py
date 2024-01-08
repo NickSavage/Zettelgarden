@@ -3,6 +3,9 @@ import string
 from datetime import datetime, timedelta
 
 import pytest
+from flask_jwt_extended import (
+    create_access_token,
+)
 from app import create_app
 import database
 
@@ -28,8 +31,14 @@ def db(app):
     db_cleanup(db)
 
 @pytest.fixture()
-def client(app):
+def client(app, db):
     return app.test_client()
+
+@pytest.fixture
+def access_token(app, client):
+    with app.app_context():
+        access_token = create_access_token(identity=1)
+        return access_token
 
 def import_test_data(db) -> None:
     cursor = db.cursor()
