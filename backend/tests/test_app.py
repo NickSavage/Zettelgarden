@@ -120,3 +120,19 @@ def test_update_card(client, access_headers):
     assert response_data['body'] == updated_card_data['body']
     assert response_data['card_id'] == updated_card_data['card_id']
     assert response_data['link'] == updated_card_data['link']
+
+
+def test_delete_card(client, access_headers):
+    test_card_id = 1
+
+    response = client.get(f"/api/cards/{test_card_id}", headers=access_headers)
+
+    assert response.status_code == 200
+    assert response.json['children'] == []
+
+    response = client.delete(f"/api/cards/{test_card_id}", headers=access_headers)
+    assert response.status_code == 200
+    
+    response = client.get(f"/api/cards/{test_card_id}", headers=access_headers)
+
+    assert response.status_code == 404
