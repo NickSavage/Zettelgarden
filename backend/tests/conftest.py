@@ -30,10 +30,14 @@ def client(app, db):
     return app.test_client()
 
 @pytest.fixture
-def access_token(app, client):
+def access_headers(app, client):
     with app.app_context():
         access_token = create_access_token(identity=1)
-        return access_token
+
+        headers = {
+            'Authorization': 'Bearer {}'.format(access_token)
+        }
+        return headers
 
 def import_test_data(db) -> None:
     cursor = db.cursor()

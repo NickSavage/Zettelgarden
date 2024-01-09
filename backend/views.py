@@ -92,6 +92,13 @@ def get_cards():
 @jwt_required()
 def create_card():
     user_id = get_jwt_identity()  # Extract the user identity from the token
+
+    # Validate input data
+    required_fields = ["title", "body", "card_id", "link"]
+    missing_fields = [field for field in required_fields if field not in request.json]
+    if missing_fields:
+        return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
+
     conn = get_db()
     cur = conn.cursor()
     card = {
@@ -101,10 +108,11 @@ def create_card():
         "link": request.json.get("link"),
     }
 
+    print(card)
     # Insert card into database
     result = services.create_card(card, user_id)
     if "error" in result:
-        return jsonify(result)
+        return jsonify(result), 400
     elif "new_id" in result:
         new_id = result["new_id"]
     else:
