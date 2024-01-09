@@ -131,6 +131,8 @@ def get_card(id):
     current_user = get_jwt_identity()  # Extract the user identity from the token
     id = unquote(id)
     card = services.query_full_card(id)
+    if "error" in card:
+        return jsonify(card), 400
     log_card_view(id, current_user)
     return jsonify(card)
 
