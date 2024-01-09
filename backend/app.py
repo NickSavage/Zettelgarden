@@ -20,15 +20,17 @@ from views import bp
 import database
 
 
-def create_app(test_config=None):
+def create_app(testing=False):
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "*"}})
     app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY")
     app.config["UPLOAD_FOLDER"] = os.getenv("UPLOAD_FOLDER")
+    if testing:
+        app.config["TESTING"] = True
     jwt = JWTManager(app)
     bcrypt = Bcrypt(app)  # app is your Flask app instance
 
-    database.setup_db()
+    database.setup_db(app.config.get("TESTING", False))
     app.register_blueprint(bp)
 
     @app.before_request

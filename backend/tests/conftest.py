@@ -12,19 +12,14 @@ import database
 
 @pytest.fixture()
 def app():
-    app = create_app()
-    app.config.update(
-        {
-            "TESTING": True,
-        }
-    )
+    app = create_app(testing=True)
 
     yield app
 
 
 @pytest.fixture()
 def db(app):
-    database.setup_db(app.config["TESTING"])
+#    database.setup_db(app.config["TESTING"])
     db = database.connect_to_database(app.config["TESTING"])
     import_test_data(db)
     yield db
@@ -48,15 +43,20 @@ def import_test_data(db) -> None:
     cards = data["cards"]
     backlinks = data["backlinks"]
     
+    user_ids = []
     for user in users:
-        cursor.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (user["username"], user["email"], user["password"]))
+        cursor.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s) RETURNING id", (user["username"], user["email"], user["password"]))
+        user_ids.append(cursor.fetchone()[0])
         
+    db.commit()
     for card in cards:
-        cursor.execute("INSERT INTO cards (card_id, user_id, title, body, link) VALUES (%s, %s, %s, %s, %s)", (card["card_id"], card["user_id"], card["title"], card["body"], card["link"]))
+        cursor.execute("INSERT INTO cards (card_id, user_id, title, body, link) VALUES (%s, %s, %s, %s, %s)", (card["card_id"], random.choice(user_ids), card["title"], card["body"], card["link"]))
 
+    db.commit()
     for backlink in backlinks:
         cursor.execute("INSERT INTO backlinks (source_id, target_id) VALUES (%s, %s)", (backlink["source_id"], backlink["target_id"]))
 
+    db.commit()
 def db_cleanup(db):
     cursor = db.cursor()
 

@@ -21,14 +21,24 @@ def connect_to_database(testing=False):
 def get_db():
     """Get a database connection from the global object, g."""
     if "db" not in g:
-        g.db = connect_to_database()
+        g.db = connect_to_database(g.config.get("TESTING", False))
     return g.db
 
 
 def setup_db(testing=False):
     conn = connect_to_database(testing)
-
     cur = conn.cursor()
+    if testing:
+        cur.execute("SELECT current_database()")
+        name = cur.fetchone()
+        assert name[0] == "zettelkasten_testing"
+        
+        cur.execute("DROP TABLE IF EXISTS users CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS cards CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS backlinks CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS card_views CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS files CASCADE;")
+
     cur.execute(
         """
             CREATE TABLE IF NOT EXISTS users (
