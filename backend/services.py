@@ -109,6 +109,13 @@ def update_card(id, card):
     backlinks = utils.extract_backlinks(card["body"])
     update_backlinks(card["card_id"], backlinks)
 
+def get_children(card_id: str) -> list:
+    cards = query_all_partial_cards()
+    results = []
+    for card in cards:
+        if card["card_id"].startswith(card_id + ".") or card["card_id"].startswith(card_id + "/"):
+            results.append(card)
+    return results
 
 def serialize_full_card(card) -> dict:
     card = {
@@ -123,6 +130,7 @@ def serialize_full_card(card) -> dict:
         "backlinks": get_backlinks(card[1]),
         "parent": get_parent(card[1]),
         "files": get_files_from_card_id(card[0]),
+        "children": get_children(card[1]),
     }
     return card
 
