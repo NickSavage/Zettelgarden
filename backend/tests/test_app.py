@@ -131,7 +131,7 @@ def test_delete_card(client, access_headers):
     assert response.json['children'] == []
 
     response = client.delete(f"/api/cards/{test_card_id}", headers=access_headers)
-    assert response.status_code == 200
+    assert response.status_code == 204
     
     response = client.get(f"/api/cards/{test_card_id}", headers=access_headers)
 

@@ -60,6 +60,7 @@ def setup_db(testing=False):
                 title TEXT,
                 body TEXT,
                 link TEXT,
+                is_deleted BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)

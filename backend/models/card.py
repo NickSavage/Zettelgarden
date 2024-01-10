@@ -21,10 +21,10 @@ def full_card_query_filtered(search_terms) -> str:
     query_condition = " AND ".join(conditions)
 
     # Construct the final query
-    final_query = f"{full_card_query} WHERE {query_condition};"
+    final_query = f"{full_card_query} WHERE is_deleted = FALSE AND {query_condition};"
 
     return final_query
 
 
 def partial_card_query_filtered(search_term) -> str:
-    return partial_card_query + " WHERE title ILIKE '%" + search_term + "%';"
+    return partial_card_query + " WHERE is_deleted = FALSE AND title ILIKE '%" + search_term + "%';"

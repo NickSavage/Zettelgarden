@@ -131,6 +131,9 @@ def get_card(id):
     current_user = get_jwt_identity()  # Extract the user identity from the token
     id = unquote(id)
     card = services.query_full_card(id)
+    if not card:
+        return "Card not found", 404
+    print(card)
     if "error" in card:
         return jsonify(card), 400
     log_card_view(id, current_user)
@@ -153,6 +156,15 @@ def update_card(id):
     # Update backlinks
     return jsonify(services.query_full_card(id))
 
+@bp.route("/api/cards/<path:id>", methods=["DELETE"])
+@jwt_required()
+def delete_card(id):
+    results = services.delete_card(id)
+    if "error" in results:
+        print(results)
+        return jsonify({"error": results["error"]}), results["code"]
+
+    return "", 204
 
 @bp.route("/api/users/<path:id>", methods=["GET"])
 @jwt_required()

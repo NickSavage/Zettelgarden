@@ -57,10 +57,10 @@ def import_test_data(db) -> None:
         cursor.execute("INSERT INTO cards (card_id, user_id, title, body, link) VALUES (%s, %s, %s, %s, %s)", (card["card_id"], random.choice(user_ids), card["title"], card["body"], card["link"]))
 
     db.commit()
-    for backlink in backlinks:
-        cursor.execute("INSERT INTO backlinks (source_id, target_id) VALUES (%s, %s)", (backlink["source_id"], backlink["target_id"]))
+    # for backlink in backlinks:
+    #     cursor.execute("INSERT INTO backlinks (source_id, target_id) VALUES (%s, %s)", (backlink["source_id"], backlink["target_id"]))
 
-    db.commit()
+    # db.commit()
 def db_cleanup(db):
     cursor = db.cursor()
 

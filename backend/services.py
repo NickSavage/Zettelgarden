@@ -109,6 +109,25 @@ def update_card(id, card):
     backlinks = utils.extract_backlinks(card["body"])
     update_backlinks(card["card_id"], backlinks)
 
+def delete_card(id) -> dict:
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT card_id FROM cards WHERE id = %s", (id,))
+    card = cur.fetchone()
+    if len(card) == 0:
+        return {"error": "Card not found", "code": 404}
+    backlinks = get_backlinks(card[0])
+    if len(backlinks) > 0:
+        return {"error": "Card has backlinks, cannot be deleted", "code": 400}
+    cur.execute("UPDATE cards SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s;", (id,))
+
+
+    conn.commit()
+    cur.close()
+    
+    return {"code": 204}
+    
 def get_children(card_id: str) -> list:
     cards = query_all_partial_cards()
     results = []
@@ -309,7 +328,7 @@ def query_all_full_cards(search_term=None) -> list:
 def query_partial_card_by_id(id) -> dict:
     cur = get_db().cursor()
 
-    cur.execute(models.card.partial_card_query + " WHERE id = %s;", (id,))
+    cur.execute(models.card.partial_card_query + " WHERE is_deleted = FALSE AND id = %s;", (id,))
     card = cur.fetchone()
     cur.close()
     if card:
@@ -320,7 +339,7 @@ def query_partial_card_by_id(id) -> dict:
 def query_partial_card(card_id) -> dict:
     cur = get_db().cursor()
 
-    cur.execute(models.card.partial_card_query + " WHERE card_id = %s;", (card_id,))
+    cur.execute(models.card.partial_card_query + " WHERE is_deleted = FALSE AND card_id = %s;", (card_id,))
     card = cur.fetchone()
     cur.close()
     if card:
@@ -333,7 +352,7 @@ def query_full_card(id) -> dict:
     if id == "null":
         return {"error": "Card not found"}
     try:
-        cur.execute(models.card.full_card_query + " WHERE id = %s;", (id,))
+        cur.execute(models.card.full_card_query + " WHERE is_deleted = FALSE AND id = %s;", (id,))
         card = cur.fetchone()
     except Exception as e:
         return {"error": str(e)}
