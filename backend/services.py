@@ -307,7 +307,7 @@ def query_all_partial_cards(search_term=None) -> list:
     if search_term:
         cur.execute(models.card.partial_card_query_filtered(search_term))
     else:
-        cur.execute(models.card.partial_card_query)
+        cur.execute(models.card.partial_card_query + " WHERE is_deleted = FALSE")
     cards = cur.fetchall()
     results = []
     for x in cards:
