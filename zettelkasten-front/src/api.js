@@ -239,3 +239,24 @@ export function editFile(fileId, updateData) {
     .then(checkStatus)
     .then((response) => response.json());
 }
+export function deleteCard(id) {
+  let encodedId = encodeURIComponent(id);
+  const url = `${base_url}/cards/${encodedId}`;
+
+  let token = localStorage.getItem("token");
+
+  // Send a DELETE request to the URL
+  return fetch(url, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  .then(checkStatus)
+  .then((response) => {
+    // Check if the response is empty (status 204)
+    if (response.status === 204) {
+      return null; // or any other appropriate handling for successful delete
+    } else {
+      return response.json(); // handle potential error messages or other response data
+    }
+  });
+}
