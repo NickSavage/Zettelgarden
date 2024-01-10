@@ -124,7 +124,7 @@ def delete_card(id) -> dict:
     children = get_children(card_id)
     if len(children) > 0:
         return {"error": "Card has children, cannot be deleted", "code": 400}
-    files = get_files_from_card_id(id)
+    files = get_files_from_card_pk(id)
     if len(children) > 0:
         return {"error": "Card has files, cannot be deleted", "code": 400}
     cur.execute("UPDATE cards SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s;", (id,))
