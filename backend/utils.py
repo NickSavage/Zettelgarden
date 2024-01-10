@@ -47,7 +47,7 @@ assert _get_parent_id_alternating("SP170/A.1/A.1/A.1/A.1") == "SP170/A.1/A.1/A.1
 
 def check_is_card_id_unique(card_id: str) -> bool:
     cur = get_db().cursor()
-    cur.execute("SELECT card_id FROM cards;")
+    cur.execute("SELECT card_id FROM cards WHERE is_deleted = FALSE;")
     ids = cur.fetchall()
     for id in ids:
         if card_id == id[0]:
