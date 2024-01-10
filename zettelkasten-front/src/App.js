@@ -105,6 +105,12 @@ function App() {
     setEditingCard(viewingCard);
   }
 
+    function handleDeleteCard() {
+	changePage();
+	setEditingCard(null);
+	setRefreshSidebar(true);
+    }
+
   useEffect(() => {
     //fetchCards().then(data => setCards(data));
   }, []);
@@ -159,6 +165,7 @@ function App() {
               setEditingCard={setEditingCard}
               handleSaveCard={handleSaveCard}
               newCard={newCard}
+		handleDeleteCard={handleDeleteCard}
             />
           )}
           {viewSettings && <SettingsPage />}
