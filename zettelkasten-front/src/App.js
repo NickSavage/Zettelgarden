@@ -166,6 +166,7 @@ function App() {
               handleSaveCard={handleSaveCard}
               newCard={newCard}
 		handleDeleteCard={handleDeleteCard}
+		handleViewCard={handleViewCard}
             />
           )}
           {viewSettings && <SettingsPage />}

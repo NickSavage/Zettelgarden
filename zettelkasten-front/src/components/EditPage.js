@@ -21,6 +21,7 @@ export function EditPage({
   handleSaveCard,
   newCard,
     handleDeleteCard,
+    handleViewCard,
 }) {
   const [message, setMessage] = useState("");
   const [linktitle, setLinktitle] = useState("");
@@ -30,6 +31,10 @@ export function EditPage({
 
   function onFileDelete(file_id) {}
 
+    function handleCancelButtonClick() {
+	handleViewCard(editingCard);
+	
+    }
     function handleDeleteButtonClick() {
 	if (window.confirm("Are you sure you want to delete this card? This cannot be reversed")) {
 	    deleteCard(editingCard["id"])
@@ -245,7 +250,10 @@ export function EditPage({
         placeholder="Title"
       />
       <button onClick={handleSaveCard}>Save</button>
-      <button onClick={handleDeleteButtonClick}>Delete</button>
+	<button onClick={handleCancelButtonClick}>Cancel</button>
+	{!newCard && (
+	    <button onClick={handleDeleteButtonClick}>Delete</button>
+	)}
       {!newCard && (
         <div>
           <h4>Files:</h4>
