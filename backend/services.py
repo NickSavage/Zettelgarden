@@ -117,9 +117,16 @@ def delete_card(id) -> dict:
     card = cur.fetchone()
     if len(card) == 0:
         return {"error": "Card not found", "code": 404}
-    backlinks = get_backlinks(card[0])
+    card_id = card[0]
+    backlinks = get_backlinks(card_id)
     if len(backlinks) > 0:
         return {"error": "Card has backlinks, cannot be deleted", "code": 400}
+    children = get_children(card_id)
+    if len(children) > 0:
+        return {"error": "Card has children, cannot be deleted", "code": 400}
+    files = get_files_from_card_id(card_id)
+    if len(children) > 0:
+        return {"error": "Card has files, cannot be deleted", "code": 400}
     cur.execute("UPDATE cards SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s;", (id,))
 
 
