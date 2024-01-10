@@ -59,10 +59,10 @@ def get_parent(card_id: str) -> dict:
     return result
 
 
-def get_files_from_card_id(card_id: int) -> list:
+def get_files_from_card_pk(card_pk: int) -> list:
     cur = get_db().cursor()
     cur.execute(
-        full_file_query + " WHERE is_deleted = FALSE AND card_pk = %s;", (card_id,)
+        full_file_query + " WHERE is_deleted = FALSE AND card_pk = %s;", (card_pk,)
     )
     data = cur.fetchall()
     results = [serialize_file(x) for x in data]
@@ -124,7 +124,7 @@ def delete_card(id) -> dict:
     children = get_children(card_id)
     if len(children) > 0:
         return {"error": "Card has children, cannot be deleted", "code": 400}
-    files = get_files_from_card_id(card_id)
+    files = get_files_from_card_id(id)
     if len(children) > 0:
         return {"error": "Card has files, cannot be deleted", "code": 400}
     cur.execute("UPDATE cards SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s;", (id,))
@@ -155,7 +155,7 @@ def serialize_full_card(card) -> dict:
         "direct_links": get_direct_links(card[3]),
         "backlinks": get_backlinks(card[1]),
         "parent": get_parent(card[1]),
-        "files": get_files_from_card_id(card[0]),
+        "files": get_files_from_card_pk(card[0]),
         "children": get_children(card[1]),
     }
     return card
