@@ -30,7 +30,7 @@ def create_app(testing=False):
     jwt = JWTManager(app)
     bcrypt = Bcrypt(app)  # app is your Flask app instance
 
-    database.setup_db(app.config.get("TESTING", False))
+    database.run_migrations(app.config.get("TESTING", False))
     app.register_blueprint(bp)
 
     @app.before_request

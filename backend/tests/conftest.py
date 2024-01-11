@@ -19,7 +19,6 @@ def app():
 
 @pytest.fixture()
 def db(app):
-#    database.setup_db(app.config["TESTING"])
     db = database.connect_to_database(app.config["TESTING"])
     import_test_data(db)
     yield db
