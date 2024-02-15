@@ -23,6 +23,8 @@ function App() {
   const [searchCard, setSearchCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+    const [searchCards, setSearchCards] = useState([]);
   const { isAuthenticated, logoutUser } = useAuth();
 
   // changing pages
@@ -147,7 +149,7 @@ function App() {
               <p>Error: {error}</p>
             </div>
           )}
-          {searchCard && <SearchPage handleViewCard={handleViewCard} />}
+            {searchCard && <SearchPage handleViewCard={handleViewCard} searchTerm={searchTerm} setSearchTerm={setSearchTerm} cards={searchCards} setCards={setSearchCards} />}
           {viewingCard && (
             <ViewPage
               viewingCard={viewingCard}

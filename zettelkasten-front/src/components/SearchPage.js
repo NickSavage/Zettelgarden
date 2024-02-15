@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchCards } from "../api";
 
-export function SearchPage({ handleViewCard }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [cards, setCards] = useState([]);
+export function SearchPage({ handleViewCard, searchTerm, setSearchTerm, cards, setCards }) {
   const [sortBy, setSortBy] = useState("relevant");
   function handleSearchUpdate(e) {
     setSearchTerm(e.target.value);
