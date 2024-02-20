@@ -33,6 +33,14 @@ def get_backlinks(card_id):
     cur.close()
     return backlinks
 
+def get_references(card_id: str, body: str) -> list:
+    
+    backlinks = get_backlinks(card_id)
+    direct_links = get_direct_links(body)
+
+    unique_dict = {d['id']: d for d in backlinks + direct_links}.values()
+    results = list(unique_dict)
+    return results
 
 def update_backlinks(card_id, backlinks):
     conn = get_db()
@@ -152,8 +160,9 @@ def serialize_full_card(card) -> dict:
         "link": card[4],
         "created_at": card[5],
         "updated_at": card[6],
-        "direct_links": get_direct_links(card[3]),
-        "backlinks": get_backlinks(card[1]),
+        # "direct_links": get_direct_links(card[3]),
+        # "backlinks": get_backlinks(card[1]),
+        "references": get_references(card[1], card[3]),
         "parent": get_parent(card[1]),
         "files": get_files_from_card_pk(card[0]),
         "children": get_children(card[1]),

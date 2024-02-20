@@ -56,9 +56,9 @@ export function ViewPage({
         ))}
       </ul>
 
-      <h4>Backlinks:</h4>
+      <h4>References:</h4>
       <ul>
-        {viewingCard.backlinks.map((backlink, index) => (
+        {viewingCard.references.map((backlink, index) => (
           <CardItem handleViewCard={handleViewCard} card={backlink} />
         ))}
       </ul>
