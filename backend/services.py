@@ -17,6 +17,8 @@ def get_direct_links(body: str) -> list:
     results = []
     for card_id in links:
         x = query_partial_card(card_id)
+        if x == {}:
+            continue
         results.append(x)
     return results
 
@@ -30,6 +32,7 @@ def get_backlinks(card_id):
     backlinks = [
         {"id": row[0], "card_id": row[1], "title": row[2]} for row in cur.fetchall()
     ]
+    backlinks = list(filter(lambda x: x != {}, backlinks))
     cur.close()
     return backlinks
 
@@ -37,10 +40,13 @@ def get_references(card_id: str, body: str) -> list:
     
     backlinks = get_backlinks(card_id)
     direct_links = get_direct_links(body)
-
-    unique_dict = {d['id']: d for d in backlinks + direct_links}.values()
-    results = list(unique_dict)
-    return results
+    links = backlinks + direct_links
+    if links == []:
+        return []
+    else:
+        unique_dict = {d['id']: d for d in links}.values()
+        results = list(unique_dict)
+        return results
 
 def update_backlinks(card_id, backlinks):
     conn = get_db()
