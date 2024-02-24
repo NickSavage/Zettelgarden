@@ -70,6 +70,12 @@ def login():
         return jsonify({"message": "Invalid credentials"}), 401
 
 
+@bp.route("/api/auth", methods=["GET"])
+@jwt_required()
+def check_token():
+    return jsonify({}), 200
+    
+
 @bp.route("/api/cards", methods=["GET"])
 @jwt_required()
 def get_cards():
