@@ -14,6 +14,21 @@ function checkStatus(response) {
   throw new Error(`Request failed with status: ${response.status}`);
 }
 
+export function checkLogin() {
+  let token = localStorage.getItem("token");
+  return fetch("/auth", {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((response) => {
+      if (response.status === 200) {
+	  return true;
+      } else {
+	  console.log("asdsa");
+	  return false;
+      }
+  });
+    
+}
+
 export function fetchCards(searchTerm = "") {
   let token = localStorage.getItem("token");
   let url = base_url + "/cards";
