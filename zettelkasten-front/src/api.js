@@ -276,19 +276,13 @@ export function deleteCard(id) {
   });
 }
 
-export function checkAdmin(id) {
+export async function checkAdmin() {
     let url = `${base_url}/admin`;
     let token = localStorage.getItem("token");
-    return fetch(url, {
-	method: 'GET',
-	headers: { Authorization: `Bearer ${token}` },
-    })
-	.then((response) => {
-
-	    if (response.status === 204) {
-		return true
-	    } else {
-		return false
-	    }
-	})
+    let response = await fetch(url, {method: 'GET', headers: { Authorization: `Bearer ${token}`}});
+    if (response.status === 204) {
+	return true
+    } else {
+	return false
+    };
 }
