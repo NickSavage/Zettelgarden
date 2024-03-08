@@ -10,8 +10,9 @@ import { Sidebar } from "./components/Sidebar";
 import { Topbar } from "./components/Topbar";
 import { useAuth } from "./AuthContext";
 import LoginForm from "./components/LoginForm";
+import { Routes, Route } from "react-router-dom";
 
-function App() {
+function MainApp() {
   const [error, setError] = useState("");
   const [cards, setCards] = useState([]);
   const [newCard, setNewCard] = useState(null);
@@ -177,6 +178,16 @@ function App() {
       </div>
     </div>
   );
+}
+
+function App() {
+    return (
+	<div>
+	    <Routes>
+		<Route path="/" element={<MainApp />} />
+	    </Routes>
+	</div>
+    );
 }
 
 export default App;
