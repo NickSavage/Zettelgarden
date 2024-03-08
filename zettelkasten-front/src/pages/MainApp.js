@@ -9,9 +9,10 @@ import { EditPage } from "../components/EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
 import { useAuth } from "../AuthContext";
-import LoginForm from "../components/LoginForm";
+import { useNavigate } from 'react-router-dom';
 
 function MainApp() {
+    const navigate = useNavigate();
   const [error, setError] = useState("");
   const [cards, setCards] = useState([]);
   const [newCard, setNewCard] = useState(null);
@@ -114,17 +115,12 @@ function MainApp() {
     }
 
   useEffect(() => {
-    //fetchCards().then(data => setCards(data));
-  }, []);
-
-  if (!localStorage.getItem("token")) {
-    logoutUser();
-  }
-  if (!isAuthenticated) {
-    // User is not authenticated, render only the LoginForm
-    document.title = "Zettelkasten";
-    return <LoginForm />;
-  }
+    // Check if token does not exist or user is not authenticated
+    if (!localStorage.getItem("token")) {
+      logoutUser(); // Call your logout function
+      navigate('/login'); // Redirect to the login page
+    }
+  }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
   return (
     <div>

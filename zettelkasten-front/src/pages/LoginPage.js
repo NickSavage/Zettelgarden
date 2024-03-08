@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
 
-const LoginForm = () => {
+import { useNavigate } from 'react-router-dom';
+
+function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
+    const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,6 +27,7 @@ const LoginForm = () => {
         setError(data["error"]);
       } else {
         loginUser(data); // pass the token you received from the backend
+	  navigate("/app");
       }
       // Redirect to a protected route or dashboard here.
     } catch (message) {
