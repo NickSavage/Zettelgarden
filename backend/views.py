@@ -280,3 +280,16 @@ def edit_file(file_id):
     updated_file = services.query_file(file_id)
     updated_file["card"] = services.query_partial_card_by_id(updated_file["card_pk"])
     return jsonify(updated_file), 200
+
+@bp.route("/api/admin", methods=["GET"])
+@jwt_required()
+def check_admin():
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    user = services.query_full_user(current_user)
+    if user["is_admin"]:
+        return jsonify({}), 204
+    else:
+        return jsonify({}), 401
+        
+
+    

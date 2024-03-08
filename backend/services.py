@@ -9,7 +9,7 @@ import models.card
 import utils
 
 full_file_query = "SELECT id, name, type, path, filename, size, created_by, updated_by, card_pk, created_at, updated_at FROM files"
-full_user_query = "SELECT id, username, password, created_at, updated_at FROM users"
+full_user_query = "SELECT id, username, password, created_at, updated_at, is_admin FROM users"
 
 
 def get_direct_links(body: str) -> list:
@@ -191,6 +191,7 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         "name": user[1],
         "created_at": user[3],
         "updated_at": user[4],
+        "is_admin": user[5],
     }
     if include_password:
         result["password"] = user[2]
