@@ -292,6 +292,8 @@ def edit_file(file_id):
 def check_admin():
     current_user = get_jwt_identity()  # Extract the user identity from the token
     user = services.query_full_user(current_user)
+    if "error" in user:
+        return jsonify(user), 400
     if user["is_admin"]:
         return jsonify({}), 204
     else:

@@ -26,6 +26,7 @@ function Admin() {
 		    <td>is_admin</td>
 		    <td>created_at</td>
 		    <td>updated_at</td>
+		    <td>cards</td>
 		</tr>
 		{users && users.map((user, index) => (
 		    <tr>
@@ -34,6 +35,7 @@ function Admin() {
 			<td>{user["is_admin"]}</td>
 			<td>{user["created_at"]}</td>
 			<td>{user["updated_at"]}</td>
+			<td>{user["cards"]}</td>
 		    </tr>
 		))}
 	    </table>
