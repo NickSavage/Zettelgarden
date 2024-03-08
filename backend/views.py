@@ -172,6 +172,12 @@ def delete_card(id):
 
     return "", 204
 
+@bp.route("/api/users", methods=["GET"])
+@jwt_required()
+def get_users():
+    users = services.query_all_users()
+    return jsonify(users)
+
 @bp.route("/api/users/<path:id>", methods=["GET"])
 @jwt_required()
 def get_user(id):

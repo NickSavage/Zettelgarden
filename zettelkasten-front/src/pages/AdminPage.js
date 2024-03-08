@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { checkAdmin } from "../api";
+import { checkAdmin, getUsers } from "../api";
 
 function NotAdmin() {
     return (
@@ -7,8 +7,37 @@ function NotAdmin() {
     );
 }
 function Admin() {
+    const [users, setUsers] = useState([]);
+    useEffect(() => {
+	const fetchUsers = async () => {
+	    let tempUsers = await getUsers();
+	    setUsers(tempUsers);
+	};
+	fetchUsers();
+	
+    }, [])
+    console.log(users);
     return (
-	<div>true</div>
+	<div>
+	    <table>
+		<tr>
+		    <td>id</td>
+		    <td>name</td>
+		    <td>is_admin</td>
+		    <td>created_at</td>
+		    <td>updated_at</td>
+		</tr>
+		{users && users.map((user, index) => (
+		    <tr>
+			<td>{user["id"]}</td>
+			<td>{user["name"]}</td>
+			<td>{user["is_admin"]}</td>
+			<td>{user["created_at"]}</td>
+			<td>{user["updated_at"]}</td>
+		    </tr>
+		))}
+	    </table>
+	    </div>
     );
 }
 

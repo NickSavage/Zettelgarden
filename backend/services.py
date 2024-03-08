@@ -413,3 +413,12 @@ def query_user_by_username(username: str, include_password=False) -> dict:
         user = serialize_full_user(user, include_password)
     cur.close()
     return user
+
+def query_all_users():
+    cur = get_db().cursor()
+    cur.execute(full_user_query)
+    users = cur.fetchall()
+    results = [serialize_full_user(user) for user in users]
+    cur.close()
+    return results
+    

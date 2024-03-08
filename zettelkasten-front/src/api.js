@@ -101,6 +101,18 @@ export function saveCard(url, method, card) {
     .then((response) => response.json());
 }
 
+export function getUsers() {
+    
+    const url = base_url + `/users`;
+    let token = localStorage.getItem("token");
+    
+    return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+	.then(checkStatus)
+	.then((response) => {
+	    return response.json();
+    });
+}
+
 export function getUser(id) {
   let encoded = encodeURIComponent(id);
   const url = base_url + `/users/${encoded}`;
