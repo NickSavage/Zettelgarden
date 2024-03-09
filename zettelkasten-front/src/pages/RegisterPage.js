@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createUser } from "../api";
+import { useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
     // State to store each input field's value
@@ -8,6 +9,8 @@ function RegisterPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+
+    const navigate = useNavigate();
 
     // Handle form submission
     const handleSubmit = (e) => {
@@ -28,6 +31,7 @@ function RegisterPage() {
 	createUser(userData)
 	    .then(data => {
 		console.log('User created successfully', data);
+		navigate("/login");
 		// Handle successful user creation (e.g., redirecting the user or showing a success message)
 		// Reset form or redirect user to login page, etc.
 	    })
