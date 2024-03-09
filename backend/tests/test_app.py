@@ -136,3 +136,37 @@ def test_delete_card(client, access_headers):
     response = client.get(f"/api/cards/{test_card_id}", headers=access_headers)
 
     assert response.status_code == 404
+
+def test_validate_unique_email(client, db, access_headers):
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT email FROM users WHERE id = 1")
+    email = cursor.fetchone()[0]
+
+    data = {
+        "email": email
+    }
+    
+    response = client.get(f"/api/users/validate", json=data, headers=access_headers)
+    
+    assert response.status_code == 200
+    assert response.json["email_exists"] == True
+
+    data = {
+        "email": email + email
+    }
+    
+    response = client.get(f"/api/users/validate", json=data, headers=access_headers)
+    assert response.status_code == 200
+    assert response.json["email_exists"] == False
+
+def test_create_user(client, access_headers):
+    data = {
+        "name": "asdf",
+        "email": "asdf",
+        "password": "asdfasdf",
+        "password_verify": "asdfasdf",
+    }
+    response = client.post(f"/api/users", json=data, headers=access_headers)
+    assert response.status_code == 200
+    assert "new_id" in response.json

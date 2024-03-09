@@ -172,6 +172,40 @@ def delete_card(id):
 
     return "", 204
 
+@bp.route("/api/users", methods=["POST"])
+def create_user():
+    if not request.json.get("password") == request.json.get("password_verify"):
+        return jsonify({"error": True, "message": "Passwords do not match"}), 400
+
+    user = {
+        "username": request.json.get("username"),
+        "email": request.json.get("email"),
+        "hashed_password": g.bcrypt.generate_password_hash(request.json.get("password")).decode("utf-8")
+    }
+    result = services.create_user(user)
+
+    if "error" in result:
+        return jsonify(result["message"]), 400
+    else:
+        return jsonify(result), 200
+
+@bp.route("/api/users/validate", methods=["GET"])
+def validate_user():
+    user = {
+        "email": request.json.get("email")
+    }
+    if not services.validate_unique_email(user["email"]):
+        return {
+            "email_exists": True,
+            "message": "Email is already in use."
+        }
+    else:
+        return {
+            "email_exists": False,
+            "message": "Email is available."
+        }
+        
+
 @bp.route("/api/users", methods=["GET"])
 @jwt_required()
 def get_users():

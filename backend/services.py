@@ -433,4 +433,35 @@ def query_all_users():
     results = [serialize_full_user(user) for user in users]
     cur.close()
     return results
-    
+
+def validate_unique_email(email: str) -> bool:
+    cur = get_db().cursor()
+    cur.execute(full_user_query + " WHERE email = %s", (email,))
+    user = cur.fetchone()
+
+    result = user is None
+
+    cur.close()
+    return result
+
+def create_user(data: dict) -> dict:
+    if not validate_unique_email(data["email"]):
+        return {
+            "error": True,
+            "message": "Email already exists."
+        }
+    if not "hashed_password" in data:
+        return {
+            "error": True,
+            "message": "Something is wrong with the password."
+        }
+        
+    conn = get_db()
+    cur = conn.cursor()
+    query = "INSERT INTO users (username, email, password, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW()) RETURNING id;"
+    cur.execute(query, (data["username"], data["email"], data["hashed_password"]))
+    new_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+
+    return {"new_id": new_id}
