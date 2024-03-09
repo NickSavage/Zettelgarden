@@ -1,5 +1,5 @@
 full_card_query = (
-    "SELECT id, card_id, title, body, link, created_at, updated_at FROM cards"
+    "SELECT id, card_id, user_id, title, body, link, created_at, updated_at FROM cards"
 )
 partial_card_query = "SELECT id, card_id, title FROM cards"
 
@@ -33,3 +33,17 @@ def partial_card_query_filtered(search_term) -> str:
         + search_term
         + "%';"
     )
+
+def serialize_card(card: list) -> dict:
+    card = {
+        "id": card[0],
+        "card_id": card[1],
+        "user_id": card[2],
+        "title": card[3],
+        "body": card[4],
+        "link": card[5],
+        "created_at": card[6],
+        "updated_at": card[7],
+    }
+    return card
+    

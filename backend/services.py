@@ -175,22 +175,15 @@ def get_children(card_id: str) -> list:
     return results
 
 
-def serialize_full_card(card) -> dict:
-    card = {
-        "id": card[0],
-        "card_id": card[1],
-        "title": card[2],
-        "body": card[3],
-        "link": card[4],
-        "created_at": card[5],
-        "updated_at": card[6],
-        "direct_links": get_direct_links(card[3]),
-        "backlinks": get_backlinks(card[1]),
-        "references": get_references(card[1], card[3]),
-        "parent": get_parent(card[1]),
-        "files": get_files_from_card_pk(card[0]),
-        "children": get_children(card[1]),
-    }
+def serialize_full_card(data) -> dict:
+    card = models.card.serialize_card(data)
+
+    card["parent"] = get_parent(card["card_id"])
+    card["direct_links"] = get_direct_links(card["body"])
+    card["files"] = get_files_from_card_pk(card["id"])
+    card["children"] = get_children(card["card_id"])
+    card["references"] = get_references(card["card_id"], card["body"])
+    card["backlinks"] = get_backlinks(card["card_id"])
     return card
 
 
