@@ -456,6 +456,17 @@ def create_user(data: dict) -> dict:
             "message": "Something is wrong with the password."
         }
         
+    if data["username"] is None:
+        return {
+            "error": True,
+            "message": "Username is blank."
+        }
+    if data["email"] is None:
+        return {
+            "error": True,
+            "message": "Email is blank."
+        }
+        
     conn = get_db()
     cur = conn.cursor()
     query = "INSERT INTO users (username, email, password, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW()) RETURNING id;"

@@ -185,7 +185,7 @@ def create_user():
     result = services.create_user(user)
 
     if "error" in result:
-        return jsonify(result["message"]), 400
+        return jsonify(result), 400
     else:
         return jsonify(result), 200
 

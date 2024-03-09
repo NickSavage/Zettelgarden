@@ -162,7 +162,7 @@ def test_validate_unique_email(client, db, access_headers):
 
 def test_create_user(client, access_headers):
     data = {
-        "name": "asdf",
+        "username": "asdf",
         "email": "asdf",
         "password": "asdfasdf",
         "password_verify": "asdfasdf",
@@ -170,3 +170,41 @@ def test_create_user(client, access_headers):
     response = client.post(f"/api/users", json=data, headers=access_headers)
     assert response.status_code == 200
     assert "new_id" in response.json
+
+def test_create_user_no_username(client, access_headers):
+    data = {
+        "email": "asdf",
+        "password": "asdfasdf",
+        "password_verify": "asdfasdf",
+    }
+    response = client.post(f"/api/users", json=data, headers=access_headers)
+    assert response.status_code == 400
+    assert "error" in response.json
+
+def test_create_user_no_email(client, access_headers):
+    data = {
+        "username": "asdf",
+        "password": "asdfasdf",
+        "password_verify": "asdfasdf",
+    }
+    response = client.post(f"/api/users", json=data, headers=access_headers)
+    assert response.status_code == 400
+    assert "error" in response.json
+
+
+def test_create_user_duplicate_email(client, db, access_headers):
+
+    cursor = db.cursor()
+    cursor.execute("SELECT email FROM users WHERE id = 1")
+    email = cursor.fetchone()[0]
+
+    data = {
+        "username": "asdf",
+        "email": email,
+        "password": "asdfasdf",
+        "password_verify": "asdfasdf",
+    }
+    response = client.post(f"/api/users", json=data, headers=access_headers)
+    cursor.close()
+    assert response.status_code == 400
+    assert "error" in response.json
