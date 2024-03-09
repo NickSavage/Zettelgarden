@@ -83,7 +83,7 @@ function RegisterPage() {
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit">Register</button>
-		<span>Already have an account? <Link to="/login">Login instead</Link>.</span>
+		<span className="text">Already have an account? <Link to="/login">Login instead</Link>.</span>
             </form>
         </div>
     );

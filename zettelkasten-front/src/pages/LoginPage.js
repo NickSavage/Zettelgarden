@@ -59,7 +59,7 @@ function LoginForm() {
           Login
         </button>
       </form>
-    <span>Need an account? <Link to="/register">Register here</Link>.</span>
+    <span className="text">Need an account? <Link to="/register">Register here</Link>.</span>
     </div>
   );
 };

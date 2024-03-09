@@ -13,12 +13,12 @@ export function ViewPage({
 
   return (
     <div>
-      <h2 style={{ marginBottom: "10px" }}>
+      <h3 style={{ marginBottom: "10px" }}>
         <span style={{ fontWeight: "bold", color: "blue" }}>
           {viewingCard.card_id}
         </span>
         <span>: {viewingCard.title}</span>
-      </h2>
+      </h3>
       <hr />
       <div style={{ marginBottom: "10px" }}>
         {CardBody(viewingCard, cards, handleViewCard)}
