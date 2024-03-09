@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createUser } from "../api";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
     // State to store each input field's value
@@ -83,6 +83,7 @@ function RegisterPage() {
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit">Register</button>
+		<span>Already have an account? <Link to="/login">Login instead</Link>.</span>
             </form>
         </div>
     );

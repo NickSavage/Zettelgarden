@@ -382,3 +382,9 @@ button[type="submit"] {
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
+
+span {
+    color: rgb(60, 66, 87);
+    font-size: 14px;
+    font-weight: 400;
+}

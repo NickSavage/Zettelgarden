@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function LoginForm() {
   const [username, setUsername] = useState("");
@@ -59,6 +59,7 @@ function LoginForm() {
           Login
         </button>
       </form>
+    <span>Need an account? <Link to="/register">Register here</Link>.</span>
     </div>
   );
 };
