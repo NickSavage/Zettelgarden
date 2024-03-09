@@ -97,7 +97,7 @@ def get_files_from_card_pk(card_pk: int) -> list:
 
 
 def create_card(card, user_id) -> dict:
-    if not card["card_id"] == "" and not utils.check_is_card_id_unique(card["card_id"]):
+    if not card["card_id"] == "" and not utils.check_is_card_id_unique(card["card_id"], user_id):
         return {"error": "id already used"}
 
     conn = get_db()
@@ -140,15 +140,16 @@ def delete_card(id) -> dict:
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT card_id FROM cards WHERE id = %s", (id,))
+    cur.execute("SELECT card_id, user_id FROM cards WHERE id = %s", (id,))
     card = cur.fetchone()
     if len(card) == 0:
         return {"error": "Card not found", "code": 404}
     card_id = card[0]
+    user_id = card[1]
     backlinks = get_backlinks(card_id)
     if len(backlinks) > 0:
         return {"error": "Card has backlinks, cannot be deleted", "code": 400}
-    children = get_children(card_id)
+    children = get_children(card_id, user_id)
     if len(children) > 0:
         return {"error": "Card has children, cannot be deleted", "code": 400}
     files = get_files_from_card_pk(id)
@@ -164,8 +165,8 @@ def delete_card(id) -> dict:
     return {"code": 204}
 
 
-def get_children(card_id: str) -> list:
-    cards = query_all_partial_cards()
+def get_children(card_id: str, user_id: int) -> list:
+    cards = query_all_partial_cards(user_id)
     results = []
     for card in cards:
         if card["card_id"].startswith(card_id + ".") or card["card_id"].startswith(
@@ -181,18 +182,9 @@ def serialize_full_card(data) -> dict:
     card["parent"] = get_parent(card["card_id"])
     card["direct_links"] = get_direct_links(card["body"])
     card["files"] = get_files_from_card_pk(card["id"])
-    card["children"] = get_children(card["card_id"])
+    card["children"] = get_children(card["card_id"], card["user_id"])
     card["references"] = get_references(card["card_id"], card["body"])
     card["backlinks"] = get_backlinks(card["card_id"])
-    return card
-
-
-def serialize_partial_card(card) -> dict:
-    card = {
-        "id": card[0],
-        "card_id": card[1],
-        "title": card[2],
-    }
     return card
 
 
@@ -330,27 +322,27 @@ def serialize_internal_file(file: list) -> dict:
     }
 
 
-def query_all_partial_cards(search_term=None) -> list:
+def query_all_partial_cards(user_id: int, search_term=None) -> list:
     cur = get_db().cursor()
     if search_term:
         cur.execute(models.card.partial_card_query_filtered(search_term))
     else:
-        cur.execute(models.card.partial_card_query + " WHERE is_deleted = FALSE")
+        cur.execute(models.card.partial_card_query + " WHERE user_id = %s AND is_deleted = FALSE", (str(user_id),))
     cards = cur.fetchall()
     results = []
     for x in cards:
-        card = serialize_partial_card(x)
+        card = models.card.serialize_partial_card(x)
         results.append(card)
     cur.close()
     return results
 
 
-def query_all_full_cards(search_term=None) -> list:
+def query_all_full_cards(user_id: int, search_term=None) -> list:
     cur = get_db().cursor()
     if search_term:
-        cur.execute(models.card.full_card_query_filtered(search_term))
+        cur.execute(models.card.full_card_query_filtered(user_id, search_term))
     else:
-        cur.execute(models.card.full_card_query)
+        cur.execute(models.card.full_card_query + " WHERE user_id = %s", (str(user_id),))
     cards = cur.fetchall()
     results = []
     for x in cards:
@@ -369,7 +361,7 @@ def query_partial_card_by_id(id) -> dict:
     card = cur.fetchone()
     cur.close()
     if card:
-        return serialize_partial_card(card)
+        return models.card.serialize_partial_card(card)
     return {}
 
 
@@ -383,7 +375,7 @@ def query_partial_card(card_id) -> dict:
     card = cur.fetchone()
     cur.close()
     if card:
-        return serialize_partial_card(card)
+        return models.card.serialize_partial_card(card)
     return {}
 
 

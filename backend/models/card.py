@@ -26,10 +26,10 @@ def full_card_query_filtered(search_terms) -> str:
     return final_query
 
 
-def partial_card_query_filtered(search_term) -> str:
+def partial_card_query_filtered(user_id: int, search_term) -> str:
     return (
         partial_card_query
-        + " WHERE is_deleted = FALSE AND title ILIKE '%"
+        + " WHERE user_id = " + str(user_id) + " AND is_deleted = FALSE AND title ILIKE '%"
         + search_term
         + "%';"
     )
@@ -47,3 +47,10 @@ def serialize_card(card: list) -> dict:
     }
     return card
     
+def serialize_partial_card(card) -> dict:
+    card = {
+        "id": card[0],
+        "card_id": card[1],
+        "title": card[2],
+    }
+    return card

@@ -45,9 +45,9 @@ long_id = "SP170/A.1/A.1/A.1/A.1"
 assert _get_parent_id_alternating("SP170/A.1/A.1/A.1/A.1") == "SP170/A.1/A.1/A.1/A"
 
 
-def check_is_card_id_unique(card_id: str) -> bool:
+def check_is_card_id_unique(card_id: str, user_id: int) -> bool:
     cur = get_db().cursor()
-    cur.execute("SELECT card_id FROM cards WHERE is_deleted = FALSE;")
+    cur.execute("SELECT card_id FROM cards WHERE user_id = %s AND is_deleted = FALSE;", (str(user_id),))
     ids = cur.fetchall()
     for id in ids:
         if card_id == id[0]:

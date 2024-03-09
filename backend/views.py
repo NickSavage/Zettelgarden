@@ -79,13 +79,15 @@ def check_token():
 @bp.route("/api/cards", methods=["GET"])
 @jwt_required()
 def get_cards():
+
+    current_user = get_jwt_identity()
     search_term = request.args.get("search_term", None)
     partial = request.args.get("partial", False)
     try:
         if partial:
-            results = services.query_all_partial_cards(search_term)
+            results = services.query_all_partial_cards(current_user, search_term)
         else:
-            results = services.query_all_full_cards(search_term)
+            results = services.query_all_full_cards(current_user, search_term)
         results = sorted(
             results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True
         )
