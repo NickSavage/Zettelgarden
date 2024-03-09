@@ -40,15 +40,26 @@ def run_migrations(testing=False):
         cur.execute("DROP TABLE IF EXISTS card_views CASCADE;")
         cur.execute("DROP TABLE IF EXISTS files CASCADE;")
         cur.execute("DROP TABLE IF EXISTS migrations CASCADE;")
+
+        cur.execute("""
+
+        CREATE TABLE IF NOT EXISTS migrations (
+        id SERIAL PRIMARY KEY,
+        migration_name VARCHAR(255) NOT NULL,
+        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
+        conn.commit()
         
     query_string = "SELECT * FROM migrations WHERE migration_name = %s"
     insert_string = "INSERT INTO migrations (migration_name) VALUES (%s);"
     
     files = os.listdir("schema")
+    files.sort()
     for file in files:
         cur.execute(query_string, (file,))
         results = cur.fetchone()
-
+        
         if results:
             continue
 
