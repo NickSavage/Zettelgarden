@@ -27,4 +27,9 @@ def full_card_query_filtered(search_terms) -> str:
 
 
 def partial_card_query_filtered(search_term) -> str:
-    return partial_card_query + " WHERE is_deleted = FALSE AND title ILIKE '%" + search_term + "%';"
+    return (
+        partial_card_query
+        + " WHERE is_deleted = FALSE AND title ILIKE '%"
+        + search_term
+        + "%';"
+    )

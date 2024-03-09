@@ -33,7 +33,7 @@ def run_migrations(testing=False):
         cur.execute("SELECT current_database()")
         name = cur.fetchone()
         assert name[0] == "zettelkasten_testing"
-        
+
         cur.execute("DROP TABLE IF EXISTS users CASCADE;")
         cur.execute("DROP TABLE IF EXISTS cards CASCADE;")
         cur.execute("DROP TABLE IF EXISTS backlinks CASCADE;")
@@ -41,25 +41,27 @@ def run_migrations(testing=False):
         cur.execute("DROP TABLE IF EXISTS files CASCADE;")
         cur.execute("DROP TABLE IF EXISTS migrations CASCADE;")
 
-        cur.execute("""
+        cur.execute(
+            """
 
         CREATE TABLE IF NOT EXISTS migrations (
         id SERIAL PRIMARY KEY,
         migration_name VARCHAR(255) NOT NULL,
         applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        """)
+        """
+        )
         conn.commit()
-        
+
     query_string = "SELECT * FROM migrations WHERE migration_name = %s"
     insert_string = "INSERT INTO migrations (migration_name) VALUES (%s);"
-    
+
     files = os.listdir("schema")
     files.sort()
     for file in files:
         cur.execute(query_string, (file,))
         results = cur.fetchone()
-        
+
         if results:
             continue
 

@@ -47,17 +47,18 @@ def get_backlinks(card_id):
     cur.close()
     return backlinks
 
+
 def get_references(card_id: str, body: str) -> list:
-    
     backlinks = get_backlinks(card_id)
     direct_links = get_direct_links(body)
     links = backlinks + direct_links
     if links == []:
         return []
     else:
-        unique_dict = {d['id']: d for d in links}.values()
+        unique_dict = {d["id"]: d for d in links}.values()
         results = list(unique_dict)
         return results
+
 
 def update_backlinks(card_id, backlinks):
     conn = get_db()
@@ -134,6 +135,7 @@ def update_card(id, card):
     backlinks = utils.extract_backlinks(card["body"])
     update_backlinks(card["card_id"], backlinks)
 
+
 def delete_card(id) -> dict:
     conn = get_db()
     cur = conn.cursor()
@@ -152,21 +154,26 @@ def delete_card(id) -> dict:
     files = get_files_from_card_pk(id)
     if len(children) > 0:
         return {"error": "Card has files, cannot be deleted", "code": 400}
-    cur.execute("UPDATE cards SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s;", (id,))
-
+    cur.execute(
+        "UPDATE cards SET is_deleted = TRUE, updated_at = NOW() WHERE id = %s;", (id,)
+    )
 
     conn.commit()
     cur.close()
-    
+
     return {"code": 204}
-    
+
+
 def get_children(card_id: str) -> list:
     cards = query_all_partial_cards()
     results = []
     for card in cards:
-        if card["card_id"].startswith(card_id + ".") or card["card_id"].startswith(card_id + "/"):
+        if card["card_id"].startswith(card_id + ".") or card["card_id"].startswith(
+            card_id + "/"
+        ):
             results.append(card)
     return results
+
 
 def serialize_full_card(card) -> dict:
     card = {
@@ -363,7 +370,9 @@ def query_all_full_cards(search_term=None) -> list:
 def query_partial_card_by_id(id) -> dict:
     cur = get_db().cursor()
 
-    cur.execute(models.card.partial_card_query + " WHERE is_deleted = FALSE AND id = %s;", (id,))
+    cur.execute(
+        models.card.partial_card_query + " WHERE is_deleted = FALSE AND id = %s;", (id,)
+    )
     card = cur.fetchone()
     cur.close()
     if card:
@@ -374,7 +383,10 @@ def query_partial_card_by_id(id) -> dict:
 def query_partial_card(card_id) -> dict:
     cur = get_db().cursor()
 
-    cur.execute(models.card.partial_card_query + " WHERE is_deleted = FALSE AND card_id = %s;", (card_id,))
+    cur.execute(
+        models.card.partial_card_query + " WHERE is_deleted = FALSE AND card_id = %s;",
+        (card_id,),
+    )
     card = cur.fetchone()
     cur.close()
     if card:
@@ -387,7 +399,10 @@ def query_full_card(id) -> dict:
     if id == "null":
         return {"error": "Card not found"}
     try:
-        cur.execute(models.card.full_card_query + " WHERE is_deleted = FALSE AND id = %s;", (id,))
+        cur.execute(
+            models.card.full_card_query + " WHERE is_deleted = FALSE AND id = %s;",
+            (id,),
+        )
         card = cur.fetchone()
     except Exception as e:
         return {"error": str(e)}
@@ -426,6 +441,7 @@ def query_user_by_username(username: str, include_password=False) -> dict:
     cur.close()
     return user
 
+
 def query_all_users():
     cur = get_db().cursor()
     cur.execute(full_user_query)
@@ -433,6 +449,7 @@ def query_all_users():
     results = [serialize_full_user(user) for user in users]
     cur.close()
     return results
+
 
 def validate_unique_email(email: str) -> bool:
     cur = get_db().cursor()
@@ -444,29 +461,18 @@ def validate_unique_email(email: str) -> bool:
     cur.close()
     return result
 
+
 def create_user(data: dict) -> dict:
     if not validate_unique_email(data["email"]):
-        return {
-            "error": True,
-            "message": "Email already exists."
-        }
+        return {"error": True, "message": "Email already exists."}
     if not "hashed_password" in data:
-        return {
-            "error": True,
-            "message": "Something is wrong with the password."
-        }
-        
+        return {"error": True, "message": "Something is wrong with the password."}
+
     if data["username"] is None:
-        return {
-            "error": True,
-            "message": "Username is blank."
-        }
+        return {"error": True, "message": "Username is blank."}
     if data["email"] is None:
-        return {
-            "error": True,
-            "message": "Email is blank."
-        }
-        
+        return {"error": True, "message": "Email is blank."}
+
     conn = get_db()
     cur = conn.cursor()
     query = "INSERT INTO users (username, email, password, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW()) RETURNING id;"

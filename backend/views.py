@@ -74,7 +74,7 @@ def login():
 @jwt_required()
 def check_token():
     return jsonify({}), 200
-    
+
 
 @bp.route("/api/cards", methods=["GET"])
 @jwt_required()
@@ -162,6 +162,7 @@ def update_card(id):
     # Update backlinks
     return jsonify(services.query_full_card(id))
 
+
 @bp.route("/api/cards/<path:id>", methods=["DELETE"])
 @jwt_required()
 def delete_card(id):
@@ -172,6 +173,7 @@ def delete_card(id):
 
     return "", 204
 
+
 @bp.route("/api/users", methods=["POST"])
 def create_user():
     if not request.json.get("password") == request.json.get("password_verify"):
@@ -180,7 +182,9 @@ def create_user():
     user = {
         "username": request.json.get("username"),
         "email": request.json.get("email"),
-        "hashed_password": g.bcrypt.generate_password_hash(request.json.get("password")).decode("utf-8")
+        "hashed_password": g.bcrypt.generate_password_hash(
+            request.json.get("password")
+        ).decode("utf-8"),
     }
     result = services.create_user(user)
 
@@ -189,28 +193,22 @@ def create_user():
     else:
         return jsonify(result), 200
 
+
 @bp.route("/api/users/validate", methods=["GET"])
 def validate_user():
-    user = {
-        "email": request.json.get("email")
-    }
+    user = {"email": request.json.get("email")}
     if not services.validate_unique_email(user["email"]):
-        return {
-            "email_exists": True,
-            "message": "Email is already in use."
-        }
+        return {"email_exists": True, "message": "Email is already in use."}
     else:
-        return {
-            "email_exists": False,
-            "message": "Email is available."
-        }
-        
+        return {"email_exists": False, "message": "Email is available."}
+
 
 @bp.route("/api/users", methods=["GET"])
 @jwt_required()
 def get_users():
     users = services.query_all_users()
     return jsonify(users)
+
 
 @bp.route("/api/users/<path:id>", methods=["GET"])
 @jwt_required()
@@ -321,6 +319,7 @@ def edit_file(file_id):
     updated_file["card"] = services.query_partial_card_by_id(updated_file["card_pk"])
     return jsonify(updated_file), 200
 
+
 @bp.route("/api/admin", methods=["GET"])
 @jwt_required()
 def check_admin():
@@ -332,6 +331,3 @@ def check_admin():
         return jsonify({}), 204
     else:
         return jsonify({}), 401
-        
-
-    
