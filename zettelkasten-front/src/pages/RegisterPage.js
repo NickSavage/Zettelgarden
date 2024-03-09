@@ -42,8 +42,8 @@ function RegisterPage() {
     };
 
     return (
-        <div>
-            <h2>Register</h2>
+        <div className="registration-container">
+            <h2>Create your Zettelindex account</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Username:</label>
