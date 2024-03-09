@@ -100,6 +100,19 @@ export function saveCard(url, method, card) {
     .then(checkStatus)
     .then((response) => response.json());
 }
+export function createUser(userData) {
+  let token = localStorage.getItem("token");
+  return fetch(base_url + "/users", {
+    method: 'POST', 
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  })
+    .then(checkStatus)
+    .then(response => response.json());
+}
 
 export function getUsers() {
     

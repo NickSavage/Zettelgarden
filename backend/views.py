@@ -176,7 +176,7 @@ def delete_card(id):
 
 @bp.route("/api/users", methods=["POST"])
 def create_user():
-    if not request.json.get("password") == request.json.get("password_verify"):
+    if not request.json.get("password") == request.json.get("confirmPassword"):
         return jsonify({"error": True, "message": "Passwords do not match"}), 400
 
     user = {
