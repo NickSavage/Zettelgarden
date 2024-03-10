@@ -19,7 +19,7 @@ export function AdminUserDetailPage() {
 		 <li><b>Name:</b> {user["name"]}</li>
 		 <li><b>id:</b> {user["id"]}</li>
 		     <li><b>Is Admin:</b> {user["is_admin"] ? 'True' : 'False'}</li>
-		 <li><b>email:</b> {user["email"]}</li>
+		 <li><b>Cards:</b> {user["cards"]}</li>
 		     </div>
 		}
 	    </ul>

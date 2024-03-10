@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "../AuthContext";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export function ProtectedAdminPage({ children }) {
     const { isAdmin, isLoading } = useAuth();
@@ -16,6 +16,21 @@ export function ProtectedAdminPage({ children }) {
         return <div>Loading...</div>;
     }
 
-    return (<div><span>test</span>
-	    <div>{children}</div></div>);
+    return (
+	<div>
+	    <div className="top-bar">
+		<h2><Link to="/admin">Zettelindex Admin</Link></h2>
+	    </div>
+	    <div className="main-content">
+		<div className="sidebar">
+		    <ul>
+			<li><Link to="/admin">Index</Link></li>
+		    </ul>
+		</div>
+		<div className="content">
+		    {children}
+		</div>
+	    </div>
+	</div>
+    );
 }
