@@ -8,7 +8,7 @@ function NotAdmin() {
 	<div>false</div>
     );
 }
-function Admin() {
+export function Admin() {
     const [users, setUsers] = useState([]);
     useEffect(() => {
 	const fetchUsers = async () => {
@@ -44,19 +44,3 @@ function Admin() {
 	    </div>
     );
 }
-
-function AdminPage() {
-    const { isAdmin, isLoading } = useAuth();
-    const navigate = useNavigate();
-
-    if (isLoading) {
-        return <div>Loading...</div>; // Or any other loading indicator
-    }
-    if (!isAdmin) {
-	navigate('/app');
-    }
-
-    return isAdmin ? <Admin /> : <NotAdmin />;
-}
-
-export default AdminPage;
