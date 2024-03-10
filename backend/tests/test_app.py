@@ -168,7 +168,7 @@ def test_create_user(client, access_headers):
         "username": "asdf",
         "email": "asdf",
         "password": "asdfasdf",
-        "password_verify": "asdfasdf",
+        "confirmPassword": "asdfasdf",
     }
     response = client.post(f"/api/users", json=data, headers=access_headers)
     assert response.status_code == 200

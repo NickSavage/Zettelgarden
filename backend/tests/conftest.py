@@ -61,7 +61,7 @@ def import_test_data(db) -> None:
             "INSERT INTO cards (card_id, user_id, title, body, link) VALUES (%s, %s, %s, %s, %s)",
             (
                 card["card_id"],
-                random.choice(user_ids),
+                card["user_id"],
                 card["title"],
                 card["body"],
                 card["link"],
@@ -125,7 +125,7 @@ def generate_data() -> list:
             {
                 "id": i,
                 "card_id": random_string(20),
-                "user_id": random.choice(users)["id"],
+                "user_id": 1,
                 "title": random_string(20),
                 "body": random_string(100),
                 "link": f"https://{random_string(10)}.com",
