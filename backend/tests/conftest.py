@@ -38,6 +38,13 @@ def access_headers(app, client):
         headers = {"Authorization": "Bearer {}".format(access_token)}
         return headers
 
+@pytest.fixture
+def access_headers_other_user(app, client):
+    with app.app_context():
+        access_token = create_access_token(identity=2)
+
+        headers = {"Authorization": "Bearer {}".format(access_token)}
+        return headers
 
 def import_test_data(db) -> None:
     cursor = db.cursor()
@@ -49,6 +56,7 @@ def import_test_data(db) -> None:
 
     user_ids = []
     for user in users:
+        is_admin = False
         cursor.execute(
             "INSERT INTO users (username, email, password) VALUES (%s, %s, %s) RETURNING id",
             (user["username"], user["email"], user["password"]),
@@ -68,6 +76,7 @@ def import_test_data(db) -> None:
             ),
         )
 
+    cursor.execute("UPDATE users SET is_admin = TRUE WHERE id = 1");
     db.commit()
     # for backlink in backlinks:
     #     cursor.execute("INSERT INTO backlinks (source_id, target_id) VALUES (%s, %s)", (backlink["source_id"], backlink["target_id"]))

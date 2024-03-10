@@ -86,6 +86,12 @@ def test_get_card_error_id(client, access_headers):
     assert response.status_code == 400
     assert "error" in response.json
 
+def test_get_card_other_user(client, access_headers_other_user):
+    test_id = 1
+
+    response = client.get(f"/api/cards/{test_id}", headers=access_headers_other_user)
+
+    assert response.status_code == 401
 
 def test_update_card(client, access_headers):
     # Define a card ID for testing. Replace 'existing_card_id' with a valid ID from your database
@@ -127,6 +133,21 @@ def test_update_card(client, access_headers):
     assert response_data["card_id"] == updated_card_data["card_id"]
     assert response_data["link"] == updated_card_data["link"]
 
+def test_update_card_other_user(client, access_headers_other_user):
+    # Define a card ID for testing. Replace 'existing_card_id' with a valid ID from your database
+    existing_id = 1
+
+    updated_card_data = {
+        "title": "asdfasdf",
+        "body": "asdfsadf",
+        "link": "asdfadsf",
+    }
+
+    # Send a PUT request to the update_card route with the specified card ID and updated data
+    response = client.put(
+        f"/api/cards/{existing_id}", json=updated_card_data, headers=access_headers_other_user
+    )
+    assert response.status_code == 401
 
 def test_delete_card(client, access_headers):
     test_card_id = 1
@@ -143,6 +164,11 @@ def test_delete_card(client, access_headers):
 
     assert response.status_code == 404
 
+def test_delete_card_other_user(client, access_headers_other_user):
+    
+    test_card_id = 1
+    response = client.delete(f"/api/cards/{test_card_id}", headers=access_headers_other_user)
+    assert response.status_code == 401
 
 def test_validate_unique_email(client, db, access_headers):
     cursor = db.cursor()
@@ -212,3 +238,13 @@ def test_create_user_duplicate_email(client, db, access_headers):
     cursor.close()
     assert response.status_code == 400
     assert "error" in response.json
+
+def test_get_users(client, db, access_headers):
+    response = client.get("/api/users", headers=access_headers)
+    assert response.status_code == 200
+    assert len(response.json) == 10
+    
+    
+def test_get_users_not_admin(client, db, access_headers_other_user):
+    response = client.get("/api/users", headers=access_headers_other_user)
+    assert response.status_code == 401

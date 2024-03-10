@@ -144,6 +144,10 @@ def get_card(id):
     print(card)
     if "error" in card:
         return jsonify(card), 400
+
+    if card["user_id"] != get_jwt_identity():
+        return jsonify({}), 401
+
     log_card_view(id, current_user)
     return jsonify(card)
 
@@ -151,12 +155,17 @@ def get_card(id):
 @bp.route("/api/cards/<path:id>", methods=["PUT"])
 @jwt_required()
 def update_card(id):
+    card = services.query_full_card(id)
+    if card["user_id"] != get_jwt_identity():
+        return jsonify({}), 401
+
     card = {
         "title": request.json.get("title"),
         "body": request.json.get("body"),
         "card_id": request.json.get("card_id"),
         "link": request.json.get("link"),
     }
+
 
     # Update card in database
     services.update_card(id, card)
@@ -168,6 +177,11 @@ def update_card(id):
 @bp.route("/api/cards/<path:id>", methods=["DELETE"])
 @jwt_required()
 def delete_card(id):
+
+    card = services.query_full_card(id)
+    if card["user_id"] != get_jwt_identity():
+        return jsonify({}), 401
+    
     results = services.delete_card(id)
     if "error" in results:
         print(results)
@@ -205,8 +219,22 @@ def validate_user():
         return {"email_exists": False, "message": "Email is available."}
 
 
+def admin_only(func):
+    def wrapper(*args, **kwargs):
+
+        current_user = get_jwt_identity()  # Extract the user identity from the token
+        user = services.query_full_user(current_user)
+        if not user["is_admin"]:
+            return jsonify({}), 401
+
+        result = func(*args, **kwargs)
+        return result
+    return wrapper
+    
+    
 @bp.route("/api/users", methods=["GET"])
 @jwt_required()
+@admin_only
 def get_users():
     users = services.query_all_users()
     return jsonify(users)
