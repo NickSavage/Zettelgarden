@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { checkAdmin, getUsers } from "../api";
+import { useAuth } from "../AuthContext";
+import { useNavigate } from 'react-router-dom';
 
 function NotAdmin() {
     return (
@@ -44,20 +46,14 @@ function Admin() {
 }
 
 function AdminPage() {
-    const [isAdmin, setIsAdmin] = useState(null);
+    const { isAdmin, isLoading } = useAuth();
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchAdminStatus = async () => {
-            const adminStatus = await checkAdmin();
-            setIsAdmin(adminStatus);
-        };
-
-        fetchAdminStatus();
-    }, []); // The empty array ensures this effect runs only once after the initial render
-
-    // Handling the loading state
-    if (isAdmin === null) {
+    if (isLoading) {
         return <div>Loading...</div>; // Or any other loading indicator
+    }
+    if (!isAdmin) {
+	navigate('/app');
     }
 
     return isAdmin ? <Admin /> : <NotAdmin />;

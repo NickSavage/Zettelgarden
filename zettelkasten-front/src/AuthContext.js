@@ -1,40 +1,46 @@
-// AuthContext.js
 import React, { useEffect, useState, createContext, useContext } from "react";
+import { checkAdmin } from "./api";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Added loading state
 
-  useEffect(() => {
-    // On component mount, we check if a token exists and consider the user as logged in if it does
-    const token = localStorage.getItem("token");
-    if (token) {
-      setIsAuthenticated(true);
-    }
+ useEffect(() => {
+    const initializeAuth = async () => {
+      setIsLoading(true);
+      const token = localStorage.getItem('token');
+      if (token) {
+        setIsAuthenticated(true);
+        // Assume checkAdmin will resolve to true/false based on the admin status
+        const adminStatus = await checkAdmin(token);
+        setIsAdmin(adminStatus);
+      }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
-  // You would call this function when the user logs in successfully
   const loginUser = (data) => {
-    console.log(data);
     localStorage.setItem("token", data["access_token"]);
     localStorage.setItem("username", data["user"]["name"]);
-    console.log(data);
     setIsAuthenticated(true);
   };
 
-  // You would call this function to log the user out
   const logoutUser = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
+    setIsAdmin(false); // Reset admin status on logout
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loginUser, logoutUser }}>
+      <AuthContext.Provider value={{ isAuthenticated, isLoading, isAdmin, loginUser, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook to use authentication context in a component
 export const useAuth = () => useContext(AuthContext);
