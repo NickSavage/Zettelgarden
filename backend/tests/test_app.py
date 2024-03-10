@@ -248,3 +248,43 @@ def test_get_users(client, db, access_headers):
 def test_get_users_not_admin(client, db, access_headers_other_user):
     response = client.get("/api/users", headers=access_headers_other_user)
     assert response.status_code == 401
+import io
+
+def test_upload_file_success(client, access_headers):
+    # Creating a dummy file to upload
+    data = {
+        'card_pk': 1,  # Simulating form data; (None, value) is required for non-file fields
+        'file': (io.BytesIO(b'This is a test file'), 'test.txt'),  # Simulating a file upload
+    }
+
+    response = client.post("/api/files/upload", content_type='multipart/form-data', data=data, headers=access_headers)
+
+    assert response.status_code == 201
+    assert "message" in response.json
+    assert response.json["message"] == "File uploaded successfully"
+    # Optionally, you can assert more about the returned "file" info if your application provides it
+
+def test_upload_file_no_file(client, access_headers):
+    # Sending a request without a file
+    data = {
+        'card_pk': 1,  # Only sending form data, no file
+    }
+
+    response = client.post("/api/files/upload", content_type='multipart/form-data', data=data, headers=access_headers)
+
+    assert response.status_code == 400
+    assert "error" in response.json
+    assert response.json["error"] == "No file part"
+
+def test_upload_file_no_card_pk(client, access_headers):
+    # Sending a request with a file but without the 'card_pk' form field
+    data = {
+        'file': (io.BytesIO(b'This is a test file'), 'test.txt'),
+    }
+
+    response = client.post("/api/files/upload", content_type='multipart/form-data', data=data, headers=access_headers)
+
+    # Assuming your endpoint requires 'card_pk' and you handle this case,
+    # you should adjust the expected response accordingly
+    assert response.status_code == 400
+    assert "error" in response.json

@@ -34,27 +34,31 @@ export function FileVault({ handleViewCard }) {
   useEffect(() => {
     getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
   }, []);
-  return (
-    <>
-      <FileRenameModal
-        isOpen={isRenameModalOpen}
-        onClose={() => setIsRenameModalOpen(false)}
-        onRename={onRename}
-        file={fileToRename}
-      />
-      <h3>File Vault</h3>
+return (
+  <>
+    <FileRenameModal
+      isOpen={isRenameModalOpen}
+      onClose={() => setIsRenameModalOpen(false)}
+      onRename={onRename}
+      file={fileToRename}
+    />
+    <h3>File Vault</h3>
+    {files && files.length > 0 ? (
       <ul>
-        {files &&
-          files.map((file, index) => (
-            <FileListItem
-              file={file}
-              onDelete={onDelete}
-              handleViewCard={handleViewCard}
-              openRenameModal={openRenameModal}
-              displayCard={true}
-            />
-          ))}
+        {files.map((file, index) => (
+          <FileListItem
+            key={file.id} // Assuming each file has a unique `id` property
+            file={file}
+            onDelete={onDelete}
+            handleViewCard={handleViewCard}
+            openRenameModal={openRenameModal}
+            displayCard={true}
+          />
+        ))}
       </ul>
-    </>
-  );
+    ) : (
+      <p>No files to display.</p> // Custom message when files array is empty
+    )}
+  </>
+);
 }

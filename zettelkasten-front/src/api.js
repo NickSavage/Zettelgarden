@@ -243,7 +243,11 @@ export function getAllFiles() {
   })
     .then(checkStatus)
     .then((response) => {
-      let results = response.json();
+	let results = [];
+	console.log(response);
+	if (response.status !== 204) {
+	    results = response.json();
+	}
       return results;
     });
 }

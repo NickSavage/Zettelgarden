@@ -274,6 +274,9 @@ def upload_file():
     if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
 
+    if "card_pk" not in request.form:
+        return jsonify({"error": "No PK given"}), 400
+        
     file = request.files["file"]
     card_pk = request.form["card_pk"]
     if file.filename == "":
@@ -289,6 +292,11 @@ def upload_file():
 @bp.route("/api/files/<int:file_id>", methods=["GET"])
 @jwt_required()
 def get_file_metadata(file_id):
+
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    if not services.check_file_permission(file_id, current_user):
+        return jsonify({}), 401
+    
     file_data = services.query_file(file_id)
     if file_data:
         return jsonify(file_data)
@@ -299,16 +307,22 @@ def get_file_metadata(file_id):
 @bp.route("/api/files", methods=["GET"])
 @jwt_required()
 def get_all_files():
-    results = services.query_all_files()
-    if results:
-        return jsonify(results)
+    current_user= get_jwt_identity()
+    results = services.query_all_files(current_user)
+    if results == []:
+        return jsonify({}), 204
     else:
-        return jsonify({"error": "File not found"}), 404
+        return jsonify(results), 200
 
 
 @bp.route("/api/files/download/<int:file_id>", methods=["GET"])
 @jwt_required()
 def download_file(file_id):
+
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    if not services.check_file_permission(file_id, current_user):
+        return jsonify({}), 401
+
     file = services.query_file(file_id, internal=True)
 
     print(file)
@@ -321,6 +335,10 @@ def download_file(file_id):
 @bp.route("/api/files/<int:file_id>", methods=["DELETE"])
 @jwt_required()
 def delete_file(file_id):
+
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    if not services.check_file_permission(file_id, current_user):
+        return jsonify({}), 401
     print(file_id)
     file = services.query_file(file_id)
 
@@ -337,6 +355,10 @@ def delete_file(file_id):
 @bp.route("/api/files/<int:file_id>", methods=["PATCH"])
 @jwt_required()
 def edit_file(file_id):
+
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    if not services.check_file_permission(file_id, current_user):
+        return jsonify({}), 401
     data = request.get_json()
 
     if not data:

@@ -202,6 +202,17 @@ def serialize_full_user(user: list, include_password=False) -> dict:
     return result
 
 
+def check_file_permission(file_id: int, user_id: int) -> bool:
+    cur = get_db().cursor()
+    cur.execute("SELECT c.user_id FROM cards c JOIN files f ON c.id = f.card_pk WHERE f.id = %s;", (str(file_id),))
+    card_user_id = cur.fetchone()[0]
+    cur.close()
+    if card_user_id == user_id:
+        return True
+    else:
+        return False
+
+
 def query_file(file_id, internal=False) -> dict:
     cur = get_db().cursor()
     cur.execute("SELECT * FROM files WHERE is_deleted = FALSE AND id = %s;", (file_id,))
@@ -217,17 +228,24 @@ def query_file(file_id, internal=False) -> dict:
     return results
 
 
-def query_all_files(internal=False) -> list:
+def query_all_files(user_id, internal=False) -> list:
     cur = get_db().cursor()
-    cur.execute(full_file_query + " WHERE is_deleted = FALSE")
+    # Updated query with explicit table names for each column
+    query = f"""
+    SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.created_at, files.updated_at
+    FROM files
+    JOIN cards ON files.card_pk = cards.id
+    WHERE files.is_deleted = FALSE AND cards.user_id = %s
+    """
+    cur.execute(query, (user_id,))
     data = cur.fetchall()
     file_data = [serialize_file(x) for x in data]
     cur.close()
+    
+    results = []
     if file_data:
-        results = []
         for file in file_data:
             new = file
-            print(new)
             new["card"] = query_partial_card_by_id(file["card_pk"])
             results.append(new)
     return results
