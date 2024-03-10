@@ -16,5 +16,6 @@ export function ProtectedAdminPage({ children }) {
         return <div>Loading...</div>;
     }
 
-    return children;
+    return (<div><span>test</span>
+	    <div>{children}</div></div>);
 }

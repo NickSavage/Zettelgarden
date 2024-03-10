@@ -136,7 +136,7 @@ export function getUser(id) {
     .then(checkStatus)
     .then((userData) => {
       // Process the card data here (if needed) and return it
-      return userData;
+	return userData.json();
     });
 }
 
