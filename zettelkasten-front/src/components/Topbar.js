@@ -8,14 +8,21 @@ export function Topbar({
   handleIndexClick,
 }) {
   const { logoutUser } = useAuth();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const username = localStorage.getItem("username");
 
   // Function to toggle the dropdown
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
   };
 
+    const toggleNewDropdown = () => {
+	console.log("?");
+	setIsNewDropdownOpen(!isNewDropdownOpen);
+	console.log(isNewDropdownOpen);
+    };
+    
   function handleLogout() {
     logoutUser();
   }
@@ -27,9 +34,18 @@ export function Topbar({
         </a>
       </div>
       <div className="top-bar-right">
-        <button className="btn" onClick={handleNewCard}>
-          New Card
-        </button>
+	  <div className="dropdown">
+              <button className="btn" onClick={toggleNewDropdown}>
+		  +
+              </button>
+              {isNewDropdownOpen && (
+		  <div className="dropdown-content">
+		      <a href="#settings" onClick={handleNewCard}>
+			  New Card
+		      </a>
+		  </div>
+              )}
+	  </div>
         <button className="btn" onClick={handleViewFileVault}>
           File Vault
         </button>
@@ -37,12 +53,12 @@ export function Topbar({
           Search
         </button>
         <div className="dropdown">
-          <button className="btn" onClick={toggleDropdown}>
+          <button className="btn" onClick={toggleProfileDropdown}>
             {username}
           </button>
 
           {/* Dropdown Content */}
-          {isDropdownOpen && (
+          {isProfileDropdownOpen && (
             <div className="dropdown-content">
               <a href="#settings" onClick={handleViewSettings}>
                 Settings
