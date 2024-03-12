@@ -4,7 +4,7 @@ full_card_query = (
 partial_card_query = "SELECT id, card_id, title FROM cards"
 
 
-def full_card_query_filtered(search_terms) -> str:
+def full_card_query_filtered(user_id: int, search_terms) -> str:
     # Split the search string into separate terms
     terms = search_terms.split()
 
@@ -21,7 +21,7 @@ def full_card_query_filtered(search_terms) -> str:
     query_condition = " AND ".join(conditions)
 
     # Construct the final query
-    final_query = f"{full_card_query} WHERE is_deleted = FALSE AND {query_condition};"
+    final_query = f"{full_card_query} WHERE user_id = {str(user_id)} AND is_deleted = FALSE AND {query_condition};"
 
     return final_query
 
