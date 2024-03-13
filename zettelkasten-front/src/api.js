@@ -315,3 +315,21 @@ export async function checkAdmin() {
 	return false
     };
 }
+
+export async function getNextId(cardType) {
+  const url = `${base_url}/cards/next`;
+
+  let token = localStorage.getItem("token");
+
+    return await fetch(url, {
+	method: 'POST',
+	body: JSON.stringify({ card_type: cardType }),
+	headers: { Authorization: `Bearer ${token}`,
+	"Content-Type": "application/json"},
+    })
+	.then(checkStatus)
+	.then ((response) => {
+	    return response.json()
+	});
+    
+}
