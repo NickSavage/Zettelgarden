@@ -97,7 +97,7 @@ def get_cards():
 
 @bp.route("/api/cards/next", methods=["POST"])
 @jwt_required()
-def generate_card_name():
+def generate_next_id():
     user_id = get_jwt_identity()  # Extract the user identity from the token
     card_type = request.json.get("card_type", None)
 
@@ -109,7 +109,10 @@ def generate_card_name():
         cur = conn.cursor()
 
         # Query to get the highest number for reference cards
-        cur.execute("SELECT card_id FROM cards WHERE card_id LIKE 'REF%' ORDER BY card_id DESC LIMIT 1")
+        cur.execute("""
+        SELECT card_id FROM cards WHERE card_id LIKE 'REF%' AND is_deleted = FALSE
+        ORDER BY CAST(SUBSTRING(card_id FROM 'REF(.*)$') AS INTEGER) DESC
+        LIMIT 1""")
         result = cur.fetchone()
         cur.close()
         
@@ -117,14 +120,35 @@ def generate_card_name():
             # Extract the numeric part of the ID and increment it
             highest_number = int(result[0][3:])  # Assumes that 'REF' is followed by the number directly
             next_number = highest_number + 1
-            new_card_name = f"REF{next_number:03}"  # Pad with zeros if necessary
+            new_card_id = f"REF{next_number:03}"  # Pad with zeros if necessary
         else:
             # If there are no reference cards, start numbering from 1
-            new_card_name = "REF001"
+            new_card_id = "REF001"
 
-        return jsonify({"new_name": new_card_name})
+        return jsonify({"new_id": new_card_id})
     elif card_type == "meeting":
         # Implement similar logic for meeting cards if required
+        conn = get_db()
+        cur = conn.cursor()
+
+        # Query to get the highest number for reference cards
+        cur.execute("""
+        SELECT card_id FROM cards WHERE card_id LIKE 'SM%' AND is_deleted = FALSE
+        ORDER BY CAST(SUBSTRING(card_id FROM 'SM(.*)$') AS INTEGER) DESC
+        LIMIT 1""")
+        result = cur.fetchone()
+        cur.close()
+        
+        if result:
+            # Extract the numeric part of the ID and increment it
+            highest_number = int(result[0][2:])  # Assumes that 'REF' is followed by the number directly
+            next_number = highest_number + 1
+            new_card_id = f"SM{next_number:02}"  # Pad with zeros if necessary
+        else:
+            # If there are no reference cards, start numbering from 1
+            new_card_name = "SM01"
+
+        return jsonify({"new_id": new_card_id})
         pass
     else:
         return jsonify({"error": "Unknown or unsupported card type. Supported card types are 'reference' and 'meeting', was provided: " + card_type}), 400

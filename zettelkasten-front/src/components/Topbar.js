@@ -12,6 +12,15 @@ export function Topbar({
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const username = localStorage.getItem("username");
 
+    function handleNewStandardCard() {
+	handleNewCard("standard");
+    }
+    function handleNewMeetingCard() {
+	handleNewCard("meeting");
+    }
+    function handleNewReferenceCard() {
+	handleNewCard("reference");
+    }
   // Function to toggle the dropdown
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
@@ -40,8 +49,14 @@ export function Topbar({
               </button>
               {isNewDropdownOpen && (
 		  <div className="dropdown-content">
-		      <a href="#settings" onClick={handleNewCard}>
+		      <a href="#settings" onClick={handleNewStandardCard}>
 			  New Card
+		      </a>
+		      <a href="#settings" onClick={handleNewReferenceCard}>
+			  New Reference
+		      </a>
+		      <a href="#settings" onClick={handleNewMeetingCard}>
+			  New Meeting
 		      </a>
 		  </div>
               )}

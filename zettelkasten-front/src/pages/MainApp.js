@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
-import { getCard, saveNewCard, saveExistingCard } from "../api";
+import { getCard, saveNewCard, saveExistingCard, getNextId } from "../api";
 import { SearchPage } from "../components/SearchPage";
 import { SettingsPage } from "../components/SettingsPage";
 import { FileVault } from "../components/FileVault";
@@ -46,11 +46,17 @@ function MainApp() {
     document.title = "Zettelkasten - Search";
     setSearchCard(true);
   }
-
-  function handleNewCard() {
+  async function handleNewCard(cardType) {
     changePage();
     setNewCard(true);
-    setEditingCard({ card_id: lastCardId, title: "", body: "" });
+      let nextId;
+      if (cardType === "reference" || cardType === "meeting") {
+	  nextId = await getNextId(cardType);
+      } else {
+	  nextId = lastCardId;
+      }
+	  
+    setEditingCard({ card_id: nextId["new_id"], title: "", body: "" });
     document.title = "Zettelkasten - New Card";
   }
   function handleViewFileVault() {
