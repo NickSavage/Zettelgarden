@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { AdminTopBar } from "../components/AdminTopBar";
+import AdminTopBar from "../components/AdminTopBar";
 
 export function ProtectedAdminPage({ children }) {
   const { isAdmin, isLoading } = useAuth();
