@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
 
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,7 +27,7 @@ function LoginForm() {
         setError(data["error"]);
       } else {
         loginUser(data); // pass the token you received from the backend
-	  navigate("/app");
+        navigate("/app");
       }
       // Redirect to a protected route or dashboard here.
     } catch (message) {
@@ -55,13 +55,13 @@ function LoginForm() {
           placeholder="Password"
           required
         />
-        <button type="submit">
-          Login
-        </button>
+        <button type="submit">Login</button>
       </form>
-    <span className="text">Need an account? <Link to="/register">Register here</Link>.</span>
+      <span className="text">
+        Need an account? <Link to="/register">Register here</Link>.
+      </span>
     </div>
   );
-};
+}
 
 export default LoginForm;

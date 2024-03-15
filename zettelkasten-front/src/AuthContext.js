@@ -8,10 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Added loading state
 
- useEffect(() => {
+  useEffect(() => {
     const initializeAuth = async () => {
       setIsLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
         setIsAuthenticated(true);
         // Assume checkAdmin will resolve to true/false based on the admin status
@@ -37,7 +37,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-      <AuthContext.Provider value={{ isAuthenticated, isLoading, isAdmin, loginUser, logoutUser }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, isLoading, isAdmin, loginUser, logoutUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

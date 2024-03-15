@@ -9,10 +9,10 @@ import { EditPage } from "../components/EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
 import { useAuth } from "../AuthContext";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 function MainApp() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [error, setError] = useState("");
   const [cards, setCards] = useState([]);
   const [newCard, setNewCard] = useState(null);
@@ -25,7 +25,7 @@ function MainApp() {
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-    const [searchCards, setSearchCards] = useState([]);
+  const [searchCards, setSearchCards] = useState([]);
   const { isAuthenticated, logoutUser } = useAuth();
 
   // changing pages
@@ -49,13 +49,13 @@ function MainApp() {
   async function handleNewCard(cardType) {
     changePage();
     setNewCard(true);
-      let nextId;
-      if (cardType === "reference" || cardType === "meeting") {
-	  nextId = await getNextId(cardType);
-      } else {
-	  nextId = lastCardId;
-      }
-	  
+    let nextId;
+    if (cardType === "reference" || cardType === "meeting") {
+      nextId = await getNextId(cardType);
+    } else {
+      nextId = lastCardId;
+    }
+
     setEditingCard({ card_id: nextId["new_id"], title: "", body: "" });
     document.title = "Zettelkasten - New Card";
   }
@@ -114,17 +114,17 @@ function MainApp() {
     setEditingCard(viewingCard);
   }
 
-    function handleDeleteCard() {
-	changePage();
-	setEditingCard(null);
-	setRefreshSidebar(true);
-    }
+  function handleDeleteCard() {
+    changePage();
+    setEditingCard(null);
+    setRefreshSidebar(true);
+  }
 
   useEffect(() => {
     // Check if token does not exist or user is not authenticated
     if (!localStorage.getItem("token")) {
       logoutUser(); // Call your logout function
-      navigate('/login'); // Redirect to the login page
+      navigate("/login"); // Redirect to the login page
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
@@ -151,7 +151,15 @@ function MainApp() {
               <p>Error: {error}</p>
             </div>
           )}
-            {searchCard && <SearchPage handleViewCard={handleViewCard} searchTerm={searchTerm} setSearchTerm={setSearchTerm} cards={searchCards} setCards={setSearchCards} />}
+          {searchCard && (
+            <SearchPage
+              handleViewCard={handleViewCard}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              cards={searchCards}
+              setCards={setSearchCards}
+            />
+          )}
           {viewingCard && (
             <ViewPage
               viewingCard={viewingCard}
@@ -169,8 +177,8 @@ function MainApp() {
               setEditingCard={setEditingCard}
               handleSaveCard={handleSaveCard}
               newCard={newCard}
-		handleDeleteCard={handleDeleteCard}
-		handleViewCard={handleViewCard}
+              handleDeleteCard={handleDeleteCard}
+              handleViewCard={handleViewCard}
             />
           )}
           {viewSettings && <SettingsPage />}

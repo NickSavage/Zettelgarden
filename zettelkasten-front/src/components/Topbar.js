@@ -12,26 +12,26 @@ export function Topbar({
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const username = localStorage.getItem("username");
 
-    function handleNewStandardCard() {
-	handleNewCard("standard");
-    }
-    function handleNewMeetingCard() {
-	handleNewCard("meeting");
-    }
-    function handleNewReferenceCard() {
-	handleNewCard("reference");
-    }
+  function handleNewStandardCard() {
+    handleNewCard("standard");
+  }
+  function handleNewMeetingCard() {
+    handleNewCard("meeting");
+  }
+  function handleNewReferenceCard() {
+    handleNewCard("reference");
+  }
   // Function to toggle the dropdown
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
   };
 
-    const toggleNewDropdown = () => {
-	console.log("?");
-	setIsNewDropdownOpen(!isNewDropdownOpen);
-	console.log(isNewDropdownOpen);
-    };
-    
+  const toggleNewDropdown = () => {
+    console.log("?");
+    setIsNewDropdownOpen(!isNewDropdownOpen);
+    console.log(isNewDropdownOpen);
+  };
+
   function handleLogout() {
     logoutUser();
   }
@@ -43,24 +43,24 @@ export function Topbar({
         </a>
       </div>
       <div className="top-bar-right">
-	  <div className="dropdown">
-              <button className="btn" onClick={toggleNewDropdown}>
-		  +
-              </button>
-              {isNewDropdownOpen && (
-		  <div className="dropdown-content">
-		      <a href="#settings" onClick={handleNewStandardCard}>
-			  New Card
-		      </a>
-		      <a href="#settings" onClick={handleNewReferenceCard}>
-			  New Reference
-		      </a>
-		      <a href="#settings" onClick={handleNewMeetingCard}>
-			  New Meeting
-		      </a>
-		  </div>
-              )}
-	  </div>
+        <div className="dropdown">
+          <button className="btn" onClick={toggleNewDropdown}>
+            +
+          </button>
+          {isNewDropdownOpen && (
+            <div className="dropdown-content">
+              <a href="#settings" onClick={handleNewStandardCard}>
+                New Card
+              </a>
+              <a href="#settings" onClick={handleNewReferenceCard}>
+                New Reference
+              </a>
+              <a href="#settings" onClick={handleNewMeetingCard}>
+                New Meeting
+              </a>
+            </div>
+          )}
+        </div>
         <button className="btn" onClick={handleViewFileVault}>
           File Vault
         </button>

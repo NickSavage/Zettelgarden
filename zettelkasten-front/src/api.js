@@ -19,14 +19,13 @@ export function checkLogin() {
   return fetch("/auth", {
     headers: { Authorization: `Bearer ${token}` },
   }).then((response) => {
-      if (response.status === 200) {
-	  return true;
-      } else {
-	  console.log("asdsa");
-	  return false;
-      }
+    if (response.status === 200) {
+      return true;
+    } else {
+      console.log("asdsa");
+      return false;
+    }
   });
-    
 }
 
 export function fetchCards(searchTerm = "") {
@@ -103,7 +102,7 @@ export function saveCard(url, method, card) {
 export function createUser(userData) {
   let token = localStorage.getItem("token");
   return fetch(base_url + "/users", {
-    method: 'POST', 
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -111,18 +110,17 @@ export function createUser(userData) {
     body: JSON.stringify(userData),
   })
     .then(checkStatus)
-    .then(response => response.json());
+    .then((response) => response.json());
 }
 
 export function getUsers() {
-    
-    const url = base_url + `/users`;
-    let token = localStorage.getItem("token");
-    
-    return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-	.then(checkStatus)
-	.then((response) => {
-	    return response.json();
+  const url = base_url + `/users`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      return response.json();
     });
 }
 
@@ -136,7 +134,7 @@ export function getUser(id) {
     .then(checkStatus)
     .then((userData) => {
       // Process the card data here (if needed) and return it
-	return userData.json();
+      return userData.json();
     });
 }
 
@@ -243,11 +241,11 @@ export function getAllFiles() {
   })
     .then(checkStatus)
     .then((response) => {
-	let results = [];
-	console.log(response);
-	if (response.status !== 204) {
-	    results = response.json();
-	}
+      let results = [];
+      console.log(response);
+      if (response.status !== 204) {
+        results = response.json();
+      }
       return results;
     });
 }
@@ -291,29 +289,32 @@ export function deleteCard(id) {
 
   // Send a DELETE request to the URL
   return fetch(url, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   })
-  .then(checkStatus)
-  .then((response) => {
-    // Check if the response is empty (status 204)
-    if (response.status === 204) {
-      return null; // or any other appropriate handling for successful delete
-    } else {
-      return response.json(); // handle potential error messages or other response data
-    }
-  });
+    .then(checkStatus)
+    .then((response) => {
+      // Check if the response is empty (status 204)
+      if (response.status === 204) {
+        return null; // or any other appropriate handling for successful delete
+      } else {
+        return response.json(); // handle potential error messages or other response data
+      }
+    });
 }
 
 export async function checkAdmin() {
-    let url = `${base_url}/admin`;
-    let token = localStorage.getItem("token");
-    let response = await fetch(url, {method: 'GET', headers: { Authorization: `Bearer ${token}`}});
-    if (response.status === 204) {
-	return true
-    } else {
-	return false
-    };
+  let url = `${base_url}/admin`;
+  let token = localStorage.getItem("token");
+  let response = await fetch(url, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (response.status === 204) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 export async function getNextId(cardType) {
@@ -321,15 +322,16 @@ export async function getNextId(cardType) {
 
   let token = localStorage.getItem("token");
 
-    return await fetch(url, {
-	method: 'POST',
-	body: JSON.stringify({ card_type: cardType }),
-	headers: { Authorization: `Bearer ${token}`,
-	"Content-Type": "application/json"},
-    })
-	.then(checkStatus)
-	.then ((response) => {
-	    return response.json()
-	});
-    
+  return await fetch(url, {
+    method: "POST",
+    body: JSON.stringify({ card_type: cardType }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      return response.json();
+    });
 }

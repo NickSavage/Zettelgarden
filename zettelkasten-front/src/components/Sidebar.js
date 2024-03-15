@@ -40,7 +40,8 @@ export function Sidebar({
       setSidebarCards(referenceCards);
       setUnfilteredSidebarCards(referenceCards);
     } else if (value === "meeting") {
-      const meetingCards = cards.filter((card) =>
+      const meetingCards = cards.filter(
+        (card) =>
           card.card_id.startsWith("SM") || card.card_id.startsWith("MM"),
       );
       setSidebarCards(meetingCards);

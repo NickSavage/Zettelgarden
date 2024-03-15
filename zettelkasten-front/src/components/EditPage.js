@@ -4,7 +4,6 @@ import { uploadFile, deleteCard } from "../api";
 import { FileListItem } from "./FileListItem";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 
-
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
   if (!editingCard.card_id) return null;
@@ -20,8 +19,8 @@ export function EditPage({
   setEditingCard,
   handleSaveCard,
   newCard,
-    handleDeleteCard,
-    handleViewCard,
+  handleDeleteCard,
+  handleViewCard,
 }) {
   const [message, setMessage] = useState("");
   const [linktitle, setLinktitle] = useState("");
@@ -31,18 +30,25 @@ export function EditPage({
 
   function onFileDelete(file_id) {}
 
-    function handleCancelButtonClick() {
-	handleViewCard(editingCard);
-	
+  function handleCancelButtonClick() {
+    handleViewCard(editingCard);
+  }
+  function handleDeleteButtonClick() {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this card? This cannot be reversed",
+      )
+    ) {
+      deleteCard(editingCard["id"])
+        .then(() => handleDeleteCard())
+        .catch((error) =>
+          setMessage(
+            "Unable to delete card. Does it have backlinks, children or files?",
+          ),
+        );
     }
-    function handleDeleteButtonClick() {
-	if (window.confirm("Are you sure you want to delete this card? This cannot be reversed")) {
-	    deleteCard(editingCard["id"])
-		.then(() => handleDeleteCard())
-		.catch((error) => setMessage("Unable to delete card. Does it have backlinks, children or files?"));
-	}
-    }
-    
+  }
+
   function handleLinkInputChange(e) {
     setLink(e.target.value);
     const search = e.target.value; // assuming you want case-insensitive matching
@@ -250,10 +256,8 @@ export function EditPage({
         placeholder="Title"
       />
       <button onClick={handleSaveCard}>Save</button>
-	<button onClick={handleCancelButtonClick}>Cancel</button>
-	{!newCard && (
-	    <button onClick={handleDeleteButtonClick}>Delete</button>
-	)}
+      <button onClick={handleCancelButtonClick}>Cancel</button>
+      {!newCard && <button onClick={handleDeleteButtonClick}>Delete</button>}
       {!newCard && (
         <div>
           <h4>Files:</h4>
@@ -270,7 +274,6 @@ export function EditPage({
           </ul>
         </div>
       )}
-
     </div>
   );
 }
