@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../AuthContext";
+import { useAuth, isAdmin } from "../AuthContext";
+import { Link } from "react-router-dom";
+
 export function Topbar({
   handleNewCard,
   handleViewFileVault,
@@ -8,6 +10,7 @@ export function Topbar({
   handleIndexClick,
 }) {
   const { logoutUser } = useAuth();
+  const { isAdmin } = useAuth();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const username = localStorage.getItem("username");
@@ -78,6 +81,7 @@ export function Topbar({
               <a href="#settings" onClick={handleViewSettings}>
                 Settings
               </a>
+              {isAdmin && <Link to="/admin">Admin</Link>}
               <a href="#logout" onClick={handleLogout}>
                 Logout
               </a>
