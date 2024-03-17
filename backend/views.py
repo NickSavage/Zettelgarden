@@ -1,5 +1,6 @@
 from datetime import timedelta
 from flask import Flask, request, jsonify, send_from_directory, Blueprint, g
+from flask_mail import Message
 from flask_cors import CORS
 from urllib.parse import unquote
 import psycopg2
@@ -10,6 +11,7 @@ from flask_jwt_extended import (
     create_access_token,
     jwt_required,
     get_jwt_identity,
+    decode_token
 )
 from flask_bcrypt import Bcrypt
 import uuid
@@ -68,6 +70,49 @@ def login():
         return jsonify(results), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
+def generate_password_reset_token(user_id):
+    expires = timedelta(minutes=5)  # Token expires in 24 hours
+    return create_access_token(identity=user_id, expires_delta=expires)
+
+@bp.route("/api/request-reset", methods=["POST"])
+def request_password_reset():
+    data = request.get_json()
+    email = data.get("email")
+    
+    user = services.query_user_by_email(email)  # Implement this function based on your system
+    
+    if "error" not in user:
+        token = generate_password_reset_token(user["id"])
+        reset_url = f"{g.config['ZETTEL_URL']}/reset?token={token}"
+        message = Message("Password Reset Request", recipients=[email], body=f"Please go to this link to reset your password: {reset_url}")
+        g.mail.send(message)
+        return jsonify({"message": "If your email is in our system, you will receive a password reset link."}), 200
+    return jsonify({"error": "Something went wrong."}), 400
+
+@bp.route("/api/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    token = data.get("token")
+    new_password = data.get("new_password")
+    
+    decoded = decode_token(token)
+    identity = decoded["sub"]
+#    user_id = decode_token(token)["identity"]  # This needs error handling for expired or invalid tokens
+    user = services.query_full_user(identity)
+    
+    if user:
+        hashed_password = g.bcrypt.generate_password_hash(new_password).decode('utf-8')
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, user["id"]))
+
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Your password has been updated."}), 200
+    return jsonify({"error": "Invalid token."}), 400
 
 
 @bp.route("/api/auth", methods=["GET"])
