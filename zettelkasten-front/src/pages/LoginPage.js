@@ -60,6 +60,10 @@ function LoginForm() {
       <span className="text">
         Need an account? <Link to="/register">Register here</Link>.
       </span>
+	<br />
+      <span className="text">
+         <Link to="/reset">Forgot your password?</Link>.
+      </span>
     </div>
   );
 }
