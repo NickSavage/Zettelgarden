@@ -80,15 +80,14 @@ def request_password_reset():
     data = request.get_json()
     email = data.get("email")
     
-    user = services.query_user_by_email(email)  # Implement this function based on your system
+    user = services.query_user_by_email(email) 
     
-    if "error" not in user:
+    if user and "error" not in user:
         token = generate_password_reset_token(user["id"])
         reset_url = f"{g.config['ZETTEL_URL']}/reset?token={token}"
         message = Message("Password Reset Request", recipients=[email], body=f"Please go to this link to reset your password: {reset_url}")
         g.mail.send(message)
-        return jsonify({"message": "If your email is in our system, you will receive a password reset link."}), 200
-    return jsonify({"error": "Something went wrong."}), 400
+    return jsonify({"message": "If your email is in our system, you will receive a password reset link."}), 200
 
 @bp.route("/api/reset-password", methods=["POST"])
 def reset_password():
