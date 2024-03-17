@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 import { Routes, Route } from "react-router-dom";
 import { ProtectedAdminPage } from "./components/ProtectedAdminPage";
 import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
+import PasswordReset from "./pages/PasswordReset";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterPage />} />
+	  <Route path="/reset" element={<PasswordReset />} />
       </Routes>
     </div>
   );

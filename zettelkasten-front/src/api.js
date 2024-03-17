@@ -335,3 +335,30 @@ export async function getNextId(cardType) {
       return response.json();
     });
 }
+export function requestPasswordReset(email) {
+  const url = `${base_url}/request-reset`;
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  })
+    .then(checkStatus)
+    .then((response) => response.json());
+}
+
+export function resetPassword(token, new_password) {
+  const url = `${base_url}/reset-password`;
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token, new_password }),
+  })
+    .then(checkStatus)
+    .then((response) => response.json());
+}
