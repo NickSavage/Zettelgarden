@@ -58,6 +58,7 @@ def login():
     user = services.query_user_by_username(username, True)
 
     if not user or "error" in user:
+        g.logger.info('Failed login: %s', username)
         return jsonify({"error": "Invalid credentials"}), 401
 
     #    if user and user['password'] == password:
@@ -67,8 +68,10 @@ def login():
         )
         del user["password"]
         results = {"access_token": access_token, "user": user}
+        g.logger.info('Successful login: id %s, username %s', user['id'], username)
         return jsonify(results), 200
     else:
+        g.logger.info('Failed login: %s', username)
         return jsonify({"message": "Invalid credentials"}), 401
 
 def generate_password_reset_token(user_id):
@@ -86,7 +89,9 @@ def request_password_reset():
         token = generate_password_reset_token(user["id"])
         reset_url = f"{g.config['ZETTEL_URL']}/reset?token={token}"
         message = Message("Password Reset Request", recipients=[email], body=f"Please go to this link to reset your password: {reset_url}")
+        g.logger.info('Password reset: sent email for id %s, username %s, email %s', user['id'], email)
         g.mail.send(message)
+    g.logger.info('Password reset: Failed for email %s', email)
     return jsonify({"message": "If your email is in our system, you will receive a password reset link."}), 200
 
 @bp.route("/api/reset-password", methods=["POST"])

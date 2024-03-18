@@ -15,6 +15,7 @@ from flask_jwt_extended import (
 from flask_bcrypt import Bcrypt
 import uuid
 from werkzeug.utils import secure_filename
+from logging.config import dictConfig
 
 from views import bp
 
@@ -22,6 +23,22 @@ import database
 
 
 def create_app(testing=False):
+
+    dictConfig({
+        'version': 1,
+        'formatters': {'default': {
+            'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+        }},
+        'handlers': {'wsgi': {
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://flask.logging.wsgi_errors_stream',
+            'formatter': 'default'
+        }},
+        'root': {
+            'level': 'INFO',
+            'handlers': ['wsgi']
+        }
+    })
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "*"}})
     app.config["ZETTEL_URL"] = os.getenv("ZETTEL_URL")
@@ -50,6 +67,7 @@ def create_app(testing=False):
         g.bcrypt = bcrypt
         g.mail = mail
         g.config = app.config
+        g.logger = app.logger
 
     @app.teardown_request
     def teardown_request(exception=None):
