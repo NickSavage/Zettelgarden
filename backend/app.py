@@ -28,16 +28,18 @@ def create_app(testing=False):
         'version': 1,
         'formatters': {'default': {
             'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-        }},
-        'handlers': {'wsgi': {
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://flask.logging.wsgi_errors_stream',
-            'formatter': 'default'
-        }},
+        }},'handlers': {
+            'file': {
+                'class': 'logging.FileHandler',
+                'filename': '/var/log/zettel-logs.log',
+                'formatter': 'default'
+            }
+        },
         'root': {
             'level': 'INFO',
-            'handlers': ['wsgi']
+            'handlers': ['file']
         }
+
     })
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "*"}})
