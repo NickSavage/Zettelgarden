@@ -31,7 +31,7 @@ def create_app(testing=False):
         }},'handlers': {
             'file': {
                 'class': 'logging.FileHandler',
-                'filename': '/var/log/zettel-logs.log',
+                'filename': os.getenv('ZETTEL_LOG_LOCATION'),
                 'formatter': 'default'
             }
         },
