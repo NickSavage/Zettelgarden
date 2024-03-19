@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getUser } from "../api";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 export function AdminUserDetailPage() {
   const [user, setUser] = useState(null);
@@ -13,24 +13,30 @@ export function AdminUserDetailPage() {
   //console.log(user);
   return (
     <div>
-      <ul>
         {user && (
-          <div>
-            <li>
-              <b>Name:</b> {user["name"]}
-            </li>
-            <li>
-              <b>id:</b> {user["id"]}
-            </li>
-            <li>
-              <b>Is Admin:</b> {user["is_admin"] ? "True" : "False"}
-            </li>
-            <li>
-              <b>Cards:</b> {user["cards"]}
-            </li>
-          </div>
+	    <div>
+		<ul>
+		    <div>
+			<li>
+			    <b>Name:</b> {user["username"]}
+			</li>
+			<li>
+			    <b>id:</b> {user["id"]}
+			</li>
+			<li>
+			    <b>Email:</b> {user["email"]}
+			</li>
+			<li>
+			    <b>Is Admin:</b> {user["is_admin"] ? "True" : "False"}
+			</li>
+			<li>
+			    <b>Cards:</b> {user["cards"]}
+			</li>
+		    </div>
+		</ul>
+		<Link to={`/admin/user/${user['id']}/edit`}>Edit</Link>
+	    </div>
         )}
-      </ul>
     </div>
   );
 }

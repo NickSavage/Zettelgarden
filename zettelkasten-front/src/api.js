@@ -362,3 +362,22 @@ export function resetPassword(token, new_password) {
     .then(checkStatus)
     .then((response) => response.json());
 }
+export async function editUser(userId, updateData) {
+  let token = localStorage.getItem("token");
+  const url = `${base_url}/users/${userId}`;
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updateData),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+}
+

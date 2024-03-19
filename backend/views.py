@@ -359,10 +359,11 @@ def update_user(id):
     # Assuming you have a function to get the full user by id
     user = services.query_full_user(id)
     
-    # Check if the user making the request is the same as the user being edited or is an admin
-    if user["id"] != get_jwt_identity() and not user["is_admin"]:
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    user = services.query_full_user(current_user)
+    if not user["is_admin"]:
         return jsonify({"message": "Unauthorized"}), 403
-    
+        
     # Extract the fields to be updated from the request
     is_admin = request.json.get("is_admin")
     username = request.json.get("username")

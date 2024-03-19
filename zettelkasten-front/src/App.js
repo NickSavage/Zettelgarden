@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 import { Routes, Route } from "react-router-dom";
 import { ProtectedAdminPage } from "./components/ProtectedAdminPage";
 import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
+import { AdminEditUserPage } from "./pages/AdminEditUserPage";
 import PasswordReset from "./pages/PasswordReset";
 
 function App() {
@@ -30,6 +31,14 @@ function App() {
             </ProtectedAdminPage>
           }
         />
+	  <Route
+      path="/admin/user/:id/edit"
+          element={
+            <ProtectedAdminPage>
+              <AdminEditUserPage />
+            </ProtectedAdminPage>
+          }
+      />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterPage />} />
 	  <Route path="/reset" element={<PasswordReset />} />

@@ -29,7 +29,7 @@ export function Admin() {
             <tr>
               <td>{user["id"]}</td>
               <td>
-                <Link to={`/admin/user/${user.id}`}>{user.name}</Link>
+                <Link to={`/admin/user/${user.id}`}>{user.username}</Link>
               </td>
               <td>{user["is_admin"]}</td>
               <td>{user["created_at"]}</td>
