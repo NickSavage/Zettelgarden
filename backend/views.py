@@ -342,7 +342,8 @@ def create_user():
     if "error" in result:
         return jsonify(result), 400
     else:
-        send_email_validation(user)
+        if not g.testing:
+            send_email_validation(user)
         return jsonify({"new_id": result["new_id"], "message": "Check your email for a validation email."}), 200
 
 

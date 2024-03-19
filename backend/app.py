@@ -71,6 +71,7 @@ def create_app(testing=False):
         g.mail = mail
         g.config = app.config
         g.logger = app.logger
+        g.testing = app.config.get("TESTING", False)
 
     @app.teardown_request
     def teardown_request(exception=None):
