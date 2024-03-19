@@ -17,7 +17,8 @@ SELECT
     u.created_at, 
     u.updated_at, 
     u.is_admin,
-    (SELECT COUNT(*) FROM cards t1 WHERE t1.user_id = u.id) AS table1_count
+    (SELECT COUNT(*) FROM cards t1 WHERE t1.user_id = u.id) AS table1_count,
+    u.email
 FROM 
     users as u
 """
@@ -191,11 +192,12 @@ def serialize_full_card(data) -> dict:
 def serialize_full_user(user: list, include_password=False) -> dict:
     result = {
         "id": user[0],
-        "name": user[1],
+        "username": user[1],
         "created_at": user[3],
         "updated_at": user[4],
         "is_admin": user[5],
         "cards": user[6],
+        "email": user[7],
     }
     if include_password:
         result["password"] = user[2]
@@ -511,3 +513,18 @@ def create_user(data: dict) -> dict:
     cur.close()
 
     return {"new_id": new_id}
+
+def update_user(id, user_update):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute(
+        """
+        UPDATE users SET username = %s, email = %s, is_admin = %s, updated_at = NOW()
+        WHERE id = %s;
+        """,
+        (user_update["username"], user_update["email"], user_update["is_admin"], id),
+    )
+    conn.commit()
+    
+    cur.close()

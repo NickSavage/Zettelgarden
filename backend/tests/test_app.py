@@ -288,3 +288,45 @@ def test_upload_file_no_card_pk(client, access_headers):
     # you should adjust the expected response accordingly
     assert response.status_code == 400
     assert "error" in response.json
+
+def test_update_user(client, access_headers):
+    # Define a user ID for testing. Replace 'existing_user_id' with a valid ID from your database
+    existing_user_id = 1
+
+    # Get the current state of the user for comparison
+    response = client.get(f"/api/users/{existing_user_id}", headers=access_headers)
+    assert response.status_code == 200
+    current_user_data = response.json
+
+    # Define the updated user data
+    updated_user_data = {
+        "username": "new_username",
+        "email": "new_email@example.com",
+        "is_admin": not current_user_data["is_admin"],  # Toggling the is_admin flag for test
+    }
+
+    # Send a PUT request to the update_user route with the specified user ID and updated data
+    response = client.put(
+        f"/api/users/{existing_user_id}", json=updated_user_data, headers=access_headers
+    )
+
+    # Check if the response status code is 200 (OK)
+    assert response.status_code == 200
+
+    # Parse the response data
+    response_data = response.json
+
+    # Assert that the response contains the updated fields
+    assert response_data["username"] == updated_user_data["username"]
+    assert response_data["email"] == updated_user_data["email"]
+    assert response_data["is_admin"] == updated_user_data["is_admin"]
+
+    # Fetch the user again to verify updates persist
+    response = client.get(f"/api/users/{existing_user_id}", headers=access_headers)
+    assert response.status_code == 200
+    updated_user_from_db = response.json
+
+    # Verify that the user's data was actually updated in the database
+    assert updated_user_from_db["username"] == updated_user_data["username"]
+    assert updated_user_from_db["email"] == updated_user_data["email"]
+    assert updated_user_from_db["is_admin"] == updated_user_data["is_admin"]

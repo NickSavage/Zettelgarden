@@ -353,6 +353,38 @@ def get_user(id):
     user = services.query_full_user(id)
     return jsonify(user)
 
+@bp.route("/api/users/<path:id>", methods=["PUT"])
+@jwt_required()
+def update_user(id):
+    # Assuming you have a function to get the full user by id
+    user = services.query_full_user(id)
+    
+    # Check if the user making the request is the same as the user being edited or is an admin
+    if user["id"] != get_jwt_identity() and not user["is_admin"]:
+        return jsonify({"message": "Unauthorized"}), 403
+    
+    # Extract the fields to be updated from the request
+    is_admin = request.json.get("is_admin")
+    username = request.json.get("username")
+    email = request.json.get("email")
+    
+    # Validate the input (basic example, you should expand on this)
+    if not username or not email:
+        return jsonify({"message": "Username and email are required"}), 400
+    
+    # Prepare the user update dictionary
+    user_update = {
+        "is_admin": is_admin,
+        "username": username,
+        "email": email
+    }
+    
+    # Update user in database
+    services.update_user(id, user_update)
+    
+    # Return the updated user information
+    return jsonify(services.query_full_user(id))
+
 
 @bp.route("/api/user/<path:id>/password", methods=["PUT"])
 def update_password(id):
