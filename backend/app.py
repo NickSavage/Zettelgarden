@@ -24,23 +24,24 @@ import database
 
 def create_app(testing=False):
 
-    dictConfig({
-        'version': 1,
-        'formatters': {'default': {
-            'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-        }},'handlers': {
-            'file': {
-                'class': 'logging.FileHandler',
-                'filename': os.getenv('ZETTEL_LOG_LOCATION'),
-                'formatter': 'default'
+    if not testing:
+        dictConfig({
+            'version': 1,
+            'formatters': {'default': {
+                'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+            }},'handlers': {
+                'file': {
+                    'class': 'logging.FileHandler',
+                    'filename': os.getenv('ZETTEL_LOG_LOCATION'),
+                    'formatter': 'default'
+                }
+            },
+            'root': {
+                'level': 'INFO',
+                'handlers': ['file']
             }
-        },
-        'root': {
-            'level': 'INFO',
-            'handlers': ['file']
-        }
-
-    })
+            
+        })
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "*"}})
     app.config["ZETTEL_URL"] = os.getenv("ZETTEL_URL")
