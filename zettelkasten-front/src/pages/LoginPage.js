@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
@@ -9,6 +9,8 @@ function LoginForm() {
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
   const navigate = useNavigate();
+    const location = useLocation();
+    const message = location.state?.message;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -40,6 +42,7 @@ function LoginForm() {
       <h2>Zettelkasten</h2>
 
       <div className="login-error">{error && <span>{error}</span>}</div>
+      <div className="login-error">{message && <span>{message}</span>}</div>
       <form onSubmit={handleLogin}>
         <input
           type="username"

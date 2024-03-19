@@ -27,7 +27,7 @@ function EmailValidation() {
         setMessage(response.error);
       } else {
         setMessage('Your email has been successfully validated.');
-        navigate('/login'); // Redirect to login page or wherever appropriate
+	  navigate('/login', { state: { message: 'Your email has been successfully validated.' } });
       }
     } catch (error) {
       setMessage('Failed to validate email.');
