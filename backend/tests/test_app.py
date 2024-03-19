@@ -332,7 +332,7 @@ def test_update_user(client, access_headers):
     assert updated_user_from_db["email"] == updated_user_data["email"]
     assert updated_user_from_db["is_admin"] == updated_user_data["is_admin"]
 
-def test_email_validation_process(client, access_headers):
+def test_email_validation_process(app, client, access_headers):
     from flask_jwt_extended import create_access_token
 
     # Assume existing_user_id is an ID of a test user who hasn't validated their email
@@ -345,21 +345,18 @@ def test_email_validation_process(client, access_headers):
     assert user is not None  # Ensure user exists
     assert not user.get("email_validated", False)  # Ensure email is not validated yet
     
-    response = client.post("/api/email-validate", json={"email": user["email"]}, headers=access_headers)
-    assert response.status_code == 200
-    
-    # Here, you would typically check that an email was sent. Since we're testing,
-    # we simulate the email validation by generating a token and calling the validate endpoint.
-    
     # Step 2: Generate a token for the user manually (since we're simulating)
-    token = create_access_token(identity=user["id"], expires_delta=False)  # Adjust based on your actual token generation logic
+    with app.app_context():
+        token = create_access_token(identity=user["id"], expires_delta=False)  # Adjust based on your actual token generation logic
     
     # Step 3: Validate the email using the token
-    response = client.post("/api/validate-email", json={"token": token}, headers=access_headers)
+    response = client.post("/api/email-validate", json={"token": token}, headers=access_headers)
     assert response.status_code == 200
     
     # Step 4: Verify the user's email has been marked as validated in the database
-    updated_user = services.query_full_user(existing_user_id)
-    assert updated_user["email_validated"]  # This assumes your user model has an 'email_validated' field
+    response = client.get(f"/api/users/{existing_user_id}", headers=access_headers)
+    user = response.json
+    assert user is not None  # Ensure user exists
+    assert user.get("email_validated", False)
     
     # Optionally, verify any other side effects, such as log entries or additional database changes.

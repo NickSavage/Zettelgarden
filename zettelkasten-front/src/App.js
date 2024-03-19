@@ -8,6 +8,7 @@ import { ProtectedAdminPage } from "./components/ProtectedAdminPage";
 import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
 import { AdminEditUserPage } from "./pages/AdminEditUserPage";
 import PasswordReset from "./pages/PasswordReset";
+import EmailValidation from "./pages/EmailValidation";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterPage />} />
 	  <Route path="/reset" element={<PasswordReset />} />
+	  <Route path="/validate" element={<EmailValidation />} />
       </Routes>
     </div>
   );

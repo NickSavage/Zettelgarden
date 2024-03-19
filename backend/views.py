@@ -118,12 +118,12 @@ def reset_password():
         return jsonify({"message": "Your password has been updated."}), 200
     return jsonify({"error": "Invalid token."}), 400
 
-def send_email_validate(user: dict):
+def send_email_validation(user: dict):
     token = generate_temp_token(user["id"])
     reset_url = f"{g.config['ZETTEL_URL']}/validate?token={token}"
-    message = Message("Email Validation Request", recipients=[email], body=f"Please click this link to validate your email: {reset_url}")
+    message = Message("Email Validation Request", recipients=[user["email"]], body=f"Please click this link to validate your email: {reset_url}")
     g.mail.send(message)
-    g.logger.info('Email Validation: sent email for id %s, username %s, email %s', user['id'], email)
+    g.logger.info('Email Validation: sent email for id %s, email %s', user['id'], user['email'])
 
 @bp.route("/api/email-validate", methods=["POST"])
 def validate_email():
@@ -140,7 +140,7 @@ def validate_email():
         conn = get_db()
         cur = conn.cursor()
 
-        cur.execute("UPDATE users SET email_validated = TRUE WHERE id = %s", (hashed_password, user["id"]))
+        cur.execute("UPDATE users SET email_validated = TRUE WHERE id = %s", (user["id"],))
 
         conn.commit()
         cur.close()
@@ -338,11 +338,12 @@ def create_user():
     }
     result = services.create_user(user)
 
+    user = services.query_full_user(result["new_id"])
     if "error" in result:
         return jsonify(result), 400
     else:
         send_email_validation(user)
-        return jsonify(result), 200
+        return jsonify({"new_id": result["new_id"], "message": "Check your email for a validation email."}), 200
 
 
 @bp.route("/api/users/validate", methods=["GET"])

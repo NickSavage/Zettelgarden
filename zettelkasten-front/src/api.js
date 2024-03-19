@@ -381,3 +381,16 @@ export async function editUser(userId, updateData) {
   return response.json();
 }
 
+export function validateEmail(token) {
+  const url = `${base_url}/email-validate`;
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  })
+    .then(checkStatus)
+    .then((response) => response.json());
+}

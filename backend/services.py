@@ -18,7 +18,8 @@ SELECT
     u.updated_at, 
     u.is_admin,
     (SELECT COUNT(*) FROM cards t1 WHERE t1.user_id = u.id) AS table1_count,
-    u.email
+    u.email,
+    u.email_validated
 FROM 
     users as u
 """
@@ -198,6 +199,7 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         "is_admin": user[5],
         "cards": user[6],
         "email": user[7],
+        "email_validated": user[8],
     }
     if include_password:
         result["password"] = user[2]
