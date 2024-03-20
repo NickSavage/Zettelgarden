@@ -51,12 +51,13 @@ function MainApp() {
     setNewCard(true);
     let nextId;
     if (cardType === "reference" || cardType === "meeting") {
-      nextId = await getNextId(cardType);
+	let response = await getNextId(cardType);
+	nextId = response["new_id"]
     } else {
       nextId = lastCardId;
     }
 
-    setEditingCard({ card_id: nextId["new_id"], title: "", body: "" });
+    setEditingCard({ card_id: nextId, title: "", body: "" });
     document.title = "Zettelkasten - New Card";
   }
   function handleViewFileVault() {
