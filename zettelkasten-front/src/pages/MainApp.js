@@ -9,7 +9,7 @@ import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
-import { BrowserRouter as Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 function MainApp() {
   const navigate = useNavigate();
