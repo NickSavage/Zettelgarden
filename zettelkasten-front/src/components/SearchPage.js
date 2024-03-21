@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { fetchCards } from "../api";
 
+import { useNavigate } from "react-router-dom";
+
 export function SearchPage({
-  handleViewCard,
   searchTerm,
   setSearchTerm,
   cards,
   setCards,
 }) {
   const [sortBy, setSortBy] = useState("relevant");
+  const navigate = useNavigate();
+
+  function handleCardClick(card_id) {
+    navigate(`/app/card/${card_id}`);
+  }
   function handleSearchUpdate(e) {
     setSearchTerm(e.target.value);
   }
@@ -76,7 +82,7 @@ export function SearchPage({
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                handleViewCard(card);
+                handleCardClick(card.id);
               }}
               style={{ color: "black", textDecoration: "none" }}
             >
