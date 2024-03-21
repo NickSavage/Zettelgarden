@@ -10,7 +10,6 @@ function checkStatus(response) {
   if (response.ok) {
     return response;
   }
-  // If the response is not ok and not 401, throw an error
   throw new Error(`Request failed with status: ${response.status}`);
 }
 
@@ -71,8 +70,11 @@ export function getCard(id) {
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then(checkStatus)
     .then((cardData) => {
-      // Process the card data here (if needed) and return it
       return cardData.json();
+      // Process the card data here (if needed) and return it
+    })
+    .catch((error) => {
+      return { error: error };
     });
 }
 export function saveNewCard(card) {

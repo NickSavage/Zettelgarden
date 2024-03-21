@@ -41,6 +41,11 @@ export function ViewPage({ cards, setLastCardId }) {
   }, [id]);
   return (
     <div>
+      {error && (
+        <div>
+          <h3>Unauthorized</h3>
+        </div>
+      )}
       {viewingCard && (
         <div>
           <h3 style={{ marginBottom: "10px" }}>

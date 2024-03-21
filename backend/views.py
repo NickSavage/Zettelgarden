@@ -280,7 +280,7 @@ def get_card(id):
         return jsonify(card), 400
 
     if card["user_id"] != get_jwt_identity():
-        return jsonify({}), 401
+        return jsonify({"error": "You do not have permission to view this card."}), 403
 
     log_card_view(id, current_user)
     return jsonify(card)
