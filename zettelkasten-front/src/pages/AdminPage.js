@@ -25,6 +25,9 @@ export function Admin() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+    if (!isLoading && !isAdmin) {
+	return <div></div>
+    }
   return (
     <div>
 
