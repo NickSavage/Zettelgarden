@@ -2,42 +2,47 @@ import React, { useState, useEffect } from "react";
 import { checkAdmin, getUsers } from "../api";
 import { useAuth } from "../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import AdminTopBar from "../components/AdminTopBar";
+
+import { AdminUserIndex } from "./AdminUserIndex";
+
+import { AdminUserDetailPage } from "./AdminUserDetailPage";
+import { AdminEditUserPage } from "./AdminEditUserPage";
+
+import { Routes, Route } from "react-router-dom";
 
 export function Admin() {
-  const [users, setUsers] = useState([]);
+
+  const { isAdmin, isLoading } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      let tempUsers = await getUsers();
-      setUsers(tempUsers);
-    };
-    fetchUsers();
-  }, []);
-  console.log(users);
+    if (!isLoading && !isAdmin) {
+      navigate("/app");
+    }
+  }, [isAdmin, isLoading, navigate]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div>
-      <table>
-        <tr>
-          <td>id</td>
-          <td>name</td>
-          <td>is_admin</td>
-          <td>created_at</td>
-          <td>updated_at</td>
-          <td>cards</td>
-        </tr>
-        {users &&
-          users.map((user, index) => (
-            <tr>
-              <td>{user["id"]}</td>
-              <td>
-                <Link to={`/admin/user/${user.id}`}>{user.username}</Link>
-              </td>
-              <td>{user["is_admin"]}</td>
-              <td>{user["created_at"]}</td>
-              <td>{user["updated_at"]}</td>
-              <td>{user["cards"]}</td>
-            </tr>
-          ))}
-      </table>
+
+      <AdminTopBar />
+      <div className="main-content">
+        <div className="sidebar">
+          <ul>
+            <li>
+              <Link to="/admin">Index</Link>
+            </li>
+          </ul>
+        </div>
+	<Routes>
+	    <Route path="/" element={<AdminUserIndex />} />
+	    <Route path="user/:id" element={<AdminUserDetailPage />} />
+	    <Route path="user/:id" element={<AdminEditUserPage />} />
+	</Routes>
+      </div>
     </div>
   );
 }

@@ -16,30 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/app/*" element={<MainApp />} />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedAdminPage>
-              <Admin />
-            </ProtectedAdminPage>
-          }
-        />
-        <Route
-          path="/admin/user/:id"
-          element={
-            <ProtectedAdminPage>
-              <AdminUserDetailPage />
-            </ProtectedAdminPage>
-          }
-        />
-        <Route
-          path="/admin/user/:id/edit"
-          element={
-            <ProtectedAdminPage>
-              <AdminEditUserPage />
-            </ProtectedAdminPage>
-          }
-        />
+        <Route path="/admin/*" element={<Admin />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/reset" element={<PasswordReset />} />
