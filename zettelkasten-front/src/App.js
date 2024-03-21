@@ -15,7 +15,7 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/app" element={<MainApp />} />
+        <Route path="/app/*" element={<MainApp />} />
         <Route
           path="/admin"
           element={

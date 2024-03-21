@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { getIdByCardId } from "../utils";
 import { downloadFile } from "../api";
 
+import { useNavigate } from "react-router-dom";
+
 function preprocessCardLinks(body) {
   // This will find instances of [SomeText] and replace with [SomeText](#)
   return body.replace(/\[([A-Za-z0-9_.-/]+)\]/g, "[$1](#)");
@@ -17,7 +19,7 @@ const CustomImageRenderer = ({ src, alt, title }) => {
       })
       .catch((error) => {
         console.error("Error fetching image:", error);
-        // Handle the error case, possibly set a default image or error image
+        // Handle the error case, possibly set a default eimage or error image
       });
   }, [src]);
 
@@ -39,7 +41,8 @@ const CustomImageRenderer = ({ src, alt, title }) => {
 };
 
 function renderCardText(card, cards, handleViewBacklink) {
-  let body = card.body;
+
+  let body = card["viewingCard"].body;
   // Convert bracketed text to markdown links
   body = preprocessCardLinks(body);
 
@@ -60,7 +63,8 @@ function renderCardText(card, cards, handleViewBacklink) {
         title={title}
         onClick={(e) => {
           e.preventDefault();
-          handleViewBacklink({ id: id, card_id: cardId });
+          handleViewBacklink(id);
+
         }}
         style={{ fontWeight: "bold", color: "blue" }}
       >
@@ -80,6 +84,12 @@ function renderCardText(card, cards, handleViewBacklink) {
   );
 }
 
-export function CardBody(viewingCard, cards, handleViewBacklink) {
-  return <div>{renderCardText(viewingCard, cards, handleViewBacklink)}</div>;
+export function CardBody(viewingCard, cards) {
+     
+  const navigate = useNavigate();
+    
+    function handleCardClick(card_id) {
+	navigate(`/app/card/${card_id}`)
+    }
+    return <div>{renderCardText(viewingCard, cards, handleCardClick)}</div>;
 }

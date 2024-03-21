@@ -1,36 +1,67 @@
+
+import React, { useState, useEffect } from "react";
 import { CardBody } from "./CardBody";
 import { CardItem } from "./CardItem";
 import { FileListItem } from "./FileListItem";
+import { getCard} from "../api";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export function ViewPage({
-  viewingCard,
   cards,
-  parentCard,
-  handleViewCard,
   handleEditCard,
+    setLastCardId,
 }) {
+
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [viewingCard, setViewCard] = useState(null);
+  const [parentCard, setParentCard] = useState(null);
+  const { id } = useParams();
+
   function onFileDelete(file_id) {}
 
+    async function fetchCard(id) {
+	let refreshed = await getCard(id);
+	
+    if ("error" in refreshed) {
+      setError(refreshed["error"]);
+    } else {
+      setViewCard(refreshed);
+      setLastCardId(refreshed.card_id);
+      if ("id" in refreshed.parent) {
+        let parentCardId = refreshed.parent.id;
+        const parentCard = await getCard(parentCardId);
+        setParentCard(parentCard);
+      } else {
+        setParentCard(null);
+      }
+    }
+    }
+
+    useEffect(() => {
+	fetchCard(id);
+    }, [id]);
   return (
-    <div>
-      <h3 style={{ marginBottom: "10px" }}>
-        <span style={{ fontWeight: "bold", color: "blue" }}>
-          {viewingCard.card_id}
-        </span>
-        <span>: {viewingCard.title}</span>
-      </h3>
-      <hr />
-      <div style={{ marginBottom: "10px" }}>
-        {CardBody(viewingCard, cards, handleViewCard)}
-      </div>
       <div>
-        {viewingCard.link && (
-          <div>
-            <span style={{ fontWeight: "bold" }}>Link:</span>
-            <span>{viewingCard.link}</span>
-          </div>
-        )}
-      </div>
+	  {viewingCard &&
+    <div>
+	<h3 style={{ marginBottom: "10px" }}>
+		 
+		 <span style={{ fontWeight: "bold", color: "blue" }}>
+		     {viewingCard.card_id}
+		 </span>
+		 <span>: {viewingCard.title}</span>
+	     </h3>
+	     <hr />
+	     <div>
+		 {viewingCard.link && (
+		     <div>
+			 <span style={{ fontWeight: "bold" }}>Link:</span>
+			 <span>{viewingCard.link}</span>
+		     </div>
+		 )}
+	     </div>
       <hr />
       <p>Created At: {viewingCard.created_at}</p>
       <p>Updated At: {viewingCard.updated_at}</p>
@@ -39,7 +70,7 @@ export function ViewPage({
         <div>
           <h4>Parent:</h4>
           <ul>
-            <CardItem handleViewCard={handleViewCard} card={parentCard} />
+            <CardItem card={parentCard} />
           </ul>
         </div>
       )}
@@ -59,7 +90,7 @@ export function ViewPage({
       <h4>References:</h4>
       <ul>
         {viewingCard.references.map((backlink, index) => (
-          <CardItem handleViewCard={handleViewCard} card={backlink} />
+          <CardItem card={backlink} />
         ))}
       </ul>
       <button onClick={handleEditCard}>Edit</button>
@@ -68,9 +99,11 @@ export function ViewPage({
         {viewingCard["children"]
           .sort((a, b) => a.card_id.localeCompare(b.card_id))
           .map((childCard, index) => (
-            <CardItem handleViewCard={handleViewCard} card={childCard} />
+            <CardItem card={childCard} />
           ))}
       </ul>
     </div>
+	  }
+	  </div>
   );
 }
