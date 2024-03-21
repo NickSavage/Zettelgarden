@@ -4,9 +4,6 @@ import LoginForm from "./pages/LoginPage";
 import MainApp from "./pages/MainApp";
 import RegisterPage from "./pages/RegisterPage";
 import { Routes, Route } from "react-router-dom";
-import { ProtectedAdminPage } from "./components/ProtectedAdminPage";
-import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
-import { AdminEditUserPage } from "./pages/AdminEditUserPage";
 import PasswordReset from "./pages/PasswordReset";
 import EmailValidation from "./pages/EmailValidation";
 
