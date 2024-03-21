@@ -41,11 +41,6 @@ function MainApp() {
     setViewFileVault(null);
   }
 
-  function handleOpenSearch() {
-    changePage();
-    document.title = "Zettelkasten - Search";
-    setSearchCard(true);
-  }
   async function handleNewCard(cardType) {
     changePage();
     setNewCard(true);
@@ -57,6 +52,7 @@ function MainApp() {
       nextId = lastCardId;
     }
 
+      navigate("/app/card/new")
     setEditingCard({ card_id: nextId, title: "", body: "" });
     document.title = "Zettelkasten - New Card";
   }
@@ -77,27 +73,6 @@ function MainApp() {
     document.title = "Zettelkasten - " + card.card_id + " - " + card.title;
   }
 
-  async function handleSaveCard() {
-    let response;
-    if (newCard) {
-      response = await saveNewCard(editingCard);
-    } else {
-      response = await saveExistingCard(editingCard);
-    }
-
-    if (!("error" in response)) {
-      handleViewCard(response);
-    } else {
-      setError(response["error"]);
-    }
-    setRefreshSidebar(true);
-  }
-
-  function handleEditCard() {
-    changePage();
-    document.title = "Zettelkasten - Edit Card";
-    setEditingCard(viewingCard);
-  }
 
   function handleDeleteCard() {
     changePage();
@@ -124,7 +99,6 @@ function MainApp() {
 	<Topbar
         handleNewCard={handleNewCard}
         handleViewFileVault={handleViewFileVault}
-        handleOpenSearch={handleOpenSearch}
         handleViewSettings={handleViewSettings}
         handleIndexClick={handleIndexClick}
       />
@@ -145,7 +119,6 @@ function MainApp() {
 	    <Routes>
 		<Route path="search" element={
             <SearchPage
-              handleViewCard={handleViewCard}
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               cards={searchCards}
@@ -157,25 +130,31 @@ function MainApp() {
 
 			   <ViewPage
 			       cards={cards}
-			       handleViewCard={handleViewCard}
-			       handleEditCard={handleEditCard}
 			       setLastCardId={setLastCardId}
 			   />
 		       } />
 		<Route path="card/:id/edit" element={
 			   <EditPage
 			       cards={cards}
-			       editingCard={editingCard}
-			       setEditingCard={setEditingCard}
-			       handleSaveCard={handleSaveCard}
 			       newCard={newCard}
 			       handleDeleteCard={handleDeleteCard}
-			       handleViewCard={handleViewCard}
+			       setRefreshSidebar={setRefreshSidebar}
+			   />
+		   
+		       }/>
+
+		<Route path="card/new" element={
+			   <EditPage
+			       cards={cards}
+			       newCard={true}
+			       handleDeleteCard={handleDeleteCard}
+			       setRefreshSidebar={setRefreshSidebar}
+			       lastCardId={lastCardId}
 			   />
 		   
 		       }/>
 		<Route path="settings" element={<SettingsPage />}/>
-		<Route path="files" element={<FileVault handleViewCard={handleViewCard} />}/>
+		<Route path="files" element={<FileVault />}/>
 	    </Routes>
         </div>
       </div>

@@ -44,7 +44,7 @@ export function FileListItem({
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  handleViewCard(file["card"]);
+                  handleViewCard(file["card"]["id"]);
                 }}
                 style={{ color: "black", textDecoration: "none" }}
               >

@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../utils";
 import { uploadFile, deleteCard } from "../api";
 import { FileListItem } from "./FileListItem";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
+import { useNavigate } from "react-router-dom";
+
+import { getCard, saveNewCard, saveExistingCard, getNextId } from "../api";
+
+import { useParams } from "react-router-dom";
 
 // Render the warning label
 function renderWarningLabel(cards, editingCard) {
@@ -15,23 +20,60 @@ function renderWarningLabel(cards, editingCard) {
 
 export function EditPage({
   cards,
-  editingCard,
-  setEditingCard,
-  handleSaveCard,
   newCard,
   handleDeleteCard,
-  handleViewCard,
+    setRefreshSidebar,
+    lastCardId,
 }) {
+
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [linktitle, setLinktitle] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [link, setLink] = useState("");
   const [topResults, setTopResults] = useState([]);
 
+  const [editingCard, setEditingCard] = useState(null);
+
+  const { id } = useParams();
+
+  const navigate = useNavigate();
+
+
+    async function fetchCard(id) {
+	let refreshed = await getCard(id);
+	
+	setEditingCard(refreshed);
+    }
+
+    async function handleSaveCard() {
+	let response;
+	if (newCard) {
+	    response = await saveNewCard(editingCard);
+	} else {
+	    response = await saveExistingCard(editingCard);
+	}
+	
+	if (!("error" in response)) {
+	    navigate(`/app/card/${response.id}`);
+	} else {
+	    setError(response["error"]);
+	}
+	setRefreshSidebar(true);
+    }
+    useEffect(() => {
+	if (!newCard) {
+	    fetchCard(id);
+	} else {
+	    console.log("?")
+	    setEditingCard({ card_id: lastCardId, title: "", body: "" });
+	}
+    }, [id]);
+
   function onFileDelete(file_id) {}
 
   function handleCancelButtonClick() {
-    handleViewCard(editingCard);
+      navigate(`/app/card/${editingCard.id}`)
   }
   function handleDeleteButtonClick() {
     if (
@@ -183,6 +225,8 @@ export function EditPage({
   }
 
   return (
+      <div>
+	  {editingCard &&
     <div>
       <div>{message && <span>{message}</span>}</div>
       <label htmlFor="title">Card ID:</label>
@@ -275,5 +319,7 @@ export function EditPage({
         </div>
       )}
     </div>
+	  }
+	  </div>
   );
 }

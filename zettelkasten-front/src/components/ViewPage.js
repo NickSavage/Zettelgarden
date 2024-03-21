@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 
 export function ViewPage({
   cards,
-  handleEditCard,
     setLastCardId,
 }) {
 
@@ -19,6 +18,9 @@ export function ViewPage({
   const [parentCard, setParentCard] = useState(null);
   const { id } = useParams();
 
+    function handleEditCard() {
+	navigate(`/app/card/${viewingCard.id}/edit`)
+    }
   function onFileDelete(file_id) {}
 
     async function fetchCard(id) {

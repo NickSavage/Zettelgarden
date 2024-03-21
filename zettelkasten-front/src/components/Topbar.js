@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useAuth, isAdmin } from "../AuthContext";
 import { Link } from "react-router-dom";
 
+import { useNavigate } from "react-router-dom";
+
 export function Topbar({
   handleNewCard,
   handleViewFileVault,
-  handleOpenSearch,
   handleViewSettings,
   handleIndexClick,
 }) {
@@ -14,6 +15,8 @@ export function Topbar({
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const username = localStorage.getItem("username");
+
+  const navigate = useNavigate();
 
   function handleNewStandardCard() {
     handleNewCard("standard");
@@ -24,6 +27,11 @@ export function Topbar({
   function handleNewReferenceCard() {
     handleNewCard("reference");
   }
+
+    function handleOpenSearch() {
+	navigate("/app/search");
+	
+    }
   // Function to toggle the dropdown
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);

@@ -10,11 +10,17 @@ import { sortCards } from "../utils";
 import { FileRenameModal } from "./FileRenameModal.js";
 import { FileListItem } from "./FileListItem";
 
-export function FileVault({ handleViewCard }) {
+import { useNavigate } from "react-router-dom";
+
+export function FileVault() {
   const [files, setFiles] = useState([]);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState(null);
+    const navigate = useNavigate();
 
+    function handleCardClick(id) {
+	navigate(`/app/card/${id}`);
+    }
   const openRenameModal = (file) => {
     setFileToRename(file);
     setIsRenameModalOpen(true);
@@ -50,7 +56,7 @@ export function FileVault({ handleViewCard }) {
               key={file.id} // Assuming each file has a unique `id` property
               file={file}
               onDelete={onDelete}
-              handleViewCard={handleViewCard}
+              handleViewCard={handleCardClick}
               openRenameModal={openRenameModal}
               displayCard={true}
             />
