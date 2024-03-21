@@ -538,7 +538,7 @@ def edit_file(file_id):
     services.update_file(file_id, data)
 
     updated_file = services.query_file(file_id)
-    updated_file["card"] = services.query_partial_card_by_id(updated_file["card_pk"])
+    updated_file["card"] = services.query_partial_card_by_id(updated_file["card_pk"], current_user)
     return jsonify(updated_file), 200
 
 

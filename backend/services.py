@@ -77,12 +77,13 @@ def update_backlinks(card_id, backlinks):
     cur.close()
 
 
-def get_parent(card_id: str) -> dict:
+def get_parent(card_id: str, user_id: int) -> dict:
     parent_id = utils._get_parent_id_alternating(card_id)
+    print(parent_id)
     if parent_id is None:
-        result = query_partial_card(card_id)
+        result = query_partial_card(card_id, user_id)
     else:
-        result = query_partial_card(parent_id)
+        result = query_partial_card(parent_id, user_id)
 
     return result
 
@@ -181,7 +182,7 @@ def get_children(card_id: str, user_id: int) -> list:
 def serialize_full_card(data) -> dict:
     card = models.card.serialize_card(data)
 
-    card["parent"] = get_parent(card["card_id"])
+    card["parent"] = get_parent(card["card_id"], card["user_id"])
     card["direct_links"] = get_direct_links(card["body"])
     card["files"] = get_files_from_card_pk(card["id"])
     card["children"] = get_children(card["card_id"], card["user_id"])
@@ -250,7 +251,7 @@ def query_all_files(user_id, internal=False) -> list:
     if file_data:
         for file in file_data:
             new = file
-            new["card"] = query_partial_card_by_id(file["card_pk"])
+            new["card"] = query_partial_card_by_id(file["card_pk"], user_id)
             results.append(new)
     return results
 
@@ -374,11 +375,11 @@ def query_all_full_cards(user_id: int, search_term=None) -> list:
     return results
 
 
-def query_partial_card_by_id(id) -> dict:
+def query_partial_card_by_id(id, user_id:int) -> dict:
     cur = get_db().cursor()
 
     cur.execute(
-        models.card.partial_card_query + " WHERE is_deleted = FALSE AND id = %s;", (id,)
+        models.card.partial_card_query + " WHERE is_deleted = FALSE AND id = %s AND user_id = %s;", (id, user_id)
     )
     card = cur.fetchone()
     cur.close()
@@ -387,12 +388,12 @@ def query_partial_card_by_id(id) -> dict:
     return {}
 
 
-def query_partial_card(card_id) -> dict:
+def query_partial_card(card_id: str, user_id: int) -> dict:
     cur = get_db().cursor()
 
     cur.execute(
-        models.card.partial_card_query + " WHERE is_deleted = FALSE AND card_id = %s;",
-        (card_id,),
+        models.card.partial_card_query + " WHERE is_deleted = FALSE AND card_id = %s AND user_id = %s;",
+        (card_id, user_id),
     )
     card = cur.fetchone()
     cur.close()
