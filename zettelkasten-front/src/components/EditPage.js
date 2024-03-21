@@ -21,7 +21,6 @@ function renderWarningLabel(cards, editingCard) {
 export function EditPage({
   cards,
   newCard,
-  handleDeleteCard,
     setRefreshSidebar,
     lastCardId,
 }) {
@@ -82,7 +81,7 @@ export function EditPage({
       )
     ) {
       deleteCard(editingCard["id"])
-        .then(() => handleDeleteCard())
+        .then(() => setRefreshSidebar(true))
         .catch((error) =>
           setMessage(
             "Unable to delete card. Does it have backlinks, children or files?",

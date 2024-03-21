@@ -17,11 +17,6 @@ function MainApp() {
   const [error, setError] = useState("");
   const [cards, setCards] = useState([]);
   const [newCard, setNewCard] = useState(null);
-  const [viewingCard, setViewCard] = useState(null);
-  const [viewFileVault, setViewFileVault] = useState(null);
-  const [viewSettings, setViewSettings] = useState(null);
-  const [editingCard, setEditingCard] = useState(null);
-  const [searchCard, setSearchCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,56 +25,19 @@ function MainApp() {
 
   // changing pages
 
-  function changePage() {
-    setError(null);
-    setViewCard(null);
-    setLastCardId(null);
-    setEditingCard(null);
-    setSearchCard(null);
-    setNewCard(null);
-    setViewSettings(null);
-    setViewFileVault(null);
-  }
-
   async function handleNewCard(cardType) {
-    changePage();
-    setNewCard(true);
-    let nextId;
-    if (cardType === "reference" || cardType === "meeting") {
-	let response = await getNextId(cardType);
-	nextId = response["new_id"]
-    } else {
-      nextId = lastCardId;
-    }
-
       navigate("/app/card/new")
-    setEditingCard({ card_id: nextId, title: "", body: "" });
-    document.title = "Zettelkasten - New Card";
   }
   function handleViewFileVault() {
-    changePage();
       navigate("/app/files");
   }
   function handleViewSettings() {
-    changePage();
       navigate("/app/settings");
   }
   function handleIndexClick() {
-    changePage();
   }
 
-  async function handleViewCard(card) {
-    changePage();
-    document.title = "Zettelkasten - " + card.card_id + " - " + card.title;
-  }
-
-
-  function handleDeleteCard() {
-    changePage();
-    setEditingCard(null);
-    setRefreshSidebar(true);
-  }
-
+ 
   useEffect(() => {
     // Check if token does not exist or user is not authenticated
     if (!localStorage.getItem("token")) {
@@ -88,12 +46,6 @@ function MainApp() {
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
-    function Test () {
-	useEffect(() => {
-	    console.log("asdasd")
-	});
-	return (<div>hi</div>)
-    };
   return (
     <div>
 	<Topbar
@@ -137,7 +89,6 @@ function MainApp() {
 			   <EditPage
 			       cards={cards}
 			       newCard={newCard}
-			       handleDeleteCard={handleDeleteCard}
 			       setRefreshSidebar={setRefreshSidebar}
 			   />
 		   
@@ -147,7 +98,6 @@ function MainApp() {
 			   <EditPage
 			       cards={cards}
 			       newCard={true}
-			       handleDeleteCard={handleDeleteCard}
 			       setRefreshSidebar={setRefreshSidebar}
 			       lastCardId={lastCardId}
 			   />

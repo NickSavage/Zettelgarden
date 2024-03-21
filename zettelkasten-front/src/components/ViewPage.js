@@ -56,6 +56,7 @@ export function ViewPage({
 		 <span>: {viewingCard.title}</span>
 	     </h3>
 	     <hr />
+	<div><CardBody viewingCard={viewingCard} cards={cards} /></div>
 	     <div>
 		 {viewingCard.link && (
 		     <div>
