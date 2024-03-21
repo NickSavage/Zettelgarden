@@ -3,7 +3,7 @@ import { isCardIdUnique } from "../utils";
 import { uploadFile, deleteCard } from "../api";
 import { FileListItem } from "./FileListItem";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { getCard, saveNewCard, saveExistingCard, getNextId } from "../api";
 
@@ -25,12 +25,12 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [link, setLink] = useState("");
   const [topResults, setTopResults] = useState([]);
-
   const [editingCard, setEditingCard] = useState(null);
 
   const { id } = useParams();
-
   const navigate = useNavigate();
+  const location = useLocation();
+    const cardType = location.state?.cardType;
 
   async function fetchCard(id) {
     let refreshed = await getCard(id);
@@ -53,12 +53,23 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     }
     setRefreshSidebar(true);
   }
+    async function prefillNextId() {
+	let nextId;
+	if (cardType === "reference" || cardType === "meeting") {
+	    let response = await getNextId(cardType);
+	    nextId = response["new_id"]
+	} else {
+	    nextId = lastCardId;
+	}
+	return nextId;
+    }
   useEffect(() => {
     if (!newCard) {
       fetchCard(id);
     } else {
-      console.log("?");
-      setEditingCard({ card_id: lastCardId, title: "", body: "" });
+	prefillNextId().then((nextId) => {
+	    setEditingCard({ card_id: nextId, title: "", body: "" });
+	});
     }
   }, [id]);
 

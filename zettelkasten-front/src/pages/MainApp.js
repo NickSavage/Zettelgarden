@@ -25,7 +25,7 @@ function MainApp() {
   // changing pages
 
   async function handleNewCard(cardType) {
-    navigate("/app/card/new");
+      navigate("/app/card/new", {state: {cardType: cardType}});
   }
   function handleViewFileVault() {
     navigate("/app/files");
