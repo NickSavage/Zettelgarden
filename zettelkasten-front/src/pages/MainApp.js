@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
-import { getCard, saveNewCard, saveExistingCard, getNextId } from "../api";
 import { SearchPage } from "../components/SearchPage";
 import { SettingsPage } from "../components/SettingsPage";
 import { FileVault } from "../components/FileVault";
@@ -10,7 +9,7 @@ import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
-import { BrowserRouter as Router, Route, Routes, Link, Outlet } from 'react-router-dom';
+import { BrowserRouter as Route, Routes } from "react-router-dom";
 
 function MainApp() {
   const navigate = useNavigate();
@@ -26,18 +25,16 @@ function MainApp() {
   // changing pages
 
   async function handleNewCard(cardType) {
-      navigate("/app/card/new")
+    navigate("/app/card/new");
   }
   function handleViewFileVault() {
-      navigate("/app/files");
+    navigate("/app/files");
   }
   function handleViewSettings() {
-      navigate("/app/settings");
+    navigate("/app/settings");
   }
-  function handleIndexClick() {
-  }
+  function handleIndexClick() {}
 
- 
   useEffect(() => {
     // Check if token does not exist or user is not authenticated
     if (!localStorage.getItem("token")) {
@@ -48,7 +45,7 @@ function MainApp() {
 
   return (
     <div>
-	<Topbar
+      <Topbar
         handleNewCard={handleNewCard}
         handleViewFileVault={handleViewFileVault}
         handleViewSettings={handleViewSettings}
@@ -68,44 +65,47 @@ function MainApp() {
             </div>
           )}
 
-	    <Routes>
-		<Route path="search" element={
-            <SearchPage
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              cards={searchCards}
-              setCards={setSearchCards}
+          <Routes>
+            <Route
+              path="search"
+              element={
+                <SearchPage
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  cards={searchCards}
+                  setCards={setSearchCards}
+                />
+              }
+            />
+            <Route
+              path="card/:id"
+              element={<ViewPage cards={cards} setLastCardId={setLastCardId} />}
+            />
+            <Route
+              path="card/:id/edit"
+              element={
+                <EditPage
+                  cards={cards}
+                  newCard={newCard}
+                  setRefreshSidebar={setRefreshSidebar}
+                />
+              }
             />
 
-		       } />
-		<Route path="card/:id" element={
-
-			   <ViewPage
-			       cards={cards}
-			       setLastCardId={setLastCardId}
-			   />
-		       } />
-		<Route path="card/:id/edit" element={
-			   <EditPage
-			       cards={cards}
-			       newCard={newCard}
-			       setRefreshSidebar={setRefreshSidebar}
-			   />
-		   
-		       }/>
-
-		<Route path="card/new" element={
-			   <EditPage
-			       cards={cards}
-			       newCard={true}
-			       setRefreshSidebar={setRefreshSidebar}
-			       lastCardId={lastCardId}
-			   />
-		   
-		       }/>
-		<Route path="settings" element={<SettingsPage />}/>
-		<Route path="files" element={<FileVault />}/>
-	    </Routes>
+            <Route
+              path="card/new"
+              element={
+                <EditPage
+                  cards={cards}
+                  newCard={true}
+                  setRefreshSidebar={setRefreshSidebar}
+                  lastCardId={lastCardId}
+                />
+              }
+            />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="files" element={<FileVault />} />
+          </Routes>
         </div>
       </div>
     </div>

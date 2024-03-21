@@ -28,10 +28,9 @@ export function Topbar({
     handleNewCard("reference");
   }
 
-    function handleOpenSearch() {
-	navigate("/app/search");
-	
-    }
+  function handleOpenSearch() {
+    navigate("/app/search");
+  }
   // Function to toggle the dropdown
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);

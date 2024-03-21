@@ -9,7 +9,6 @@ export function Sidebar({
   refreshSidebar,
   setRefreshSidebar,
 }) {
-
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const [isSidebarHidden, setIsSidebarHidden] = useState(false);
@@ -17,7 +16,6 @@ export function Sidebar({
   const [sidebarCards, setSidebarCards] = useState([]);
   const [unfilteredSidebarCards, setUnfilteredSidebarCards] = useState([]);
   const [sidebarView, setSidebarView] = useState("all");
-
 
   const toggleSidebar = () => {
     setIsSidebarHidden(!isSidebarHidden);
@@ -29,9 +27,9 @@ export function Sidebar({
     setSidebarCards(temp);
   };
 
-    function handleCardClick(card_id) {
-	navigate(`/app/card/${card_id}`)
-    }
+  function handleCardClick(card_id) {
+    navigate(`/app/card/${card_id}`);
+  }
   function handleSelectChange(event) {
     const value = event.target.value;
     setSidebarView(value);

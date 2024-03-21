@@ -41,7 +41,6 @@ const CustomImageRenderer = ({ src, alt, title }) => {
 };
 
 function renderCardText(card, cards, handleViewBacklink) {
-
   let body = card.body;
   // Convert bracketed text to markdown links
   body = preprocessCardLinks(body);
@@ -64,7 +63,6 @@ function renderCardText(card, cards, handleViewBacklink) {
         onClick={(e) => {
           e.preventDefault();
           handleViewBacklink(id);
-
         }}
         style={{ fontWeight: "bold", color: "blue" }}
       >
@@ -84,14 +82,13 @@ function renderCardText(card, cards, handleViewBacklink) {
   );
 }
 
-export function CardBody({viewingCard, cards}) {
-     
+export function CardBody({ viewingCard, cards }) {
   const navigate = useNavigate();
-    
-    function handleCardClick(card_id) {
-	navigate(`/app/card/${card_id}`)
-    }
-    console.log("aoe");
-    console.log(viewingCard)
-    return <div>{renderCardText(viewingCard, cards, handleCardClick)}</div>;
+
+  function handleCardClick(card_id) {
+    navigate(`/app/card/${card_id}`);
+  }
+  console.log("aoe");
+  console.log(viewingCard);
+  return <div>{renderCardText(viewingCard, cards, handleCardClick)}</div>;
 }

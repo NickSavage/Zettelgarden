@@ -16,11 +16,11 @@ export function FileVault() {
   const [files, setFiles] = useState([]);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState(null);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    function handleCardClick(id) {
-	navigate(`/app/card/${id}`);
-    }
+  function handleCardClick(id) {
+    navigate(`/app/card/${id}`);
+  }
   const openRenameModal = (file) => {
     setFileToRename(file);
     setIsRenameModalOpen(true);

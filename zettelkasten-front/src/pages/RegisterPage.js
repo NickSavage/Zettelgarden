@@ -37,7 +37,12 @@ function RegisterPage() {
       .then((data) => {
         console.log("User created successfully", data);
         navigate("/login");
-	  navigate('/login', { state: { message: 'Account successfully created. Check your email for a validation link.' } });
+        navigate("/login", {
+          state: {
+            message:
+              "Account successfully created. Check your email for a validation link.",
+          },
+        });
         // Handle successful user creation (e.g., redirecting the user or showing a success message)
         // Reset form or redirect user to login page, etc.
       })

@@ -9,8 +9,8 @@ function LoginForm() {
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
   const navigate = useNavigate();
-    const location = useLocation();
-    const message = location.state?.message;
+  const location = useLocation();
+  const message = location.state?.message;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -63,9 +63,9 @@ function LoginForm() {
       <span className="text">
         Need an account? <Link to="/register">Register here</Link>.
       </span>
-	<br />
+      <br />
       <span className="text">
-         <Link to="/reset">Forgot your password?</Link>.
+        <Link to="/reset">Forgot your password?</Link>.
       </span>
     </div>
   );

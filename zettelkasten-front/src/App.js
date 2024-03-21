@@ -32,18 +32,18 @@ function App() {
             </ProtectedAdminPage>
           }
         />
-	  <Route
-      path="/admin/user/:id/edit"
+        <Route
+          path="/admin/user/:id/edit"
           element={
             <ProtectedAdminPage>
               <AdminEditUserPage />
             </ProtectedAdminPage>
           }
-      />
+        />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterPage />} />
-	  <Route path="/reset" element={<PasswordReset />} />
-	  <Route path="/validate" element={<EmailValidation />} />
+        <Route path="/reset" element={<PasswordReset />} />
+        <Route path="/validate" element={<EmailValidation />} />
       </Routes>
     </div>
   );

@@ -18,13 +18,7 @@ function renderWarningLabel(cards, editingCard) {
   return null;
 }
 
-export function EditPage({
-  cards,
-  newCard,
-    setRefreshSidebar,
-    lastCardId,
-}) {
-
+export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [linktitle, setLinktitle] = useState("");
@@ -38,41 +32,40 @@ export function EditPage({
 
   const navigate = useNavigate();
 
+  async function fetchCard(id) {
+    let refreshed = await getCard(id);
 
-    async function fetchCard(id) {
-	let refreshed = await getCard(id);
-	
-	setEditingCard(refreshed);
+    setEditingCard(refreshed);
+  }
+
+  async function handleSaveCard() {
+    let response;
+    if (newCard) {
+      response = await saveNewCard(editingCard);
+    } else {
+      response = await saveExistingCard(editingCard);
     }
 
-    async function handleSaveCard() {
-	let response;
-	if (newCard) {
-	    response = await saveNewCard(editingCard);
-	} else {
-	    response = await saveExistingCard(editingCard);
-	}
-	
-	if (!("error" in response)) {
-	    navigate(`/app/card/${response.id}`);
-	} else {
-	    setError(response["error"]);
-	}
-	setRefreshSidebar(true);
+    if (!("error" in response)) {
+      navigate(`/app/card/${response.id}`);
+    } else {
+      setError(response["error"]);
     }
-    useEffect(() => {
-	if (!newCard) {
-	    fetchCard(id);
-	} else {
-	    console.log("?")
-	    setEditingCard({ card_id: lastCardId, title: "", body: "" });
-	}
-    }, [id]);
+    setRefreshSidebar(true);
+  }
+  useEffect(() => {
+    if (!newCard) {
+      fetchCard(id);
+    } else {
+      console.log("?");
+      setEditingCard({ card_id: lastCardId, title: "", body: "" });
+    }
+  }, [id]);
 
   function onFileDelete(file_id) {}
 
   function handleCancelButtonClick() {
-      navigate(`/app/card/${editingCard.id}`)
+    navigate(`/app/card/${editingCard.id}`);
   }
   function handleDeleteButtonClick() {
     if (
@@ -224,101 +217,107 @@ export function EditPage({
   }
 
   return (
-      <div>
-	  {editingCard &&
     <div>
-      <div>{message && <span>{message}</span>}</div>
-      <label htmlFor="title">Card ID:</label>
-      <div style={{ display: "flex" }}>
-        <input
-          type="text"
-          value={editingCard.card_id}
-          onChange={(e) =>
-            setEditingCard({ ...editingCard, card_id: e.target.value })
-          }
-          placeholder="ID"
-          style={{ display: "block", marginBottom: "10px" }} // Added styles here
-        />
-        {newCard && renderWarningLabel(cards, editingCard)}
-      </div>
-      {/* Title Section */}
-      <label htmlFor="title">Title:</label>
-      <input
-        style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
-        type="text"
-        id="title"
-        value={editingCard.title}
-        onChange={(e) =>
-          setEditingCard({ ...editingCard, title: e.target.value })
-        }
-        placeholder="Title"
-      />
-
-      {/* Body Section */}
-      <label htmlFor="body">Body:</label>
-      <textarea
-        style={{ display: "block", width: "100%", height: "200px" }} // Updated style here
-        id="body"
-        value={editingCard.body}
-        onChange={handleBodyChange}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onPaste={handlePaste}
-        placeholder="Body"
-      />
-      <div
-        style={{ display: "flex", alignItems: "center", position: "relative" }}
-      >
-        <label htmlFor="refInput" style={{ marginRight: "10px" }}>
-          Add Link:
-        </label>
-        <input
-          type="text"
-          value={link}
-          onChange={(e) => handleLinkInputChange(e)}
-          placeholder="ID"
-          onKeyDown={handleEnterPress} // Add the onKeyDown event handler here
-          style={{ display: "block", marginRight: "10px" }} // Added styles here
-        />
-        {linktitle && (
-          <div>
-            <span>{linktitle}</span>
-          </div>
-        )}
-        {topResults && <BacklinkInputDropdownList cards={topResults} />}
-      </div>
-      <label htmlFor="title">Link:</label>
-      <input
-        style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
-        type="text"
-        id="link"
-        value={editingCard.link}
-        onChange={(e) =>
-          setEditingCard({ ...editingCard, link: e.target.value })
-        }
-        placeholder="Title"
-      />
-      <button onClick={handleSaveCard}>Save</button>
-      <button onClick={handleCancelButtonClick}>Cancel</button>
-      {!newCard && <button onClick={handleDeleteButtonClick}>Delete</button>}
-      {!newCard && (
+      {editingCard && (
         <div>
-          <h4>Files:</h4>
-          <ul>
-            {editingCard.files.map((file, index) => (
-              <FileListItem
-                file={file}
-                onDelete={onFileDelete}
-                handleViewCard={null}
-                openRenameModal={null}
-                displayCard={false}
-              />
-            ))}
-          </ul>
+          <div>{message && <span>{message}</span>}</div>
+          <label htmlFor="title">Card ID:</label>
+          <div style={{ display: "flex" }}>
+            <input
+              type="text"
+              value={editingCard.card_id}
+              onChange={(e) =>
+                setEditingCard({ ...editingCard, card_id: e.target.value })
+              }
+              placeholder="ID"
+              style={{ display: "block", marginBottom: "10px" }} // Added styles here
+            />
+            {newCard && renderWarningLabel(cards, editingCard)}
+          </div>
+          {/* Title Section */}
+          <label htmlFor="title">Title:</label>
+          <input
+            style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
+            type="text"
+            id="title"
+            value={editingCard.title}
+            onChange={(e) =>
+              setEditingCard({ ...editingCard, title: e.target.value })
+            }
+            placeholder="Title"
+          />
+
+          {/* Body Section */}
+          <label htmlFor="body">Body:</label>
+          <textarea
+            style={{ display: "block", width: "100%", height: "200px" }} // Updated style here
+            id="body"
+            value={editingCard.body}
+            onChange={handleBodyChange}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onPaste={handlePaste}
+            placeholder="Body"
+          />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              position: "relative",
+            }}
+          >
+            <label htmlFor="refInput" style={{ marginRight: "10px" }}>
+              Add Link:
+            </label>
+            <input
+              type="text"
+              value={link}
+              onChange={(e) => handleLinkInputChange(e)}
+              placeholder="ID"
+              onKeyDown={handleEnterPress} // Add the onKeyDown event handler here
+              style={{ display: "block", marginRight: "10px" }} // Added styles here
+            />
+            {linktitle && (
+              <div>
+                <span>{linktitle}</span>
+              </div>
+            )}
+            {topResults && <BacklinkInputDropdownList cards={topResults} />}
+          </div>
+          <label htmlFor="title">Link:</label>
+          <input
+            style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
+            type="text"
+            id="link"
+            value={editingCard.link}
+            onChange={(e) =>
+              setEditingCard({ ...editingCard, link: e.target.value })
+            }
+            placeholder="Title"
+          />
+          <button onClick={handleSaveCard}>Save</button>
+          <button onClick={handleCancelButtonClick}>Cancel</button>
+          {!newCard && (
+            <button onClick={handleDeleteButtonClick}>Delete</button>
+          )}
+          {!newCard && (
+            <div>
+              <h4>Files:</h4>
+              <ul>
+                {editingCard.files.map((file, index) => (
+                  <FileListItem
+                    file={file}
+                    onDelete={onFileDelete}
+                    handleViewCard={null}
+                    openRenameModal={null}
+                    displayCard={false}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>
-	  }
-	  </div>
   );
 }
