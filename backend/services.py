@@ -25,11 +25,11 @@ FROM
 """
 
 
-def get_direct_links(body: str) -> list:
+def get_direct_links(body: str, user_id: int) -> list:
     links = utils.extract_backlinks(body)
     results = []
     for card_id in links:
-        x = query_partial_card(card_id)
+        x = query_partial_card(card_id, user_id)
         if x == {}:
             continue
         results.append(x)
@@ -50,9 +50,9 @@ def get_backlinks(card_id):
     return backlinks
 
 
-def get_references(card_id: str, body: str) -> list:
+def get_references(card_id: str, body: str, user_id: int) -> list:
     backlinks = get_backlinks(card_id)
-    direct_links = get_direct_links(body)
+    direct_links = get_direct_links(body, user_id)
     links = backlinks + direct_links
     if links == []:
         return []
@@ -183,10 +183,10 @@ def serialize_full_card(data) -> dict:
     card = models.card.serialize_card(data)
 
     card["parent"] = get_parent(card["card_id"], card["user_id"])
-    card["direct_links"] = get_direct_links(card["body"])
+    card["direct_links"] = get_direct_links(card["body"], card["user_id"])
     card["files"] = get_files_from_card_pk(card["id"])
     card["children"] = get_children(card["card_id"], card["user_id"])
-    card["references"] = get_references(card["card_id"], card["body"])
+    card["references"] = get_references(card["card_id"], card["body"], card["user_id"])
     card["backlinks"] = get_backlinks(card["card_id"])
     return card
 
