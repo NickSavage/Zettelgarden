@@ -4,7 +4,6 @@ import { useAuth } from "../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
 export function AdminUserIndex() {
-
   const { isAdmin, isLoading } = useAuth();
   const [users, setUsers] = useState([]);
   useEffect(() => {

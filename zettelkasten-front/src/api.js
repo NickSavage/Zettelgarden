@@ -410,7 +410,6 @@ export function validateEmail(token) {
     .then((response) => response.json());
 }
 export async function resendValidateEmail() {
-
   let token = localStorage.getItem("token");
   const url = `${base_url}/email-validate`;
 
@@ -421,7 +420,6 @@ export async function resendValidateEmail() {
       "Content-Type": "application/json",
     },
   })
-	.then(checkStatus)
-	.then((response) => response.json()["message"]);
+    .then(checkStatus)
+    .then((response) => response.json()["message"]);
 }
-

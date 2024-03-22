@@ -3,12 +3,7 @@ import { fetchCards } from "../api";
 
 import { useNavigate } from "react-router-dom";
 
-export function SearchPage({
-  searchTerm,
-  setSearchTerm,
-  cards,
-  setCards,
-}) {
+export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
   const [sortBy, setSortBy] = useState("relevant");
   const navigate = useNavigate();
 

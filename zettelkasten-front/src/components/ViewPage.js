@@ -37,7 +37,7 @@ export function ViewPage({ cards, setLastCardId }) {
   }
 
   useEffect(() => {
-      setError("");
+    setError("");
     fetchCard(id);
   }, [id]);
   return (

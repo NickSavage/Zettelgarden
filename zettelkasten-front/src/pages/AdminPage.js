@@ -12,7 +12,6 @@ import { AdminEditUserPage } from "./AdminEditUserPage";
 import { Routes, Route } from "react-router-dom";
 
 export function Admin() {
-
   const { isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -25,12 +24,11 @@ export function Admin() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-    if (!isLoading && !isAdmin) {
-	return <div></div>
-    }
+  if (!isLoading && !isAdmin) {
+    return <div></div>;
+  }
   return (
     <div>
-
       <AdminTopBar />
       <div className="main-content">
         <div className="sidebar">
@@ -40,11 +38,11 @@ export function Admin() {
             </li>
           </ul>
         </div>
-	<Routes>
-	    <Route path="/" element={<AdminUserIndex />} />
-	    <Route path="user/:id" element={<AdminUserDetailPage />} />
-	    <Route path="user/:id" element={<AdminEditUserPage />} />
-	</Routes>
+        <Routes>
+          <Route path="/" element={<AdminUserIndex />} />
+          <Route path="user/:id" element={<AdminUserDetailPage />} />
+          <Route path="user/:id" element={<AdminEditUserPage />} />
+        </Routes>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ function MainApp() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [cards, setCards] = useState([]);
-    const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [newCard, setNewCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
@@ -28,7 +28,7 @@ function MainApp() {
   // changing pages
 
   async function handleNewCard(cardType) {
-      navigate("/app/card/new", {state: {cardType: cardType}});
+    navigate("/app/card/new", { state: { cardType: cardType } });
   }
   function handleViewFileVault() {
     navigate("/app/files");
@@ -38,11 +38,11 @@ function MainApp() {
   }
   function handleIndexClick() {}
 
-    async function fetchCurrentUser() {
-	let response = await getCurrentUser();
-	setCurrentUser(response);
-    }
-    
+  async function fetchCurrentUser() {
+    let response = await getCurrentUser();
+    setCurrentUser(response);
+  }
+
   useEffect(() => {
     // Check if token does not exist or user is not authenticated
     if (!localStorage.getItem("token")) {
@@ -74,7 +74,7 @@ function MainApp() {
               <p>Error: {error}</p>
             </div>
           )}
-	    {currentUser && <EmailValidationBanner user={currentUser} />}
+          {currentUser && <EmailValidationBanner user={currentUser} />}
 
           <Routes>
             <Route
