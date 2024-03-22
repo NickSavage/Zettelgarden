@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { changePassword, getUser } from "../api";
+import { changePassword, getCurrentUser } from "../api";
 import { useAuth } from "../AuthContext";
 
 export function SettingsPage({}) {
@@ -21,13 +21,18 @@ export function SettingsPage({}) {
         console.error("Error:", error);
       });
   }
+    async function fetchUser() {
+	let response = await getCurrentUser();
+	console.log(response)
+	setUser(response);
+    }
   useEffect(() => {
-    getUser(1).then((d) => setUser(d));
+      fetchUser();
   }, []);
 
   return (
     <div>
-      <div>{user && <h2>{user["name"]}</h2>}</div>
+      <div>{user && <h2>{user["username"]}</h2>}</div>
       <div>
         <input type="text" value={inputValue} onChange={handleInputChange} />
         <button onClick={handleSubmit}>Submit</button>
