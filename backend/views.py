@@ -413,7 +413,7 @@ def update_user(id):
     
     current_user = get_jwt_identity()  # Extract the user identity from the token
     user = services.query_full_user(current_user)
-    if not user["is_admin"]:
+    if not user["is_admin"] or user["id"] != current_user:
         return jsonify({"message": "Unauthorized"}), 403
         
     # Extract the fields to be updated from the request
@@ -421,10 +421,13 @@ def update_user(id):
     username = request.json.get("username")
     email = request.json.get("email")
     
+    old_email = user["email"]
     # Validate the input (basic example, you should expand on this)
     if not username or not email:
         return jsonify({"message": "Username and email are required"}), 400
     
+    if not is_admin:
+        is_admin = user["is_admin"]
     # Prepare the user update dictionary
     user_update = {
         "is_admin": is_admin,
@@ -435,6 +438,16 @@ def update_user(id):
     # Update user in database
     services.update_user(id, user_update)
     
+    user = services.query_full_user(current_user)
+
+    if old_email != email:
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("UPDATE users SET email_validated = FALSE WHERE id = %s", (user["id"],))
+
+        conn.commit()
+        cur.close()
     # Return the updated user information
     return jsonify(services.query_full_user(id))
 
