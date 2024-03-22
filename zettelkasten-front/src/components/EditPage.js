@@ -30,7 +30,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-    const cardType = location.state?.cardType;
+  const cardType = location.state?.cardType;
 
   async function fetchCard(id) {
     let refreshed = await getCard(id);
@@ -53,23 +53,23 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     }
     setRefreshSidebar(true);
   }
-    async function prefillNextId() {
-	let nextId;
-	if (cardType === "reference" || cardType === "meeting") {
-	    let response = await getNextId(cardType);
-	    nextId = response["new_id"]
-	} else {
-	    nextId = lastCardId;
-	}
-	return nextId;
+  async function prefillNextId() {
+    let nextId;
+    if (cardType === "reference" || cardType === "meeting") {
+      let response = await getNextId(cardType);
+      nextId = response["new_id"];
+    } else {
+      nextId = lastCardId;
     }
+    return nextId;
+  }
   useEffect(() => {
     if (!newCard) {
       fetchCard(id);
     } else {
-	prefillNextId().then((nextId) => {
-	    setEditingCard({ card_id: nextId, title: "", body: "" });
-	});
+      prefillNextId().then((nextId) => {
+        setEditingCard({ card_id: nextId, title: "", body: "" });
+      });
     }
   }, [id]);
 
@@ -206,28 +206,27 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     event.preventDefault();
   };
 
-    function addBacklink(selectedCard) {
-	
-      let text = "";
-      if (selectedCard) {
-        text = "\n\n[" + selectedCard.card_id + "] - " + selectedCard.title;
-      } else {
-        text = "";
-      }
-      setLink("");
-      setSearchTerm("");
-      setTopResults([]);
-      // Your specific function to run
-      setEditingCard((prevEditingCard) => ({
-        ...editingCard,
-        body: editingCard.body + text, // Append the text
-      }));
+  function addBacklink(selectedCard) {
+    let text = "";
+    if (selectedCard) {
+      text = "\n\n[" + selectedCard.card_id + "] - " + selectedCard.title;
+    } else {
+      text = "";
     }
+    setLink("");
+    setSearchTerm("");
+    setTopResults([]);
+    // Your specific function to run
+    setEditingCard((prevEditingCard) => ({
+      ...editingCard,
+      body: editingCard.body + text, // Append the text
+    }));
+  }
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       setTopResults([]);
       let enteredCard = topResults.find((card) => card.card_id === searchTerm);
-	addBacklink(enteredCard);
+      addBacklink(enteredCard);
     }
   }
 
@@ -291,7 +290,12 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
               onKeyDown={handleEnterPress}
               style={{ display: "block", marginRight: "10px" }}
             />
-              {topResults && <BacklinkInputDropdownList addBacklink={addBacklink} cards={topResults} />}
+            {topResults && (
+              <BacklinkInputDropdownList
+                addBacklink={addBacklink}
+                cards={topResults}
+              />
+            )}
           </div>
           <label htmlFor="title">Source/URL:</label>
           <input
