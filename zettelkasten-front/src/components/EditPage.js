@@ -281,7 +281,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
             }}
           >
             <label htmlFor="refInput" style={{ marginRight: "10px" }}>
-              Add Link:
+              Add Backlink:
             </label>
             <input
               type="text"
@@ -293,7 +293,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
             />
               {topResults && <BacklinkInputDropdownList addBacklink={addBacklink} cards={topResults} />}
           </div>
-          <label htmlFor="title">Link:</label>
+          <label htmlFor="title">Source/URL:</label>
           <input
             style={{ display: "block", width: "100%", marginBottom: "10px" }}
             type="text"
