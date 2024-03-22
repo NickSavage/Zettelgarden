@@ -206,13 +206,11 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     event.preventDefault();
   };
 
-  function handleEnterPress(e) {
-    if (e.key === "Enter") {
-      setTopResults([]);
-      let enteredCard = topResults.find((card) => card.card_id === searchTerm);
+    function addBacklink(selectedCard) {
+	
       let text = "";
-      if (enteredCard) {
-        text = "\n\n[" + enteredCard.card_id + "] - " + enteredCard.title;
+      if (selectedCard) {
+        text = "\n\n[" + selectedCard.card_id + "] - " + selectedCard.title;
       } else {
         text = "";
       }
@@ -224,6 +222,12 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
         ...editingCard,
         body: editingCard.body + text, // Append the text
       }));
+    }
+  function handleEnterPress(e) {
+    if (e.key === "Enter") {
+      setTopResults([]);
+      let enteredCard = topResults.find((card) => card.card_id === searchTerm);
+	addBacklink(enteredCard);
     }
   }
 
@@ -258,7 +262,6 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
             placeholder="Title"
           />
 
-          {/* Body Section */}
           <label htmlFor="body">Body:</label>
           <textarea
             style={{ display: "block", width: "100%", height: "200px" }} // Updated style here
@@ -285,19 +288,14 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
               value={link}
               onChange={(e) => handleLinkInputChange(e)}
               placeholder="ID"
-              onKeyDown={handleEnterPress} // Add the onKeyDown event handler here
-              style={{ display: "block", marginRight: "10px" }} // Added styles here
+              onKeyDown={handleEnterPress}
+              style={{ display: "block", marginRight: "10px" }}
             />
-            {linktitle && (
-              <div>
-                <span>{linktitle}</span>
-              </div>
-            )}
-            {topResults && <BacklinkInputDropdownList cards={topResults} />}
+              {topResults && <BacklinkInputDropdownList addBacklink={addBacklink} cards={topResults} />}
           </div>
           <label htmlFor="title">Link:</label>
           <input
-            style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
+            style={{ display: "block", width: "100%", marginBottom: "10px" }}
             type="text"
             id="link"
             value={editingCard.link}

@@ -1,5 +1,6 @@
-export function BacklinkInputDropdownList({ cards }) {
+export function BacklinkInputDropdownList({ addBacklink, cards }) {
   return (
+
     <ul className="input-link-dropdown">
       {cards.map((card, index) => (
         <li
@@ -8,6 +9,7 @@ export function BacklinkInputDropdownList({ cards }) {
             background: "lightgrey",
             cursor: "pointer",
           }}
+	  onClick={(e) => addBacklink(card)}
         >
           {card.card_id} - {card.title}
         </li>
