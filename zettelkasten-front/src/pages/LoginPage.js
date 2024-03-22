@@ -45,7 +45,7 @@ function LoginForm() {
       <div className="login-error">{message && <span>{message}</span>}</div>
       <form onSubmit={handleLogin}>
         <input
-	    id="username"
+	  name="username"
           type="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -53,7 +53,7 @@ function LoginForm() {
           required
         />
         <input
-	    id="password"
+	  name="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
