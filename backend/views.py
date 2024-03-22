@@ -125,6 +125,18 @@ def send_email_validation(user: dict):
     g.mail.send(message)
     g.logger.info('Email Validation: sent email for id %s, email %s', user['id'], user['email'])
 
+@bp.route("/api/email-validate", methods=["GET"])
+@jwt_required()
+def resend_email_validation():
+    current_user = get_jwt_identity() 
+    user = services.query_full_user(current_user)
+    print(user)
+    if user["email_validated"]:
+        return jsonify({"error": "Email already validated."}), 400
+    send_email_validation(user)
+    return jsonify({"message": "Email sent, check your inbox."}), 200
+    
+    
 @bp.route("/api/email-validate", methods=["POST"])
 def validate_email():
     data = request.get_json()
@@ -339,6 +351,7 @@ def create_user():
     result = services.create_user(user)
 
     user = services.query_full_user(result["new_id"])
+    print(user)
     if "error" in result:
         return jsonify(result), 400
     else:
@@ -382,6 +395,14 @@ def get_users():
 def get_user(id):
     id = unquote(id)
     user = services.query_full_user(id)
+    return jsonify(user)
+
+@bp.route("/api/users/current", methods=["GET"])
+@jwt_required()
+def get_current_user():
+    
+    current_user = get_jwt_identity()  # Extract the user identity from the token
+    user = services.query_full_user(current_user)
     return jsonify(user)
 
 @bp.route("/api/users/<path:id>", methods=["PUT"])

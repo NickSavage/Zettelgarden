@@ -10,11 +10,14 @@ import { Topbar } from "../components/Topbar";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
+import { getCurrentUser } from "../api";
+import { EmailValidationBanner } from "../components/EmailValidationBanner";
 
 function MainApp() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [cards, setCards] = useState([]);
+    const [currentUser, setCurrentUser] = useState(null);
   const [newCard, setNewCard] = useState(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
@@ -35,11 +38,18 @@ function MainApp() {
   }
   function handleIndexClick() {}
 
+    async function fetchCurrentUser() {
+	let response = await getCurrentUser();
+	setCurrentUser(response);
+    }
+    
   useEffect(() => {
     // Check if token does not exist or user is not authenticated
     if (!localStorage.getItem("token")) {
       logoutUser(); // Call your logout function
       navigate("/login"); // Redirect to the login page
+    } else {
+      fetchCurrentUser();
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
@@ -64,6 +74,7 @@ function MainApp() {
               <p>Error: {error}</p>
             </div>
           )}
+	    {currentUser && <EmailValidationBanner user={currentUser} />}
 
           <Routes>
             <Route

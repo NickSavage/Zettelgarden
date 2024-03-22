@@ -140,6 +140,19 @@ export function getUser(id) {
     });
 }
 
+export function getCurrentUser() {
+  const url = base_url + `/users/current`;
+  let token = localStorage.getItem("token");
+
+  // Send a GET request to the URL
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((userData) => {
+      // Process the card data here (if needed) and return it
+      return userData.json();
+    });
+}
+
 export function changePassword(id, password) {
   let encoded = encodeURIComponent(id);
   const url = base_url + `/user/${encoded}/password`;
@@ -396,3 +409,19 @@ export function validateEmail(token) {
     .then(checkStatus)
     .then((response) => response.json());
 }
+export async function resendValidateEmail() {
+
+  let token = localStorage.getItem("token");
+  const url = `${base_url}/email-validate`;
+
+  return fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+	.then(checkStatus)
+	.then((response) => response.json()["message"]);
+}
+

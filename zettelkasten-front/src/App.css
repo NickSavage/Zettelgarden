@@ -390,3 +390,8 @@ button[type="submit"] {
   font-size: 14px;
   font-weight: 400;
 }
+
+.validation-banner {
+    padding: 10px;
+    background-color: green;
+}
