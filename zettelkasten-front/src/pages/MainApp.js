@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
 import { SearchPage } from "../components/SearchPage";
-import { SettingsPage } from "../components/SettingsPage";
+import { UserSettingsPage } from "../pages/UserSettings";
 import { FileVault } from "../components/FileVault";
 import { ViewPage } from "../components/ViewPage";
 import { EditPage } from "../components/EditPage";
@@ -114,7 +114,7 @@ function MainApp() {
                 />
               }
             />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route path="settings" element={<UserSettingsPage />} />
             <Route path="files" element={<FileVault />} />
           </Routes>
         </div>
