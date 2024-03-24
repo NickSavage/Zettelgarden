@@ -398,6 +398,20 @@ def get_user(id):
     user = services.query_full_user(id)
     return jsonify(user)
 
+@bp.route("/api/users/<path:id>/subscription", methods=["GET"])
+@jwt_required()
+def get_user_subscription(id: int):
+
+    current_user_id = get_jwt_identity()
+
+    current_user = services.query_full_user(current_user_id)
+    print(current_user)
+    if current_user["id"] != id and not current_user["is_admin"]:
+        return jsonify({}), 403
+    
+    user = services.query_user_subscription(id)
+    return jsonify(user)
+
 @bp.route("/api/users/current", methods=["GET"])
 @jwt_required()
 def get_current_user():
@@ -602,12 +616,16 @@ def get_publishable_key():
 @bp.route("/api/billing/create_checkout_session", methods=['GET'])
 @jwt_required()
 def create_checkout_session():
+
+    current_user = get_jwt_identity() 
+    user = services.query_full_user(current_user)
     try:
         checkout_session = stripe.checkout.Session.create(
             success_url=g.config['ZETTEL_URL'] + "/settings/billing/success?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=g.config['ZETTEL_URL'] + "/settings/billing/cancelled",
             payment_method_types=["card"],
             mode="subscription",
+            customer_email=user["email"],
             line_items=[
                 {
                     # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
@@ -616,6 +634,6 @@ def create_checkout_session():
                 },
             ],
         )
-        return redirect(checkout_session.url, code=303)
+        return jsonify({"url": checkout_session.url}), 200
     except Exception as e:
         return jsonify(error=str(e)), 403

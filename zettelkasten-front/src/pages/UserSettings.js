@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getCurrentUser, editUser } from "../api";
+import { getCurrentUser, editUser, getUserSubscription, createCheckoutSession } from "../api";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState(null);
+    const [subscription, setSubscription] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+    async function handleMonthlySubscribe() {
+	let response = await createCheckoutSession();
+	window.location.href = response.url;
+	
+    }
   async function handleSubmit(event) {
     event.preventDefault(); // Prevent the default form submit action
 
@@ -34,14 +40,23 @@ export function UserSettingsPage() {
     }
   }
 
-  async function fetchUser() {
-    let response = await getCurrentUser();
-    console.log(response);
-    setUser(response);
+useEffect(() => {
+  async function fetchUserAndSubscription() {
+    let userResponse = await getCurrentUser();
+    console.log(userResponse);
+    setUser(userResponse);
+
+    // Now that we have the user, fetch their subscription using the user ID
+    if (userResponse && userResponse["id"]) {
+      let subscriptionResponse = await getUserSubscription(userResponse["id"]);
+      console.log(subscriptionResponse);
+      setSubscription(subscriptionResponse);
+    }
   }
-  useEffect(() => {
-    fetchUser();
-  }, []);
+
+  fetchUserAndSubscription();
+}, []);
+
 
   return (
     <div>
@@ -66,6 +81,13 @@ export function UserSettingsPage() {
             </div>
             <button type="submit">Save Changes</button>
           </form>
+		  {subscription &&
+		   <div>
+		       <h2>Subscription</h2>
+		       <p>Subscription Status: {subscription["stripe_subscription_status"]}</p>
+		       <a href="#" onClick={handleMonthlySubscribe}>Subscribe</a>
+		   </div>
+		  }
         </div>
       }
     </div>

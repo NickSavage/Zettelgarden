@@ -423,3 +423,49 @@ export async function resendValidateEmail() {
     .then(checkStatus)
     .then((response) => response.json()["message"]);
 }
+export function getUserSubscription(id) {
+  let encodedId = encodeURIComponent(id);
+  const url = `${base_url}/users/${encodedId}/subscription`;
+  let token = localStorage.getItem("token");
+
+  // Send a GET request to the URL
+  return fetch(url, {
+    method: 'GET', // Specify the method
+    headers: {
+      Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
+    },
+  })
+  .then(checkStatus)
+  .then(response => response.json()) // Parse the JSON response
+  .catch(error => {
+    // Handle any errors here
+    console.error('Error fetching user subscription:', error);
+    throw error;
+  });
+}
+export async function createCheckoutSession() {
+  let token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
+
+  // Define the API endpoint
+  const url = `${base_url}/billing/create_checkout_session`;
+
+  try {
+    // Send a GET request to the server
+    const response = await fetch(url, {
+      method: 'GET', // Specify the method
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
+      },
+    });
+
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error('Failed to create checkout session. Please try again.');
+    }
+
+      return response.json();
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    // Handle errors, such as by showing a message to the user
+  }
+}

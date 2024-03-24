@@ -434,6 +434,34 @@ def query_full_user(id: int, include_password=False) -> dict:
     cur.close()
     return user
 
+def query_user_subscription(id: int) -> dict:
+    cur = get_db().cursor()
+    cur.execute("""
+    SELECT
+        u.id,
+        u.stripe_customer_id,
+        u.stripe_subscription_id,
+        u.stripe_subscription_status,
+        u.stripe_subscription_frequency,
+        u.stripe_current_plan
+    FROM
+        users as u
+    WHERE
+        u.id = %s
+    """, (id,))
+
+    result = cur.fetchone()
+    results = {
+        "id": result[0],
+        "stripe_customer_id": result[1],
+        "stripe_subscription_id": result[2],
+        "stripe_subscription_status": result[3],
+        "stripe_subscription_frequency": result[4],
+        "stripe_current_plan": result[5]
+    }
+    cur.close()
+    return results
+
 def query_user_by_id(id: int, include_password=False) -> dict:
     cur = get_db().cursor()
     if not username:
