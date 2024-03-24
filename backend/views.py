@@ -1,5 +1,5 @@
 from datetime import timedelta
-from flask import Flask, request, jsonify, send_from_directory, Blueprint, g
+from flask import Flask, request, jsonify, send_from_directory, Blueprint, g, redirect
 from flask_mail import Message
 from flask_cors import CORS
 from urllib.parse import unquote
@@ -15,6 +15,7 @@ from flask_jwt_extended import (
 )
 from flask_bcrypt import Bcrypt
 import uuid
+import stripe
 
 from database import connect_to_database, get_db
 
@@ -587,3 +588,34 @@ def check_admin():
         return jsonify({}), 204
     else:
         return jsonify({}), 401
+
+@bp.route("/webhook", methods=["POST"])
+def webhook():
+    print(request.json)
+    return jsonify({}), 200
+    
+@bp.route("/api/billing/publishable_key", methods=["GET"])
+def get_publishable_key():
+    stripe_config = {"publicKey": g.config["STRIPE_PUBLISHABLE_KEY"]}
+    return jsonify(stripe_config)
+
+@bp.route("/api/billing/create_checkout_session", methods=['GET'])
+@jwt_required()
+def create_checkout_session():
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            success_url=g.config['ZETTEL_URL'] + "/settings/billing/success?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=g.config['ZETTEL_URL'] + "/settings/billing/cancelled",
+            payment_method_types=["card"],
+            mode="subscription",
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': 'price_1OxItSCT2XDlG7vRP5wYqy8c',
+                    'quantity': 1,
+                },
+            ],
+        )
+        return redirect(checkout_session.url, code=303)
+    except Exception as e:
+        return jsonify(error=str(e)), 403

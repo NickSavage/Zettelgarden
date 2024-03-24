@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import { getCurrentUser } from "../api";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
+import { BillingSuccess } from "../pages/BillingSuccess";
+import { BillingCancelled } from "../pages/BillingCancelled";
 
 function MainApp() {
   const navigate = useNavigate();
@@ -115,6 +117,8 @@ function MainApp() {
               }
             />
             <Route path="settings" element={<UserSettingsPage />} />
+	      <Route path="settings/billing/success" element={<BillingSuccess />} />
+	      <Route path="settings/billing/cancelled" element={<BillingCancelled />} />
             <Route path="files" element={<FileVault />} />
           </Routes>
         </div>

@@ -17,6 +17,8 @@ import uuid
 from werkzeug.utils import secure_filename
 from logging.config import dictConfig
 
+import stripe
+
 from views import bp
 
 import database
@@ -60,6 +62,14 @@ def create_app(testing=False):
     bcrypt = Bcrypt(app)  # app is your Flask app instance
     mail = Mail(app)
 
+    stripe_keys = {
+        "secret_key": os.getenv("STRIPE_SECRET_KEY"),
+        "publishable_key": os.getenv("STRIPE_PUBLISHABLE_KEY")
+    }
+    
+    stripe.api_key = stripe_keys["secret_key"]
+    app.config['STRIPE_PUBLISHABLE_KEY'] = stripe_keys['publishable_key']
+    
     database.run_migrations(app.config.get("TESTING", False))
     app.register_blueprint(bp)
 
