@@ -656,8 +656,8 @@ def create_checkout_session():
     plan = services.fetch_plan_information(interval)
     try:
         checkout_session = stripe.checkout.Session.create(
-            success_url=g.config['ZETTEL_URL'] + "app/settings/billing/success?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=g.config['ZETTEL_URL'] + "/settings/billing/cancelled",
+            success_url=g.config['ZETTEL_URL'] + "/app/settings/billing/success?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=g.config['ZETTEL_URL'] + "/app/settings/billing/cancelled",
             payment_method_types=["card"],
             mode="subscription",
             customer_email=user["email"],
