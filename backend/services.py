@@ -21,7 +21,8 @@ SELECT
     (SELECT COUNT(*) FROM cards t1 WHERE t1.user_id = u.id) AS table1_count,
     u.email,
     u.email_validated,
-    u.stripe_customer_id
+    u.stripe_customer_id,
+    u.stripe_subscription_status
 FROM 
     users as u
 """
@@ -203,7 +204,8 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         "cards": user[6],
         "email": user[7],
         "email_validated": user[8],
-        "stripe_customer_id": user[9]
+        "stripe_customer_id": user[9],
+        "stripe_subscription_status": user[10]
     }
     if include_password:
         result["password"] = user[2]

@@ -25,8 +25,10 @@ function MainApp() {
   const [refreshSidebar, setRefreshSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState([]);
-  const { isAuthenticated, logoutUser } = useAuth();
+    const { isAuthenticated, logoutUser } = useAuth();
+    const [isActive, setIsActive] = useState(false);
 
+    
   // changing pages
 
   async function handleNewCard(cardType) {
@@ -42,7 +44,8 @@ function MainApp() {
 
   async function fetchCurrentUser() {
     let response = await getCurrentUser();
-    setCurrentUser(response);
+      setCurrentUser(response);
+      setIsActive(response["stripe_subscription_status"] === "active" ? true : false);
   }
 
   useEffect(() => {
@@ -55,6 +58,7 @@ function MainApp() {
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
+    console.log(isActive);
   return (
     <div>
       <Topbar
@@ -77,6 +81,7 @@ function MainApp() {
             </div>
           )}
           {currentUser && <EmailValidationBanner user={currentUser} />}
+	    {!isActive && <div class="validation-banner"><span>pay up bitch</span></div>}
 
           <Routes>
             <Route

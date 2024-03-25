@@ -1,5 +1,5 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
-import { checkAdmin } from "./api";
+import { checkAdmin, getCurrentUser } from "./api";
 
 const AuthContext = createContext(null);
 
@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Added loading state
+    const [isActive, setIsActive] = useState("inactive");
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }) => {
         // Assume checkAdmin will resolve to true/false based on the admin status
         const adminStatus = await checkAdmin(token);
         setIsAdmin(adminStatus);
+	  const currentUser = await getCurrentUser(token);
       }
       setIsLoading(false);
     };
