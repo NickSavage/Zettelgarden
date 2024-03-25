@@ -656,7 +656,7 @@ def create_checkout_session():
     plan = services.fetch_plan_information(interval)
     try:
         checkout_session = stripe.checkout.Session.create(
-            success_url=g.config['ZETTEL_URL'] + "/settings/billing/success?session_id={CHECKOUT_SESSION_ID}",
+            success_url=g.config['ZETTEL_URL'] + "app/settings/billing/success?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=g.config['ZETTEL_URL'] + "/settings/billing/cancelled",
             payment_method_types=["card"],
             mode="subscription",
@@ -668,7 +668,15 @@ def create_checkout_session():
                 },
             ],
         )
-        g.logger("New subscription: %s", user["email"])
+        g.logger.info("New subscription: %s", user["email"])
         return jsonify({"url": checkout_session.url}), 200
     except Exception as e:
         return jsonify(error=str(e)), 403
+
+@bp.route("/api/billing/success", methods=["GET"])
+@jwt_required()
+def get_successful_session_data():
+    session = stripe.checkout.Session.retrieve(request.args.get('session_id'))
+    customer = stripe.Customer.retrieve(session.customer)
+
+    return jsonify(customer), 200

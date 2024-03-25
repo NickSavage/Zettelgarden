@@ -471,3 +471,29 @@ export async function createCheckoutSession(interval) {
     // Handle errors, such as by showing a message to the user
   }
 }
+// Add this function to your API functions file
+export async function getSuccessfulSessionData(sessionId) {
+  let token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
+
+  // Define the API endpoint
+  const url = `${base_url}/billing/success?session_id=${sessionId}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET', // Specify the method
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
+      },
+    });
+
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error('Failed to retrieve session data. Please try again.');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error retrieving session data:', error);
+    // Handle errors, such as by showing a message to the user
+  }
+}
