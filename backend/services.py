@@ -20,7 +20,8 @@ SELECT
     u.is_admin,
     (SELECT COUNT(*) FROM cards t1 WHERE t1.user_id = u.id) AS table1_count,
     u.email,
-    u.email_validated
+    u.email_validated,
+    u.stripe_customer_id
 FROM 
     users as u
 """
@@ -202,6 +203,7 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         "cards": user[6],
         "email": user[7],
         "email_validated": user[8],
+        "stripe_customer_id": user[9]
     }
     if include_password:
         result["password"] = user[2]
@@ -435,7 +437,8 @@ def query_full_user(id: int, include_password=False) -> dict:
     cur.close()
     return user
 
-def query_user_subscription(id: int) -> dict:
+def query_user_subscription(user: dict) -> dict:
+    update_user_subscription_info(user["stripe_customer_id"])
     cur = get_db().cursor()
     cur.execute("""
     SELECT
@@ -449,7 +452,7 @@ def query_user_subscription(id: int) -> dict:
         users as u
     WHERE
         u.id = %s
-    """, (id,))
+    """, (user["id"],))
 
     result = cur.fetchone()
     results = {
@@ -660,3 +663,40 @@ def sync_stripe_plans():
     
     conn.commit()
     cursor.close()
+def update_user_subscription_info(stripe_customer_id):
+    # Fetch the latest subscription for the customer from Stripe
+    subscriptions = stripe.Subscription.list(customer=stripe_customer_id, limit=1)
+    if subscriptions and len(subscriptions.data) > 0:
+        subscription = subscriptions.data[0]
+
+        # Extract necessary details
+        stripe_subscription_id = subscription.id
+        stripe_subscription_status = subscription.status
+        stripe_subscription_frequency = subscription.plan.interval
+        stripe_current_plan = subscription.plan.id
+
+        # Connect to your database and update the user record
+        conn = get_db()  # Ensure this function returns a connection object
+        cursor = conn.cursor()
+        sql = """
+        UPDATE users
+        SET stripe_subscription_id = %s,
+        stripe_subscription_status = %s,
+        stripe_subscription_frequency = %s,
+        stripe_current_plan = %s
+        WHERE stripe_customer_id = %s;
+        """
+        cursor.execute(sql, (
+            stripe_subscription_id, 
+            stripe_subscription_status, 
+            stripe_subscription_frequency, 
+            stripe_current_plan, 
+            stripe_customer_id
+        ))
+        conn.commit()
+        cursor.close()
+
+        print("User subscription info updated successfully.")
+    else:
+        print("No subscription found for this customer.")
+

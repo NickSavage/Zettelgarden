@@ -409,7 +409,7 @@ def get_user_subscription(id: int):
         if not current_user["is_admin"]:
             return jsonify({}), 403
     
-    user = services.query_user_subscription(id)
+    user = services.query_user_subscription(current_user)
     return jsonify(user)
 
 @bp.route("/api/users/current", methods=["GET"])
@@ -644,6 +644,10 @@ def create_checkout_session():
     current_user = get_jwt_identity() 
     user = services.query_full_user(current_user)
 
+    
+    subscription = services.query_user_subscription(user)
+    if subscription["stripe_subscription_status"] == "Active":
+        return jsonify({"error": "User already has an active subscription"}), 400
     data = request.get_json()
     interval = data.get("interval")
     
@@ -663,6 +667,7 @@ def create_checkout_session():
                 },
             ],
         )
+        g.logger("New subscription: %s", user["email"])
         return jsonify({"url": checkout_session.url}), 200
     except Exception as e:
         return jsonify(error=str(e)), 403
