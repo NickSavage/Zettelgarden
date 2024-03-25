@@ -667,6 +667,11 @@ def create_checkout_session():
                     'quantity': 1,
                 },
             ],
+            subscription_data={
+                "trial_settings": {"end_behavior": {"missing_payment_method": "cancel"}},
+                "trial_period_days": 30,
+            }
+
         )
         g.logger.info("New subscription: %s", user["email"])
         return jsonify({"url": checkout_session.url}), 200
