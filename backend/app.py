@@ -69,6 +69,7 @@ def create_app(testing=False):
     
     stripe.api_key = stripe_keys["secret_key"]
     app.config['STRIPE_PUBLISHABLE_KEY'] = stripe_keys['publishable_key']
+    app.config['STRIPE_ENDPOINT_SECRET'] = os.getenv('STRIPE_ENDPOINT_SECRET')
     
     database.run_migrations(app.config.get("TESTING", False))
     app.register_blueprint(bp)

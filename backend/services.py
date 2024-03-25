@@ -559,3 +559,24 @@ def update_user(id, user_update):
     conn.commit()
     
     cur.close()
+
+def fulfill_subscription(payload: dict, session):
+    
+    user = query_user_by_email(payload["data"]["object"]["customer_details"]["email"])
+    cus_id = payload["data"]["object"]["customer"]
+    sub_id = payload["data"]["object"]["subscription"]
+    frequency = session.line_items["data"][0]["description"]
+    status = "Active"
+
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute(
+        """
+        UPDATE users SET
+        stripe_customer_id = %s, stripe_subscription_id = %s, stripe_subscription_status = %s,
+        stripe_subscription_frequency = %s, updated_at = NOW()
+        WHERE id = %s;
+        """, (cus_id, sub_id, status, frequency, user["id"]))
+    conn.commit()
+    cur.close()

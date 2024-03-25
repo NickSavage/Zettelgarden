@@ -405,9 +405,9 @@ def get_user_subscription(id: int):
     current_user_id = get_jwt_identity()
 
     current_user = services.query_full_user(current_user_id)
-    print(current_user)
-    if current_user["id"] != id and not current_user["is_admin"]:
-        return jsonify({}), 403
+    if current_user["id"] != int(id):
+        if not current_user["is_admin"]:
+            return jsonify({}), 403
     
     user = services.query_user_subscription(id)
     return jsonify(user)
@@ -603,8 +603,32 @@ def check_admin():
     else:
         return jsonify({}), 401
 
-@bp.route("/webhook", methods=["POST"])
+@bp.route("/api/webhook", methods=["POST"])
 def webhook():
+
+    payload = request.data
+    sig_header = request.headers["Stripe-Signature"]
+    endpoint_secret = g.config["STRIPE_ENDPOINT_SECRET"]
+
+    event = stripe.Webhook.construct_event(
+        payload, sig_header, endpoint_secret
+    )
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        return jsonify({}), 400
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return jsonify({}), 400
+    if event['type'] == 'checkout.session.completed':
+        session = stripe.checkout.Session.retrieve(
+            event["data"]["object"]["id"],
+            expand=["line_items"]
+        )
+        services.fulfill_subscription(request.json, session)
     print(request.json)
     return jsonify({}), 200
     
