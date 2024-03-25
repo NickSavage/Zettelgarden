@@ -637,12 +637,16 @@ def get_publishable_key():
     stripe_config = {"publicKey": g.config["STRIPE_PUBLISHABLE_KEY"]}
     return jsonify(stripe_config)
 
-@bp.route("/api/billing/create_checkout_session", methods=['GET'])
+@bp.route("/api/billing/create_checkout_session", methods=['POST'])
 @jwt_required()
 def create_checkout_session():
 
     current_user = get_jwt_identity() 
     user = services.query_full_user(current_user)
+
+    interval = data.get("interval")
+    
+    plan = services.fetch_plan_information(interval)
     try:
         checkout_session = stripe.checkout.Session.create(
             success_url=g.config['ZETTEL_URL'] + "/settings/billing/success?session_id={CHECKOUT_SESSION_ID}",
@@ -652,8 +656,7 @@ def create_checkout_session():
             customer_email=user["email"],
             line_items=[
                 {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    'price': 'price_1OxItSCT2XDlG7vRP5wYqy8c',
+                    'price': plan["stripe_price_id"],
                     'quantity': 1,
                 },
             ],

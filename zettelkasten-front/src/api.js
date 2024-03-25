@@ -443,7 +443,7 @@ export function getUserSubscription(id) {
     throw error;
   });
 }
-export async function createCheckoutSession() {
+export async function createCheckoutSession(interval) {
   let token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
 
   // Define the API endpoint
@@ -452,10 +452,11 @@ export async function createCheckoutSession() {
   try {
     // Send a GET request to the server
     const response = await fetch(url, {
-      method: 'GET', // Specify the method
+      method: 'POST', // Specify the method
       headers: {
         Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
       },
+	body: JSON.stringify({ interval: interval }),
     });
 
     // Check if the response is successful

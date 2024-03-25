@@ -9,7 +9,12 @@ export function UserSettingsPage() {
   const navigate = useNavigate();
 
     async function handleMonthlySubscribe() {
-	let response = await createCheckoutSession();
+	let response = await createCheckoutSession("monthly");
+	window.location.href = response.url;
+	
+    }
+    async function handleAnnualSubscribe() {
+	let response = await createCheckoutSession("annual");
 	window.location.href = response.url;
 	
     }
@@ -86,6 +91,7 @@ useEffect(() => {
 		       <h2>Subscription</h2>
 		       <p>Subscription Status: {subscription["stripe_subscription_status"]}</p>
 		       <a href="#" onClick={handleMonthlySubscribe}>Subscribe</a>
+		       <a href="#" onClick={handleAnnualSubscribe}>Subscribe</a>
 		   </div>
 		  }
         </div>

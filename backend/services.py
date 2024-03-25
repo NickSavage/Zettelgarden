@@ -3,6 +3,7 @@ import uuid
 
 from flask import g
 from werkzeug.utils import secure_filename
+import stripe
 
 from database import get_db
 import models.card
@@ -559,7 +560,8 @@ def update_user(id, user_update):
     conn.commit()
     
     cur.close()
-
+    
+    
 def fulfill_subscription(payload: dict, session):
     
     user = query_user_by_email(payload["data"]["object"]["customer_details"]["email"])
@@ -580,3 +582,29 @@ def fulfill_subscription(payload: dict, session):
         """, (cus_id, sub_id, status, frequency, user["id"]))
     conn.commit()
     cur.close()
+
+def fetch_plan_information(interval: str):
+    if interval != "monthly" or interval != "yearly":
+        raise ValueError("Interval must be either montly or annual")
+    cur = get_db)
+
+    query = """
+    SELECT id, stripe_price_id, name, description, unit_amount, currency, interval
+    FROM stripe_plans
+    WHERE interval = %s
+    """
+
+    cur.execute(query, (interval,))
+    fetched = cur.fetchone()
+
+    cur.close()
+    result = {
+        "id": fetched[0],
+        "stripe_price_id": fetched[1],
+        "name": fetched[2],
+        "description": fetched[3],
+        "unit_amount": fetched[4],
+        "currency": fetched[5],
+        "interval": fetched[6],
+    }
+    return result
