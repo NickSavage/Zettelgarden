@@ -583,10 +583,15 @@ def fulfill_subscription(payload: dict, session):
     conn.commit()
     cur.close()
 
+def update_all_plan_information():
+    products = stripe.Products.list()
+    prices = stripe.Prices.list()
+    
 def fetch_plan_information(interval: str):
-    if interval != "monthly" or interval != "yearly":
-        raise ValueError("Interval must be either montly or annual")
-    cur = get_db)
+    print(interval)
+    if interval != "month" and interval != "year":
+        raise ValueError("Interval must be either month or year")
+    cur = get_db().cursor()
 
     query = """
     SELECT id, stripe_price_id, name, description, unit_amount, currency, interval
@@ -608,3 +613,50 @@ def fetch_plan_information(interval: str):
         "interval": fetched[6],
     }
     return result
+
+def sync_stripe_plans():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Fetch all prices and their related product data from Stripe
+    prices = stripe.Price.list(active=True, expand=['data.product'])
+    
+    for price in prices.auto_paging_iter():
+        product = price.product
+        # Prepare data for insertion or update
+        data = {
+            'stripe_product_id': product.id,
+            'stripe_price_id': price.id,
+            'name': product.name,
+            'description': product.description,
+            'active': product.active,
+            'unit_amount': price.unit_amount,
+            'currency': price.currency,
+            'interval': price.recurring.interval if price.recurring else None,
+            'interval_count': price.recurring.interval_count if price.recurring else None,
+            'trial_days': price.recurring.trial_period_days if price.recurring else None,
+            'metadata': str(product.metadata)
+        }
+        
+        # Upsert query (PostgreSQL 9.5+)
+        query = """
+        INSERT INTO stripe_plans (stripe_product_id, stripe_price_id, name, description, active, unit_amount, currency, interval, interval_count, trial_days, metadata)
+        VALUES (%(stripe_product_id)s, %(stripe_price_id)s, %(name)s, %(description)s, %(active)s, %(unit_amount)s, %(currency)s, %(interval)s, %(interval_count)s, %(trial_days)s, %(metadata)s)
+        ON CONFLICT (stripe_price_id)
+        DO UPDATE SET
+            name = EXCLUDED.name,
+            description = EXCLUDED.description,
+            active = EXCLUDED.active,
+            unit_amount = EXCLUDED.unit_amount,
+            currency = EXCLUDED.currency,
+            interval = EXCLUDED.interval,
+            interval_count = EXCLUDED.interval_count,
+            trial_days = EXCLUDED.trial_days,
+            metadata = EXCLUDED.metadata,
+            updated_at = CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(query, data)
+    
+    conn.commit()
+    cursor.close()

@@ -644,8 +644,10 @@ def create_checkout_session():
     current_user = get_jwt_identity() 
     user = services.query_full_user(current_user)
 
+    data = request.get_json()
     interval = data.get("interval")
     
+    services.sync_stripe_plans()
     plan = services.fetch_plan_information(interval)
     try:
         checkout_session = stripe.checkout.Session.create(

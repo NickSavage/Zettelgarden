@@ -9,12 +9,12 @@ export function UserSettingsPage() {
   const navigate = useNavigate();
 
     async function handleMonthlySubscribe() {
-	let response = await createCheckoutSession("monthly");
+	let response = await createCheckoutSession("month");
 	window.location.href = response.url;
 	
     }
     async function handleAnnualSubscribe() {
-	let response = await createCheckoutSession("annual");
+	let response = await createCheckoutSession("year");
 	window.location.href = response.url;
 	
     }

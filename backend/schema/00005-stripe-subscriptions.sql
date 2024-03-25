@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS stripe_plans (
     trial_days INT, 
     metadata TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
