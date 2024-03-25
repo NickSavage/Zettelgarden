@@ -395,3 +395,63 @@ button[type="submit"] {
   padding: 10px;
   background-color: green;
 }
+
+.subscription-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px;
+    background-color: #f7f7f7;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.subscription-options {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    justify-content: center;
+}
+
+.subscription-button {
+    background-color: #635bff;
+    color: white;
+    padding: 20px;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.subscription-button:hover {
+    background-color: white;
+    color: #635bff;
+    border: 1px solid #635bff;
+}
+
+.button-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.plan-cost {
+    font-size: 14px;
+    opacity: 0.8;
+}
+

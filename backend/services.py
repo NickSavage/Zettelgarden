@@ -573,7 +573,7 @@ def fulfill_subscription(payload: dict, session):
     cus_id = payload["data"]["object"]["customer"]
     sub_id = payload["data"]["object"]["subscription"]
     frequency = session.line_items["data"][0]["description"]
-    status = "Active"
+    status = "active"
 
     conn = get_db()
     cur = conn.cursor()

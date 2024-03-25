@@ -8,16 +8,6 @@ export function UserSettingsPage() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-    async function handleMonthlySubscribe() {
-	let response = await createCheckoutSession("month");
-	window.location.href = response.url;
-	
-    }
-    async function handleAnnualSubscribe() {
-	let response = await createCheckoutSession("year");
-	window.location.href = response.url;
-	
-    }
   async function handleSubmit(event) {
     event.preventDefault(); // Prevent the default form submit action
 
@@ -92,12 +82,6 @@ useEffect(() => {
 		       <p>Subscription Status: {subscription["stripe_subscription_status"]}</p>
 		       <p>Current Plan: {subscription["stripe_subscription_frequency"]}</p>
 		       <p>Visit the <a href="https://billing.stripe.com/p/login/test_28og184xZe4b51ecMM">billing portal</a> to manage or cancel your plan.</p>
-		       {subscription["stripe_subscription_status"] !== "active" &&
-			<div> 
-			    <a href="#" onClick={handleMonthlySubscribe}>Subscribe</a>
-			    <a href="#" onClick={handleAnnualSubscribe}>Subscribe</a>
-			</div>
-		       }
 		   </div>
 		  }
         </div>

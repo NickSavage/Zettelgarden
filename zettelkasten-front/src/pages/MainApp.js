@@ -14,6 +14,7 @@ import { getCurrentUser } from "../api";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
 import { BillingSuccess } from "../pages/BillingSuccess";
 import { BillingCancelled } from "../pages/BillingCancelled";
+import { SubscriptionPage } from "../pages/SubscriptionPage";
 
 function MainApp() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function MainApp() {
   const [refreshSidebar, setRefreshSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState([]);
-    const { isAuthenticated, logoutUser } = useAuth();
+    const { isAuthenticated, isLoading, logoutUser } = useAuth();
     const [isActive, setIsActive] = useState(false);
 
     
@@ -58,7 +59,10 @@ function MainApp() {
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
-    console.log(isActive);
+    console.log([isLoading, isActive])
+    if (!isLoading && !isActive) {
+	return (<SubscriptionPage />)
+    }
   return (
     <div>
       <Topbar
@@ -81,7 +85,6 @@ function MainApp() {
             </div>
           )}
           {currentUser && <EmailValidationBanner user={currentUser} />}
-	    {!isActive && <div class="validation-banner"><span>pay up bitch</span></div>}
 
           <Routes>
             <Route
