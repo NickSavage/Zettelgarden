@@ -629,7 +629,8 @@ def webhook():
             expand=["line_items"]
         )
         services.fulfill_subscription(request.json, session)
-    print(request.json)
+    elif event['type'] == 'customer.subscription.deleted':
+        print(request.json)
     return jsonify({}), 200
     
 @bp.route("/api/billing/publishable_key", methods=["GET"])
@@ -646,7 +647,7 @@ def create_checkout_session():
 
     
     subscription = services.query_user_subscription(user)
-    if subscription["stripe_subscription_status"] == "Active":
+    if subscription["stripe_subscription_status"] == "active":
         return jsonify({"error": "User already has an active subscription"}), 400
     data = request.get_json()
     interval = data.get("interval")
