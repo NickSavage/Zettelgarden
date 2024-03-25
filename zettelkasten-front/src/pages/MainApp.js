@@ -46,7 +46,7 @@ function MainApp() {
   async function fetchCurrentUser() {
     let response = await getCurrentUser();
       setCurrentUser(response);
-      setIsActive(response["stripe_subscription_status"] === "active" ? true : false);
+      setIsActive(response["is_active"]);
   }
 
   useEffect(() => {

@@ -205,7 +205,8 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         "email": user[7],
         "email_validated": user[8],
         "stripe_customer_id": user[9],
-        "stripe_subscription_status": user[10]
+        "stripe_subscription_status": user[10],
+        "is_active": True if user[10] == "active" or user[10] == "trialing" else False,
     }
     if include_password:
         result["password"] = user[2]
