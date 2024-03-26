@@ -1,7 +1,13 @@
 import React from "react";
 import { createCheckoutSession } from "../api";
+import { useAuth } from "../AuthContext";
+
+import { Link } from "react-router-dom";
 
 export function SubscriptionPage() {
+    
+  const { logoutUser } = useAuth();
+
     async function handleMonthlySubscribe() {
         let response = await createCheckoutSession("month");
         window.location.href = response.url;
@@ -12,6 +18,10 @@ export function SubscriptionPage() {
         window.location.href = response.url;
     }
 
+
+    function handleLogout() {
+	logoutUser();
+    }
     return (
         <div className="login-container">
             <h1>Select Your Subscription Plan</h1>
@@ -29,6 +39,10 @@ export function SubscriptionPage() {
                     </div>
                 </button>
             </div>
+
+	    <span className="text">
+		<Link onClick={handleLogout}>Already have an account?</Link>
+	    </span>
         </div>
     );
 }
