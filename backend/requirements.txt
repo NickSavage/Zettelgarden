@@ -13,3 +13,4 @@ gunicorn==21.2.0
 Flask-JWT-Extended==4.5.3
 Flask-Bcrypt==1.0.1
 Flask-Mail==0.9.1
+stripe==8.8.0
