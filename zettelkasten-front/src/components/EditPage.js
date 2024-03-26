@@ -76,7 +76,12 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
   function onFileDelete(file_id) {}
 
   function handleCancelButtonClick() {
-    navigate(`/app/card/${editingCard.id}`);
+      if (editingCard.id) {
+	  
+	  navigate(`/app/card/${editingCard.id}`);
+      } else {
+	  navigate('/');
+      }
   }
   function handleDeleteButtonClick() {
     if (
