@@ -53,19 +53,6 @@ export function Sidebar({
     } else if (value === "all") {
       setSidebarCards(mainCards);
       setUnfilteredSidebarCards(mainCards);
-    } else if (value === "read") {
-      const readCards = cards.filter((card) => card.card_id.startsWith("READ"));
-      setSidebarCards(readCards);
-      setUnfilteredSidebarCards(readCards);
-    } else if (value === "work") {
-      const workCards = cards
-        .filter(
-          (card) =>
-            card.card_id.startsWith("SP") || card.card_id.startsWith("SYMP"),
-        )
-        .filter((card) => !card.card_id.includes("/"));
-      setSidebarCards(workCards);
-      setUnfilteredSidebarCards(workCards);
     } else if (value === "unsorted") {
       const unsortedCards = cards.filter((card) => card.card_id === "");
       setSidebarCards(unsortedCards);
@@ -75,19 +62,25 @@ export function Sidebar({
 
   function handleFilter(e) {
     let filter = e.target.value;
+      let isIdSearch = filter.startsWith('!');
     setFilter(filter);
 
     document.getElementById("select-filters").value = "all";
 
     const filteredCards = mainCards.filter((card) => {
-      // Check if any of the search terms are present in the card title or ID
-      return filter.split(" ").every((keyword) => {
-        return (
-          keyword.trim().toLowerCase() === "" ||
-          card.title.toLowerCase().includes(keyword.trim().toLowerCase()) ||
-          card.card_id.toLowerCase().includes(keyword.trim().toLowerCase())
-        );
-      });
+     if (isIdSearch) {
+	 return card.card_id.toLowerCase().includes(filter.slice(1).trim().toLowerCase());
+     } else {
+
+	 // Check if any of the search terms are present in the card title or ID
+	 return filter.split(" ").every((keyword) => {
+             return (
+		 keyword.trim().toLowerCase() === "" ||
+		     card.title.toLowerCase().includes(keyword.trim().toLowerCase()) ||
+		     card.card_id.toLowerCase().includes(keyword.trim().toLowerCase())
+             );
+	 });
+     }
     });
     setSidebarCards(filteredCards);
   }
@@ -127,10 +120,8 @@ export function Sidebar({
       <select onChange={handleSelectChange} id="select-filters">
         <option value="all">All Cards</option>
         <option value="meeting">Meeting Cards</option>
-        <option value="read">Read Cards</option>
         <option value="reference">Reference Cards</option>
         <option value="unsorted">Unsorted Cards</option>
-        <option value="work">Work Cards</option>
       </select>
       <select onChange={handleSortChange}>
         <option value="sortSmallBig">Sort Big to Small</option>
