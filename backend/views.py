@@ -223,8 +223,8 @@ def generate_next_id():
 
         # Query to get the highest number for reference cards
         cur.execute("""
-        SELECT card_id FROM cards WHERE card_id LIKE 'SM%' AND is_deleted = FALSE
-        ORDER BY CAST(SUBSTRING(card_id FROM 'SM(.*)$') AS INTEGER) DESC
+        SELECT card_id FROM cards WHERE card_id LIKE 'MM%' AND is_deleted = FALSE
+        ORDER BY CAST(SUBSTRING(card_id FROM 'MM(.*)$') AS INTEGER) DESC
         LIMIT 1""")
         result = cur.fetchone()
         cur.close()
@@ -233,10 +233,10 @@ def generate_next_id():
             # Extract the numeric part of the ID and increment it
             highest_number = int(result[0][2:])  # Assumes that 'REF' is followed by the number directly
             next_number = highest_number + 1
-            new_card_id = f"SM{next_number:02}"  # Pad with zeros if necessary
+            new_card_id = f"MM{next_number:02}"  # Pad with zeros if necessary
         else:
             # If there are no reference cards, start numbering from 1
-            new_card_name = "SM01"
+            new_card_name = "MM01"
 
         return jsonify({"new_id": new_card_id})
         pass
