@@ -94,7 +94,9 @@ export function ViewPage({ cards, setLastCardId }) {
 
           <h4>References:</h4>
           <ul>
-            {viewingCard.references.map((backlink, index) => (
+              {viewingCard.references
+               .sort((a, b) => a.card_id.localeCompare(b.card_id))
+	       .map((backlink, index) => (
               <CardItem card={backlink} />
             ))}
           </ul>
