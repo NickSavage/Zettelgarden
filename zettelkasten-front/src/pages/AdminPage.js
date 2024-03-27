@@ -41,7 +41,7 @@ export function Admin() {
         <Routes>
           <Route path="/" element={<AdminUserIndex />} />
           <Route path="user/:id" element={<AdminUserDetailPage />} />
-          <Route path="user/:id" element={<AdminEditUserPage />} />
+          <Route path="user/:id/edit" element={<AdminEditUserPage />} />
         </Routes>
       </div>
     </div>

@@ -453,7 +453,7 @@ def update_user(id):
     # Update user in database
     services.update_user(id, user_update)
     
-    user = services.query_full_user(current_user)
+    user = services.query_full_user(id)
 
     if old_email != email:
         conn = get_db()
@@ -463,6 +463,7 @@ def update_user(id):
 
         conn.commit()
         cur.close()
+        send_email_validation(user)
     # Return the updated user information
     return jsonify(services.query_full_user(id))
 
