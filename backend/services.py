@@ -22,7 +22,8 @@ SELECT
     u.email,
     u.email_validated,
     u.stripe_customer_id,
-    u.stripe_subscription_status
+    u.stripe_subscription_status,
+    u.last_login
 FROM 
     users as u
 """
@@ -207,6 +208,7 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         "stripe_customer_id": user[9],
         "stripe_subscription_status": user[10],
         "is_active": True if user[10] == "active" or user[10] == "trialing" else False,
+        "last_login": user[11],
     }
     if include_password:
         result["password"] = user[2]

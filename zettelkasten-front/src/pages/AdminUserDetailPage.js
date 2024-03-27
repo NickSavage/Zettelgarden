@@ -27,6 +27,9 @@ export function AdminUserDetailPage() {
               <li>
                 <b>id:</b> {user["id"]}
               </li>
+		<li>
+		    <b>Last Login: </b> {user["last_login"]}
+		</li>
               <li>
                 <b>Email:</b> {user["email"]}
               </li>

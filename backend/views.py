@@ -49,6 +49,12 @@ def log_card_view(card_pk, user_id):
     finally:
         cur.close()
 
+def log_last_login(user: dict) -> None:
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user["id"],))
+    conn.commit()
+    cur.close()
 
 @bp.route("/api/login", methods=["POST"])
 def login():
@@ -70,6 +76,7 @@ def login():
         del user["password"]
         results = {"access_token": access_token, "user": user}
         g.logger.info('Successful login: id %s, username %s', user['id'], username)
+        log_last_login(user)
         return jsonify(results), 200
     else:
         g.logger.info('Failed login: %s', username)
@@ -90,7 +97,7 @@ def request_password_reset():
         token = generate_temp_token(user["id"])
         reset_url = f"{g.config['ZETTEL_URL']}/reset?token={token}"
         message = Message("Password Reset Request", recipients=[email], body=f"Please go to this link to reset your password: {reset_url}")
-        g.logger.info('Password reset: sent email for id %s, username %s, email %s', user['id'], email)
+        g.logger.info('Password reset: sent email for id %s, username %s, email %s', user['id'], user["username"], email)
         g.mail.send(message)
     g.logger.info('Password reset: Failed for email %s', email)
     return jsonify({"message": "If your email is in our system, you will receive a password reset link."}), 200
@@ -120,9 +127,15 @@ def reset_password():
     return jsonify({"error": "Invalid token."}), 400
 
 def send_email_validation(user: dict):
+
     token = generate_temp_token(user["id"])
     reset_url = f"{g.config['ZETTEL_URL']}/validate?token={token}"
-    message = Message("Email Validation Request", recipients=[user["email"]], body=f"Please click this link to validate your email: {reset_url}")
+    
+    message_body = f"""
+    Welcome to ZettelGarden, {user["username"]}.\n\nPlease click the following link to confirm your email address: {reset_url}.\n\nThank you.
+    """
+    
+    message = Message("Please confirm your ZettelGarden email", recipients=[user["email"]], body=message_body)
     g.mail.send(message)
     g.logger.info('Email Validation: sent email for id %s, email %s', user['id'], user['email'])
 
@@ -441,7 +454,7 @@ def update_user(id):
     if not username or not email:
         return jsonify({"message": "Username and email are required"}), 400
     
-    if not is_admin:
+    if "is_admin" not in request.json:
         is_admin = user["is_admin"]
     # Prepare the user update dictionary
     user_update = {
