@@ -33,7 +33,10 @@ export function AdminUserDetailPage() {
                 <b>Cards:</b> {user["cards"]}
               </li>
 		<li>
-		    <b>Stripe Customer ID:</b> {user["stripe_customer_id"]}
+		    <b>Stripe Customer ID:</b> 
+		    <a href={`https://dashboard.stripe.com/test/customers/${user["stripe_customer_id"]}`}>
+			{user["stripe_customer_id"]}
+		    </a>
 		</li>
 		<li>
 		    <b>Stripe Customer Status:</b> {user["stripe_subscription_status"]}
