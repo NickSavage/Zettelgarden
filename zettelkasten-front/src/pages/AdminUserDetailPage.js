@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { getUser } from "../api";
+import { getUser, requestPasswordReset } from "../api";
 import { Link, useParams } from "react-router-dom";
 
 export function AdminUserDetailPage() {
   const [user, setUser] = useState(null);
   const { id } = useParams();
+
+    function handlePasswordReset() {
+	requestPasswordReset(user["email"]);
+    }
 
   useEffect(() => {
     getUser(id).then((d) => setUser(d));
@@ -33,7 +37,7 @@ export function AdminUserDetailPage() {
                 <b>Cards:</b> {user["cards"]}
               </li>
 		<li>
-		    <b>Stripe Customer ID:</b> 
+		    <b>Stripe Customer ID: </b> 
 		    <a href={`https://dashboard.stripe.com/test/customers/${user["stripe_customer_id"]}`}>
 			{user["stripe_customer_id"]}
 		    </a>
@@ -44,7 +48,8 @@ export function AdminUserDetailPage() {
 		<li><b>Is Active:</b> {user["is_active"] ? "Yes" : "No"}</li>
             </div>
           </ul>
-          <Link to={`/admin/user/${user["id"]}/edit`}>Edit</Link>
+          <Link to={`/admin/user/${user["id"]}/edit`}>Edit</Link><br />
+	  <button onClick={handlePasswordReset}>Send Password Reset Email</button>
         </div>
       )}
     </div>
