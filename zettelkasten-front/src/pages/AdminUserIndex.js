@@ -20,8 +20,10 @@ export function AdminUserIndex() {
           <td>id</td>
           <td>name</td>
           <td>is_admin</td>
+	    <td>email</td>
+	    <td>email_validated</td>
+	    <td>stripe_subscription_status</td>
           <td>created_at</td>
-          <td>updated_at</td>
           <td>cards</td>
         </tr>
         {users &&
@@ -32,8 +34,10 @@ export function AdminUserIndex() {
                 <Link to={`/admin/user/${user.id}`}>{user.username}</Link>
               </td>
               <td>{user["is_admin"]}</td>
+		<td>{user["email"]}</td>
+		<td>{user["email_validated"]}</td>
+		<td>{user["stripe_subscription_status"]}</td>
               <td>{user["created_at"]}</td>
-              <td>{user["updated_at"]}</td>
               <td>{user["cards"]}</td>
             </tr>
           ))}

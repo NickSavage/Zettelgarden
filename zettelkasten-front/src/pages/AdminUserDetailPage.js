@@ -32,6 +32,13 @@ export function AdminUserDetailPage() {
               <li>
                 <b>Cards:</b> {user["cards"]}
               </li>
+		<li>
+		    <b>Stripe Customer ID:</b> {user["stripe_customer_id"]}
+		</li>
+		<li>
+		    <b>Stripe Customer Status:</b> {user["stripe_subscription_status"]}
+		</li>
+		<li><b>Is Active:</b> {user["is_active"] ? "Yes" : "No"}</li>
             </div>
           </ul>
           <Link to={`/admin/user/${user["id"]}/edit`}>Edit</Link>
