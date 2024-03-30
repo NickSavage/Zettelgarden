@@ -174,6 +174,11 @@ export function uploadFile(file, card_pk) {
   let token = localStorage.getItem("token");
   const url = base_url + "/files/upload";
 
+    const maxSize = 10 * 1024 * 1024; // 10 MB in bytes
+    if (file.size > maxSize) {
+	return Promise.reject(new Error("File size exceeds the maximum limit of 10 MB."));
+    }
+    
   // Create a FormData object and append the file
   let formData = new FormData();
   formData.append("file", file);
