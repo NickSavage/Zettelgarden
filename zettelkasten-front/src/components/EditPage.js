@@ -170,7 +170,6 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     // Check if there are any items being pasted
     if (event.clipboardData && event.clipboardData.items) {
       const items = event.clipboardData.items;
-
       for (const item of items) {
         // Check if the item is an image
         if (item.type.indexOf("image") !== -1) {
@@ -198,10 +197,13 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
           } catch (error) {
             setMessage(`Error uploading file: ${error}`);
           }
-        } else {
+        } else if (item.type === "text/plain") {
           // If the pasted content is not an image, handle the usual text pasting
           const text = event.clipboardData.getData("text/plain");
-          document.execCommand("insertText", false, text);
+	    setEditingCard(prevEditingCard => ({
+		...prevEditingCard,
+		body: prevEditingCard.body + text // Append the pasted text to the existing body
+	    }));
         }
       }
     }
