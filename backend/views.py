@@ -515,6 +515,10 @@ def upload_file():
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
+    check = services.user_can_upload_file(current_user, file)
+    if check["error"]:
+        return jsonify({"error": "User cannot upload file", "message": check["message"]})
+
     if file:  # You can add more file validation here
         file = services.upload_file(card_pk, file, current_user)
         return jsonify({"message": "File uploaded successfully", "file": file}), 201

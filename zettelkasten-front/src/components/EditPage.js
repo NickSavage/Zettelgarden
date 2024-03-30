@@ -156,7 +156,11 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
       for (let i = 0; i < files.length; i++) {
         try {
           const response = await uploadFile(files[i], editingCard["id"]);
-          setMessage("File uploaded successfully: " + response["file"]["name"]);
+	    if ("error" in response) {
+		setMessage("Error uploading file: " + response["message"])
+	    } else {
+		setMessage("File uploaded successfully: " + response["file"]["name"]);
+	    }
         } catch (error) {
           setMessage("Error uploading file: " + error, error);
         }
@@ -184,16 +188,21 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
 
           try {
             const response = await uploadFile(file, editingCard["id"]);
-            let append_text = "\n\n![](" + response["file"]["id"] + ")";
-            setMessage(
-              `File uploaded successfully: ${response["file"]["name"]}`,
-            );
 
-            // if uploading an image, we want to automatically link it in the body
-            setEditingCard((prevEditingCard) => ({
-              ...editingCard,
-              body: editingCard.body + append_text, // Append the text
-            }));
+	    if ("error" in response) {
+		setMessage("Error uploading file: " + response["message"])
+	    } else {
+		let append_text = "\n\n![](" + response["file"]["id"] + ")";
+		setMessage(
+		    `File uploaded successfully: ${response["file"]["name"]}`,
+		);
+
+		// if uploading an image, we want to automatically link it in the body
+		setEditingCard((prevEditingCard) => ({
+		    ...editingCard,
+		    body: editingCard.body + append_text, // Append the text
+		}));
+	    }
           } catch (error) {
             setMessage(`Error uploading file: ${error}`);
           }

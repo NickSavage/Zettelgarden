@@ -23,7 +23,9 @@ SELECT
     u.email_validated,
     u.stripe_customer_id,
     u.stripe_subscription_status,
-    u.last_login
+    u.last_login,
+    u.can_upload_files,
+    u.max_file_storage
 FROM 
     users as u
 """
@@ -209,6 +211,8 @@ def serialize_full_user(user: list, include_password=False) -> dict:
         "stripe_subscription_status": user[10],
         "is_active": True if user[10] == "active" or user[10] == "trialing" else False,
         "last_login": user[11],
+        "can_upload_files": user[12],
+        "max_file_storage": user[13],
     }
     if include_password:
         result["password"] = user[2]
@@ -291,6 +295,24 @@ def delete_file(file_id) -> None:
     cur.close()
 
 
+def user_can_upload_file(current_user: int, file: dict):
+    user = query_full_user(current_user)
+
+    cur = get_db().cursor()
+    
+    if not user["can_upload_files"]:
+        return {"error": True, "message": "User does not have permissions to upload the file"}
+        
+    cur.execute("SELECT sum(size) FROM files WHERE created_by = %s", (current_user,))
+    already_uploaded = cur.fetchone()
+    cur.close()
+
+    size = file.content_length
+    if already_uploaded[0] + size > user["max_file_storage"]:
+        return {"error": True, "message": "Out of storage"}
+    
+    return {"error": False, "message": ""}
+    
 def upload_file(card_pk: str, file: dict, current_user: int) -> int:
     original_filename = secure_filename(file.filename)
     file_extension = os.path.splitext(original_filename)[1]
