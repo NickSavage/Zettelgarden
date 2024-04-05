@@ -59,13 +59,13 @@ def log_last_login(user: dict) -> None:
 @bp.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
-    username = data.get("username")
+    email = data.get("email")
     password = data.get("password")
 
-    user = services.query_user_by_username(username, True)
+    user = services.query_user_by_email(email, True)
 
     if not user or "error" in user:
-        g.logger.info('Failed login: %s', username)
+        g.logger.info('Failed login: %s', email)
         return jsonify({"error": "Invalid credentials"}), 401
 
     #    if user and user['password'] == password:
@@ -75,11 +75,11 @@ def login():
         )
         del user["password"]
         results = {"access_token": access_token, "user": user}
-        g.logger.info('Successful login: id %s, username %s', user['id'], username)
+        g.logger.info('Successful login: id %s, username %s', user['id'], email)
         log_last_login(user)
         return jsonify(results), 200
     else:
-        g.logger.info('Failed login: %s', username)
+        g.logger.info('Failed login: %s', email)
         return jsonify({"message": "Invalid credentials"}), 401
 
 def generate_temp_token(user_id):

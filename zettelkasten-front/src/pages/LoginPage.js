@@ -4,7 +4,7 @@ import { useAuth } from "../AuthContext";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 function LoginForm() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
@@ -21,7 +21,7 @@ function LoginForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -45,11 +45,11 @@ function LoginForm() {
       <div className="login-error">{message && <span>{message}</span>}</div>
       <form onSubmit={handleLogin}>
         <input
-          name="username"
-          type="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
+          name="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
           required
         />
         <input
