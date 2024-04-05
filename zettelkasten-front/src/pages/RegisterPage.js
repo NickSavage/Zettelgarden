@@ -70,6 +70,7 @@ function RegisterPage() {
           <input
             type="email"
             value={email}
+            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
             onChange={(e) => setEmail(e.target.value)}
             required
           />
