@@ -25,6 +25,7 @@ export function ViewPage({ cards, setLastCardId }) {
       setError(refreshed["error"]);
     } else {
       setViewCard(refreshed);
+      document.title = "Zettelgarden - " + refreshed.card_id + " - View";
       setLastCardId(refreshed.card_id);
       if ("id" in refreshed.parent) {
         let parentCardId = refreshed.parent.id;

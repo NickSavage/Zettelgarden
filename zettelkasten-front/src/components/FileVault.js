@@ -38,6 +38,7 @@ export function FileVault() {
   }
 
   useEffect(() => {
+    document.title = "Zettelgarden - Files";
     getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
   }, []);
   return (

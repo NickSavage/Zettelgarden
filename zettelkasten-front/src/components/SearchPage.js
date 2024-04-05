@@ -43,7 +43,9 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
     }
   }
   const sortedCards = sortCards(); // Call sortCards to get the sorted cards
-  console.log(sortedCards);
+  useEffect(() => {
+    document.title = "Zettelgarden - Search";
+  }, []);
   return (
     <div>
       <input

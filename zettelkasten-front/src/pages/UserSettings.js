@@ -49,6 +49,7 @@ useEffect(() => {
     }
   }
 
+  document.title = "Zettelgarden - Settings";
   fetchUserAndSubscription();
 }, []);
 

@@ -36,6 +36,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     let refreshed = await getCard(id);
 
     setEditingCard(refreshed);
+    document.title = "Zettelgarden - " + refreshed.card_id + " - Edit";
   }
 
   async function handleSaveCard() {
@@ -67,6 +68,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     if (!newCard) {
       fetchCard(id);
     } else {
+      document.title = "Zettelgarden - New Card";
       prefillNextId().then((nextId) => {
         setEditingCard({ card_id: nextId, title: "", body: "" });
       });
