@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
   const [sortBy, setSortBy] = useState("relevant");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const navigate = useNavigate();
 
   function handleCardClick(card_id) {
@@ -15,7 +17,6 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
   }
 
   function handleSearch() {
-    console.log("this is happening for real");
     fetchCards(searchTerm).then((data) => {
       setCards(data);
     });
@@ -43,6 +44,17 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
     }
   }
   const sortedCards = sortCards(); // Call sortCards to get the sorted cards
+
+  // Calculate the index of the last and first item on the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // Slice the sortedCards array to only include the items for the current page
+  const currentItems = sortedCards.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change page handler
+  function paginate(pageNumber) {
+    setCurrentPage(pageNumber);
+  }
   useEffect(() => {
     document.title = "Zettelgarden - Search";
   }, []);
@@ -73,7 +85,7 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
         <option value="z-a">Z to A</option>
       </select>
       <ul>
-        {sortedCards.map((card, index) => (
+        {currentItems.map((card, index) => (
           <li key={index} style={{ marginBottom: "10px" }}>
             <a
               href="#"
@@ -96,6 +108,15 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
           </li>
         ))}
       </ul>
+      <div>
+        <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+          Previous
+        </button>
+        <span> Page {currentPage} of {Math.ceil(sortedCards.length / itemsPerPage)} </span>
+        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === Math.ceil(sortedCards.length / itemsPerPage)}>
+          Next
+        </button>
+      </div>
     </div>
   );
 }
