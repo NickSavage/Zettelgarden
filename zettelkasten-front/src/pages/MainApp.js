@@ -15,6 +15,7 @@ import { EmailValidationBanner } from "../components/EmailValidationBanner";
 import { BillingSuccess } from "../pages/BillingSuccess";
 import { BillingCancelled } from "../pages/BillingCancelled";
 import { SubscriptionPage } from "../pages/SubscriptionPage";
+import { DashboardPage } from "../pages/DashboardPage";
 
 function MainApp() {
   const navigate = useNavigate();
@@ -128,6 +129,7 @@ function MainApp() {
 	      <Route path="settings/billing/success" element={<BillingSuccess />} />
 	      <Route path="settings/billing/cancelled" element={<BillingCancelled />} />
             <Route path="files" element={<FileVault />} />
+            <Route path="*" element={<DashboardPage />} />
           </Routes>
         </div>
       </div>
