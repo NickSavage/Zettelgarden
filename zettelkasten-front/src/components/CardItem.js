@@ -5,20 +5,11 @@ export function CardItem({ handleViewCard, card }) {
     navigate(`/app/card/${card_id}`);
   }
   return (
-    <li style={{ marginBottom: "10px" }}>
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          handleCardClick(card.id);
-        }}
-        style={{ color: "black", textDecoration: "none" }}
-      >
+    <div key={card.id} onClick={() => handleCardClick(card.id)}>
         <span style={{ color: "blue", fontWeight: "bold" }}>
           {card.card_id}
         </span>
         : {card.title}
-      </a>
-    </li>
+      </div>
   );
 }
