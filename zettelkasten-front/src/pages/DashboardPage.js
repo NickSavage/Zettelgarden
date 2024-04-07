@@ -11,7 +11,7 @@ export function DashboardPage() {
         console.log("test")
         fetchPartialCards()
             .then((response) => {
-                setPartialCards(response.slice(0, 10));
+                setPartialCards(response);
             })
             .catch((error) => {
                 console.error('Error fetching partial cards:', error);
@@ -23,21 +23,23 @@ export function DashboardPage() {
             <h1>Dashboard Page</h1>
             <div style={{ display: 'flex' }}>
                 <div style={{ flex: 1 }}>
-                    {partialCards.map((card) => (
+                    {partialCards
+                    .filter((card) => card.card_id === "")
+                    .slice(0, 10)
+                    .map((card) => (
                         <div key={card.id} style={{ marginBottom: '10px' }}>
                             <CardItem card={card} />
                         </div>
                     ))}
                 </div>
                 <div style={{ flex: 1 }}>
-                    {/* Add your second table content here */}
-                <div style={{ flex: 1 }}>
-                    {partialCards.map((card) => (
+                    {partialCards
+                    .slice(0, 10)
+                    .map((card) => (
                         <div key={card.id} style={{ marginBottom: '10px' }}>
                             <CardItem card={card} />
                         </div>
                     ))}
-                </div>
                 </div>
             </div>
         </div>
