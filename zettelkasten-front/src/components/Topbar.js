@@ -18,6 +18,10 @@ export function Topbar({
 
   const navigate = useNavigate();
 
+  function handleIndexClick() {
+    navigate("/app");
+  }
+
   function handleNewStandardCard() {
     handleNewCard("standard");
   }

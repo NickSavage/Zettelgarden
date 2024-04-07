@@ -42,7 +42,6 @@ function MainApp() {
   function handleViewSettings() {
     navigate("/app/settings");
   }
-  function handleIndexClick() {}
 
   async function fetchCurrentUser() {
     let response = await getCurrentUser();
@@ -70,7 +69,6 @@ function MainApp() {
         handleNewCard={handleNewCard}
         handleViewFileVault={handleViewFileVault}
         handleViewSettings={handleViewSettings}
-        handleIndexClick={handleIndexClick}
       />
       <div className="main-content">
         <Sidebar
