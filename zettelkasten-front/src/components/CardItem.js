@@ -7,7 +7,7 @@ export function CardItem({ handleViewCard, card }) {
   return (
     <div key={card.id} onClick={() => handleCardClick(card.id)}>
         <span style={{ color: "blue", fontWeight: "bold" }}>
-          {card.card_id}
+         - {card.card_id}
         </span>
         : {card.title}
       </div>

@@ -98,7 +98,9 @@ export function ViewPage({ cards, setLastCardId }) {
               {viewingCard.references
                .sort((a, b) => a.card_id.localeCompare(b.card_id))
 	       .map((backlink, index) => (
-              <CardItem card={backlink} />
+              <li style={{paddingTop: "5px", paddingBottom: "5px"}}>
+                <CardItem card={backlink} />
+              </li>
             ))}
           </ul>
           <button onClick={handleEditCard}>Edit</button>
@@ -107,7 +109,9 @@ export function ViewPage({ cards, setLastCardId }) {
             {viewingCard["children"]
               .sort((a, b) => a.card_id.localeCompare(b.card_id))
               .map((childCard, index) => (
-                <CardItem card={childCard} />
+                <li style={{paddingTop: "5px", paddingBottom: "5px"}}>
+                  <CardItem card={childCard} />
+                </li>
               ))}
           </ul>
         </div>

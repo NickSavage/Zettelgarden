@@ -23,6 +23,7 @@ export function DashboardPage() {
             <h1>Dashboard Page</h1>
             <div style={{ display: 'flex' }}>
                 <div style={{ flex: 1 }}>
+                    <h3>Unsorted Cards</h3>
                     {partialCards
                     .filter((card) => card.card_id === "")
                     .slice(0, 10)
@@ -33,6 +34,7 @@ export function DashboardPage() {
                     ))}
                 </div>
                 <div style={{ flex: 1 }}>
+                    <h3>Recent Cards</h3>
                     {partialCards
                     .slice(0, 10)
                     .map((card) => (
