@@ -8,7 +8,7 @@ export function DashboardPage() {
     const [partialCards, setPartialCards] = React.useState([]);
 
     useEffect(() => {
-        console.log("test")
+        document.title = 'Zettelgarden - Dashboard';
         fetchPartialCards()
             .then((response) => {
                 setPartialCards(response);
