@@ -22,7 +22,7 @@ cur.execute(
         FROM card_views
         GROUP BY card_pk
         ) cv ON c.id = cv.card_pk
-    WHERE c.title != '' AND c.card_id NOT LIKE 'SM%' AND c.card_id NOT LIKE 'READ%'
+    WHERE c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
     ORDER BY cv.recent_view DESC, RANDOM()
     LIMIT 30;
     
