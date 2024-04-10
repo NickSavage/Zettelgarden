@@ -43,11 +43,14 @@ export function fetchCards(searchTerm = "") {
       return results;
     });
 }
-export function fetchPartialCards(searchTerm = "") {
+export function fetchPartialCards(searchTerm = "", sortMethod = "") {
   let token = localStorage.getItem("token");
   let url = base_url + "/cards?partial=true";
   if (searchTerm) {
     url += `&search_term=${encodeURIComponent(searchTerm)}`;
+  }
+  if (sortMethod) {
+    url += `&sort_method=${encodeURIComponent(sortMethod)}`;
   }
 
   return fetch(url, {

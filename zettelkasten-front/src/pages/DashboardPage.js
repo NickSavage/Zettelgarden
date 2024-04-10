@@ -8,13 +8,12 @@ export function DashboardPage() {
     const [partialCards, setPartialCards] = React.useState([]);
 
     useEffect(() => {
-        document.title = 'Zettelgarden - Dashboard';
-        fetchPartialCards()
+        fetchPartialCards("", "date")
             .then((response) => {
-                setPartialCards(response);
+            setPartialCards(response);
             })
             .catch((error) => {
-                console.error('Error fetching partial cards:', error);
+            console.error('Error fetching partial cards:', error);
             });
     }, []);
 

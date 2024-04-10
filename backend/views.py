@@ -182,20 +182,27 @@ def check_token():
 @bp.route("/api/cards", methods=["GET"])
 @jwt_required()
 def get_cards():
-
     current_user = get_jwt_identity()
     search_term = request.args.get("search_term", None)
     partial = request.args.get("partial", False)
+    sort_method = request.args.get("sort_method", "id")  # Default sort method is "id"
+    
     try:
         if partial:
             results = services.query_all_partial_cards(current_user, search_term)
         else:
             results = services.query_all_full_cards(current_user, search_term)
-        results = sorted(
-            results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True
-        )
+        
+        if sort_method == "id":
+            results = sorted(results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True)
+        elif sort_method == "date":
+            results = sorted(results, key=lambda x: x["created_at"], reverse=True)
+        else:
+            return jsonify({"error": "Invalid sort method"})
+        
     except Exception as e:
         return jsonify({"error": str(e)})
+    
     return jsonify(results)
 
 @bp.route("/api/cards/next", methods=["POST"])
