@@ -449,6 +449,33 @@ def query_full_card(id) -> dict:
     cur.close()
     return card
 
+def query_inactive_cards(user_id: int) -> list:
+
+    cur = get_db().cursor()
+    cur.execute(
+        """
+        SELECT c.id, c.card_id, c.title, c.created_at, c.updated_at
+        FROM cards c
+        LEFT JOIN (
+            SELECT card_pk, MAX(created_at) AS recent_view
+            FROM card_views
+            GROUP BY card_pk
+        ) cv ON c.id = cv.card_pk
+        WHERE c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
+        ORDER BY cv.recent_view DESC, RANDOM()
+        LIMIT 30;
+    
+        """
+    )
+    cards = cur.fetchall()
+
+    results = []
+    for x in cards:
+        card = models.card.serialize_partial_card(x)
+        results.append(card)
+    cur.close()
+    return results
+
 
 def query_full_user(id: int, include_password=False) -> dict:
     cur = get_db().cursor()

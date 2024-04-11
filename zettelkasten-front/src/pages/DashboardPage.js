@@ -6,11 +6,19 @@ import { useState, useEffect } from "react";
 
 export function DashboardPage() {
     const [partialCards, setPartialCards] = React.useState([]);
+    const [inactiveCards, setInactiveCards] = React.useState([]);
 
     useEffect(() => {
         fetchPartialCards("", "date")
             .then((response) => {
             setPartialCards(response);
+            })
+            .catch((error) => {
+            console.error('Error fetching partial cards:', error);
+            });
+        fetchPartialCards("", "", true)
+            .then((response) => {
+            setInactiveCards(response);
             })
             .catch((error) => {
             console.error('Error fetching partial cards:', error);
@@ -35,6 +43,16 @@ export function DashboardPage() {
                 <div style={{ flex: 1 }}>
                     <h3>Recent Cards</h3>
                     {partialCards
+                    .slice(0, 10)
+                    .map((card) => (
+                        <div key={card.id} style={{ marginBottom: '10px' }}>
+                            <CardItem card={card} />
+                        </div>
+                    ))}
+                </div>
+                <div style={{ flex: 1 }}>
+                    <h3>Recent Cards</h3>
+                    {inactiveCards
                     .slice(0, 10)
                     .map((card) => (
                         <div key={card.id} style={{ marginBottom: '10px' }}>

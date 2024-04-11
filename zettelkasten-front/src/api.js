@@ -43,7 +43,8 @@ export function fetchCards(searchTerm = "") {
       return results;
     });
 }
-export function fetchPartialCards(searchTerm = "", sortMethod = "") {
+export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = false) {
+  console.log([searchTerm, sortMethod, inactive])
   let token = localStorage.getItem("token");
   let url = base_url + "/cards?partial=true";
   if (searchTerm) {
@@ -52,7 +53,11 @@ export function fetchPartialCards(searchTerm = "", sortMethod = "") {
   if (sortMethod) {
     url += `&sort_method=${encodeURIComponent(sortMethod)}`;
   }
+  if (inactive) {
+    url += `&inactive=${encodeURIComponent(inactive)}`;
+  }
 
+  console.log(url)
   return fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   })

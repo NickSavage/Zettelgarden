@@ -186,7 +186,10 @@ def get_cards():
     search_term = request.args.get("search_term", None)
     partial = request.args.get("partial", False)
     sort_method = request.args.get("sort_method", "id")  # Default sort method is "id"
+    inactive = request.args.get("inactive", False)
     
+    if inactive:
+        return jsonify(services.query_inactive_cards(current_user))
     try:
         if partial:
             results = services.query_all_partial_cards(current_user, search_term)
