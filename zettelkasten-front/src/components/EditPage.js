@@ -70,7 +70,15 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     } else {
       document.title = "Zettelgarden - New Card";
       prefillNextId().then((nextId) => {
-        setEditingCard({ card_id: nextId, title: "", body: "" });
+        let title = "";
+        if (cardType === "meeting") {
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, "0");
+          const day = String(today.getDate()).padStart(2, "0");
+          title = `${year}-${month}-${day} - `;
+        }
+        setEditingCard({ card_id: nextId, title, body: "" });
       });
     }
   }, [id]);
