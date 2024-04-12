@@ -522,6 +522,8 @@ def upload_file():
         
     file = request.files["file"]
     card_pk = request.form["card_pk"]
+    if card_pk == "undefined":
+        card_pk = None
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
@@ -604,14 +606,24 @@ def delete_file(file_id):
 def edit_file(file_id):
 
     current_user = get_jwt_identity()  # Extract the user identity from the token
-    if not services.check_file_permission(file_id, current_user):
-        return jsonify({}), 401
+    #if not services.check_file_permission(file_id, current_user):
+    #    return jsonify({}), 401
     data = request.get_json()
 
     if not data:
         return jsonify({"error": "No update data provided"}), 400
 
-    data = {"name": data["name"]}
+    original_file = services.query_file(file_id)
+    if "card_pk" not in data:
+        card_pk = original_file["id"]
+    else:
+        card_pk = data["card_pk"]
+    if "name" not in data:
+        name = original_file["name"]
+    else:
+        name = data["name"]
+
+    data = {"name": name, "card_pk": card_pk}
     services.update_file(file_id, data)
 
     updated_file = services.query_file(file_id)

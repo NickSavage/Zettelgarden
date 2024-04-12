@@ -273,8 +273,8 @@ def update_file(file_id, data) -> None:
     cur = conn.cursor()
 
     cur.execute(
-        "UPDATE files SET name = %s, updated_at = NOW() WHERE id = %s;",
-        (data["name"], file_id),
+        "UPDATE files SET name = %s, card_pk = %s, updated_at = NOW() WHERE id = %s;",
+        (data["name"], data["card_pk"], file_id),
     )
     conn.commit()
 

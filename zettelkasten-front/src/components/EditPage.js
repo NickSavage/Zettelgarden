@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../utils";
-import { uploadFile, deleteCard } from "../api";
+import { uploadFile, editFile, deleteCard } from "../api";
 import { FileListItem } from "./FileListItem";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -26,12 +26,16 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
   const [link, setLink] = useState("");
   const [topResults, setTopResults] = useState([]);
   const [editingCard, setEditingCard] = useState(null);
+  const [fileIds, setFileIds] = useState([]);
 
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const cardType = location.state?.cardType;
 
+  const addFileId = (fileId) => {
+    setFileIds(prevFileIds => [...prevFileIds, fileId]);
+  };
   async function fetchCard(id) {
     let refreshed = await getCard(id);
 
@@ -48,6 +52,12 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     }
 
     if (!("error" in response)) {
+      if (newCard) {
+        fileIds.forEach(fileId => {
+          editFile(fileId, { card_pk: response.id });
+        })
+
+      }
       navigate(`/app/card/${response.id}`);
     } else {
       setError(response["error"]);
@@ -154,12 +164,12 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     event.preventDefault();
     event.stopPropagation();
 
-    if (newCard) {
+/*     if (newCard) {
       setMessage(
         "Error: Cannot upload files for new cards, please save the card first",
       );
       return;
-    }
+    } */
     const files = event.dataTransfer.files;
 
     if (files.length > 0) {
@@ -169,7 +179,8 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
 	    if ("error" in response) {
 		setMessage("Error uploading file: " + response["message"])
 	    } else {
-		setMessage("File uploaded successfully: " + response["file"]["name"]);
+		    setMessage("File uploaded successfully: " + response["file"]["name"]);
+        addFileId(response["file"]["id"]);
 	    }
         } catch (error) {
           setMessage("Error uploading file: " + error, error);
