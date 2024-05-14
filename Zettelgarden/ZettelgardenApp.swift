@@ -11,7 +11,7 @@ import SwiftUI
 struct ZettelgardenApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CardList(cards: Card.sampleData)
         }
     }
 }
