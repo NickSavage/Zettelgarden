@@ -1,28 +1,37 @@
-//
-//  CardList.swift
-//  Zettelgarden
-//
-//  Created by Nicholas Savage on 2024-05-13.
-//
-
 import SwiftUI
 
 struct CardList: View {
-    let cards: [Card]
+    @State private var cards: [Card] = Card.sampleData
+    @State private var isPresentingNewCardView = false
+    @State private var newCard = Card.emptyCard
+    
     var body: some View {
         NavigationStack {
             List(cards) { card in
-                NavigationLink(destination: Text("test")) {
+                NavigationLink(destination: CardView(card: card)) {
                     CardListItem(card: card)
                 }
             }
+            .toolbar {
+                Button(action: {
+                    newCard = Card.emptyCard
+                    isPresentingNewCardView = true
+                }) {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: $isPresentingNewCardView) {
+            CardEditView(card: $newCard) { newCard in
+                // Handle the save action for the new card
+                cards.append(newCard)
+            }
         }
     }
-    
 }
 
-struct ScrumsView_Previews: PreviewProvider {
+struct CardList_Preview: PreviewProvider {
     static var previews: some View {
-        CardList(cards: Card.sampleData)
+        CardList()
     }
 }

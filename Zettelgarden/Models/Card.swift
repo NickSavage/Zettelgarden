@@ -54,4 +54,22 @@ extension Card {
              backlinks: []
         ),
     ]
+
+    static var emptyCard: Card {
+        Card(
+            id: -1,
+            card_id: "",
+            user_id: -1,
+            title: "",
+            body: "",
+            link: "",
+            created_at: Date(),
+            updated_at: Date(),
+            parent: [],
+            card_links: [],
+            children: [],
+            references:[],
+            backlinks:[]
+        )
+    }
 }
