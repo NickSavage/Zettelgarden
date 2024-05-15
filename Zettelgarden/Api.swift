@@ -1,7 +1,8 @@
 import Foundation
 
-func fetchCards(searchTerm: String = "", completion: @escaping (Result<[Card], Error>) -> Void) {
-    let token = "insert token"
+
+
+func fetchCards(token: String, searchTerm: String = "", completion: @escaping (Result<[Card], Error>) -> Void) {
     let baseUrl = "https://zettelgarden.com/api/cards"
     
     var urlComponents = URLComponents(string: baseUrl)!
