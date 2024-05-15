@@ -1,10 +1,13 @@
 import Foundation
 
+//var baseUrl = "https://zettelgarden.com/api"
+var baseUrl = "http://192.168.0.72:5000/api"
+
 struct Wrapper: Codable {
     var access_token: String
 }
 func login(email: String, password: String) async throws -> String {
-        let url = URL(string: "https://zettelgarden.com/api/login")!
+        let url = URL(string: baseUrl + "/login")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -15,6 +18,7 @@ func login(email: String, password: String) async throws -> String {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            print(response)
             throw URLError(.badServerResponse)
         }
 
@@ -23,9 +27,9 @@ func login(email: String, password: String) async throws -> String {
     }
 
 func fetchCards(token: String, searchTerm: String = "", completion: @escaping (Result<[Card], Error>) -> Void) {
-    let baseUrl = "https://zettelgarden.com/api/cards"
+    let url = baseUrl + "/cards"
     
-    var urlComponents = URLComponents(string: baseUrl)!
+    var urlComponents = URLComponents(string: url)!
     if !searchTerm.isEmpty {
         urlComponents.queryItems = [
             URLQueryItem(name: "search_term", value: searchTerm)
