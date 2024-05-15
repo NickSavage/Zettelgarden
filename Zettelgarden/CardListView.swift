@@ -15,7 +15,7 @@ struct CardListView: View {
                 Text("Recent Cards").tag(2)
             }
             List(cards) { card in
-                NavigationLink(destination: CardView(card: card)) {
+                NavigationLink(destination: CardView(cardPK: card.id)) {
                     CardListItem(card: card)
                 }
             }.onAppear {
