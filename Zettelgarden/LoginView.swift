@@ -28,7 +28,7 @@ struct LoginView: View {
             } else {
                 Button(action: {
                     Task {
-                        await login()
+                        await doLogin()
                     }
                 }) {
                     Text("Login")
@@ -50,11 +50,9 @@ struct LoginView: View {
         .padding()
     }
 
-    struct Wrapper: Codable {
-        var access_token: String
-    }
+    
 
-    func login() async {
+    func doLogin() async {
         // Ensure inputs are not empty
         guard !email.isEmpty, !password.isEmpty else {
             print("no email and password entered")
@@ -67,28 +65,10 @@ struct LoginView: View {
         loginError = nil
 
         do {
-            let url = URL(string: "https://zettelgarden.com/api/login")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-            let body: [String: String] = ["email": email, "password": password]
-            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
-
-            let (data, response) = try await URLSession.shared.data(for: request)
-            
-            // Check if response is a success
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                loginError = "Invalid response from server"
-                isLoading = false
-                return
-            }
-
-            let wrapper = try JSONDecoder().decode(Wrapper.self, from: data)
-            print(wrapper)
+            let token = try await login(email: email, password: password)
 
             // Store the JWT
-            jwt = wrapper.access_token
+            jwt = token
             isLoggedIn = true
         } catch {
             print("Request failed: \(error)")
