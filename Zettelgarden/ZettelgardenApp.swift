@@ -10,8 +10,8 @@ import SwiftUI
 @main
 struct ZettelgardenApp: App {
     var body: some Scene {
-        WindowGroup {
-            CardList()
+        WindowGroup{
+            ContentView()
         }
     }
 }

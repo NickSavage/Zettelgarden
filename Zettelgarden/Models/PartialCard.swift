@@ -11,4 +11,6 @@ struct PartialCard: Codable {
     var id: Int
     var card_id: String
     var title: String
+    var created_at: Date?
+    var updated_at: Date?
 }

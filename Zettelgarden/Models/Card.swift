@@ -13,11 +13,11 @@ struct Card: Identifiable, Codable {
     var user_id: Int
     var title: String
     var body: String
-    var link: String
+    var link: String?
     var created_at: Date
     var updated_at: Date
-    var parent: [PartialCard]
-    var card_links: [PartialCard] 
+    //var parent: PartialCard
+    //var card_links: [PartialCard]
     var children: [PartialCard]
     var references: [PartialCard]
     var backlinks: [PartialCard]
@@ -33,8 +33,6 @@ extension Card {
             link: "",
             created_at: Date(),
             updated_at: Date(),
-             parent: [],
-             card_links: [],
              children: [],
              references: [],
              backlinks: []
@@ -47,8 +45,6 @@ extension Card {
             link: "",
             created_at: Date(),
             updated_at: Date(),
-             parent: [],
-             card_links: [],
              children: [],
              references: [],
              backlinks: []
@@ -65,8 +61,6 @@ extension Card {
             link: "",
             created_at: Date(),
             updated_at: Date(),
-            parent: [],
-            card_links: [],
             children: [],
             references:[],
             backlinks:[]
