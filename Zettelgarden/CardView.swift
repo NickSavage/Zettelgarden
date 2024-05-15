@@ -3,7 +3,7 @@ import SwiftUI
 struct CardView: View {
     @State private var isPresentingEditView = false
     @State private var card: Card?
-    @State private var isLoading = false
+    @State private var isLoading = true // Changed to true to show loading indicator initially
     @AppStorage("jwt") private var token: String?
     let cardPK: Int
     
@@ -22,7 +22,7 @@ struct CardView: View {
                     }) {
                         Image(systemName: "pencil")
                     }
-                }            
+                }
                 .bold()
                 .padding()
                 VStack {
@@ -34,34 +34,45 @@ struct CardView: View {
                     Text("Updated at: \(card.updated_at, style: .date)")
                 }
                 .padding()
+            } else {
+                Text("No card available")
             }
         }
-        .onAppear {loadCard()}
-
+        .onAppear { loadCard() }
+        .sheet(isPresented: $isPresentingEditView) {
+            if let card = card {
+                CardEditView(card: Binding(get: { card }, set: { self.card = $0 }), onSave: { editedCard in
+                    // Handle the save action for the edited card
+                    self.card = editedCard
+                }, isNew: false)
+            } else {
+                Text("Loading...")
+            }
+        }
     }
+
     private func loadCard() {
         guard let token = token else {
-            print("something is wrong")
+            print("Token is missing")
             return
         }
 
         fetchCard(token: token, id: cardPK) { result in
-                    DispatchQueue.main.async {
-                        switch result {
-                        case .success(let fetchedCard):
-                            self.card = fetchedCard
-                            self.isLoading = false
-                        case .failure(let error):
-                            print("unable to load card")
-                            self.isLoading = false
-                        }
-                    }
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let fetchedCard):
+                    self.card = fetchedCard
+                    self.isLoading = false
+                case .failure(let error):
+                    print("Unable to load card: \(error.localizedDescription)")
+                    self.isLoading = false
                 }
+            }
+        }
     }
 }
 
 struct CardView_Previews: PreviewProvider {
-    static var card = Card.sampleData[0]
     static var previews: some View {
         CardView(cardPK: 0)
     }

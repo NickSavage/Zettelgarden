@@ -6,11 +6,11 @@ struct CardListView: View {
     @State private var isPresentingNewCardView = false
     @State private var newCard = Card.emptyCard
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Text("Zettelgarden")
-            Picker(selection: .constant(1), label: /*@START_MENU_TOKEN@*/Text("Picker")/*@END_MENU_TOKEN@*/) {
+            Picker(selection: .constant(1), label: Text("Picker")) {
                 Text("All Cards").tag(1)
                 Text("Recent Cards").tag(2)
             }
@@ -18,7 +18,8 @@ struct CardListView: View {
                 NavigationLink(destination: CardView(cardPK: card.id)) {
                     CardListItem(card: card)
                 }
-            }.onAppear {
+            }
+            .onAppear {
                 loadCards()
             }
             .toolbar {
@@ -31,13 +32,13 @@ struct CardListView: View {
             }
         }
         .sheet(isPresented: $isPresentingNewCardView) {
-            CardEditView(card: $newCard) { newCard in
-                // Handle the save action for the new card
+            CardEditView(card: $newCard, onSave: { newCard in
                 cards.append(newCard)
-            }
+                isPresentingNewCardView = false
+            }, isNew: true)
         }
     }
-    
+
     private func loadCards() {
         guard let token = token else {
             errorMessage = "No token found. Please log in."
@@ -45,18 +46,16 @@ struct CardListView: View {
         }
 
         fetchCards(token: token, searchTerm: "") { result in
-            switch result {
-            case .success(let fetchedCards):
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let fetchedCards):
                     self.cards = fetchedCards
+                case .failure(let error):
+                    self.errorMessage = "Error fetching cards: \(error.localizedDescription)"
                 }
-            case .failure(let error):
-                print("Error fetching cards: \(error)")
             }
         }
-
     }
-    
 }
 
 struct CardList_Preview: PreviewProvider {

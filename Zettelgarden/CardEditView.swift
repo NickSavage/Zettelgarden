@@ -3,7 +3,9 @@ import SwiftUI
 struct CardEditView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var card: Card
+    @AppStorage("jwt") private var token: String?
     var onSave: (Card) -> Void
+    var isNew: Bool
     
     var body: some View {
         NavigationView {
@@ -14,20 +16,47 @@ struct CardEditView: View {
                     TextField("Body", text: $card.body)
                 }
             }
-            .navigationBarTitle(card.card_id.isEmpty ? "New Card" : "Edit Card", displayMode: .inline)
+            .navigationBarTitle(isNew ? "New Card" : "Edit Card", displayMode: .inline)
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Save") {
-                onSave(card)
-                presentationMode.wrappedValue.dismiss()
+                guard let token = token else {
+                    print("Token is missing")
+                    return
+                }
+                if isNew {
+                    saveNewCard(token: token, card: card) { result in
+                        switch result {
+                        case .success(let savedCard):
+                            print("success!")
+                            onSave(savedCard)
+                        case .failure(let error):
+                            print("Failed to save new card: \(error)")
+                        }
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                } else {
+                    saveExistingCard(token: token, card: card) { result in
+                        switch result {
+                        case .success(let savedCard):
+                            print("success!")
+
+                            onSave(savedCard)
+                        case .failure(let error):
+                            print("Failed to save existing card: \(error)")
+                        }
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
             })
         }
     }
 }
 
-// Update the preview to pass a binding
 struct CardEditView_Previews: PreviewProvider {
+    @State static var card = Card.sampleData[0]
+
     static var previews: some View {
-        CardEditView(card: .constant(Card.sampleData[0])) { _ in }
+        CardEditView(card: $card, onSave: { _ in }, isNew: true)
     }
 }

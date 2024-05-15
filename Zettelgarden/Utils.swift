@@ -58,3 +58,4 @@ func performRequest<T: Decodable>(with url: URL, token: String, httpMethod: Stri
     
     task.resume()
 }
+
