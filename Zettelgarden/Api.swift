@@ -34,12 +34,27 @@ func fetchCard(token: String, id: Int, completion: @escaping (Result<Card, Error
     
     performRequest(with: url, token: token, completion: completion)
 }
-
-func fetchCards(token: String, searchTerm: String = "", completion: @escaping (Result<[PartialCard], Error>) -> Void) {
+func fetchCards(token: String, searchTerm: String = "", completion: @escaping (Result<[Card], Error>) -> Void) {
     var urlComponents = URLComponents(string: baseUrl + "/cards?partial=true")!
     
     if !searchTerm.isEmpty {
-        urlComponents.queryItems = [URLQueryItem(name: "search_term", value: searchTerm), URLQueryItem(name: "partial", value: "true")]
+        urlComponents.queryItems = [URLQueryItem(name: "search_term", value: searchTerm)]
+    }
+    
+    guard let url = urlComponents.url else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+    
+    print("Request URL: \(url.absoluteString)")
+    
+    performRequest(with: url, token: token, completion: completion)
+}
+func fetchPartialCards(token: String, searchTerm: String = "", completion: @escaping (Result<[PartialCard], Error>) -> Void) {
+    var urlComponents = URLComponents(string: baseUrl + "/cards?partial=true")!
+    
+    if !searchTerm.isEmpty {
+        urlComponents.queryItems = [URLQueryItem(name: "search_term", value: searchTerm)]
     }
     
     guard let url = urlComponents.url else {

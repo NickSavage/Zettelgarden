@@ -14,6 +14,10 @@ struct ContentView: View {
                 Image(systemName: "house.fill")
                 Text("Home")
             }
+            SearchView().tabItem{
+                Image(systemName: "house.fill")
+                Text("Search")
+            }
             SettingsView().tabItem{
                 Image(systemName: "house.fill")
                 Text("Settings")

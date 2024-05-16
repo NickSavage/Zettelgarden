@@ -59,3 +59,12 @@ func performRequest<T: Decodable>(with url: URL, token: String, httpMethod: Stri
     task.resume()
 }
 
+func cardToPartialCard(card: Card) -> PartialCard {
+    return PartialCard(
+        id: card.id,
+        card_id: card.card_id,
+        title: card.title,
+        created_at: card.created_at,
+        updated_at: card.updated_at
+    )
+}

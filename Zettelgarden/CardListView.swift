@@ -48,7 +48,7 @@ struct CardListView: View {
             return
         }
 
-        fetchCards(token: token, searchTerm: "") { result in
+        fetchPartialCards(token: token, searchTerm: "") { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCards):
