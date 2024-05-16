@@ -4,8 +4,9 @@
 //
 //  Created by Nicholas Savage on 2024-05-13.
 //
-
+import Combine
 import Foundation
+import SwiftUI
 
 struct Card: Identifiable, Codable {
     var id: Int
@@ -22,6 +23,32 @@ struct Card: Identifiable, Codable {
     var references: [PartialCard]
     var backlinks: [PartialCard]
 }
+
+class CardViewModel: ObservableObject {
+    @Published var card: Card?
+    @Published var isLoading = true
+    @AppStorage("jwt") private var token: String?
+    
+    func loadCard(cardPK: Int) {
+        guard let token = token else {
+            print("Token is missing")
+            return
+        }
+
+        fetchCard(token: token, id: cardPK) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let fetchedCard):
+                    self.card = fetchedCard
+                case .failure(let error):
+                    print("Unable to load card: \(error.localizedDescription)")
+                }
+                self.isLoading = false
+            }
+        }
+    }
+}
+
 extension Card {
     static var sampleData: [Card] =
     [

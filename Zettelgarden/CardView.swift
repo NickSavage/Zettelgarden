@@ -2,16 +2,14 @@ import SwiftUI
 
 struct CardView: View {
     @State private var isPresentingEditView = false
-    @State private var card: Card?
-    @State private var isLoading = true // Changed to true to show loading indicator initially
-    @AppStorage("jwt") private var token: String?
+    @ObservedObject var viewModel = CardViewModel()
     let cardPK: Int
     
     var body: some View {
         VStack(alignment: .leading) {
-            if isLoading {
+            if viewModel.isLoading {
                 ProgressView("Loading")
-            } else if let card = card {
+            } else if let card = viewModel.card {
                 HStack {
                     Text(card.card_id).foregroundColor(.blue)
                     Text(" - ")
@@ -25,56 +23,50 @@ struct CardView: View {
                 }
                 .bold()
                 .padding()
-                VStack {
-                    Text(card.body).padding()
-                }
-                VStack {
-                    Text("Children")
-                    List(card.children) { card in
-                        NavigationLink(destination: CardView(cardPK: card.id)) {
-                            CardListItem(card: card)
+                TabView() {
+                    
+                    VStack {
+                        Text(card.body)
+                        Spacer()
+                        VStack(alignment: .leading) {
+                            Text("Created at: \(card.created_at, style: .date)")
+                            Text("Updated at: \(card.updated_at, style: .date)")
+                        }
+                        .padding()
                     }
-            }
+                    VStack {
+                        
+                        VStack {
+                            Text("References").bold()
+                            List(card.references) { childCard in
+                                NavigationLink(destination: CardView(cardPK: childCard.id)) {
+                                    CardListItem(card: childCard)
+                                }
+                            }
+                            Text("Children").bold()
+                            List(card.children) { childCard in
+                                NavigationLink(destination: CardView(cardPK: childCard.id)) {
+                                    CardListItem(card: childCard)
+                                }
+                            }
+                        }
+                        
+                    }
                 }
-                Spacer()
-                VStack(alignment: .leading) {
-                    Text("Created at: \(card.created_at, style: .date)")
-                    Text("Updated at: \(card.updated_at, style: .date)")
-                }
-                .padding()
+                .tabViewStyle(PageTabViewStyle())
             } else {
                 Text("No card available")
             }
         }
-        .onAppear { loadCard() }
+        .onAppear { viewModel.loadCard(cardPK: cardPK) }
         .sheet(isPresented: $isPresentingEditView) {
-            if let card = card {
-                CardEditView(card: Binding(get: { card }, set: { self.card = $0 }), onSave: { editedCard in
+            if let card = viewModel.card {
+                CardEditView(card: Binding(get: { card }, set: { self.viewModel.card = $0 }), onSave: { editedCard in
                     // Handle the save action for the edited card
-                    self.card = editedCard
+                    self.viewModel.card = editedCard
                 }, isNew: false)
             } else {
                 Text("Loading...")
-            }
-        }
-    }
-
-    private func loadCard() {
-        guard let token = token else {
-            print("Token is missing")
-            return
-        }
-
-        fetchCard(token: token, id: cardPK) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let fetchedCard):
-                    self.card = fetchedCard
-                    self.isLoading = false
-                case .failure(let error):
-                    print("Unable to load card: \(error.localizedDescription)")
-                    self.isLoading = false
-                }
             }
         }
     }
@@ -82,6 +74,12 @@ struct CardView: View {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(cardPK: 0)
+        let mockCard = Card.sampleData[0]
+        
+        let viewModel = CardViewModel()
+        viewModel.card = mockCard
+        viewModel.isLoading = false
+        
+        return CardView(viewModel: viewModel, cardPK: 0)
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 
-var baseUrl = "https://zettelgarden.com/api"
-//var baseUrl = "http://192.168.0.72:5000/api"
+//var baseUrl = "https://zettelgarden.com/api"
+var baseUrl = "http://192.168.0.72:5000/api"
 
 struct Wrapper: Codable {
     var access_token: String
