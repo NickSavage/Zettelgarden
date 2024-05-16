@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CardListView: View {
     @AppStorage("jwt") private var token: String?
-    @State private var cards: [Card] = []
+    @State private var cards: [PartialCard] = []
     @State private var isPresentingNewCardView = false
     @State private var newCard = Card.emptyCard
     @State private var errorMessage: String?
@@ -14,7 +14,7 @@ struct CardListView: View {
                 Text("All Cards").tag(1)
                 Text("Recent Cards").tag(2)
             }
-            List(cards) { card in
+            List(filteredCards) { card in
                 NavigationLink(destination: CardView(cardPK: card.id)) {
                     CardListItem(card: card)
                 }
@@ -32,13 +32,16 @@ struct CardListView: View {
             }
         }
         .sheet(isPresented: $isPresentingNewCardView) {
-            CardEditView(card: $newCard, onSave: { newCard in
-                cards.append(newCard)
+            CardEditView(card: $newCard, onSave: { _ in
+                loadCards()
                 isPresentingNewCardView = false
             }, isNew: true)
         }
     }
 
+    private var filteredCards: [PartialCard] {
+        cards.filter { !$0.card_id.contains("/")}
+    }
     private func loadCards() {
         guard let token = token else {
             errorMessage = "No token found. Please log in."

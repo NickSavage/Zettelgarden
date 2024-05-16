@@ -28,6 +28,14 @@ struct CardView: View {
                 VStack {
                     Text(card.body).padding()
                 }
+                VStack {
+                    Text("Children")
+                    List(card.children) { card in
+                        NavigationLink(destination: CardView(cardPK: card.id)) {
+                            CardListItem(card: card)
+                    }
+            }
+                }
                 Spacer()
                 VStack(alignment: .leading) {
                     Text("Created at: \(card.created_at, style: .date)")

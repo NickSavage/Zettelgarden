@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CardListItem: View {
-    let card: Card
+    let card: PartialCard
     var body: some View {
         VStack {
             HStack {
@@ -17,10 +17,6 @@ struct CardListItem: View {
                 Text(card.title)
                 Spacer()
             }.bold()
-            HStack {
-                Text(truncate(card.body, to: 20))
-                Spacer()
-            }.font(.caption)
         }
     }
     func truncate(_ string: String, to length: Int) -> String {
@@ -35,7 +31,7 @@ struct CardListItem: View {
 }
 
 struct CardListItem_Previews: PreviewProvider {
-    static var card = Card.sampleData[0]
+    static var card = PartialCard.sampleData[0]
     static var previews: some View {
         CardListItem(card: card).previewLayout(.fixed(width: 400, height: 40))
     }
