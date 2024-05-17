@@ -13,7 +13,8 @@ struct CardEditView: View {
                 Section(header: Text("Card Details")) {
                     TextField("Card ID", text: $card.card_id)
                     TextField("Title", text: $card.title)
-                    TextField("Body", text: $card.body)
+                    TextEditor(text: $card.body)
+                    .frame(height: 200)
                 }
             }
             .navigationBarTitle(isNew ? "New Card" : "Edit Card", displayMode: .inline)
