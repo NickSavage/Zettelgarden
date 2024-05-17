@@ -28,6 +28,13 @@ struct CardView: View {
                     VStack {
                         Text(card.body)
                         Spacer()
+                        if let parentCard = card.parent {
+                            Text("Parent")
+                            NavigationLink(destination: CardView(cardPK: parentCard.id)) {
+                                CardListItem(card: parentCard)
+                            }
+                        }
+                        
                         VStack(alignment: .leading) {
                             Text("Created at: \(card.created_at, style: .date)")
                             Text("Updated at: \(card.updated_at, style: .date)")
