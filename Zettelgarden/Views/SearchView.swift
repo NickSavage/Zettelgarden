@@ -27,7 +27,13 @@ struct SearchView: View {
             }
             .navigationTitle("Search")
             .navigationBarTitleDisplayMode(.inline)
-        }
+        .toolbar {
+                Button(action: {
+                    
+                }) {
+                    Image(systemName: "plus")
+                }
+            }}
     }
 }
 

@@ -122,22 +122,15 @@
 		01201F5A2BF2BB6200DF973E /* Zettelgarden */ = {
 			isa = PBXGroup;
 			children = (
+				01B8880F2BF814DC00B3ACF1 /* Views */,
 				01B888082BF6CA8700B3ACF1 /* ViewModels */,
 				01201F852BF2BBC200DF973E /* Models */,
 				01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */,
 				01201F5D2BF2BB6200DF973E /* ContentView.swift */,
 				01201F5F2BF2BB6300DF973E /* Assets.xcassets */,
 				01201F612BF2BB6400DF973E /* Preview Content */,
-				01201F8A2BF2BE4000DF973E /* CardView.swift */,
-				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
-				01201F8E2BF2C9E000DF973E /* CardListItem.swift */,
-				01ECE50C2BF3747B00691C07 /* CardEditView.swift */,
 				01ECE50E2BF422D900691C07 /* Api.swift */,
-				01ECE5102BF43B4D00691C07 /* LoginView.swift */,
-				01ECE5122BF4C75A00691C07 /* SettingsView.swift */,
 				0144E9D62BF55DCA007D4EAD /* Utils.swift */,
-				01B888062BF6C72E00B3ACF1 /* SearchView.swift */,
-				01B8880D2BF7740F00B3ACF1 /* ClearButton.swift */,
 			);
 			path = Zettelgarden;
 			sourceTree = "<group>";
@@ -183,6 +176,29 @@
 				01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		01B8880F2BF814DC00B3ACF1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				01B888102BF8159300B3ACF1 /* Components */,
+				01201F8A2BF2BE4000DF973E /* CardView.swift */,
+				01ECE50C2BF3747B00691C07 /* CardEditView.swift */,
+				01ECE5102BF43B4D00691C07 /* LoginView.swift */,
+				01ECE5122BF4C75A00691C07 /* SettingsView.swift */,
+				01B888062BF6C72E00B3ACF1 /* SearchView.swift */,
+				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		01B888102BF8159300B3ACF1 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				01201F8E2BF2C9E000DF973E /* CardListItem.swift */,
+				01B8880D2BF7740F00B3ACF1 /* ClearButton.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
