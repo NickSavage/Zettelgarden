@@ -14,7 +14,7 @@ struct CardListItem: View {
             HStack {
                 Text(card.card_id).foregroundColor(.blue)
                 Text(" - ")
-                Text(card.title)
+                Text(card.title).foregroundColor(.black)
                 Spacer()
             }.bold()
         }

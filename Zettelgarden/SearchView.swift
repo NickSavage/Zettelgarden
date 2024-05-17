@@ -9,6 +9,7 @@ struct SearchView: View {
                 TextField("Search", text: $viewModel.searchString, onCommit: {
                     viewModel.search()
                 })
+                .clearButton(text: $viewModel.searchString)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding() // Add padding to the TextField
 

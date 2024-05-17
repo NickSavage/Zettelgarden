@@ -19,6 +19,7 @@ struct CardListView: View {
                            }
                        }
             TextField("Filter", text:$filterText)
+                .clearButton(text: $filterText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             List(filteredCards) { card in
                 NavigationLink(destination: CardView(cardPK: card.id)) {
@@ -65,8 +66,8 @@ struct CardListView: View {
                 return filteredByType.filter { $0.card_id.hasPrefix(filterText)}
             } else {
                 return filteredByType.filter {
-                    $0.card_id.lowercased().contains(filterText) ||
-                    $0.title.lowercased().contains(filterText)
+                    $0.card_id.lowercased().contains(filterText.lowercased()) ||
+                                                     $0.title.lowercased().contains(filterText.lowercased())
                 }
             }
         }
