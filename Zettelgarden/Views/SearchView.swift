@@ -2,22 +2,18 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
+    @State private var isPresentingNewCardView = false
+    @State private var newCard = Card.emptyCard
     
     var body: some View {
         NavigationView { // Add NavigationView here
             VStack {
-                TextField("Search", text: $viewModel.searchString, onCommit: {
-                    viewModel.search()
-                })
-                .clearButton(text: $viewModel.searchString)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding() // Add padding to the TextField
-
+                FilterFieldView(filterText: $viewModel.searchString, placeholder: "Search")
                 if viewModel.isLoading {
                     ProgressView("Searching...")
                 } else {
                     List(viewModel.searchResults) { card in
-                        NavigationLink(destination: CardView(cardPK: card.id)) {
+                        NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
                             CardListItem(card: cardToPartialCard(card: card))
                         }
                     }
@@ -29,11 +25,18 @@ struct SearchView: View {
             .navigationBarTitleDisplayMode(.inline)
         .toolbar {
                 Button(action: {
-                    
+                    newCard = Card.emptyCard
+                    isPresentingNewCardView = true
                 }) {
                     Image(systemName: "plus")
                 }
-            }}
+            }
+        }
+        .sheet(isPresented: $isPresentingNewCardView) {
+            CardEditView(card: $newCard, onSave: { _ in
+                isPresentingNewCardView = false
+            }, isNew: true)
+        }    
     }
 }
 

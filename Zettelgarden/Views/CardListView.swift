@@ -13,16 +13,9 @@ struct CardListView: View {
     
     var body: some View {
         NavigationStack {
-            Picker("Filter", selection: $selectedFilter) {
-                           ForEach(CardFilterOption.allCases) { option in
-                               Text(option.title).tag(option)
-                           }
-                       }
-            TextField("Filter", text:$filterText)
-                .clearButton(text: $filterText)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            FilterFieldView(filterText: $filterText, placeholder: "Filter")
             List(filteredCards) { card in
-                NavigationLink(destination: CardView(cardPK: card.id)) {
+                NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
                     CardListItem(card: card)
                 }
             }
@@ -30,6 +23,11 @@ struct CardListView: View {
                 loadCards()
             }
             .toolbar {
+                Picker("Filter", selection: $selectedFilter) {
+                    ForEach(CardFilterOption.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
                 Button(action: {
                     newCard = Card.emptyCard
                     isPresentingNewCardView = true
@@ -58,6 +56,9 @@ struct CardListView: View {
                 filteredByType = cards.filter { $0.card_id.hasPrefix("MM") }
             case .work:
                 filteredByType = cards.filter { $0.card_id.hasPrefix("SP") }
+            case .unsorted:
+                filteredByType = cards.filter { $0.card_id == "" }
+
             }
 
             if filterText.isEmpty {
@@ -71,7 +72,6 @@ struct CardListView: View {
                 }
             }
         }
-
 
     private func loadCards() {
         guard let token = token else {
@@ -97,6 +97,7 @@ enum CardFilterOption: Int, CaseIterable, Identifiable {
     case meeting = 2
     case reference = 3
     case work = 4
+    case unsorted = 5
     
     var id: Int { self.rawValue }
     var title: String {
@@ -109,6 +110,8 @@ enum CardFilterOption: Int, CaseIterable, Identifiable {
             return "Reference Cards"
         case .work:
             return "Work Cards"
+        case .unsorted:
+            return "Unsorted"
         }
     }
 }

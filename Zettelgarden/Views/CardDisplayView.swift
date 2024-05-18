@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct CardView: View {
+struct CardDisplayView: View {
     @State private var isPresentingEditView = false
     @ObservedObject var viewModel = CardViewModel()
     let cardPK: Int
@@ -30,7 +30,7 @@ struct CardView: View {
                         Spacer()
                         if let parentCard = card.parent {
                             Text("Parent")
-                            NavigationLink(destination: CardView(cardPK: parentCard.id)) {
+                            NavigationLink(destination: CardDisplayView(cardPK: parentCard.id)) {
                                 CardListItem(card: parentCard)
                             }
                         }
@@ -46,13 +46,13 @@ struct CardView: View {
                         VStack {
                             Text("References").bold()
                             List(card.references) { childCard in
-                                NavigationLink(destination: CardView(cardPK: childCard.id)) {
+                                NavigationLink(destination: CardDisplayView(cardPK: childCard.id)) {
                                     CardListItem(card: childCard)
                                 }
                             }
                             Text("Children").bold()
                             List(card.children) { childCard in
-                                NavigationLink(destination: CardView(cardPK: childCard.id)) {
+                                NavigationLink(destination: CardDisplayView(cardPK: childCard.id)) {
                                     CardListItem(card: childCard)
                                 }
                             }
@@ -87,6 +87,6 @@ struct CardView_Previews: PreviewProvider {
         viewModel.card = mockCard
         viewModel.isLoading = false
         
-        return CardView(viewModel: viewModel, cardPK: 0)
+        return CardDisplayView(viewModel: viewModel, cardPK: 0)
     }
 }
