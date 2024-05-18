@@ -28,12 +28,14 @@ struct CardListView: View {
                         Text(option.title).tag(option)
                     }
                 }
-                Button(action: {
-                    newCard = Card.emptyCard
-                    isPresentingNewCardView = true
-                }) {
+                Menu {
+                    Button("New Card", action: handleNewCard)
+                    Button("New Reference Card", action: handleReferenceCard)
+                    Button("New Meeting Card", action: handleMeetingCard)
+                } label: {
                     Image(systemName: "plus")
                 }
+
             }
         }
         .sheet(isPresented: $isPresentingNewCardView) {
@@ -42,6 +44,21 @@ struct CardListView: View {
                 isPresentingNewCardView = false
             }, isNew: true)
         }
+    }
+
+    private func handleNewCard() {
+        newCard = Card.emptyCard
+        isPresentingNewCardView = true
+
+    }
+    private func handleReferenceCard() {
+        newCard = Card.emptyCard
+        isPresentingNewCardView = true
+    }
+    private func handleMeetingCard() {
+
+        newCard = Card.emptyCard
+        isPresentingNewCardView = true
     }
 
     private var filteredCards: [PartialCard] {

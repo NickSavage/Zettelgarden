@@ -102,3 +102,29 @@ func saveExistingCard(token: String, card: Card, completion: @escaping (Result<C
     print("saveExistingCard")
     saveCard(token: token, card: card, httpMethod: "PUT", completion: completion)
 }
+
+struct NextCardIDResponse: Codable {
+    var next_id: String
+}
+
+func getNextCardID(token: String, cardType: String, completion: @escaping (Result<String, Error>) -> Void) {
+    guard let url = URL(string: baseUrl + "/cards/next") else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+    
+    let requestBody: [String: String] = ["card_type": cardType]
+    do {
+        let requestData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+        performRequest(with: url, token: token, httpMethod: "POST", requestBody: requestData) { (result: Result<NextCardIDResponse, Error>) in
+            switch result {
+            case .success(let response):
+                completion(.success(response.next_id))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    } catch {
+        completion(.failure(NetworkError.decodingError(error)))
+    }
+}
