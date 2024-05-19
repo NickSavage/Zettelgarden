@@ -1,7 +1,5 @@
 import SwiftUI
 
-
-
 struct CardListView: View {
     @AppStorage("jwt") private var token: String?
     @State private var cards: [PartialCard] = []
@@ -10,85 +8,72 @@ struct CardListView: View {
     @State private var errorMessage: String?
     @State private var selectedFilter: CardFilterOption = .all
     @State private var filterText: String = ""
-    
+
     var body: some View {
         NavigationStack {
             FilterFieldView(filterText: $filterText, placeholder: "Filter")
-            List(filteredCards) { card in
-                NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-                    CardListItem(card: card)
+            List {
+                ForEach(filteredCards) { card in
+                    NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
+                        CardListItem(card: card)
+                    }
                 }
             }
             .onAppear {
                 loadCards()
             }
             .toolbar {
-                Picker("Filter", selection: $selectedFilter) {
-                    ForEach(CardFilterOption.allCases) { option in
-                        Text(option.title).tag(option)
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Picker("Filter", selection: $selectedFilter) {
+                        ForEach(CardFilterOption.allCases) { option in
+                            Text(option.title).tag(option)
+                        }
                     }
                 }
-                Menu {
-                    Button("New Card", action: handleNewCard)
-                    Button("New Reference Card", action: handleReferenceCard)
-                    Button("New Meeting Card", action: handleMeetingCard)
-                } label: {
-                    Image(systemName: "plus")
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    QuickAddMenu(newCard: $newCard, isPresentingNewCardView: $isPresentingNewCardView)
                 }
-
             }
         }
         .sheet(isPresented: $isPresentingNewCardView) {
-            CardEditView(card: $newCard, onSave: { _ in
-                loadCards()
-                isPresentingNewCardView = false
-            }, isNew: true)
+            CardEditView(
+                card: $newCard,
+                onSave: { _ in
+                    loadCards()
+                    isPresentingNewCardView = false
+                },
+                isNew: true
+            )
         }
-    }
-
-    private func handleNewCard() {
-        newCard = Card.emptyCard
-        isPresentingNewCardView = true
-
-    }
-    private func handleReferenceCard() {
-        newCard = Card.emptyCard
-        isPresentingNewCardView = true
-    }
-    private func handleMeetingCard() {
-
-        newCard = Card.emptyCard
-        isPresentingNewCardView = true
     }
 
     private var filteredCards: [PartialCard] {
-            let filteredByType: [PartialCard]
-            
-            switch selectedFilter {
-            case .all:
-                filteredByType = cards
-            case .reference:
-                filteredByType = cards.filter { $0.card_id.hasPrefix("REF") }
-            case .meeting:
-                filteredByType = cards.filter { $0.card_id.hasPrefix("MM") }
-            case .work:
-                filteredByType = cards.filter { $0.card_id.hasPrefix("SP") }
-            case .unsorted:
-                filteredByType = cards.filter { $0.card_id == "" }
+        let filteredByType: [PartialCard]
 
-            }
+        switch selectedFilter {
+        case .all:
+            filteredByType = cards
+        case .reference:
+            filteredByType = cards.filter { $0.card_id.hasPrefix("REF") }
+        case .meeting:
+            filteredByType = cards.filter { $0.card_id.hasPrefix("MM") }
+        case .work:
+            filteredByType = cards.filter { $0.card_id.hasPrefix("SP") }
+        case .unsorted:
+            filteredByType = cards.filter { $0.card_id == "" }
+        }
 
-            if filterText.isEmpty {
-                return filteredByType
-            } else if filterText.hasPrefix("!") {
-                return filteredByType.filter { $0.card_id.hasPrefix(filterText)}
-            } else {
-                return filteredByType.filter {
-                    $0.card_id.lowercased().contains(filterText.lowercased()) ||
-                                                     $0.title.lowercased().contains(filterText.lowercased())
-                }
+        if filterText.isEmpty {
+            return filteredByType
+        } else if filterText.hasPrefix("!") {
+            return filteredByType.filter { $0.card_id.hasPrefix(filterText) }
+        } else {
+            return filteredByType.filter {
+                $0.card_id.lowercased().contains(filterText.lowercased())
+                || $0.title.lowercased().contains(filterText.lowercased())
             }
         }
+    }
 
     private func loadCards() {
         guard let token = token else {
@@ -100,7 +85,7 @@ struct CardListView: View {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCards):
-                    self.cards = fetchedCards.filter { !$0.card_id.contains("/")}
+                    self.cards = fetchedCards.filter { !$0.card_id.contains("/") }
                 case .failure(let error):
                     self.errorMessage = "Error fetching cards: \(error.localizedDescription)"
                 }
@@ -115,7 +100,7 @@ enum CardFilterOption: Int, CaseIterable, Identifiable {
     case reference = 3
     case work = 4
     case unsorted = 5
-    
+
     var id: Int { self.rawValue }
     var title: String {
         switch self {

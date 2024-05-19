@@ -45,13 +45,13 @@ struct CardDisplayView: View {
                         
                         VStack {
                             Text("References").bold()
-                            List(card.references) { childCard in
+                            List(card.references.reversed()) { childCard in
                                 NavigationLink(destination: CardDisplayView(cardPK: childCard.id)) {
                                     CardListItem(card: childCard)
                                 }
                             }
                             Text("Children").bold()
-                            List(card.children) { childCard in
+                            List(card.children.reversed()) { childCard in
                                 NavigationLink(destination: CardDisplayView(cardPK: childCard.id)) {
                                     CardListItem(card: childCard)
                                 }
