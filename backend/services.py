@@ -65,6 +65,7 @@ def get_references(card_id: str, body: str, user_id: int) -> list:
     else:
         unique_dict = {d["id"]: d for d in links}.values()
         results = list(unique_dict)
+        results = sorted(results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True)
         return results
 
 
@@ -182,6 +183,8 @@ def get_children(card_id: str, user_id: int) -> list:
             card_id + "/"
         ):
             results.append(card)
+
+    results = sorted(results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True)
     return results
 
 
