@@ -31,20 +31,15 @@ struct CardListView: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    QuickAddMenu(newCard: $newCard, isPresentingNewCardView: $isPresentingNewCardView)
+                    QuickAddMenu(
+                        newCard: $newCard, 
+                        isPresentingNewCardView: $isPresentingNewCardView,
+                        onAdd: loadCards
+                        )
                 }
             }
-        }
-        .sheet(isPresented: $isPresentingNewCardView) {
-            CardEditView(
-                card: $newCard,
-                onSave: { _ in
-                    loadCards()
-                    isPresentingNewCardView = false
-                },
-                isNew: true
-            )
-        }
+    }
+        
     }
 
     private var filteredCards: [PartialCard] {

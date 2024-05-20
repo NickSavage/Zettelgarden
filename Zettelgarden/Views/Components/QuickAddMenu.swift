@@ -10,6 +10,7 @@ import SwiftUI
 struct QuickAddMenu: View {
     @Binding var newCard: Card
     @Binding var isPresentingNewCardView: Bool
+    var onAdd: (() -> Void)?
 
     var body: some View {
         Menu {
@@ -18,6 +19,16 @@ struct QuickAddMenu: View {
             Button("New Meeting Card", action: handleMeetingCard)
         } label: {
             Image(systemName: "plus")
+        }
+        .sheet(isPresented: $isPresentingNewCardView) {
+            CardEditView(
+                card: $newCard,
+                onSave: { _ in
+                    isPresentingNewCardView = false
+                    onAdd?()
+                },
+                isNew: true
+            )
         }
     }
     private func handleNewCard() {

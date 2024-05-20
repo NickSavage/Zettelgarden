@@ -27,11 +27,6 @@ struct SearchView: View {
             QuickAddMenu(newCard: $newCard, isPresentingNewCardView: $isPresentingNewCardView)
             }
         }
-        .sheet(isPresented: $isPresentingNewCardView) {
-            CardEditView(card: $newCard, onSave: { _ in
-                isPresentingNewCardView = false
-            }, isNew: true)
-        }    
     }
 }
 
