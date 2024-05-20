@@ -11,6 +11,7 @@ struct QuickAddMenu: View {
     @State var newCard: Card = Card.emptyCard
     @State var isPresentingNewCardView: Bool = false
     var onAdd: (() -> Void)?
+    var currentCard: Card?
 
     var body: some View {
         Menu {
@@ -32,6 +33,10 @@ struct QuickAddMenu: View {
     }
     private func handleNewCard() {
         newCard = Card.emptyCard
+        if let current = currentCard {
+            newCard.card_id = current.card_id
+        }
+        
         isPresentingNewCardView = true
 
     }
