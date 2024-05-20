@@ -22,6 +22,7 @@ struct Card: Identifiable, Codable {
     var children: [PartialCard]
     var references: [PartialCard]
     var backlinks: [PartialCard]
+    var files: [File]
 }
 
 extension Card {
@@ -37,7 +38,8 @@ extension Card {
             updated_at: Date(),
              children: [],
              references: [],
-             backlinks: []
+             backlinks: [],
+             files: []
         ),
         Card(id: 1,
             card_id: "1/A",
@@ -49,7 +51,8 @@ extension Card {
             updated_at: Date(),
              children: [],
              references: [],
-             backlinks: []
+             backlinks: [],
+             files:[]
         ),
     ]
 
@@ -65,7 +68,8 @@ extension Card {
             updated_at: Date(),
             children: [],
             references:[],
-            backlinks:[]
+            backlinks:[],
+            files:[]
         )
     }
 }

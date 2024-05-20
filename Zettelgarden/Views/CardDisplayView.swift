@@ -59,6 +59,12 @@ struct CardDisplayView: View {
                         }
                         
                     }
+                    VStack {
+                        Text("Files").bold()
+                        List(card.files) { file in
+                            FileListItem(file: file)
+                        }
+                    }
                 }
                 .tabViewStyle(PageTabViewStyle())
             } else {

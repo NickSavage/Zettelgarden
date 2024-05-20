@@ -128,3 +128,12 @@ func getNextCardID(token: String, cardType: String, completion: @escaping (Resul
         completion(.failure(NetworkError.decodingError(error)))
     }
 }
+
+func fetchFile(token: String, fileId: Int, originalFileName: String, completion: @escaping (Result<URL, Error>) -> Void) {
+    guard let url = URL(string: baseUrl + "/files/download/" + String(fileId)) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+    
+    performFileDownloadRequest(with: url, token: token, originalFileName: originalFileName, completion: completion)
+}

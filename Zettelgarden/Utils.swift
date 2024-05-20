@@ -59,6 +59,47 @@ func performRequest<T: Decodable>(with url: URL, token: String, httpMethod: Stri
     task.resume()
 }
 
+func performFileDownloadRequest(with url: URL, token: String, originalFileName: String, completion: @escaping (Result<URL, Error>) -> Void) {
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    request.httpMethod = "GET"
+    
+    let task = URLSession.shared.downloadTask(with: request) { localURL, response, error in
+        if let error = error {
+            completion(.failure(error))
+            return
+        }
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let statusError = NSError(domain: "", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: [NSLocalizedDescriptionKey: "Unexpected response"])
+            completion(.failure(statusError))
+            return
+        }
+        
+        guard let localURL = localURL else {
+            completion(.failure(NetworkError.noDataReceived))
+            return
+        }
+
+        // Get the file extension from the original file name
+        let fileExtension = (originalFileName as NSString).pathExtension
+        
+        // Create a new URL with the correct extension
+        let tempDirectory = FileManager.default.temporaryDirectory
+        let newFileURL = tempDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension(fileExtension)
+        
+        do {
+            try FileManager.default.moveItem(at: localURL, to: newFileURL)
+            completion(.success(newFileURL))
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+    task.resume()
+}
+
+
 func cardToPartialCard(card: Card) -> PartialCard {
     return PartialCard(
         id: card.id,
