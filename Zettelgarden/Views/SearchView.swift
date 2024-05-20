@@ -24,12 +24,7 @@ struct SearchView: View {
             .navigationTitle("Search")
             .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-                Button(action: {
-                    newCard = Card.emptyCard
-                    isPresentingNewCardView = true
-                }) {
-                    Image(systemName: "plus")
-                }
+            QuickAddMenu(newCard: $newCard, isPresentingNewCardView: $isPresentingNewCardView)
             }
         }
         .sheet(isPresented: $isPresentingNewCardView) {
