@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct QuickAddMenu: View {
-    @Binding var newCard: Card
-    @Binding var isPresentingNewCardView: Bool
+    @State var newCard: Card = Card.emptyCard
+    @State var isPresentingNewCardView: Bool = false
     var onAdd: (() -> Void)?
 
     var body: some View {
@@ -24,7 +24,6 @@ struct QuickAddMenu: View {
             CardEditView(
                 card: $newCard,
                 onSave: { _ in
-                    isPresentingNewCardView = false
                     onAdd?()
                 },
                 isNew: true
@@ -48,16 +47,7 @@ struct QuickAddMenu: View {
 }
 
 struct QuickAddMenu_Previews: PreviewProvider {
-    struct PreviewWrapper: View {
-        @State var newCard: Card = Card.emptyCard
-        @State var isPresentingNewCardView: Bool = false
-
-        var body: some View {
-            QuickAddMenu(newCard: $newCard, isPresentingNewCardView: $isPresentingNewCardView)
-        }
-    }
-
     static var previews: some View {
-        PreviewWrapper()
+        QuickAddMenu()
     }
 }

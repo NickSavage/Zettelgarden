@@ -3,8 +3,6 @@ import SwiftUI
 struct CardListView: View {
     @AppStorage("jwt") private var token: String?
     @State private var cards: [PartialCard] = []
-    @State private var isPresentingNewCardView = false
-    @State private var newCard = Card.emptyCard
     @State private var errorMessage: String?
     @State private var selectedFilter: CardFilterOption = .all
     @State private var filterText: String = ""
@@ -32,8 +30,6 @@ struct CardListView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     QuickAddMenu(
-                        newCard: $newCard, 
-                        isPresentingNewCardView: $isPresentingNewCardView,
                         onAdd: loadCards
                         )
                 }

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
-    @State private var isPresentingNewCardView = false
     @State private var newCard = Card.emptyCard
     
     var body: some View {
@@ -24,7 +23,7 @@ struct SearchView: View {
             .navigationTitle("Search")
             .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            QuickAddMenu(newCard: $newCard, isPresentingNewCardView: $isPresentingNewCardView)
+            QuickAddMenu()
             }
         }
     }
