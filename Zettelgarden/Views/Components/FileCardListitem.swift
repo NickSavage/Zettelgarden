@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FileListItem: View {
+struct FileCardListItem: View {
     let file: File
     @AppStorage("jwt") private var token: String?
     @State private var identifiableFileURL: IdentifiableURL?
@@ -9,11 +9,14 @@ struct FileListItem: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(file.name)
-                .foregroundColor(.black)
-                .bold()
-                .lineLimit(1)
-                .truncationMode(.tail)
+            HStack {
+                Text(String(file.id))
+                Text(file.name)
+                    .foregroundColor(.black)
+                    .bold()
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
             Text(file.filename)
                 .foregroundColor(.blue)
                 .bold()

@@ -16,6 +16,7 @@ struct File: Identifiable, Codable {
     var created_by: Int
     var updated_by: Int
     var card_pk: Int
+   // var card: PartialCard?
     var created_at: Date
     var updated_at: Date
 }
@@ -30,7 +31,8 @@ extension File {
             size: 100,
             created_by: 1,
             updated_by: 1,
-            card_pk: 1,
+            card_pk: 0,
+         //   card: PartialCard.sampleData[0],
             created_at: Date(),
             updated_at: Date()
         )

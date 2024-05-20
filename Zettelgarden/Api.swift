@@ -137,3 +137,14 @@ func fetchFile(token: String, fileId: Int, originalFileName: String, completion:
     
     performFileDownloadRequest(with: url, token: token, originalFileName: originalFileName, completion: completion)
 }
+
+func fetchFiles(token: String, completion: @escaping (Result<[File], Error>) -> Void) {
+
+    guard let url = URL(string: baseUrl + "/files") else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+
+    performRequest(with: url, token: token, completion: completion)
+    
+}

@@ -26,9 +26,12 @@
 		01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */; };
 		01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */; };
 		01B8881A2BFB5F7D00B3ACF1 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888192BFB5F7D00B3ACF1 /* File.swift */; };
-		01B8881C2BFB60FD00B3ACF1 /* FileListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileListitem.swift */; };
+		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
 		01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */; };
 		01B888202BFB689000B3ACF1 /* IdentifiableURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */; };
+		01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888212BFB8FE400B3ACF1 /* FileListView.swift */; };
+		01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
+		01B888262BFB94D000B3ACF1 /* FileListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888252BFB94D000B3ACF1 /* FileListItem.swift */; };
 		01ECE50D2BF3747B00691C07 /* CardEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50C2BF3747B00691C07 /* CardEditView.swift */; };
 		01ECE50F2BF422D900691C07 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50E2BF422D900691C07 /* Api.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
@@ -75,9 +78,12 @@
 		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
 		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
 		01B888192BFB5F7D00B3ACF1 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
-		01B8881B2BFB60FD00B3ACF1 /* FileListitem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListitem.swift; sourceTree = "<group>"; };
+		01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCardListitem.swift; sourceTree = "<group>"; };
 		01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailView.swift; sourceTree = "<group>"; };
 		01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableURL.swift; sourceTree = "<group>"; };
+		01B888212BFB8FE400B3ACF1 /* FileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListView.swift; sourceTree = "<group>"; };
+		01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListViewModel.swift; sourceTree = "<group>"; };
+		01B888252BFB94D000B3ACF1 /* FileListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListItem.swift; sourceTree = "<group>"; };
 		01ECE50C2BF3747B00691C07 /* CardEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditView.swift; sourceTree = "<group>"; };
 		01ECE50E2BF422D900691C07 /* Api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -186,6 +192,7 @@
 			children = (
 				01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */,
 				01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */,
+				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -201,6 +208,7 @@
 				01B888062BF6C72E00B3ACF1 /* SearchView.swift */,
 				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
 				01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */,
+				01B888212BFB8FE400B3ACF1 /* FileListView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -211,7 +219,8 @@
 				01201F8E2BF2C9E000DF973E /* CardListItem.swift */,
 				01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */,
 				01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */,
-				01B8881B2BFB60FD00B3ACF1 /* FileListitem.swift */,
+				01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */,
+				01B888252BFB94D000B3ACF1 /* FileListItem.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -350,6 +359,7 @@
 				01ECE50D2BF3747B00691C07 /* CardEditView.swift in Sources */,
 				01201F5E2BF2BB6200DF973E /* ContentView.swift in Sources */,
 				01201F8D2BF2C9AB00DF973E /* CardListView.swift in Sources */,
+				01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */,
 				01201F872BF2BBCE00DF973E /* Card.swift in Sources */,
 				01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */,
 				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
@@ -361,10 +371,12 @@
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
 				01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */,
 				01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */,
+				01B888262BFB94D000B3ACF1 /* FileListItem.swift in Sources */,
+				01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */,
 				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
 				01B888202BFB689000B3ACF1 /* IdentifiableURL.swift in Sources */,
-				01B8881C2BFB60FD00B3ACF1 /* FileListitem.swift in Sources */,
+				01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */,
 				0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */,
 				01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */,
 			);
