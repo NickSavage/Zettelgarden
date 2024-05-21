@@ -7,18 +7,25 @@ struct CardListView: View {
     @State private var selectedFilter: CardFilterOption = .all
     @State private var filterText: String = ""
 
+    @StateObject private var viewModel = PartialCardViewModel()
+
     var body: some View {
         NavigationStack {
-            FilterFieldView(filterText: $filterText, placeholder: "Filter")
-            List {
-                ForEach(filteredCards) { card in
-                    NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-                        CardListItem(card: card)
+            VStack {
+                FilterFieldView(filterText: $filterText, placeholder: "Filter")
+                if viewModel.isLoading {
+                    ProgressView("Loading")
+
+                }
+                else if let cards = viewModel.cards {
+                    List {
+                        ForEach(cards) { card in
+                            NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
+                                CardListItem(card: card)
+                            }
+                        }
                     }
                 }
-            }
-            .onAppear {
-                loadCards()
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -30,12 +37,16 @@ struct CardListView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     QuickAddMenu(
-                        onAdd: loadCards
-                        )
+                        onAdd: viewModel.loadCards
+                    )
                 }
             }
-    }
-        
+        }
+        .onAppear {
+            //  loadCards()
+            viewModel.loadCards()
+        }
+
     }
 
     private var filteredCards: [PartialCard] {
@@ -56,30 +67,14 @@ struct CardListView: View {
 
         if filterText.isEmpty {
             return filteredByType
-        } else if filterText.hasPrefix("!") {
+        }
+        else if filterText.hasPrefix("!") {
             return filteredByType.filter { $0.card_id.hasPrefix(filterText) }
-        } else {
+        }
+        else {
             return filteredByType.filter {
                 $0.card_id.lowercased().contains(filterText.lowercased())
-                || $0.title.lowercased().contains(filterText.lowercased())
-            }
-        }
-    }
-
-    private func loadCards() {
-        guard let token = token else {
-            errorMessage = "No token found. Please log in."
-            return
-        }
-
-        fetchPartialCards(token: token, searchTerm: "") { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let fetchedCards):
-                    self.cards = fetchedCards.filter { !$0.card_id.contains("/") }
-                case .failure(let error):
-                    self.errorMessage = "Error fetching cards: \(error.localizedDescription)"
-                }
+                    || $0.title.lowercased().contains(filterText.lowercased())
             }
         }
     }

@@ -28,6 +28,7 @@ class PartialCardViewModel: ObservableObject {
                 self.isLoading = false
             }
         }
+        print("loading cards")
     }
 
 }
