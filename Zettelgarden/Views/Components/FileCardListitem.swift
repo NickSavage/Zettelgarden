@@ -2,11 +2,17 @@ import SwiftUI
 
 struct FileCardListItem: View {
     let file: File
+    @StateObject private var viewModel: FileViewModel
     @AppStorage("jwt") private var token: String?
     @State private var identifiableFileURL: IdentifiableURL?
     @State private var isDownloading = false
     @State private var downloadError: Error?
     
+    init(file: File) {
+        self.file = file
+        _viewModel = StateObject(wrappedValue: FileViewModel(file: file))
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -27,6 +33,7 @@ struct FileCardListItem: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 5)
         .onTapGesture {
+            viewModel.test()
             downloadFile()
         }
         .sheet(item: $identifiableFileURL) { identifiableURL in

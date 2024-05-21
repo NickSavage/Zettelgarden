@@ -11,19 +11,19 @@ struct FileListItem: View {
     let file: File
 
     var body: some View {
-        VStack (alignment: .leading) {
-            HStack  {
+        VStack(alignment: .leading) {
+            HStack {
                 Text(String(file.id))
                 Text(" - ")
                 Text(file.name)
             }
-            //if let card = file.card {
-             //   HStack  {
-              //      Text(card.card_id).foregroundColor(.blue).bold()
-            //        Text (": ")
-            //        Text(card.title)
-            //    }
-            //}
+            if let card = file.card {
+                HStack {
+                    Text(card.card_id).foregroundColor(.blue).bold()
+                    Text(": ")
+                    Text(card.title)
+                }
+            }
             Spacer()
         }
     }

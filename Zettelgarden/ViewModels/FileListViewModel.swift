@@ -25,6 +25,7 @@ class FileListViewModel: ObservableObject {
                 switch results {
                 case .success(let fetchedFiles):
                     self.files = self.sortFiles(fetchedFiles)
+                 //   print(self.files)
                 case .failure(let error):
                     print("Unable to load files: \(error.localizedDescription)")
                 }
