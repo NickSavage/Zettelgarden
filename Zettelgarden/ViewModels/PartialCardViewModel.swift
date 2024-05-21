@@ -6,6 +6,7 @@ class PartialCardViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var selectedFilter: CardFilterOption = .all
     @Published var filterText: String = ""
+    @Published var inactive: Bool = false
 
     @AppStorage("jwt") private var token: String?
 
@@ -44,7 +45,7 @@ class PartialCardViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        fetchPartialCards(token: token) { result in
+        fetchPartialCards(token: token, inactive: inactive) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCards):
