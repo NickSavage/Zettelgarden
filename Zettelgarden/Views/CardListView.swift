@@ -19,6 +19,9 @@ struct CardListView: View {
                             }
                         }
                     }
+                    .refreshable {
+                        viewModel.loadCards()
+                    }
                 }
             }
             .toolbar {

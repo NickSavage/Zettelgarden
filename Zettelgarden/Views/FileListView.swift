@@ -20,6 +20,7 @@ struct FileListView: View {
                         FileCardListItem(file: file)
                     }
                 }
+                .refreshable { viewModel.loadFiles() }
 
             }
         }
