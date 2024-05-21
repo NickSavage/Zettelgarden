@@ -2,24 +2,19 @@ import SwiftUI
 
 struct CardListView: View {
     @AppStorage("jwt") private var token: String?
-    @State private var cards: [PartialCard] = []
     @State private var errorMessage: String?
-    @State private var selectedFilter: CardFilterOption = .all
-    @State private var filterText: String = ""
-
     @StateObject private var viewModel = PartialCardViewModel()
 
     var body: some View {
         NavigationStack {
             VStack {
-                FilterFieldView(filterText: $filterText, placeholder: "Filter")
+                FilterFieldView(filterText: $viewModel.filterText, placeholder: "Filter")
                 if viewModel.isLoading {
                     ProgressView("Loading")
-
                 }
-                else if let cards = viewModel.cards {
+                else if let _ = viewModel.cards {
                     List {
-                        ForEach(cards) { card in
+                        ForEach(viewModel.filteredCards) { card in
                             NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
                                 CardListItem(card: card)
                             }
@@ -29,7 +24,7 @@ struct CardListView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Picker("Filter", selection: $selectedFilter) {
+                    Picker("Filter", selection: $viewModel.selectedFilter) {
                         ForEach(CardFilterOption.allCases) { option in
                             Text(option.title).tag(option)
                         }
@@ -43,42 +38,11 @@ struct CardListView: View {
             }
         }
         .onAppear {
-            //  loadCards()
             viewModel.loadCards()
-        }
-
-    }
-
-    private var filteredCards: [PartialCard] {
-        let filteredByType: [PartialCard]
-
-        switch selectedFilter {
-        case .all:
-            filteredByType = cards
-        case .reference:
-            filteredByType = cards.filter { $0.card_id.hasPrefix("REF") }
-        case .meeting:
-            filteredByType = cards.filter { $0.card_id.hasPrefix("MM") }
-        case .work:
-            filteredByType = cards.filter { $0.card_id.hasPrefix("SP") }
-        case .unsorted:
-            filteredByType = cards.filter { $0.card_id == "" }
-        }
-
-        if filterText.isEmpty {
-            return filteredByType
-        }
-        else if filterText.hasPrefix("!") {
-            return filteredByType.filter { $0.card_id.hasPrefix(filterText) }
-        }
-        else {
-            return filteredByType.filter {
-                $0.card_id.lowercased().contains(filterText.lowercased())
-                    || $0.title.lowercased().contains(filterText.lowercased())
-            }
         }
     }
 }
+
 
 enum CardFilterOption: Int, CaseIterable, Identifiable {
     case all = 1

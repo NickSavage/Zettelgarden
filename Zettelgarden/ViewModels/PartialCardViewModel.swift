@@ -1,16 +1,43 @@
-//
-//  PartialCardViewModel.swift
-//  Zettelgarden
-//
-//  Created by Nicholas Savage on 2024-05-20.
-//
-
 import SwiftUI
+
 
 class PartialCardViewModel: ObservableObject {
     @Published var cards: [PartialCard]?
     @Published var isLoading: Bool = true
+    @Published var selectedFilter: CardFilterOption = .all
+    @Published var filterText: String = ""
+
     @AppStorage("jwt") private var token: String?
+
+    var filteredCards: [PartialCard] {
+        let filteredByType: [PartialCard]
+
+        switch selectedFilter {
+        case .all:
+            filteredByType = cards ?? []
+        case .reference:
+            filteredByType = cards?.filter { $0.card_id.hasPrefix("REF") } ?? []
+        case .meeting:
+            filteredByType = cards?.filter { $0.card_id.hasPrefix("MM") } ?? []
+        case .work:
+            filteredByType = cards?.filter { $0.card_id.hasPrefix("SP") } ?? []
+        case .unsorted:
+            filteredByType = cards?.filter { $0.card_id == "" } ?? []
+        }
+
+        if filterText.isEmpty {
+            return filteredByType
+        }
+        else if filterText.hasPrefix("!") {
+            return filteredByType.filter { $0.card_id.hasPrefix(filterText) }
+        }
+        else {
+            return filteredByType.filter {
+                $0.card_id.lowercased().contains(filterText.lowercased())
+                    || $0.title.lowercased().contains(filterText.lowercased())
+            }
+        }
+    }
 
     func loadCards() {
         guard let token = token else {
@@ -30,5 +57,4 @@ class PartialCardViewModel: ObservableObject {
         }
         print("loading cards")
     }
-
 }
