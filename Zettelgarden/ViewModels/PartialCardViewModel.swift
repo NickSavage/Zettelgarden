@@ -1,12 +1,12 @@
 import SwiftUI
 
-
 class PartialCardViewModel: ObservableObject {
     @Published var cards: [PartialCard]?
     @Published var isLoading: Bool = true
     @Published var selectedFilter: CardFilterOption = .all
     @Published var filterText: String = ""
     @Published var inactive: Bool = false
+    @Published var displayOnlyTopLevel: Bool = false
 
     @AppStorage("jwt") private var token: String?
 
@@ -26,14 +26,20 @@ class PartialCardViewModel: ObservableObject {
             filteredByType = cards?.filter { $0.card_id == "" } ?? []
         }
 
+        var result = filteredByType
+
+        if displayOnlyTopLevel {
+            result = result.filter { !$0.card_id.contains("/") }
+        }
+
         if filterText.isEmpty {
-            return filteredByType
+            return result
         }
         else if filterText.hasPrefix("!") {
-            return filteredByType.filter { $0.card_id.hasPrefix(filterText) }
+            return result.filter { $0.card_id.hasPrefix(filterText) }
         }
         else {
-            return filteredByType.filter {
+            return result.filter {
                 $0.card_id.lowercased().contains(filterText.lowercased())
                     || $0.title.lowercased().contains(filterText.lowercased())
             }

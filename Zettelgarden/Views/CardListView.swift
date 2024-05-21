@@ -37,6 +37,7 @@ struct CardListView: View {
             }
         }
         .onAppear {
+            viewModel.displayOnlyTopLevel = true
             viewModel.loadCards()
         }
     }
