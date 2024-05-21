@@ -1,16 +1,39 @@
-import SwiftUI
 import PDFKit
+import SwiftUI
 
 struct FileDetailView: View {
+    let file: File
     let fileURL: URL
+    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        if fileURL.pathExtension.lowercased() == "pdf" {
-            PDFKitView(url: fileURL)
-        } else if ["jpg", "jpeg", "png"].contains(fileURL.pathExtension.lowercased()) {
-            ImageView(url: fileURL)
-        } else {
-            Text("Unsupported file type")
+        VStack {
+            HStack {
+                Text(file.name)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding()
+                Spacer()
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .foregroundColor(.gray)
+                }
+                .padding()
+            }
+            if fileURL.pathExtension.lowercased() == "pdf" {
+                PDFKitView(url: fileURL)
+            }
+            else if ["jpg", "jpeg", "png"].contains(fileURL.pathExtension.lowercased()) {
+                ImageView(url: fileURL)
+            }
+            else {
+                Text("Unsupported file type")
+            }
+            Spacer()
         }
     }
 }
@@ -37,7 +60,8 @@ struct ImageView: View {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFit()
-        } else {
+        }
+        else {
             Text("Unable to load image")
         }
     }

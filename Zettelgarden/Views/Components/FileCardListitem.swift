@@ -30,7 +30,7 @@ struct FileCardListItem: View {
             downloadFile()
         }
         .sheet(item: $identifiableFileURL) { identifiableURL in
-            FileDetailView(fileURL: identifiableURL.url)
+            FileDetailView(file: file, fileURL: identifiableURL.url)
         }
         .alert(isPresented: .constant(downloadError != nil)) {
             Alert(
