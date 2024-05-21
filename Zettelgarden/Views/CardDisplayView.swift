@@ -4,12 +4,13 @@ struct CardDisplayView: View {
     @State private var isPresentingEditView = false
     @ObservedObject var viewModel = CardViewModel()
     let cardPK: Int
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             if viewModel.isLoading {
                 ProgressView("Loading")
-            } else if let card = viewModel.card {
+            }
+            else if let card = viewModel.card {
                 HStack {
                     Text(card.card_id).foregroundColor(.blue)
                     Text(" - ")
@@ -23,18 +24,21 @@ struct CardDisplayView: View {
                 }
                 .bold()
                 .padding()
-                TabView() {
-                    
-                    VStack {
-                        Text(card.body)
+                TabView {
+
+                    VStack(alignment: .leading) {
+                        Text(card.body).padding()
                         Spacer()
-                        if let parentCard = card.parent {
-                            Text("Parent")
-                            NavigationLink(destination: CardDisplayView(cardPK: parentCard.id)) {
-                                CardListItem(card: parentCard)
+                        VStack {
+                            if let parentCard = card.parent {
+                                Text("Parent").bold()
+                                NavigationLink(destination: CardDisplayView(cardPK: parentCard.id))
+                                {
+                                    CardListItem(card: parentCard)
+                                }
                             }
-                        }
-                        
+                        }.padding()
+
                         VStack(alignment: .leading) {
                             Text("Created at: \(card.created_at, style: .date)")
                             Text("Updated at: \(card.updated_at, style: .date)")
@@ -42,7 +46,7 @@ struct CardDisplayView: View {
                         .padding()
                     }
                     VStack {
-                        
+
                         VStack {
                             Text("References").bold()
                             List(card.references.reversed()) { childCard in
@@ -57,7 +61,7 @@ struct CardDisplayView: View {
                                 }
                             }
                         }
-                        
+
                     }
                     VStack {
                         Text("Files").bold()
@@ -67,21 +71,27 @@ struct CardDisplayView: View {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle())
-            } else {
+            }
+            else {
                 Text("No card available")
             }
         }
         .onAppear { viewModel.loadCard(cardPK: cardPK) }
-        .toolbar { 
+        .toolbar {
             QuickAddMenu(currentCard: viewModel.card)
         }
         .sheet(isPresented: $isPresentingEditView) {
             if let card = viewModel.card {
-                CardEditView(card: Binding(get: { card }, set: { self.viewModel.card = $0 }), onSave: { editedCard in
-                    // Handle the save action for the edited card
-                    self.viewModel.card = editedCard
-                }, isNew: false)
-            } else {
+                CardEditView(
+                    card: Binding(get: { card }, set: { self.viewModel.card = $0 }),
+                    onSave: { editedCard in
+                        // Handle the save action for the edited card
+                        self.viewModel.card = editedCard
+                    },
+                    isNew: false
+                )
+            }
+            else {
                 Text("Loading...")
             }
         }
@@ -91,11 +101,11 @@ struct CardDisplayView: View {
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
         let mockCard = Card.sampleData[0]
-        
+
         let viewModel = CardViewModel()
         viewModel.card = mockCard
         viewModel.isLoading = false
-        
+
         return CardDisplayView(viewModel: viewModel, cardPK: 0)
     }
 }
