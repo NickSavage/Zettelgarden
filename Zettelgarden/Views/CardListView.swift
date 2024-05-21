@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct CardListView: View {
-    @AppStorage("jwt") private var token: String?
     @State private var errorMessage: String?
     @StateObject private var viewModel = PartialCardViewModel()
 
