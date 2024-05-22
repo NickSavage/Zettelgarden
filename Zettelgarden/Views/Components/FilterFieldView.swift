@@ -10,13 +10,15 @@ import SwiftUI
 struct FilterFieldView: View {
     @Binding var filterText: String
     var placeholder: String
+    var onSubmit: (() -> Void)?
 
     var body: some View {
         HStack {
             TextField(placeholder, text: $filterText)
-            .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onSubmit { onSubmit?() }
             if filterText != "" {
-                Button(action: {filterText = ""}) {
+                Button(action: { filterText = "" }) {
                     Text("Cancel")
                 }
             }
@@ -24,4 +26,3 @@ struct FilterFieldView: View {
         .padding()
     }
 }
-
