@@ -32,11 +32,6 @@ struct CardListView: View {
                         }
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    QuickAddMenu(
-                        onAdd: viewModel.loadCards
-                    )
-                }
             }
         }
         .onAppear {

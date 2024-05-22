@@ -19,6 +19,12 @@ struct SidebarView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white.opacity(0.8))
                 .transition(.move(edge: .leading))
+                .toolbar {
+
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        QuickAddMenu()
+                    }
+                }
             }
         }
         .onTapGesture {

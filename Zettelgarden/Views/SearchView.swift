@@ -27,9 +27,6 @@ struct SearchView: View {
             }
             .navigationTitle("Search")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                QuickAddMenu()
-            }
         }
     }
 }

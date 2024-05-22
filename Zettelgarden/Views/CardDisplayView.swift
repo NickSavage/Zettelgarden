@@ -77,9 +77,6 @@ struct CardDisplayView: View {
             }
         }
         .onAppear { viewModel.loadCard(cardPK: cardPK) }
-        .toolbar {
-            QuickAddMenu(currentCard: viewModel.card)
-        }
         .sheet(isPresented: $isPresentingEditView) {
             if let card = viewModel.card {
                 CardEditView(
