@@ -6,7 +6,7 @@ class CardViewModel: ObservableObject {
     @Published var card: Card?
     @Published var isLoading = true
     @AppStorage("jwt") private var token: String?
-    
+
     func loadCard(cardPK: Int) {
         guard let token = token else {
             print("Token is missing")
@@ -14,6 +14,10 @@ class CardViewModel: ObservableObject {
         }
 
         fetchCard(token: token, id: cardPK) { result in
+            if cardPK == -1 {
+                self.isLoading = false
+                return
+            }
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCard):

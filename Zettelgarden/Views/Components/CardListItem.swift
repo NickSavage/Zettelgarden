@@ -19,15 +19,6 @@ struct CardListItem: View {
             }.bold()
         }
     }
-    func truncate(_ string: String, to length: Int) -> String {
-        if string.count > length {
-            let endIndex = string.index(string.startIndex, offsetBy: length)
-            return String(string[..<endIndex]) + "..."
-        } else {
-            return string
-        }
-    }
-
 }
 
 struct CardListItem_Previews: PreviewProvider {

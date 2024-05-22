@@ -9,28 +9,47 @@ import SwiftUI
 
 struct SidebarView: View {
     @Binding var isMenuOpen: Bool
+    @Binding var selectedCard: Int
+    @StateObject private var viewModel = PartialCardViewModel()
+
     var body: some View {
 
         ZStack {
             if isMenuOpen {
                 VStack {
-                    Text("Hello world!")
+                    VStack {
+                        FilterFieldView(filterText: $viewModel.filterText, placeholder: "Filter")
+                        if viewModel.isLoading {
+                            ProgressView("Loading")
+                        }
+                        else if let _ = viewModel.cards {
+                            List {
+                                ForEach(viewModel.filteredCards) { card in
+                                    Button(action: {
+                                        print(card.card_id)
+                                        selectedCard = card.id
+                                        isMenuOpen.toggle()
+                                    }) {
+//                                        Text(card.title)
+                                        CardListItem(card: card)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .onAppear {
+                        viewModel.displayOnlyTopLevel = true
+                        viewModel.loadCards()
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white.opacity(0.8))
+                .background(Color.white)
                 .transition(.move(edge: .leading))
                 .toolbar {
 
                     ToolbarItem(placement: .navigationBarTrailing) {
                         QuickAddMenu()
                     }
-                }
-            }
-        }
-        .onTapGesture {
-            if isMenuOpen {
-                withAnimation {
-                    isMenuOpen = false
                 }
             }
         }
@@ -44,9 +63,10 @@ struct SidebarView_Previews: PreviewProvider {
 
     struct SidebarViewWrapper: View {
         @State private var isMenuOpen = true
+        @State private var selectedCard: Int = 1
 
         var body: some View {
-            SidebarView(isMenuOpen: $isMenuOpen)
+            SidebarView(isMenuOpen: $isMenuOpen, selectedCard: $selectedCard)
         }
     }
 }
