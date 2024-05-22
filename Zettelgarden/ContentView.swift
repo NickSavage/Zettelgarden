@@ -8,27 +8,58 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var isMenuOpen: Bool = false
     var body: some View {
-        TabView {
-            HomeView().tabItem {
-                Image(systemName: "house.fill")
-                Text("Home")
+        NavigationView {
+            TabView {
+                HomeView().tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Home")
+                }
+                CardListView().tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Cards")
+                }
+                SearchView().tabItem {
+                    Image(systemName: "magnifyingglass")
+                    Text("Search")
+                }
+                FileListView().tabItem {
+                    Image(systemName: "doc")
+                    Text("Files")
+                }
+                SettingsView().tabItem {
+                    Image(systemName: "gearshape.fill")
+                    Text("Settings")
+                }
             }
-            CardListView().tabItem{
-                Image(systemName: "house.fill")
-                Text("Cards")
+            .overlay {
+
+                ZStack {
+                    if self.isMenuOpen {
+                        VStack {
+                            Text("Hello world!")
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.white.opacity(0.8))
+                        .transition(.move(edge: .leading))
+                    }
+                }
             }
-            SearchView().tabItem{
-                Image(systemName: "magnifyingglass")
-                Text("Search")
-            }
-            FileListView().tabItem{
-                Image(systemName: "doc")
-                Text("Files")
-            }
-            SettingsView().tabItem{
-                Image(systemName: "gearshape.fill")
-                Text("Settings")
+            .toolbar {
+                ToolbarItem {
+                    Button(action: {
+                        withAnimation {
+                            self.isMenuOpen = true
+                        }
+                    }) {
+                        Text("Open Menu")
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                }
             }
         }
     }
