@@ -23,49 +23,28 @@ struct FileCardListItem: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
             }
-            Text(file.filename)
-                .foregroundColor(.blue)
-                .bold()
-                .lineLimit(1)
-                .truncationMode(.tail)
+            if let card = viewModel.file.card {
+                NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
+                    CardListItem(card: card)
+                }
+            }
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 5)
         .onTapGesture {
-            viewModel.test()
-            downloadFile()
+            viewModel.downloadFile()
         }
-        .sheet(item: $identifiableFileURL) { identifiableURL in
+        .sheet(item: $viewModel.identifiableFileURL) { identifiableURL in
             FileDetailView(file: file, fileURL: identifiableURL.url)
         }
-        .alert(isPresented: .constant(downloadError != nil)) {
+        .alert(isPresented: .constant(viewModel.downloadError != nil)) {
             Alert(
                 title: Text("Download Error"),
-                message: Text(downloadError?.localizedDescription ?? "Unknown error"),
+                message: Text(viewModel.downloadError?.localizedDescription ?? "Unknown error"),
                 dismissButton: .default(Text("OK"))
             )
         }
     }
     
-    private func downloadFile() {
-
-        guard let token = token else {
-            self.downloadError = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No token found"])
-            return
-        }
-        
-        isDownloading = true
-        fetchFile(token: token, fileId: file.id, originalFileName: file.filename) { result in
-            DispatchQueue.main.async {
-                isDownloading = false
-                switch result {
-                case .success(let url):
-                    self.identifiableFileURL = IdentifiableURL(url: url)
-                case .failure(let error):
-                    self.downloadError = error
-                }
-            }
-        }
-    }
 }
