@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isMenuOpen: Bool = false
+    @State var isMenuOpen: Bool = false
     var body: some View {
         NavigationView {
             TabView {
@@ -34,30 +34,16 @@ struct ContentView: View {
                 }
             }
             .overlay {
-
-                ZStack {
-                    if self.isMenuOpen {
-                        VStack {
-                            Text("Hello world!")
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.white.opacity(0.8))
-                        .transition(.move(edge: .leading))
-                    }
-                }
+                SidebarView(isMenuOpen: $isMenuOpen)
             }
             .toolbar {
-                ToolbarItem {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         withAnimation {
                             self.isMenuOpen = true
                         }
                     }) {
-                        Text("Open Menu")
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
+                        Image(systemName: "sidebar.left")
                     }
                 }
             }
