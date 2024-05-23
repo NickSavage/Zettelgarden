@@ -23,11 +23,11 @@ struct FileCardListItem: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
             }
-            if let card = viewModel.file.card {
-                NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-                    CardListItem(card: card)
-                }
-            }
+          //  if let card = viewModel.file.card {
+            //    NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
+              //      CardListItem(card: card)
+                //}
+            //}
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)

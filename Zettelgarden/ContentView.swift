@@ -9,28 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     @State var isMenuOpen: Bool = false
-    @State var selectedCard: Int = -1
     @State var selection: ContentViewSelection = .home
+    @StateObject var cardViewModel = CardViewModel()
 
     var body: some View {
         NavigationView {
             VStack {
-                if selection == .home {
-                    Text("home")
-                }
-                else if selection == .card {
-                    Text("card")
-                }
                 TabView {
-                    HomeView().tabItem {
-                        Image(systemName: "house.fill")
-                        Text("Home")
-                    }
-                    CardDisplayView(cardPK: selectedCard).tabItem {
+                    CardDisplayView(cardViewModel: cardViewModel).tabItem {
                         Image(systemName: "house.fill")
                         Text("Card")
                     }
-                    SearchView().tabItem {
+                    SearchView(cardViewModel: cardViewModel).tabItem {
                         Image(systemName: "magnifyingglass")
                         Text("Search")
                     }
@@ -47,8 +37,8 @@ struct ContentView: View {
             .overlay {
                 SidebarView(
                     isMenuOpen: $isMenuOpen,
-                    selectedCard: $selectedCard,
-                    selection: $selection
+                    selection: $selection,
+                    cardViewModel: cardViewModel
                 )
             }
             .toolbar {

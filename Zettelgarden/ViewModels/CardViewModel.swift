@@ -4,7 +4,6 @@ import SwiftUI
 
 class CardViewModel: ObservableObject {
     @Published var card: Card?
-    @Published var isLoading = true
     @AppStorage("jwt") private var token: String?
 
     func loadCard(cardPK: Int) {
@@ -14,18 +13,11 @@ class CardViewModel: ObservableObject {
         }
 
         fetchCard(token: token, id: cardPK) { result in
-            if cardPK == -1 {
-                self.isLoading = false
-                return
-            }
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let fetchedCard):
-                    self.card = fetchedCard
-                case .failure(let error):
-                    print("Unable to load card: \(error.localizedDescription)")
-                }
-                self.isLoading = false
+            switch result {
+            case .success(let fetchedCard):
+                self.card = fetchedCard
+            case .failure(let error):
+                print("Unable to load card: \(error.localizedDescription)")
             }
         }
     }

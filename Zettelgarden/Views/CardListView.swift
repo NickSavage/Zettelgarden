@@ -2,9 +2,9 @@ import SwiftUI
 
 struct CardListView: View {
     @State private var errorMessage: String?
-    @Binding var selectedCard: Int?
     @Binding var isMenuOpen: Bool
     @Binding var selection: ContentViewSelection
+    @ObservedObject var cardViewModel: CardViewModel
     @StateObject private var viewModel = PartialCardViewModel()
 
     var body: some View {
@@ -19,11 +19,11 @@ struct CardListView: View {
                     ForEach(viewModel.filteredCards) { card in
                         Button(action: {
                             print(card.card_id)
-                            selectedCard = card.id
+                            cardViewModel.loadCard(cardPK: card.id)
                             isMenuOpen.toggle()
                             selection = .card
                         }) {
-                            CardListItem(card: card)
+                    CardListItem(card: card, cardViewModel: cardViewModel)
                         }
                     }
                 }
@@ -81,9 +81,10 @@ struct CardList_Previews: PreviewProvider {
         @State private var isMenuOpen = true
         @State private var selectedCard: Int? = 1
         @State private var selection: ContentViewSelection = .home
+        @ObservedObject var cardViewModel = CardViewModel()
 
         var body: some View {
-            CardListView(selectedCard: $selectedCard, isMenuOpen: $isMenuOpen, selection: $selection)
+            CardListView(isMenuOpen: $isMenuOpen, selection: $selection, cardViewModel: cardViewModel)
         }
     }
 }

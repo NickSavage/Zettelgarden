@@ -9,29 +9,15 @@ import SwiftUI
 
 struct TestView: View {
 
-    @ObservedObject var viewModel = CardViewModel()
-    let cardPK: Int?
+    @ObservedObject var viewModel: CardViewModel
 
     var body: some View {
         VStack {
-            if viewModel.isLoading {
-                ProgressView("Loading")
-            }
-            else if let card = viewModel.card {
+            if let card = viewModel.card {
                 Text(card.title)
             }
             else {
                 Text("No card")
-            }
-        }
-        .onAppear {
-            if let x = cardPK {
-                viewModel.loadCard(cardPK: x)
-            }
-        }
-        .onChange(of: cardPK) { newCardPK in
-            if let x = newCardPK {
-                viewModel.loadCard(cardPK: x)
             }
         }
     }

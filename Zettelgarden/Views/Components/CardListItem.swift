@@ -9,21 +9,36 @@ import SwiftUI
 
 struct CardListItem: View {
     let card: PartialCard
+    @ObservedObject var cardViewModel: CardViewModel
+
     var body: some View {
         VStack {
+            Button(action: {
+                cardViewModel.loadCard(cardPK: card.id)
+            }) {
             HStack {
                 Text(card.card_id).foregroundColor(.blue)
                 Text(" - ")
                 Text(card.title).foregroundColor(.black)
                 Spacer()
             }.bold()
+            }
         }
     }
 }
 
 struct CardListItem_Previews: PreviewProvider {
-    static var card = PartialCard.sampleData[0]
     static var previews: some View {
-        CardListItem(card: card).previewLayout(.fixed(width: 400, height: 40))
+        CardListItemWrapper()
+    }
+
+    struct CardListItemWrapper: View {
+        var card = PartialCard.sampleData[0]
+        @StateObject var cardViewModel = CardViewModel()
+
+        var body: some View {
+            CardListItem(card: card, cardViewModel: cardViewModel).previewLayout(.fixed(width: 400, height: 40))
+        }
+
     }
 }

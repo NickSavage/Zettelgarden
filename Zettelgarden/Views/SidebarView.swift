@@ -9,8 +9,8 @@ import SwiftUI
 
 struct SidebarView: View {
     @Binding var isMenuOpen: Bool
-    @Binding var selectedCard: Int?
     @Binding var selection: ContentViewSelection
+    @ObservedObject var cardViewModel: CardViewModel
     @StateObject private var viewModel = PartialCardViewModel()
 
     var body: some View {
@@ -18,7 +18,7 @@ struct SidebarView: View {
         ZStack {
             if isMenuOpen {
                 VStack {
-                    CardListView(selectedCard: $selectedCard, isMenuOpen: $isMenuOpen, selection: $selection)
+                    CardListView(isMenuOpen: $isMenuOpen, selection: $selection, cardViewModel: cardViewModel)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
@@ -41,11 +41,11 @@ struct SidebarView_Previews: PreviewProvider {
 
     struct SidebarViewWrapper: View {
         @State private var isMenuOpen = true
-        @State private var selectedCard: Int? = 1
         @State private var selection: ContentViewSelection = .home
+        @ObservedObject var cardViewModel = CardViewModel()
 
         var body: some View {
-            SidebarView(isMenuOpen: $isMenuOpen, selectedCard: $selectedCard, selection: $selection)
+            SidebarView(isMenuOpen: $isMenuOpen, selection: $selection, cardViewModel: cardViewModel)
         }
     }
 }

@@ -1,16 +1,12 @@
 import SwiftUI
 
 struct CardDisplayView: View {
+    @ObservedObject var cardViewModel: CardViewModel
     @State private var isPresentingEditView = false
-    @ObservedObject var viewModel = CardViewModel()
-    let cardPK: Int
 
     var body: some View {
         VStack(alignment: .leading) {
-            if viewModel.isLoading {
-                ProgressView("Loading")
-            }
-            else if let card = viewModel.card {
+            if let card = cardViewModel.card {
                 HStack {
                     Text(card.card_id).foregroundColor(.blue)
                     Text(" - ")
@@ -32,10 +28,7 @@ struct CardDisplayView: View {
                         VStack {
                             if let parentCard = card.parent {
                                 Text("Parent").bold()
-                                NavigationLink(destination: CardDisplayView(cardPK: parentCard.id))
-                                {
-                                    CardListItem(card: parentCard)
-                                }
+                                CardListItem(card: parentCard, cardViewModel: cardViewModel)
                             }
                         }.padding()
 
@@ -50,15 +43,11 @@ struct CardDisplayView: View {
                         VStack {
                             Text("References").bold()
                             List(card.references.reversed()) { childCard in
-                                NavigationLink(destination: CardDisplayView(cardPK: childCard.id)) {
-                                    CardListItem(card: childCard)
-                                }
+                                CardListItem(card: childCard, cardViewModel: cardViewModel)
                             }
                             Text("Children").bold()
                             List(card.children.reversed()) { childCard in
-                                NavigationLink(destination: CardDisplayView(cardPK: childCard.id)) {
-                                    CardListItem(card: childCard)
-                                }
+                                CardListItem(card: childCard, cardViewModel: cardViewModel)
                             }
                         }
 
@@ -76,14 +65,13 @@ struct CardDisplayView: View {
                 Text("No card available")
             }
         }
-        .onAppear { viewModel.loadCard(cardPK: cardPK) }
         .sheet(isPresented: $isPresentingEditView) {
-            if let card = viewModel.card {
+            if let card = cardViewModel.card {
                 CardEditView(
-                    card: Binding(get: { card }, set: { self.viewModel.card = $0 }),
+                    card: Binding(get: { card }, set: { self.cardViewModel.card = $0 }),
                     onSave: { editedCard in
                         // Handle the save action for the edited card
-                        self.viewModel.card = editedCard
+                        self.cardViewModel.card = editedCard
                     },
                     isNew: false
                 )
@@ -99,10 +87,9 @@ struct CardView_Previews: PreviewProvider {
     static var previews: some View {
         let mockCard = Card.sampleData[0]
 
-        let viewModel = CardViewModel()
-        viewModel.card = mockCard
-        viewModel.isLoading = false
+        let cardViewModel = CardViewModel()
+        cardViewModel.card = mockCard
 
-        return CardDisplayView(viewModel: viewModel, cardPK: 0)
+        return CardDisplayView(cardViewModel: cardViewModel)
     }
 }
