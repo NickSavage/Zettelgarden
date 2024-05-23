@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CardListView: View {
     @State private var errorMessage: String?
-    @Binding var selectedCard: Int
+    @Binding var selectedCard: Int?
     @Binding var isMenuOpen: Bool
     @Binding var selection: ContentViewSelection
     @StateObject private var viewModel = PartialCardViewModel()
@@ -79,7 +79,7 @@ struct CardList_Previews: PreviewProvider {
 
     struct CardListViewWrapper: View {
         @State private var isMenuOpen = true
-        @State private var selectedCard: Int = 1
+        @State private var selectedCard: Int? = 1
         @State private var selection: ContentViewSelection = .home
 
         var body: some View {

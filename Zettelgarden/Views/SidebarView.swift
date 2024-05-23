@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SidebarView: View {
     @Binding var isMenuOpen: Bool
-    @Binding var selectedCard: Int
+    @Binding var selectedCard: Int?
     @Binding var selection: ContentViewSelection
     @StateObject private var viewModel = PartialCardViewModel()
 
@@ -41,7 +41,7 @@ struct SidebarView_Previews: PreviewProvider {
 
     struct SidebarViewWrapper: View {
         @State private var isMenuOpen = true
-        @State private var selectedCard: Int = 1
+        @State private var selectedCard: Int? = 1
         @State private var selection: ContentViewSelection = .home
 
         var body: some View {
