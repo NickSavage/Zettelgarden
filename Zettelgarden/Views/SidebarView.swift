@@ -17,30 +17,7 @@ struct SidebarView: View {
         ZStack {
             if isMenuOpen {
                 VStack {
-                    VStack {
-                        FilterFieldView(filterText: $viewModel.filterText, placeholder: "Filter")
-                        if viewModel.isLoading {
-                            ProgressView("Loading")
-                        }
-                        else if let _ = viewModel.cards {
-                            List {
-                                ForEach(viewModel.filteredCards) { card in
-                                    Button(action: {
-                                        print(card.card_id)
-                                        selectedCard = card.id
-                                        isMenuOpen.toggle()
-                                    }) {
-//                                        Text(card.title)
-                                        CardListItem(card: card)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .onAppear {
-                        viewModel.displayOnlyTopLevel = true
-                        viewModel.loadCards()
-                    }
+                    CardListView(selectedCard: $selectedCard, isMenuOpen: $isMenuOpen)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)

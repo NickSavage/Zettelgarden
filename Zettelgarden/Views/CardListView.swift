@@ -2,35 +2,31 @@ import SwiftUI
 
 struct CardListView: View {
     @State private var errorMessage: String?
+    @Binding var selectedCard: Int
+    @Binding var isMenuOpen: Bool
     @StateObject private var viewModel = PartialCardViewModel()
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                FilterFieldView(filterText: $viewModel.filterText, placeholder: "Filter")
-                if viewModel.isLoading {
-                    ProgressView("Loading")
-                }
-                else if let _ = viewModel.cards {
-                    List {
-                        ForEach(viewModel.filteredCards) { card in
-                            NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-                                CardListItem(card: card)
-                            }
-                        }
-                    }
-                    .refreshable {
-                        viewModel.loadCards()
-                    }
-                }
+        VStack {
+            FilterFieldView(filterText: $viewModel.filterText, placeholder: "Filter")
+            if viewModel.isLoading {
+                ProgressView("Loading")
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Picker("Filter", selection: $viewModel.selectedFilter) {
-                        ForEach(CardFilterOption.allCases) { option in
-                            Text(option.title).tag(option)
+            else if let _ = viewModel.cards {
+
+                List {
+                    ForEach(viewModel.filteredCards) { card in
+                        Button(action: {
+                            print(card.card_id)
+                            selectedCard = card.id
+                            isMenuOpen.toggle()
+                        }) {
+                            CardListItem(card: card)
                         }
                     }
+                }
+                .refreshable {
+                    viewModel.loadCards()
                 }
             }
         }
@@ -38,9 +34,17 @@ struct CardListView: View {
             viewModel.displayOnlyTopLevel = true
             viewModel.loadCards()
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Picker("Filter", selection: $viewModel.selectedFilter) {
+                    ForEach(CardFilterOption.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+            }
+        }
     }
 }
-
 
 enum CardFilterOption: Int, CaseIterable, Identifiable {
     case all = 1
@@ -66,8 +70,17 @@ enum CardFilterOption: Int, CaseIterable, Identifiable {
     }
 }
 
-struct CardList_Preview: PreviewProvider {
+struct CardList_Previews: PreviewProvider {
     static var previews: some View {
-        CardListView()
+        CardListViewWrapper()
+    }
+
+    struct CardListViewWrapper: View {
+        @State private var isMenuOpen = true
+        @State private var selectedCard: Int = 1
+
+        var body: some View {
+            CardListView(selectedCard: $selectedCard, isMenuOpen: $isMenuOpen)
+        }
     }
 }

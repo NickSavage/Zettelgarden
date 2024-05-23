@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State var isMenuOpen: Bool = false
+    @State var selectedCard: Int = -1
+
     var body: some View {
         NavigationView {
             TabView {
@@ -16,9 +18,9 @@ struct ContentView: View {
                     Image(systemName: "house.fill")
                     Text("Home")
                 }
-                CardListView().tabItem {
+                CardDisplayView(cardPK: selectedCard).tabItem {
                     Image(systemName: "house.fill")
-                    Text("Cards")
+                    Text("Card")
                 }
                 SearchView().tabItem {
                     Image(systemName: "magnifyingglass")
@@ -34,13 +36,13 @@ struct ContentView: View {
                 }
             }
             .overlay {
-                SidebarView(isMenuOpen: $isMenuOpen)
+                SidebarView(isMenuOpen: $isMenuOpen, selectedCard: $selectedCard)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         withAnimation {
-                            self.isMenuOpen = true
+                            self.isMenuOpen.toggle()
                         }
                     }) {
                         Image(systemName: "sidebar.left")
