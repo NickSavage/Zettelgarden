@@ -10,33 +10,46 @@ import SwiftUI
 struct ContentView: View {
     @State var isMenuOpen: Bool = false
     @State var selectedCard: Int = -1
+    @State var selection: ContentViewSelection = .home
 
     var body: some View {
         NavigationView {
-            TabView {
-                HomeView().tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Home")
+            VStack {
+                if selection == .home {
+                    Text("home")
                 }
-                CardDisplayView(cardPK: selectedCard).tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Card")
+                else if selection == .card {
+                    Text("card")
                 }
-                SearchView().tabItem {
-                    Image(systemName: "magnifyingglass")
-                    Text("Search")
-                }
-                FileListView().tabItem {
-                    Image(systemName: "doc")
-                    Text("Files")
-                }
-                SettingsView().tabItem {
-                    Image(systemName: "gearshape.fill")
-                    Text("Settings")
+                TabView {
+                    HomeView().tabItem {
+                        Image(systemName: "house.fill")
+                        Text("Home")
+                    }
+                    CardDisplayView(cardPK: selectedCard).tabItem {
+                        Image(systemName: "house.fill")
+                        Text("Card")
+                    }
+                    SearchView().tabItem {
+                        Image(systemName: "magnifyingglass")
+                        Text("Search")
+                    }
+                    FileListView().tabItem {
+                        Image(systemName: "doc")
+                        Text("Files")
+                    }
+                    SettingsView().tabItem {
+                        Image(systemName: "gearshape.fill")
+                        Text("Settings")
+                    }
                 }
             }
             .overlay {
-                SidebarView(isMenuOpen: $isMenuOpen, selectedCard: $selectedCard)
+                SidebarView(
+                    isMenuOpen: $isMenuOpen,
+                    selectedCard: $selectedCard,
+                    selection: $selection
+                )
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

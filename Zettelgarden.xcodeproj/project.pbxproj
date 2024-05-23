@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		010F155E2BFF459000AD2F66 /* ContentViewSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */; };
 		0111A7342BFD597300DDED68 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7332BFD597300DDED68 /* HomeView.swift */; };
 		0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7352BFD640400DDED68 /* FileViewModel.swift */; };
 		0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7372BFDF4A900DDED68 /* SidebarView.swift */; };
@@ -59,6 +60,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSelection.swift; sourceTree = "<group>"; };
 		0111A7332BFD597300DDED68 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0111A7352BFD640400DDED68 /* FileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewModel.swift; sourceTree = "<group>"; };
 		0111A7372BFDF4A900DDED68 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -189,6 +191,7 @@
 				01201F882BF2BD3500DF973E /* PartialCard.swift */,
 				01B888192BFB5F7D00B3ACF1 /* File.swift */,
 				01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */,
+				010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -389,6 +392,7 @@
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
 				01B888202BFB689000B3ACF1 /* IdentifiableURL.swift in Sources */,
 				01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */,
+				010F155E2BFF459000AD2F66 /* ContentViewSelection.swift in Sources */,
 				0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */,
 				01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */,
 			);
