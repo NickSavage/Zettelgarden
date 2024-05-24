@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchView: View {
     @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
-    @StateObject private var viewModel = SearchViewModel()
+    @ObservedObject var viewModel = SearchViewModel()
     @State private var newCard = Card.emptyCard
 
     var body: some View {

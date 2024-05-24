@@ -11,23 +11,22 @@ struct ContentView: View {
     @State var isMenuOpen: Bool = false
     @State var selection: ContentViewSelection = .home
     @StateObject var cardViewModel = CardViewModel()
+    @StateObject var searchViewModel = SearchViewModel()
 
     var body: some View {
         NavigationView {
             VStack {
-
                 if selection == .home {
                     HomeView()
                 }
                 else if selection == .card {
                     CardDisplayView(cardViewModel: cardViewModel)
-
                 }
                 else if selection == .files {
                     FileListView()
                 }
                 else if selection == .search {
-                    SearchView(selection: $selection, cardViewModel: cardViewModel)
+                    SearchView(selection: $selection, cardViewModel: cardViewModel, viewModel: searchViewModel)
                 }
                 else if selection == .settings {
                     SettingsView()
