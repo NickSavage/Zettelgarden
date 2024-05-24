@@ -34,12 +34,12 @@ struct CardListView: View {
             }
         }
         .onAppear {
-            if !isInitialized {
+            if !viewModel.isInitialized {
                 viewModel.displayOnlyTopLevel = true
                 viewModel.loadCards()
+                viewModel.isInitialized = true
 
             }
-            isInitialized = true
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

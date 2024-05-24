@@ -11,7 +11,7 @@ struct SidebarView: View {
     @Binding var isMenuOpen: Bool
     @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
-    @StateObject var partialViewModel = PartialCardViewModel()
+    @ObservedObject var partialViewModel = PartialCardViewModel()
 
     var body: some View {
 
@@ -84,12 +84,14 @@ struct SidebarView_Previews: PreviewProvider {
         @State private var isMenuOpen = true
         @State private var selection: ContentViewSelection = .home
         @ObservedObject var cardViewModel = CardViewModel()
+        @ObservedObject var partialViewModel = PartialCardViewModel()
 
         var body: some View {
             SidebarView(
                 isMenuOpen: $isMenuOpen,
                 selection: $selection,
-                cardViewModel: cardViewModel
+                cardViewModel: cardViewModel,
+                partialViewModel: partialViewModel
             )
         }
     }

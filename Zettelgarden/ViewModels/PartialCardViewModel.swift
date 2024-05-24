@@ -2,6 +2,7 @@ import SwiftUI
 
 class PartialCardViewModel: ObservableObject {
     @Published var cards: [PartialCard]?
+    @Published var isInitialized: Bool = false
     @Published var isLoading: Bool = true
     @Published var selectedFilter: CardFilterOption = .all
     @Published var filterText: String = ""
