@@ -91,7 +91,7 @@ def test_get_card_other_user(client, access_headers_other_user):
 
     response = client.get(f"/api/cards/{test_id}", headers=access_headers_other_user)
 
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 def test_update_card(client, access_headers):
     # Define a card ID for testing. Replace 'existing_card_id' with a valid ID from your database

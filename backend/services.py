@@ -65,7 +65,7 @@ def get_references(card_id: str, body: str, user_id: int) -> list:
     else:
         unique_dict = {d["id"]: d for d in links}.values()
         results = list(unique_dict)
-        results = sorted(results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True)
+        results = sorted(results, key=lambda x: utils.sort_ids(x["card_id"]))
         return results
 
 
@@ -311,7 +311,10 @@ def user_can_upload_file(current_user: int, file: dict):
     cur.close()
 
     size = file.content_length
-    if already_uploaded[0] + size > user["max_file_storage"]:
+    current_storage = already_uploaded[0]
+    if not current_storage:
+        current_storage = 0
+    if current_storage + size > user["max_file_storage"]:
         return {"error": True, "message": "Out of storage"}
     
     return {"error": False, "message": ""}
