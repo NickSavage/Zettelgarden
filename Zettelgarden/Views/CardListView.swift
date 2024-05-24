@@ -2,10 +2,11 @@ import SwiftUI
 
 struct CardListView: View {
     @State private var errorMessage: String?
+    @State private var isInitialized: Bool = false
     @Binding var isMenuOpen: Bool
     @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
-    @StateObject private var viewModel = PartialCardViewModel()
+    @ObservedObject var viewModel: PartialCardViewModel
 
     var body: some View {
         VStack {
@@ -23,7 +24,7 @@ struct CardListView: View {
                             isMenuOpen.toggle()
                             selection = .card
                         }) {
-                    CardListItem(card: card, cardViewModel: cardViewModel)
+                            CardListItem(card: card, cardViewModel: cardViewModel)
                         }
                     }
                 }
@@ -33,8 +34,12 @@ struct CardListView: View {
             }
         }
         .onAppear {
-            viewModel.displayOnlyTopLevel = true
-            viewModel.loadCards()
+            if !isInitialized {
+                viewModel.displayOnlyTopLevel = true
+                viewModel.loadCards()
+
+            }
+            isInitialized = true
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -82,9 +87,15 @@ struct CardList_Previews: PreviewProvider {
         @State private var selectedCard: Int? = 1
         @State private var selection: ContentViewSelection = .home
         @ObservedObject var cardViewModel = CardViewModel()
+        @StateObject var viewModel = PartialCardViewModel()
 
         var body: some View {
-            CardListView(isMenuOpen: $isMenuOpen, selection: $selection, cardViewModel: cardViewModel)
+            CardListView(
+                isMenuOpen: $isMenuOpen,
+                selection: $selection,
+                cardViewModel: cardViewModel,
+                viewModel: viewModel
+            )
         }
     }
 }

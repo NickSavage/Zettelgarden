@@ -11,7 +11,7 @@ struct SidebarView: View {
     @Binding var isMenuOpen: Bool
     @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
-    @StateObject private var viewModel = PartialCardViewModel()
+    @StateObject var partialViewModel = PartialCardViewModel()
 
     var body: some View {
 
@@ -21,7 +21,8 @@ struct SidebarView: View {
                     CardListView(
                         isMenuOpen: $isMenuOpen,
                         selection: $selection,
-                        cardViewModel: cardViewModel
+                        cardViewModel: cardViewModel,
+                        viewModel: partialViewModel
                     )
                     Spacer()
                     HStack {
