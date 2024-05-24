@@ -1,11 +1,11 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 class SearchViewModel: ObservableObject {
     @Published var searchString: String = ""
     @Published var searchResults: [Card] = []
     @Published var isLoading: Bool = false
-    
+
     private var cancellable: AnyCancellable?
     @AppStorage("jwt") private var token: String?
 
@@ -14,9 +14,10 @@ class SearchViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        
-        isLoading = true
-        
+
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
         fetchCards(token: token, searchTerm: searchString) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
