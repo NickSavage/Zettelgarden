@@ -57,6 +57,7 @@ func fetchCards(
 func fetchPartialCards(
     token: String,
     searchTerm: String = "",
+    sort: String = "",
     inactive: Bool = false,
     completion: @escaping (Result<[PartialCard], Error>) -> Void
 ) {
@@ -69,6 +70,9 @@ func fetchPartialCards(
     }
     if inactive {
         queryItems.append(URLQueryItem(name: "inactive", value: String(inactive)))
+    }
+    if !sort.isEmpty {
+        queryItems.append(URLQueryItem(name: "sort_method", value: sort))
     }
 
     urlComponents.queryItems = queryItems

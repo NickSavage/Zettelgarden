@@ -18,7 +18,7 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 if selection == .home {
-                    HomeView()
+                    HomeView(cardViewModel: cardViewModel)
                 }
                 else if selection == .card {
                     CardDisplayView(cardViewModel: cardViewModel)

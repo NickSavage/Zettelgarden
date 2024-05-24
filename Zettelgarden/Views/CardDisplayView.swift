@@ -81,6 +81,8 @@ struct CardDisplayView: View {
                     }
                     .buttonStyle(BorderlessButtonStyle())
                     Spacer()
+                    QuickAddMenu()
+                    Spacer()
                 }
                 .padding()
             }

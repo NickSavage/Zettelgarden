@@ -8,42 +8,54 @@
 import SwiftUI
 
 struct HomeView: View {
-    //    @StateObject private var inactiveModel = PartialCardViewModel()
+    @ObservedObject var cardViewModel: CardViewModel
+    @StateObject private var recentModel = PartialCardViewModel()
     var body: some View {
         VStack {
+            Text("Recent Cards")
+
             HStack {
                 Text("hi")
                 Spacer()
 
             }
+            if recentModel.isLoading {
+                ProgressView("Loading")
+            }
+            else if let cards = recentModel.cards {
+                Text("hi")
+                List {
+                    ForEach(cards.prefix(10)) { card in
+                        CardListItem(card: card, cardViewModel: cardViewModel)
+                    }
+                }
+            }
             Spacer()
         }
+        .onAppear {
+            recentModel.sort = "date"
+            recentModel.loadCards()
+        }
         //     NavigationStack {
-        //         Text("Inactive Cards").bold()
-        //         if inactiveModel.isLoading {
-        //             ProgressView("Loading")
-        //         }
-        //         else if let cards = inactiveModel.cards {
-        //             List {
-        //                 ForEach(cards.prefix(10)) { card in
-        //                     NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-        //                         CardListItem(card: card)
-        //                     }
-
-        //                 }
-        //             }
+        //         Text("recent Cards").bold()
 
         //         }
-        //     }
-        //     .onAppear {
-        //         inactiveModel.inactive = true
-        //         inactiveModel.loadCards()
         //     }
         // }
 
     }
 }
 
-#Preview {
-    HomeView()
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeViewWrapper()
+    }
+
+    struct HomeViewWrapper: View {
+        @ObservedObject var cardViewModel = CardViewModel()
+
+        var body: some View {
+            HomeView(cardViewModel: cardViewModel)
+        }
+    }
 }

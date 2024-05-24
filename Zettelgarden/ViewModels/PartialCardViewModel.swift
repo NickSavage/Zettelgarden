@@ -2,11 +2,14 @@ import SwiftUI
 
 class PartialCardViewModel: ObservableObject {
     @Published var cards: [PartialCard]?
-    @Published var isInitialized: Bool = false
+
     @Published var isLoading: Bool = true
     @Published var selectedFilter: CardFilterOption = .all
     @Published var filterText: String = ""
+
     @Published var inactive: Bool = false
+    @Published var sort: String = ""
+
     @Published var displayOnlyTopLevel: Bool = false
 
     @AppStorage("jwt") private var token: String?
@@ -52,7 +55,7 @@ class PartialCardViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        fetchPartialCards(token: token, inactive: inactive) { result in
+        fetchPartialCards(token: token, sort: sort, inactive: inactive) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCards):
