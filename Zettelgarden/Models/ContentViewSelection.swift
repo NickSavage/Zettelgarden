@@ -12,4 +12,5 @@ enum ContentViewSelection {
     case card
     case files
     case search
+    case settings
 }

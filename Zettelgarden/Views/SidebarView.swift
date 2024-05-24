@@ -25,6 +25,7 @@ struct SidebarView: View {
                     )
                     Spacer()
                     HStack {
+                        Spacer()
                         Button(action: {
                             selection = .files
                             withAnimation {
@@ -32,10 +33,10 @@ struct SidebarView: View {
                             }
                         }) {
                             Image(systemName: "folder")
-                            Text("Files")
                         }
                         .padding()
 
+                        Spacer()
                         Button(action: {
                             selection = .search
                             withAnimation {
@@ -43,11 +44,20 @@ struct SidebarView: View {
                             }
                         }) {
                             Image(systemName: "magnifyingglass")
-                            Text("Search")
                         }
                         .padding()
+                        Spacer()
+                        Button(action: {
+                            selection = .settings
+                            withAnimation {
+                                isMenuOpen = false
+                            }
+                        }) {
+                            Image(systemName: "gear")
+                        }
+                        Spacer()
                     }
-                    .background(Color.gray.opacity(0.2))
+                    .background(Color.white)
                     .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

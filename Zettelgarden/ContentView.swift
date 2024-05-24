@@ -27,7 +27,10 @@ struct ContentView: View {
                     FileListView()
                 }
                 else if selection == .search {
-                    SearchView(cardViewModel: cardViewModel)
+                    SearchView(selection: $selection, cardViewModel: cardViewModel)
+                }
+                else if selection == .settings {
+                    SettingsView()
                 }
             }
             .overlay {

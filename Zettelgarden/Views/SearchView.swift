@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SearchView: View {
+    @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
     @StateObject private var viewModel = SearchViewModel()
     @State private var newCard = Card.emptyCard
@@ -18,7 +19,15 @@ struct SearchView: View {
                 }
                 else {
                     List(viewModel.searchResults) { card in
-                        CardListItem(card: cardToPartialCard(card: card), cardViewModel: cardViewModel)
+                        Button(action: {
+                            cardViewModel.loadCard(cardPK: card.id)
+                            selection = .card
+                        }) {
+                            CardListItem(
+                                card: cardToPartialCard(card: card),
+                                cardViewModel: cardViewModel
+                            )
+                        }
                     }
                 }
 
@@ -37,10 +46,10 @@ struct SearchView_Previews: PreviewProvider {
 
     struct SearchViewWrapper: View {
         @ObservedObject var cardViewModel = CardViewModel()
+        @State var selection: ContentViewSelection = .search
 
         var body: some View {
-            SearchView(cardViewModel: cardViewModel)
+            SearchView(selection: $selection, cardViewModel: cardViewModel)
         }
     }
 }
-
