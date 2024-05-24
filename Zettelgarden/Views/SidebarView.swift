@@ -11,7 +11,7 @@ struct SidebarView: View {
     @Binding var isMenuOpen: Bool
     @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
-    @ObservedObject var partialViewModel = PartialCardViewModel()
+    @ObservedObject var partialViewModel: PartialCardViewModel
 
     var body: some View {
 

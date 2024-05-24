@@ -12,6 +12,7 @@ struct ContentView: View {
     @State var selection: ContentViewSelection = .home
     @StateObject var cardViewModel = CardViewModel()
     @StateObject var searchViewModel = SearchViewModel()
+    @StateObject var partialViewModel = PartialCardViewModel()
 
     var body: some View {
         NavigationView {
@@ -26,7 +27,11 @@ struct ContentView: View {
                     FileListView()
                 }
                 else if selection == .search {
-                    SearchView(selection: $selection, cardViewModel: cardViewModel, viewModel: searchViewModel)
+                    SearchView(
+                        selection: $selection,
+                        cardViewModel: cardViewModel,
+                        viewModel: searchViewModel
+                    )
                 }
                 else if selection == .settings {
                     SettingsView()
@@ -36,7 +41,8 @@ struct ContentView: View {
                 SidebarView(
                     isMenuOpen: $isMenuOpen,
                     selection: $selection,
-                    cardViewModel: cardViewModel
+                    cardViewModel: cardViewModel,
+                    partialViewModel: partialViewModel
                 )
             }
             .toolbar {
@@ -50,6 +56,11 @@ struct ContentView: View {
                     }
                 }
             }
+        }
+        .onAppear {
+            partialViewModel.displayOnlyTopLevel = true
+            partialViewModel.loadCards()
+
         }
     }
 }

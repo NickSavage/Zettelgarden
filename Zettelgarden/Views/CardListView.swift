@@ -33,14 +33,6 @@ struct CardListView: View {
                 }
             }
         }
-        .onAppear {
-            if !viewModel.isInitialized {
-                viewModel.displayOnlyTopLevel = true
-                viewModel.loadCards()
-                viewModel.isInitialized = true
-
-            }
-        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Picker("Filter", selection: $viewModel.selectedFilter) {
