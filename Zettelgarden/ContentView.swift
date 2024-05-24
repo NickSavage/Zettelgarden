@@ -15,23 +15,13 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                TabView {
-                    CardDisplayView(cardViewModel: cardViewModel).tabItem {
-                        Image(systemName: "house.fill")
-                        Text("Card")
-                    }
-                    SearchView(cardViewModel: cardViewModel).tabItem {
-                        Image(systemName: "magnifyingglass")
-                        Text("Search")
-                    }
-                    FileListView().tabItem {
-                        Image(systemName: "doc")
-                        Text("Files")
-                    }
-                    SettingsView().tabItem {
-                        Image(systemName: "gearshape.fill")
-                        Text("Settings")
-                    }
+
+                if selection == .home {
+                    HomeView()
+                }
+                else if selection == .card {
+                    CardDisplayView(cardViewModel: cardViewModel)
+
                 }
             }
             .overlay {

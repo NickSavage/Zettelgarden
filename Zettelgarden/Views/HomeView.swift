@@ -8,31 +8,38 @@
 import SwiftUI
 
 struct HomeView: View {
-//    @StateObject private var inactiveModel = PartialCardViewModel()
+    //    @StateObject private var inactiveModel = PartialCardViewModel()
     var body: some View {
-        Text("hi")
-    //     NavigationStack {
-    //         Text("Inactive Cards").bold()
-    //         if inactiveModel.isLoading {
-    //             ProgressView("Loading")
-    //         }
-    //         else if let cards = inactiveModel.cards {
-    //             List {
-    //                 ForEach(cards.prefix(10)) { card in
-    //                     NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-    //                         CardListItem(card: card)
-    //                     }
+        VStack {
+            HStack {
+                Text("hi")
+                Spacer()
 
-    //                 }
-    //             }
+            }
+            Spacer()
+        }
+        //     NavigationStack {
+        //         Text("Inactive Cards").bold()
+        //         if inactiveModel.isLoading {
+        //             ProgressView("Loading")
+        //         }
+        //         else if let cards = inactiveModel.cards {
+        //             List {
+        //                 ForEach(cards.prefix(10)) { card in
+        //                     NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
+        //                         CardListItem(card: card)
+        //                     }
 
-    //         }
-    //     }
-    //     .onAppear {
-    //         inactiveModel.inactive = true
-    //         inactiveModel.loadCards()
-    //     }
-    // }
+        //                 }
+        //             }
+
+        //         }
+        //     }
+        //     .onAppear {
+        //         inactiveModel.inactive = true
+        //         inactiveModel.loadCards()
+        //     }
+        // }
 
     }
 }
