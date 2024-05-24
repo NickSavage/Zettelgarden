@@ -6,6 +6,7 @@ struct CardDisplayView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
+
             if let card = cardViewModel.card {
                 HStack {
                     Text(card.card_id).foregroundColor(.blue)
@@ -60,6 +61,28 @@ struct CardDisplayView: View {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle())
+                HStack {
+                    Button(action: {
+                        cardViewModel.previousCard()
+                    }) {
+                        Image(systemName: "chevron.backward")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .padding()
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                    Button(action: {
+                        cardViewModel.nextCard()
+                    }) {
+                        Image(systemName: "chevron.forward")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .padding()
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                    Spacer()
+                }
+                .padding()
             }
             else {
                 Text("No card available")
