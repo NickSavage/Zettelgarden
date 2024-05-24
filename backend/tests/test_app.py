@@ -57,6 +57,22 @@ def test_create_card(client, access_headers):
     assert response.status_code == 200
     assert len(response.json) == 21
 
+def test_create_card_dup_card_id(client, access_headers):
+
+    card_data = {
+        "title": "Test Card",
+        "body": "This is a test card body.",
+        "card_id": "12345",
+        "link": "http://example.com",
+    }
+
+    response = client.post("/api/cards", json=card_data, headers=access_headers)
+
+    assert response.status_code == 200
+
+    response = client.post("/api/cards", json=card_data, headers=access_headers)
+
+    assert response.status_code == 400
 
 def test_create_card_missing_fields(client, access_headers):
     incomplete_data = {"title": "Incomplete Card"}
