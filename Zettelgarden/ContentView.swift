@@ -23,6 +23,12 @@ struct ContentView: View {
                     CardDisplayView(cardViewModel: cardViewModel)
 
                 }
+                else if selection == .files {
+                    FileListView()
+                }
+                else if selection == .search {
+                    SearchView(cardViewModel: cardViewModel)
+                }
             }
             .overlay {
                 SidebarView(

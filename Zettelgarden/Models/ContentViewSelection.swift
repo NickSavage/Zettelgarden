@@ -10,4 +10,6 @@ import Foundation
 enum ContentViewSelection {
     case home
     case card
+    case files
+    case search
 }

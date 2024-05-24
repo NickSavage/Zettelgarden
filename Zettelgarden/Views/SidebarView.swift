@@ -18,7 +18,37 @@ struct SidebarView: View {
         ZStack {
             if isMenuOpen {
                 VStack {
-                    CardListView(isMenuOpen: $isMenuOpen, selection: $selection, cardViewModel: cardViewModel)
+                    CardListView(
+                        isMenuOpen: $isMenuOpen,
+                        selection: $selection,
+                        cardViewModel: cardViewModel
+                    )
+                    Spacer()
+                    HStack {
+                        Button(action: {
+                            selection = .files
+                            withAnimation {
+                                isMenuOpen = false
+                            }
+                        }) {
+                            Image(systemName: "folder")
+                            Text("Files")
+                        }
+                        .padding()
+
+                        Button(action: {
+                            selection = .search
+                            withAnimation {
+                                isMenuOpen = false
+                            }
+                        }) {
+                            Image(systemName: "magnifyingglass")
+                            Text("Search")
+                        }
+                        .padding()
+                    }
+                    .background(Color.gray.opacity(0.2))
+                    .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
@@ -45,7 +75,11 @@ struct SidebarView_Previews: PreviewProvider {
         @ObservedObject var cardViewModel = CardViewModel()
 
         var body: some View {
-            SidebarView(isMenuOpen: $isMenuOpen, selection: $selection, cardViewModel: cardViewModel)
+            SidebarView(
+                isMenuOpen: $isMenuOpen,
+                selection: $selection,
+                cardViewModel: cardViewModel
+            )
         }
     }
 }
