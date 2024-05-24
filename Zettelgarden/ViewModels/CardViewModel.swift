@@ -17,15 +17,17 @@ class CardViewModel: ObservableObject {
             cardHistory.append(cardPK)
             currentIndex += 1
         }
-        else if currentIndex >= 0 && !(cardHistory[currentIndex] == cardPK){
+        else if currentIndex >= 0 && !(cardHistory[currentIndex] == cardPK) {
             cardHistory.append(cardPK)
             currentIndex += 1
-        } 
+        }
         fetchCard(token: token, id: cardPK) { result in
             switch result {
             case .success(let fetchedCard):
-                self.card = fetchedCard
-                print("loaded card \(cardPK)")
+                DispatchQueue.main.async {
+                    self.card = fetchedCard
+                    print("loaded card \(cardPK)")
+                }
             case .failure(let error):
                 print("Unable to load card: \(error.localizedDescription)")
             }
