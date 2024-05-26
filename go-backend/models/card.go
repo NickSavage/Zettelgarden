@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Card struct {
-	id         int
-	card_id    string
-	user_id    int
-	title      string
-	body       string
-	link       string
-	is_deleted bool
-	created_at time.Time
-	updated_at time.Time
+	ID        int
+	CardID    string
+	UserID    int
+	Title     string
+	Body      string
+	Link      string
+	IsDeleted bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

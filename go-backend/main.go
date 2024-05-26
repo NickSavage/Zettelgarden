@@ -1,9 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 )
+
+type Server struct {
+	db      *sql.DB
+	testing bool
+}
 
 func helloWorld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "hello world")

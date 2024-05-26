@@ -11,6 +11,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var s *Server
 var db *sql.DB
 
 func setup() {
@@ -26,11 +27,17 @@ func setup() {
 	if err != nil {
 		log.Fatalf("Unable to connect to the database: %v\n", err)
 	}
+	s = &Server{}
+	s.db = db
+	s.testing = true
+
+	s.runMigrations()
+	s.importTestData()
+
 }
 
 func teardown() {
-	log.Printf("bye")
-
+	s.resetDatabase()
 }
 func TestUploadFileSuccess(t *testing.T) {
 	setup()
@@ -51,9 +58,6 @@ func TestUploadFileSuccess(t *testing.T) {
 	expected := "hello world"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
-	}
-	if err := db.Ping(); err != nil {
-		t.Errorf("Cannot reach database")
 	}
 }
 
