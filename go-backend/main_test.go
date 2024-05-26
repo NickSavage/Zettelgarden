@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -16,22 +15,16 @@ var db *sql.DB
 
 func setup() {
 	var err error
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASS")
-	dbname := "zettelkasten_testing"
+	dbConfig := databaseConfig{}
+	dbConfig.host = os.Getenv("DB_HOST")
+	dbConfig.port = os.Getenv("DB_PORT")
+	dbConfig.user = os.Getenv("DB_USER")
+	dbConfig.password = os.Getenv("DB_PASS")
+	dbConfig.databaseName = "zettelkasten_testing"
 
-	psqlInfo := fmt.Sprintf("host=%v port=%v user=%v "+
-		"password=%v dbname=%v sslmode=disable",
-		host, port, user, password, dbname)
-
-	db, err = sql.Open("postgres", psqlInfo)
+	db, err = ConnectToDatabase(dbConfig)
 	if err != nil {
 		log.Fatalf("Unable to connect to the database: %v\n", err)
-	}
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
 	}
 }
 
