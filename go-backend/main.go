@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -10,17 +11,67 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/golang-jwt/jwt/v4"
 )
-
-type Server struct {
-	db      *sql.DB
-	s3      *s3.Client
-	testing bool
-}
 
 var s *Server
 
+type Server struct {
+	db             *sql.DB
+	s3             *s3.Client
+	testing        bool
+	jwt_secret_key []byte
+}
+
+type Claims struct {
+	Sub   int    `json:"sub"`
+	Fresh bool   `json:"fresh"`
+	Type  string `json:"type"`
+	jwt.RegisteredClaims
+}
+
+func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tokenStr := r.Header.Get("Authorization")
+
+		if tokenStr == "" {
+			http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+			return
+		}
+
+		tokenStr = tokenStr[len("Bearer "):]
+
+		claims := &Claims{}
+
+		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+			return s.jwt_secret_key, nil
+		})
+
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				http.Error(w, "Invalid token signature", http.StatusUnauthorized)
+				return
+			}
+			print("invalid token %v", err)
+			http.Error(w, "Invalid token", http.StatusBadRequest)
+			return
+		}
+
+		if !token.Valid {
+			log.Printf("token not valid")
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		// Add the claims to the request context
+		ctx := context.WithValue(r.Context(), "current_user", claims.Sub)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+
 func helloWorld(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user")
+	log.Printf("user %v", userID)
 
 	fmt.Fprint(w, "hello world")
 }
@@ -91,6 +142,9 @@ func main() {
 	s.db = db
 	s.s3 = createS3Client()
 
+	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
+
+	http.HandleFunc("GET /", jwtMiddleware(helloWorld))
 	//http.HandleFunc("GET /api/files", getAllFiles)
 	//http.HandleFunc("POST /api/files/upload", uplpadFile)
 	//http.HandleFunc("GET /api/files/{I}/", getFileMetadata)

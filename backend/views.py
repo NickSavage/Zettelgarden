@@ -74,6 +74,7 @@ def login():
             identity=user["id"], expires_delta=timedelta(days=15)
         )
         del user["password"]
+        print(access_token)
         results = {"access_token": access_token, "user": user}
         g.logger.info('Successful login: id %s, username %s', user['id'], email)
         log_last_login(user)

@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"sort"
+
+	_ "github.com/lib/pq"
 )
 
 type databaseConfig struct {
