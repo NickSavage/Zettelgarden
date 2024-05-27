@@ -52,7 +52,6 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				http.Error(w, "Invalid token signature", http.StatusUnauthorized)
 				return
 			}
-			print("invalid token %v", err)
 			http.Error(w, "Invalid token", http.StatusBadRequest)
 			return
 		}
@@ -77,11 +76,12 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getAllFiles(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
 	rows, _ := s.db.Query(`
 	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.created_at, files.updated_at
 	FROM files
 	JOIN cards ON files.card_pk = cards.id
-	WHERE files.is_deleted = FALSE AND cards.user_id = $1`, 1)
+	WHERE files.is_deleted = FALSE AND cards.user_id = $1`, userID)
 
 	defer rows.Close()
 

@@ -5,7 +5,11 @@ import (
 	"go-backend/models"
 	"log"
 	"math/rand"
+	"os"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 func (s *Server) importTestData() error {
@@ -147,4 +151,28 @@ func randomDate(start, end time.Time) time.Time {
 	delta := end.Unix() - start.Unix()
 	sec := rand.Int63n(delta) + start.Unix()
 	return time.Unix(sec, 0)
+}
+
+func generateTestJWT(userID int) (string, error) {
+	var jwtKey = []byte(os.Getenv("SECRET_KEY"))
+	now := time.Now()
+
+	claims := &Claims{
+		Sub:   userID,
+		Fresh: false, // Assuming 'fresh' is always false for test token
+		Type:  "access",
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			ID:        uuid.NewString(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
 }

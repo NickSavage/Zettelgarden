@@ -66,11 +66,13 @@ func parseJsonResponse(t *testing.T, body []byte, x interface{}) {
 	}
 }
 
-func sendRequest(t *testing.T, method string, url string, function http.HandlerFunc) *httptest.ResponseRecorder {
+func sendRequest(t *testing.T, method string, url string, token string, function http.HandlerFunc) *httptest.ResponseRecorder {
+
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(function)
@@ -82,7 +84,9 @@ func sendRequest(t *testing.T, method string, url string, function http.HandlerF
 func TestGetAllFiles(t *testing.T) {
 	setup()
 	defer teardown()
-	rr := sendRequest(t, "GET", "/api/files", s.getAllFiles)
+
+	token, _ := generateTestJWT(1)
+	rr := sendRequest(t, "GET", "/api/files", token, jwtMiddleware(s.getAllFiles))
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -91,7 +95,21 @@ func TestGetAllFiles(t *testing.T) {
 	var files []models.File
 	parseJsonResponse(t, rr.Body.Bytes(), &files)
 	if len(files) != 20 {
-		t.Fatalf("wrong length of results, got %v want %v", len(files), 1)
+		t.Fatalf("wrong length of results, got %v want %v", len(files), 20)
+	}
+}
+func TestGetAllFilesNoToken(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := sendRequest(t, "GET", "/api/files", "", jwtMiddleware(s.getAllFiles))
+
+	//	print("%v", rr.Code)
+	if status := rr.Code; status == http.StatusOK {
+		t.Errorf("handler returned wrong status code, got %v want %v", rr.Code, http.StatusBadRequest)
+	}
+	if rr.Body.String() != "Invalid token\n" {
+		t.Errorf("handler returned wrong body, got %v want %v", rr.Body.String(), "Invalid token")
 	}
 }
 
