@@ -116,13 +116,59 @@ func TestGetAllFilesNoToken(t *testing.T) {
 func TestGetFileSuccess(t *testing.T) {
 	setup()
 	defer teardown()
-	t.Errorf("not implemented yet")
+
+	token, _ := generateTestJWT(1)
+
+	req, err := http.NewRequest("GET", "/api/files/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware((s.getFileMetadata)))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		log.Printf("%v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var file models.File
+	parseJsonResponse(t, rr.Body.Bytes(), &file)
+	if file.ID != 1 {
+		t.Errorf("handler returned wrong file, got %v want %v", file.ID, 1)
+	}
+
 }
 
 func TestGetFileWrongUser(t *testing.T) {
+
 	setup()
 	defer teardown()
-	t.Errorf("not implemented yet")
+
+	token, _ := generateTestJWT(2)
+
+	req, err := http.NewRequest("GET", "/api/files/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware((s.getFileMetadata)))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		log.Printf("%v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+	if rr.Body.String() != "Unable to access file\n" {
+		t.Errorf("handler returned wrong body, got %v want %v", rr.Body.String(), "Unable to access file\n")
+	}
 }
 
 func TestEditFileSuccess(t *testing.T) {

@@ -125,6 +125,40 @@ func (s *Server) getAllFiles(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
+func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("current_user").(int)
+	id := r.PathValue("id")
+
+	row := s.db.QueryRow(`
+	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.created_at, files.updated_at
+	FROM files
+	JOIN cards ON files.card_pk = cards.id
+	WHERE files.id = $1 and cards.user_id = $2`, id, userID)
+
+	var file models.File
+
+	if err := row.Scan(
+		&file.ID,
+		&file.Name,
+		&file.Filetype,
+		&file.Path,
+		&file.Filename,
+		&file.Size,
+		&file.CreatedBy,
+		&file.UpdatedBy,
+		&file.CardPK,
+		&file.CreatedAt,
+		&file.UpdatedAt,
+	); err != nil {
+		http.Error(w, "Unable to access file", http.StatusBadRequest)
+		return
+	}
+	log.Printf("%v", file)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(file)
+}
+
 func main() {
 	s = &Server{}
 
@@ -145,9 +179,9 @@ func main() {
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
 	http.HandleFunc("GET /", jwtMiddleware(helloWorld))
-	//http.HandleFunc("GET /api/files", getAllFiles)
+	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
 	//http.HandleFunc("POST /api/files/upload", uplpadFile)
-	//http.HandleFunc("GET /api/files/{I}/", getFileMetadata)
+	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))
 	//http.HandleFunc("PATCH /api/files/{I}/", editFile)
 	//http.HandleFunc("DELETE /api/files/{I}/", deleteFile)
 	//http.HandleFunc("GET /api/files/download/{id}", helloWorld)
