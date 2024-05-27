@@ -3,16 +3,16 @@ package models
 import "time"
 
 type File struct {
-	id         int
-	name       string
-	filetype   string
-	path       string
-	filename   string
-	size       int
-	created_by int
-	updated_by int
-	card_pk    int
-	is_deleted bool
-	created_at time.Time
-	updated_at time.Time
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Filetype  string    `json:"filetype"`
+	Path      string    `json:"path"`
+	Filename  string    `json:"filename"`
+	Size      int       `json:"size"`
+	CreatedBy int       `json:"created_by"`
+	UpdatedBy int       `json:"updated_by"`
+	CardPK    int       `json:"card_pk"`
+	IsDeleted bool      `json:"is_deleted"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

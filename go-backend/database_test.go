@@ -10,11 +10,11 @@ func TestLoadDatabase(t *testing.T) {
 
 	var err error
 
-	if err = db.Ping(); err != nil {
+	if err = s.db.Ping(); err != nil {
 		t.Errorf("Cannot reach database")
 	}
 	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	err = s.db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if err != nil {
 		t.Fatalf("Failed to query users table: %v", err)
 	}

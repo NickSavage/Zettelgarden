@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-backend/models"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -11,6 +12,7 @@ func (s *Server) importTestData() error {
 	data := s.generateData()
 	users := data["users"].([]models.User)
 	cards := data["cards"].([]models.Card)
+	files := data["files"].([]models.File)
 	// backlinks := data["backlinks"].([]Backlink)
 
 	var userIDs []int
@@ -32,6 +34,17 @@ func (s *Server) importTestData() error {
 			card.CardID, card.UserID, card.Title, card.Body, card.Link,
 		)
 		if err != nil {
+			return err
+		}
+	}
+
+	for _, file := range files {
+		_, err := s.db.Exec(
+			"INSERT INTO files (name, type, path, filename, size, created_by, updated_by, card_pk, is_deleted, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+			file.Name, file.Filetype, file.Path, file.Filename, file.Size, file.CreatedBy, file.UpdatedBy, file.CardPK, file.IsDeleted, file.CreatedAt, file.UpdatedAt,
+		)
+		if err != nil {
+			log.Printf("error %v", err)
 			return err
 		}
 	}
@@ -90,10 +103,29 @@ func (s *Server) generateData() map[string]interface{} {
 		})
 	}
 
+	files := []models.File{}
+	for i := 1; i <= 20; i++ {
+		files = append(files, models.File{
+			ID:        i,
+			Name:      randomString(20),
+			Filetype:  randomString(20),
+			Path:      randomString(20),
+			Filename:  randomString(20),
+			Size:      rand.Intn(1000),
+			CreatedBy: rand.Intn(10) + 1,
+			UpdatedBy: rand.Intn(10) + 1,
+			CardPK:    i,
+			IsDeleted: false,
+			CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		})
+	}
+
 	results := map[string]interface{}{
 		"users":     users,
 		"cards":     cards,
 		"backlinks": backlinks,
+		"files":     files,
 	}
 	return results
 }

@@ -18,9 +18,7 @@ const (
 	bucketName = "zettelgarden-files-dev"
 )
 
-var client *s3.Client
-
-func createS3Client() {
+func createS3Client() *s3.Client {
 
 	accessKeyID := os.Getenv("B2_ACCESS_KEY_ID")
 	secretAccessKey := os.Getenv("B2_SECRET_ACCESS_KEY")
@@ -47,7 +45,8 @@ func createS3Client() {
 	}
 
 	// Create an S3 client
-	client = s3.NewFromConfig(cfg)
+	client := s3.NewFromConfig(cfg)
+	return client
 }
 
 func listObjects(client *s3.Client) {
