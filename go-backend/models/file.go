@@ -17,3 +17,8 @@ type File struct {
 	UpdatedAt time.Time   `json:"updated_at"`
 	Card      PartialCard `json:"card"`
 }
+
+type EditFileMetadataParams struct {
+	CardPK int    `json:"id"`
+	Name   string `json:"name"`
+}

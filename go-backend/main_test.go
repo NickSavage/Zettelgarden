@@ -156,20 +156,18 @@ func TestEditFileSuccess(t *testing.T) {
 	setup()
 	defer teardown()
 
+	new_name := "new_name.txt"
 	token, _ := generateTestJWT(1)
-	fileData := struct {
-		CardPK int    `json:"id"`
-		Name   string `json:"name"`
-	}{
+	fileData := models.EditFileMetadataParams{
 		CardPK: 1,
-		Name:   "asdasda",
+		Name:   new_name,
 	}
 	body, err := json.Marshal(fileData)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	req, err := http.NewRequest("PATCH", "/api/files", bytes.NewBuffer(body))
+	req, err := http.NewRequest("PATCH", "/api/files/1", bytes.NewBuffer(body))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,14 +180,17 @@ func TestEditFileSuccess(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusCreated {
+	if status := rr.Code; status != http.StatusOK {
 		log.Printf("%v", rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
 	var file models.File
 	parseJsonResponse(t, rr.Body.Bytes(), &file)
-	if file.Name != "example.txt" {
-		t.Errorf("handler returned wrong file name, got %v want %v", file.Name, "example.txt")
+	if file.Name != new_name {
+		t.Errorf("handler returned wrong file name, got %v want %v", file.Name, new_name)
+	}
+	if file.CardPK != 1 {
+		t.Errorf("handler returned wrong file, got id %v want %v", file.ID, 1)
 	}
 }
 

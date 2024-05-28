@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"go-backend/models"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/golang-jwt/jwt/v4"
@@ -132,25 +134,7 @@ JOIN
 	w.Write(jsonResponse)
 }
 
-func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		CardPK int    `json:"id"`
-		Name   string `json:"name"`
-	}
-
-	err := json.NewDecoder(r.Body).Decode(&data)
-	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
-	log.Printf("%v", data)
-	http.Error(w, "Not implemented yet", http.StatusBadRequest)
-}
-
-func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
-
-	userID := r.Context().Value("current_user").(int)
-	id := r.PathValue("id")
+func (s *Server) queryCard(userID int, id int) (models.File, error) {
 
 	row := s.db.QueryRow(`
 	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.is_deleted, 
@@ -183,12 +167,62 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 		&partialCard.UpdatedAt,
 	); err != nil {
 		log.Printf("%v", err)
-		http.Error(w, "Unable to access file", http.StatusBadRequest)
-		return
+		return models.File{}, errors.New("unable to access file")
 	}
 	file.Card = partialCard
+	return file, nil
+}
+
+func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("current_user").(int)
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	file, err := s.queryCard(userID, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(file)
+}
+
+func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("current_user").(int)
+
+	var data models.EditFileMetadataParams
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	log.Printf("%v", data)
+
+	_, err = s.db.Exec("UPDATE files SET name = $1 WHERE id = $2", data.Name, data.CardPK)
+
+	if err != nil {
+		log.Printf("Failed to update file metadata: %v", err)
+		http.Error(w, "Failed to update file metadata", http.StatusInternalServerError)
+		return
+	}
+
+	file, err := s.queryCard(userID, data.CardPK)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(file)
+
 }
 
 func main() {
@@ -213,7 +247,7 @@ func main() {
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
 	//http.HandleFunc("POST /api/files/upload", uplpadFile)
 	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))
-	//http.HandleFunc("PATCH /api/files/{I}/", editFile)
+	http.HandleFunc("PATCH /api/files/{I}/", jwtMiddleware(s.editFileMetadata))
 	//http.HandleFunc("DELETE /api/files/{I}/", deleteFile)
 	//http.HandleFunc("GET /api/files/download/{id}", helloWorld)
 	http.ListenAndServe(":8080", nil)
