@@ -17,6 +17,7 @@ from flask_bcrypt import Bcrypt
 import uuid
 import stripe
 import requests
+import json
 
 from database import connect_to_database, get_db
 
@@ -627,7 +628,7 @@ def edit_file(file_id):
         "Authorization": request.headers.get("Authorization"),
         "Content-Type": "application/json"
     }
-    response = requests.patch(f"http://{os.getenv('FILES_HOST')}/api/files/{file_id}", headers=headers, data=data)
+    response = requests.patch(f"http://{os.getenv('FILES_HOST')}/api/files/{file_id}/", headers=headers, json=data)
 
     if response.status_code != 200:
         print(response.text)
