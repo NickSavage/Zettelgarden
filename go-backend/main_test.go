@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"go-backend/models"
 	"log"
@@ -154,7 +155,42 @@ func TestGetFileWrongUser(t *testing.T) {
 func TestEditFileSuccess(t *testing.T) {
 	setup()
 	defer teardown()
-	t.Errorf("not implemented yet")
+
+	token, _ := generateTestJWT(1)
+	fileData := struct {
+		CardPK int    `json:"id"`
+		Name   string `json:"name"`
+	}{
+		CardPK: 1,
+		Name:   "asdasda",
+	}
+	body, err := json.Marshal(fileData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("PATCH", "/api/files", bytes.NewBuffer(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware((s.editFileMetadata)))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusCreated {
+		log.Printf("%v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
+	}
+	var file models.File
+	parseJsonResponse(t, rr.Body.Bytes(), &file)
+	if file.Name != "example.txt" {
+		t.Errorf("handler returned wrong file name, got %v want %v", file.Name, "example.txt")
+	}
 }
 
 func TestEditFileWrongUser(t *testing.T) {

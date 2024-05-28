@@ -132,6 +132,21 @@ JOIN
 	w.Write(jsonResponse)
 }
 
+func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		CardPK int    `json:"id"`
+		Name   string `json:"name"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	log.Printf("%v", data)
+	http.Error(w, "Not implemented yet", http.StatusBadRequest)
+}
+
 func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
