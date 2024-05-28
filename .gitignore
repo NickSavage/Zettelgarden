@@ -7,7 +7,7 @@
 /frontend/build/
 
 # Environment files
-.env
+.env*
 
 # Python virtual environment (Flask backend)
 /backend/.venv/

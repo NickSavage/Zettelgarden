@@ -28,3 +28,14 @@ services:
       - /home/media/.config/zettelkasten:/usr/src/app/files
     env_file:
       - .env
+
+  go-backend:
+    build:
+      context: ./go-backend
+      dockerfile: Dockerfile
+    image: 192.168.0.129:50000/zettelkasten_go_backend:latest
+    ports:
+      - "8080:8080"
+    env_file:
+      - .evn
+      
