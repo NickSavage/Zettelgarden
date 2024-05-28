@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -68,15 +67,7 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func helloWorld(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("current_user")
-	log.Printf("user %v", userID)
-
-	fmt.Fprint(w, "hello world")
-}
-
 func (s *Server) getAllFiles(w http.ResponseWriter, r *http.Request) {
-	print("getAllFiles\n")
 	userID := r.Context().Value("current_user").(int)
 	rows, err := s.db.Query(`
 	SELECT
@@ -89,15 +80,11 @@ FROM
 JOIN
     cards as c ON f.card_pk = c.id
 	WHERE f.is_deleted = FALSE AND c.user_id = $1`, userID)
-	log.Printf("%v", err)
 
 	defer rows.Close()
 
 	var files []models.File
 
-	log.Printf("adfadsf")
-	types, _ := rows.ColumnTypes()
-	log.Printf("%v", types)
 	for rows.Next() {
 		var file models.File
 		var partialCard models.PartialCard
@@ -124,7 +111,6 @@ JOIN
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		log.Printf("%v", file.Card)
 		file.Card = partialCard
 		files = append(files, file)
 	}
@@ -152,12 +138,15 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
 	row := s.db.QueryRow(`
-	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.created_at, files.updated_at
+	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.is_deleted, 
+	files.created_at, files.updated_at, cards.id, cards.card_id, cards.title, cards.created_at, cards.updated_at
+
 	FROM files
 	JOIN cards ON files.card_pk = cards.id
 	WHERE files.id = $1 and cards.user_id = $2`, id, userID)
 
 	var file models.File
+	var partialCard models.PartialCard
 
 	if err := row.Scan(
 		&file.ID,
@@ -169,14 +158,20 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 		&file.CreatedBy,
 		&file.UpdatedBy,
 		&file.CardPK,
+		&file.IsDeleted,
 		&file.CreatedAt,
 		&file.UpdatedAt,
+		&partialCard.ID,
+		&partialCard.CardID,
+		&partialCard.Title,
+		&partialCard.CreatedAt,
+		&partialCard.UpdatedAt,
 	); err != nil {
 		log.Printf("%v", err)
 		http.Error(w, "Unable to access file", http.StatusBadRequest)
 		return
 	}
-	log.Printf("%v", file)
+	file.Card = partialCard
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(file)
 }
@@ -199,9 +194,7 @@ func main() {
 	s.s3 = createS3Client()
 
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
-	log.Printf("%v", s.jwt_secret_key)
 
-	http.HandleFunc("GET /", jwtMiddleware(helloWorld))
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
 	//http.HandleFunc("POST /api/files/upload", uplpadFile)
 	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))

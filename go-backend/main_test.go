@@ -37,27 +37,6 @@ func setup() {
 func teardown() {
 	//s.resetDatabase()
 }
-func TestUploadFileSuccess(t *testing.T) {
-	setup()
-	defer teardown()
-	req, err := http.NewRequest("GET", "/api/files/download/1", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(helloWorld)
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-
-	expected := "hello world"
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
-	}
-}
 
 func parseJsonResponse(t *testing.T, body []byte, x interface{}) {
 	err := json.Unmarshal(body, &x)
@@ -190,6 +169,11 @@ func TestDeleteFile(t *testing.T) {
 	t.Errorf("not implemented yet")
 }
 
+func TestUploadFileSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+	t.Errorf("not implemented yet")
+}
 func TestDownloadFile(t *testing.T) {
 	setup()
 	defer teardown()

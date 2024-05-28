@@ -23,8 +23,8 @@ func (s *Server) importTestData() error {
 	for _, user := range users {
 		var id int
 		err := s.db.QueryRow(
-			"INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id",
-			user.Username, user.Email, user.Password,
+			"INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+			user.Username, user.Email, user.Password, user.CreatedAt, user.UpdatedAt,
 		).Scan(&id)
 		if err != nil {
 			return err
@@ -34,8 +34,8 @@ func (s *Server) importTestData() error {
 
 	for _, card := range cards {
 		_, err := s.db.Exec(
-			"INSERT INTO cards (card_id, user_id, title, body, link) VALUES ($1, $2, $3, $4, $5)",
-			card.CardID, card.UserID, card.Title, card.Body, card.Link,
+			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt,
 		)
 		if err != nil {
 			return err

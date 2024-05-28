@@ -3,15 +3,15 @@ package models
 import "time"
 
 type Card struct {
-	ID        int
-	CardID    string
-	UserID    int
-	Title     string
-	Body      string
-	Link      string
-	IsDeleted bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        int       `json:"id"`
+	CardID    string    `json:"card_id"`
+	UserID    int       `json:"user_id"`
+	Title     string    `json:"title"`
+	Body      string    `json:"body"`
+	Link      string    `json:"link"`
+	IsDeleted bool      `json:"is_deleted"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type PartialCard struct {
