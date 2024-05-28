@@ -16,6 +16,7 @@ from flask_jwt_extended import (
 from flask_bcrypt import Bcrypt
 import uuid
 import stripe
+import requests
 
 from database import connect_to_database, get_db
 
@@ -557,12 +558,20 @@ def get_file_metadata(file_id):
 @bp.route("/api/files", methods=["GET"])
 @jwt_required()
 def get_all_files():
-    current_user= get_jwt_identity()
-    results = services.query_all_files(current_user)
-    if results == []:
-        return jsonify({}), 204
-    else:
-        return jsonify(results), 200
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return jsonify({"error": "Authorization header is missing"}), 401
+    # Forward the request to the Go backend
+    headers = {
+        "Authorization": auth_header
+    }
+    response = requests.get(f"http://192.168.0.72:8080/api/files", headers=headers)
+    print(response)
+    print(response.text)
+    #print(response.json())
+
+    # Return the response from the Go backend to the client
+    return jsonify(response.json()), response.status_code
 
 
 @bp.route("/api/files/download/<int:file_id>", methods=["GET"])

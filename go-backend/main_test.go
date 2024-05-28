@@ -119,6 +119,7 @@ func TestGetFileSuccess(t *testing.T) {
 
 	token, _ := generateTestJWT(1)
 
+	log.Printf("%v", token)
 	req, err := http.NewRequest("GET", "/api/files/1", nil)
 	if err != nil {
 		t.Fatal(err)

@@ -13,3 +13,11 @@ type Card struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type PartialCard struct {
+	ID        int       `json:"id"`
+	CardID    string    `json:"card_id"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

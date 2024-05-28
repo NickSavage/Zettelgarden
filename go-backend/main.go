@@ -76,19 +76,31 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getAllFiles(w http.ResponseWriter, r *http.Request) {
+	print("getAllFiles\n")
 	userID := r.Context().Value("current_user").(int)
-	rows, _ := s.db.Query(`
-	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.created_at, files.updated_at
-	FROM files
-	JOIN cards ON files.card_pk = cards.id
-	WHERE files.is_deleted = FALSE AND cards.user_id = $1`, userID)
+	rows, err := s.db.Query(`
+	SELECT
+    f.id, f.name, f.type, f.path, f.filename, f.size,
+    f.created_by, f.updated_by, f.card_pk, f.is_deleted,
+    f.created_at, f.updated_at,
+    c.id, c.card_id, c.title, c.created_at, c.updated_at
+FROM
+    files as f
+JOIN
+    cards as c ON f.card_pk = c.id
+	WHERE f.is_deleted = FALSE AND c.user_id = $1`, userID)
+	log.Printf("%v", err)
 
 	defer rows.Close()
 
 	var files []models.File
 
+	log.Printf("adfadsf")
+	types, _ := rows.ColumnTypes()
+	log.Printf("%v", types)
 	for rows.Next() {
 		var file models.File
+		var partialCard models.PartialCard
 		if err := rows.Scan(
 			&file.ID,
 			&file.Name,
@@ -99,12 +111,21 @@ func (s *Server) getAllFiles(w http.ResponseWriter, r *http.Request) {
 			&file.CreatedBy,
 			&file.UpdatedBy,
 			&file.CardPK,
+			&file.IsDeleted,
 			&file.CreatedAt,
 			&file.UpdatedAt,
+			&partialCard.ID,
+			&partialCard.CardID,
+			&partialCard.Title,
+			&partialCard.CreatedAt,
+			&partialCard.UpdatedAt,
 		); err != nil {
+			log.Printf("%v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		log.Printf("%v", file.Card)
+		file.Card = partialCard
 		files = append(files, file)
 	}
 
@@ -151,6 +172,7 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 		&file.CreatedAt,
 		&file.UpdatedAt,
 	); err != nil {
+		log.Printf("%v", err)
 		http.Error(w, "Unable to access file", http.StatusBadRequest)
 		return
 	}
@@ -177,6 +199,7 @@ func main() {
 	s.s3 = createS3Client()
 
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
+	log.Printf("%v", s.jwt_secret_key)
 
 	http.HandleFunc("GET /", jwtMiddleware(helloWorld))
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
