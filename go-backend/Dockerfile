@@ -18,7 +18,7 @@ COPY . .
 # Build the Go app
 RUN go build -o main .
 
-# Make port 5000 available to the world outside this container
+# Make port 8080 available to the world outside this container
 EXPOSE 8080
 
 # Run the Go app when the container launches
