@@ -99,7 +99,6 @@ func TestGetFileSuccess(t *testing.T) {
 
 	token, _ := generateTestJWT(1)
 
-	log.Printf("%v", token)
 	req, err := http.NewRequest("GET", "/api/files/1", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -147,8 +146,8 @@ func TestGetFileWrongUser(t *testing.T) {
 		log.Printf("%v", rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
-	if rr.Body.String() != "Unable to access file\n" {
-		t.Errorf("handler returned wrong body, got %v want %v", rr.Body.String(), "Unable to access file\n")
+	if rr.Body.String() != "unable to access file\n" {
+		t.Errorf("handler returned wrong body, got %v want %v", rr.Body.String(), "unable to access file\n")
 	}
 }
 
@@ -159,8 +158,7 @@ func TestEditFileSuccess(t *testing.T) {
 	new_name := "new_name.txt"
 	token, _ := generateTestJWT(1)
 	fileData := models.EditFileMetadataParams{
-		CardPK: 1,
-		Name:   new_name,
+		Name: new_name,
 	}
 	body, err := json.Marshal(fileData)
 	if err != nil {
@@ -182,7 +180,7 @@ func TestEditFileSuccess(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusOK {
 		log.Printf("%v", rr.Body.String())
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var file models.File
 	parseJsonResponse(t, rr.Body.Bytes(), &file)
@@ -197,7 +195,36 @@ func TestEditFileSuccess(t *testing.T) {
 func TestEditFileWrongUser(t *testing.T) {
 	setup()
 	defer teardown()
-	t.Errorf("not implemented yet")
+	new_name := "new_name.txt"
+	token, _ := generateTestJWT(2)
+	fileData := models.EditFileMetadataParams{
+		Name: new_name,
+	}
+	body, err := json.Marshal(fileData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("PATCH", "/api/files/1", bytes.NewBuffer(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware((s.editFileMetadata)))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		log.Printf("%v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+	if rr.Body.String() != "unable to access file\n" {
+		t.Errorf("handler returned wrong body, got %v want %v", rr.Body.String(), "unable to access file\n")
+	}
 }
 
 func TestDeleteFile(t *testing.T) {

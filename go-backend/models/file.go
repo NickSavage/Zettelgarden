@@ -19,6 +19,5 @@ type File struct {
 }
 
 type EditFileMetadataParams struct {
-	CardPK int    `json:"id"`
-	Name   string `json:"name"`
+	Name string `json:"name"`
 }

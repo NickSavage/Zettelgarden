@@ -611,35 +611,31 @@ def delete_file(file_id):
         return jsonify({"error": "File not found"}), 404
 
 
+
 @bp.route("/api/files/<int:file_id>", methods=["PATCH"])
 @jwt_required()
 def edit_file(file_id):
-
     current_user = get_jwt_identity()  # Extract the user identity from the token
-    #if not services.check_file_permission(file_id, current_user):
-    #    return jsonify({}), 401
-    data = request.get_json()
 
+    data = request.get_json()
+    print(data)
     if not data:
         return jsonify({"error": "No update data provided"}), 400
 
-    original_file = services.query_file(file_id)
-    if "card_pk" not in data:
-        card_pk = original_file["id"]
-    else:
-        card_pk = data["card_pk"]
-    if "name" not in data:
-        name = original_file["name"]
-    else:
-        name = data["name"]
+    # Forward the request to the Go backend
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+        "Content-Type": "application/json"
+    }
+    response = requests.patch(f"http://{os.getenv('FILES_HOST')}/api/files/{file_id}", headers=headers, data=data)
 
-    data = {"name": name, "card_pk": card_pk}
-    services.update_file(file_id, data)
+    if response.status_code != 200:
+        print(response.text)
+        return jsonify({"error": "Failed to update file metadata"}), response.status_code
 
-    updated_file = services.query_file(file_id)
-    updated_file["card"] = services.query_partial_card_by_id(updated_file["card_pk"], current_user)
-    return jsonify(updated_file), 200
-
+    updated_file = response.json()
+    
+    return jsonify(updated_file), response.status_code
 
 @bp.route("/api/admin", methods=["GET"])
 @jwt_required()

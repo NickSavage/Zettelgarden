@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"go-backend/models"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -33,6 +35,7 @@ type Claims struct {
 
 func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("hi")
 		tokenStr := r.Header.Get("Authorization")
 
 		if tokenStr == "" {
@@ -166,7 +169,6 @@ func (s *Server) queryCard(userID int, id int) (models.File, error) {
 		&partialCard.CreatedAt,
 		&partialCard.UpdatedAt,
 	); err != nil {
-		log.Printf("%v", err)
 		return models.File{}, errors.New("unable to access file")
 	}
 	file.Card = partialCard
@@ -196,17 +198,33 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
+	cardPKStr := r.PathValue("id")
+	cardPK, err := strconv.Atoi(cardPKStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	var data models.EditFileMetadataParams
+	log.Printf("data %v", r.Body)
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+	log.Printf("Received body: %s", string(bodyBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) // Reconstruct the body for further use
 
-	err := json.NewDecoder(r.Body).Decode(&data)
+	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
+		log.Printf("error %v", err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
-	log.Printf("%v", data)
 
-	_, err = s.db.Exec("UPDATE files SET name = $1 WHERE id = $2", data.Name, data.CardPK)
+	_, err = s.queryCard(userID, cardPK)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.db.Exec("UPDATE files SET name = $1 WHERE id = $2", data.Name, cardPK)
 
 	if err != nil {
 		log.Printf("Failed to update file metadata: %v", err)
@@ -214,7 +232,7 @@ func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := s.queryCard(userID, data.CardPK)
+	file, err := s.queryCard(userID, cardPK)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -247,7 +265,7 @@ func main() {
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
 	//http.HandleFunc("POST /api/files/upload", uplpadFile)
 	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))
-	http.HandleFunc("PATCH /api/files/{I}/", jwtMiddleware(s.editFileMetadata))
+	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.editFileMetadata))
 	//http.HandleFunc("DELETE /api/files/{I}/", deleteFile)
 	//http.HandleFunc("GET /api/files/download/{id}", helloWorld)
 	http.ListenAndServe(":8080", nil)
