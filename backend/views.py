@@ -565,7 +565,7 @@ def get_all_files():
     headers = {
         "Authorization": auth_header
     }
-    response = requests.get(f"http://192.168.0.72:8080/api/files", headers=headers)
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/files", headers=headers)
     print(response)
     print(response.text)
     #print(response.json())
