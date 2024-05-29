@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"go-backend/models"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -29,6 +31,8 @@ func setup() {
 	s = &Server{}
 	s.db = db
 	s.testing = true
+
+	s.s3 = createS3Client()
 
 	s.runMigrations()
 	s.importTestData()
@@ -227,18 +231,76 @@ func TestEditFileWrongUser(t *testing.T) {
 	}
 }
 
-func TestDeleteFile(t *testing.T) {
+func TestUploadFileSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	// Create a buffer to write our multipart form data
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+
+	// Add file field
+	fileWriter, err := writer.CreateFormFile("file", "test.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Open a test file to upload
+	testFile, err := os.Open("./testdata/test.txt") // Make sure this file exists
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer testFile.Close()
+
+	// Copy the file content to the form field
+	_, err = io.Copy(fileWriter, testFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Add card_pk field
+	err = writer.WriteField("card_pk", "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Close the writer to finalize the multipart form
+	writer.Close()
+
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var response models.File
+	err = json.Unmarshal(rr.Body.Bytes(), &response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.Name != "test.txt" {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), "File uploaded successfully")
+	}
+}
+func TestDownloadFile(t *testing.T) {
 	setup()
 	defer teardown()
 	t.Errorf("not implemented yet")
 }
 
-func TestUploadFileSuccess(t *testing.T) {
-	setup()
-	defer teardown()
-	t.Errorf("not implemented yet")
-}
-func TestDownloadFile(t *testing.T) {
+func TestDeleteFile(t *testing.T) {
 	setup()
 	defer teardown()
 	t.Errorf("not implemented yet")

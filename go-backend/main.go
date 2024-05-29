@@ -6,7 +6,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"go-backend/models"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 var s *Server
@@ -243,6 +246,91 @@ func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type UploadFileParams struct {
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type"`
+}
+
+func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("current_user").(int)
+
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
+
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "No file part", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	cardPK := r.FormValue("card_pk")
+	if cardPK == "undefined" {
+		http.Error(w, "No PK given", http.StatusBadRequest)
+		return
+	}
+
+	// Create a temporary file to store the uploaded file
+	tempFile, err := os.CreateTemp("/tmp", "upload-*.tmp")
+	if err != nil {
+		http.Error(w, "Unable to create temp file", http.StatusInternalServerError)
+		return
+	}
+	defer os.Remove(tempFile.Name())
+
+	// Write the file content to the temporary file
+	if _, err := file.Seek(0, 0); err != nil {
+		http.Error(w, "Unable to seek file", http.StatusInternalServerError)
+		return
+	}
+	if _, err := tempFile.ReadFrom(file); err != nil {
+		http.Error(w, "Unable to read file", http.StatusInternalServerError)
+		return
+	}
+
+	uuidKey := uuid.New().String()
+	s3Key := fmt.Sprintf("%s/%s", strconv.Itoa(userID), uuidKey)
+
+	log.Printf("file %s", s3Key)
+	uploadObject(s.s3, s3Key, tempFile.Name())
+
+	fileSize, err := tempFile.Seek(0, io.SeekEnd)
+	if err != nil {
+		http.Error(w, "Unable to determine file size", http.StatusInternalServerError)
+		return
+	}
+	var lastInsertId int
+	query := `INSERT INTO files (name, type, path, filename,
+		size, card_pk, created_by, updated_by, updated_at) VALUES
+		($1, $2, $3, $4, $5, $6, $7, $8, NOW()) RETURNING id;`
+	err = s.db.QueryRow(query,
+		handler.Filename,
+		handler.Header.Get("Content-Type"),
+		s3Key,
+		s3Key,
+		fileSize,
+		cardPK,
+		userID,
+		userID).Scan(&lastInsertId)
+	if err != nil {
+		log.Printf("error %v", err)
+		http.Error(w, "Unable to execute query", http.StatusInternalServerError)
+		return
+	}
+	newFile, err := s.queryCard(userID, lastInsertId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(newFile)
+}
+
 func main() {
 	s = &Server{}
 
@@ -263,7 +351,7 @@ func main() {
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
-	//http.HandleFunc("POST /api/files/upload", uplpadFile)
+	http.HandleFunc("POST /api/files/upload", jwtMiddleware(s.uploadFile))
 	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))
 	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.editFileMetadata))
 	//http.HandleFunc("DELETE /api/files/{I}/", deleteFile)

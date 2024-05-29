@@ -67,6 +67,8 @@ func uploadObject(client *s3.Client, key, filePath string) {
 	if err != nil {
 		log.Fatalf("unable to open file %q, %v", filePath, err)
 	}
+	log.Printf("file obj %v", file)
+	log.Printf("bucket %v key %v", bucketName, key)
 	defer file.Close()
 
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
