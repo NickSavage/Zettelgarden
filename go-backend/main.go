@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -140,7 +141,7 @@ JOIN
 	w.Write(jsonResponse)
 }
 
-func (s *Server) queryCard(userID int, id int) (models.File, error) {
+func (s *Server) queryFile(userID int, id int) (models.File, error) {
 
 	row := s.db.QueryRow(`
 	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.is_deleted, 
@@ -188,7 +189,7 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := s.queryCard(userID, id)
+	file, err := s.queryFile(userID, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -221,7 +222,7 @@ func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.queryCard(userID, cardPK)
+	_, err = s.queryFile(userID, cardPK)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -235,7 +236,7 @@ func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := s.queryCard(userID, cardPK)
+	file, err := s.queryFile(userID, cardPK)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -249,6 +250,10 @@ func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 type UploadFileParams struct {
 	Filename    string `json:"filename"`
 	ContentType string `json:"content_type"`
+}
+
+func userCanUploadFile(userID int, header *multipart.FileHeader) error {
+	return nil
 }
 
 func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
@@ -267,6 +272,11 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
+	err = userCanUploadFile(userID, handler)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
 
 	cardPK := r.FormValue("card_pk")
 	if cardPK == "undefined" {
@@ -319,7 +329,7 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to execute query", http.StatusInternalServerError)
 		return
 	}
-	newFile, err := s.queryCard(userID, lastInsertId)
+	newFile, err := s.queryFile(userID, lastInsertId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
