@@ -246,7 +246,7 @@ func TestUploadFileSuccess(t *testing.T) {
 	}
 
 	// Open a test file to upload
-	testFile, err := os.Open("./testdata/test.txt") // Make sure this file exists
+	testFile, err := os.Open("./testdata/test.txt")
 	if err != nil {
 		t.Fatal(err)
 	}

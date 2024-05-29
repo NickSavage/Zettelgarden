@@ -274,7 +274,6 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a temporary file to store the uploaded file
 	tempFile, err := os.CreateTemp("/tmp", "upload-*.tmp")
 	if err != nil {
 		http.Error(w, "Unable to create temp file", http.StatusInternalServerError)
@@ -291,7 +290,6 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to read file", http.StatusInternalServerError)
 		return
 	}
-
 	uuidKey := uuid.New().String()
 	s3Key := fmt.Sprintf("%s/%s", strconv.Itoa(userID), uuidKey)
 
