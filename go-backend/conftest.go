@@ -176,3 +176,17 @@ func generateTestJWT(userID int) (string, error) {
 	}
 	return tokenString, nil
 }
+
+func (s *Server) uploadTestFile() {
+	testFile, err := os.Open("./testdata/test.txt")
+	if err != nil {
+		log.Fatal("unable to open test file")
+		return
+	}
+	uuidKey := uuid.New().String()
+
+	uploadObject(s.s3, uuidKey, testFile.Name())
+
+	query := `UPDATE files SET path = $1, filename = $2 WHERE id = 1`
+	s.db.QueryRow(query, uuidKey, uuidKey)
+}

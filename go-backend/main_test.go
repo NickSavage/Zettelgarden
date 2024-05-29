@@ -297,7 +297,28 @@ func TestUploadFileSuccess(t *testing.T) {
 func TestDownloadFile(t *testing.T) {
 	setup()
 	defer teardown()
-	t.Errorf("not implemented yet")
+	s.uploadTestFile()
+
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("POST", "/api/files/download/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.downloadFile))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	if rr.Body.String() != "hello world" {
+		t.Errorf("received wrong data: got %v want %v", rr.Body.String(), "hello world")
+	}
 }
 
 func TestDeleteFile(t *testing.T) {

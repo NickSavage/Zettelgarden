@@ -39,7 +39,6 @@ type Claims struct {
 
 func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("hi")
 		tokenStr := r.Header.Get("Authorization")
 
 		if tokenStr == "" {
@@ -65,7 +64,6 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if !token.Valid {
-			log.Printf("token not valid")
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
@@ -116,7 +114,6 @@ JOIN
 			&partialCard.CreatedAt,
 			&partialCard.UpdatedAt,
 		); err != nil {
-			log.Printf("%v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -210,14 +207,11 @@ func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var data models.EditFileMetadataParams
-	log.Printf("data %v", r.Body)
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
-	log.Printf("Received body: %s", string(bodyBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) // Reconstruct the body for further use
 
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		log.Printf("error %v", err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
@@ -231,7 +225,6 @@ func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
 	_, err = s.db.Exec("UPDATE files SET name = $1 WHERE id = $2", data.Name, cardPK)
 
 	if err != nil {
-		log.Printf("Failed to update file metadata: %v", err)
 		http.Error(w, "Failed to update file metadata", http.StatusInternalServerError)
 		return
 	}
@@ -303,7 +296,6 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 	uuidKey := uuid.New().String()
 	s3Key := fmt.Sprintf("%s/%s", strconv.Itoa(userID), uuidKey)
 
-	log.Printf("file %s", s3Key)
 	uploadObject(s.s3, s3Key, tempFile.Name())
 
 	fileSize, err := tempFile.Seek(0, io.SeekEnd)
@@ -325,7 +317,6 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		userID,
 		userID).Scan(&lastInsertId)
 	if err != nil {
-		log.Printf("error %v", err)
 		http.Error(w, "Unable to execute query", http.StatusInternalServerError)
 		return
 	}
@@ -337,6 +328,36 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(newFile)
+}
+
+func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("current_user").(int)
+	cardPKStr := r.PathValue("id")
+	cardPK, err := strconv.Atoi(cardPKStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	file, err := s.queryFile(userID, cardPK)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	s3Output, err := downloadObject(s.s3, file.Path, "")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	// Copy the file content to the response
+	if _, err := io.Copy(w, s3Output.Body); err != nil {
+		http.Error(w, "Unable to send file", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", file.Filename))
+	w.Header().Set("Content-Type", "application/octet-stream")
+
 }
 
 func main() {

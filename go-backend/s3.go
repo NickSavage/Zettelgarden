@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"os"
 
@@ -67,8 +66,6 @@ func uploadObject(client *s3.Client, key, filePath string) {
 	if err != nil {
 		log.Fatalf("unable to open file %q, %v", filePath, err)
 	}
-	log.Printf("file obj %v", file)
-	log.Printf("bucket %v key %v", bucketName, key)
 	defer file.Close()
 
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
@@ -79,32 +76,30 @@ func uploadObject(client *s3.Client, key, filePath string) {
 	if err != nil {
 		log.Fatalf("unable to upload %q to %q, %v", filePath, bucketName, err)
 	}
-
-	fmt.Printf("Successfully uploaded %q to %q\n", filePath, bucketName)
 }
 
-func downloadObject(client *s3.Client, key, filePath string) {
-	resp, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
+func downloadObject(client *s3.Client, key, filePath string) (*s3.GetObjectOutput, error) {
+	result, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		log.Fatalf("unable to download item %q, %v", key, err)
+		return nil, fmt.Errorf("unable to receive file")
 	}
-	defer resp.Body.Close()
+	return result, err
 
-	file, err := os.Create(filePath)
-	if err != nil {
-		log.Fatalf("unable to create file %q, %v", filePath, err)
-	}
-	defer file.Close()
+	// file, err := os.Create(filePath)
+	// if err != nil {
+	// 	log.Fatalf("unable to create file %q, %v", filePath, err)
+	// }
+	// defer file.Close()
 
-	_, err = io.Copy(file, resp.Body)
-	if err != nil {
-		log.Fatalf("unable to copy data to file %q, %v", filePath, err)
-	}
+	// _, err = io.Copy(file, resp.Body)
+	// if err != nil {
+	// 	log.Fatalf("unable to copy data to file %q, %v", filePath, err)
+	// }
 
-	fmt.Printf("Successfully downloaded %q to %q\n", key, filePath)
+	// fmt.Printf("Successfully downloaded %q to %q\n", key, filePath)
 }
 func deleteObject(client *s3.Client, key string) {
 	_, err := client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
