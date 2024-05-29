@@ -101,14 +101,15 @@ func downloadObject(client *s3.Client, key, filePath string) (*s3.GetObjectOutpu
 
 	// fmt.Printf("Successfully downloaded %q to %q\n", key, filePath)
 }
-func deleteObject(client *s3.Client, key string) {
+func deleteObject(client *s3.Client, key string) error {
 	_, err := client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(key),
 	})
 	if err != nil {
 		log.Fatalf("unable to delete item %q, %v", key, err)
+		return err
 	}
-
-	fmt.Printf("Successfully deleted %q from %q\n", key, bucketName)
+	//	fmt.Printf("Successfully deleted %q from %q\n", key, bucketName)
+	return nil
 }

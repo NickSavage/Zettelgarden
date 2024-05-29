@@ -146,7 +146,7 @@ func (s *Server) queryFile(userID int, id int) (models.File, error) {
 
 	FROM files
 	JOIN cards ON files.card_pk = cards.id
-	WHERE files.id = $1 and cards.user_id = $2`, id, userID)
+	WHERE files.is_deleted = FALSE and files.id = $1 and cards.user_id = $2`, id, userID)
 
 	var file models.File
 	var partialCard models.PartialCard
@@ -188,7 +188,7 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 
 	file, err := s.queryFile(userID, id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -360,6 +360,33 @@ func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *Server) deleteFile(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	cardPKStr := r.PathValue("id")
+	cardPK, err := strconv.Atoi(cardPKStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	file, err := s.queryFile(userID, cardPK)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	query := `UPDATE files SET is_deleted = true WHERE id = $1`
+	_, err = s.db.Exec(query, cardPK)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = deleteObject(s.s3, file.Path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		_, _ = s.db.Exec(`UPDATE files SET is_deleted = false WHERE id = $1`, cardPK)
+		return
+	}
+}
+
 func main() {
 	s = &Server{}
 
@@ -383,7 +410,7 @@ func main() {
 	http.HandleFunc("POST /api/files/upload", jwtMiddleware(s.uploadFile))
 	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))
 	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.editFileMetadata))
-	//http.HandleFunc("DELETE /api/files/{I}/", deleteFile)
-	//http.HandleFunc("GET /api/files/download/{id}", helloWorld)
+	http.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.deleteFile))
+	http.HandleFunc("GET /api/files/download/{id}", jwtMiddleware(s.downloadFile))
 	http.ListenAndServe(":8080", nil)
 }
