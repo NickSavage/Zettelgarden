@@ -45,7 +45,7 @@ jobs:
 
     - name: Create the database
       run: |
-        psql postgresql://postgres:postgres@localhost:5432/postgres -c "CREATE DATABASE zettelkasten;"
+        psql postgresql://postgres:postgres@localhost:5432/postgres -c "CREATE DATABASE zettelkasten_testing;"
 
     - name: Install dependencies
       run: |
@@ -58,7 +58,7 @@ jobs:
         DB_PORT: 5432
         DB_USER: postgres
         DB_PASS: postgres
-        DB_NAME: zettelkasten
+        DB_NAME: zettelkasten_testing
         B2_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
         B2_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
         B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
