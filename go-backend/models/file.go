@@ -21,3 +21,8 @@ type File struct {
 type EditFileMetadataParams struct {
 	Name string `json:"name"`
 }
+
+type UploadFileResponse struct {
+	Message string `json:"message"`
+	File    File   `json:"file"`
+}

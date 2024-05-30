@@ -1,5 +1,5 @@
 from datetime import timedelta
-from flask import Flask, request, jsonify, send_from_directory, Blueprint, g, redirect
+from flask import Flask, request, jsonify, send_from_directory, Blueprint, g, redirect, Response
 from flask_mail import Message
 from flask_cors import CORS
 from urllib.parse import unquote
@@ -512,11 +512,12 @@ def update_password(id):
     cur.close()
     return jsonify({"message": "success"})
 
-
 @bp.route("/api/files/upload", methods=["POST"])
 @jwt_required()
 def upload_file():
+    print("do we reqch here?")
     current_user = get_jwt_identity()  # Extract the user identity from the token
+
     if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -530,15 +531,23 @@ def upload_file():
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
-    check = services.user_can_upload_file(current_user, file)
-    if check["error"]:
-        return jsonify({"error": "User cannot upload file", "message": check["message"]})
+    # Proxy the request to the new backend
+    files = {'file': (file.filename, file.stream, file.mimetype)}
+    data = {'card_pk': card_pk}
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
 
-    if file:  # You can add more file validation here
-        file = services.upload_file(card_pk, file, current_user)
-        return jsonify({"message": "File uploaded successfully", "file": file}), 201
-    else:
-        return jsonify({"error": "Unspecified Problem"}), 400
+    response = requests.post(f"http://{os.getenv('FILES_HOST')}/api/files/upload/", files=files, data=data, headers=headers)
+
+    print(response)
+    print(response.status_code)
+    print(response.text)
+    if response.status_code != 201:
+        return jsonify({"error": response.text}), response.status_code
+    print(response.json())
+
+    return jsonify(response.json()), 201
 
 
 @bp.route("/api/files/<int:file_id>", methods=["GET"])
@@ -578,19 +587,31 @@ def get_all_files():
 @bp.route("/api/files/download/<int:file_id>", methods=["GET"])
 @jwt_required()
 def download_file(file_id):
-
     current_user = get_jwt_identity()  # Extract the user identity from the token
+
+    # Check file permissions
     if not services.check_file_permission(file_id, current_user):
         return jsonify({}), 401
 
-    file = services.query_file(file_id, internal=True)
+    # Proxy the request to the Go backend
+    auth_header = request.headers.get("Authorization")
+    headers = {
+        "Authorization": auth_header
+    }
 
-    print(file)
-    if file:
-        return send_from_directory(g.config["UPLOAD_FOLDER"], file["filename"])
-    else:
-        return jsonify({"error": "File not found"}), 404
+    response = requests.get(f"http://{os.getenv('FILES_HOST')}/api/files/download/{file_id}/", headers=headers, stream=True)
+    print(response)
+    print(response.status_code)
 
+    if response.status_code != 200:
+        return jsonify({"error": response.text}), response.status_code
+
+
+    # Stream the response content back to the client
+    return Response(
+        response.iter_content(chunk_size=1024),
+        content_type=response.headers['Content-Type'],
+      )
 
 @bp.route("/api/files/<int:file_id>", methods=["DELETE"])
 @jwt_required()
@@ -599,18 +620,15 @@ def delete_file(file_id):
     current_user = get_jwt_identity()  # Extract the user identity from the token
     if not services.check_file_permission(file_id, current_user):
         return jsonify({}), 401
-    print(file_id)
-    file = services.query_file(file_id)
 
-    if file:
-        try:
-            services.delete_file(file_id)
-        except ValueError:
-            return jsonify({"error": "File not found"}), 404
-        return jsonify({"message": "File successfully deleted"}), 200
-    else:
-        return jsonify({"error": "File not found"}), 404
-
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.delete(f"http://{os.getenv('FILES_HOST')}/api/files/{file_id}/", headers=headers)
+    if response.status_code != 200:
+        print(response.text)
+        return jsonify({"error": response.text}), response.status_code
+    return jsonify({}), 200
 
 
 @bp.route("/api/files/<int:file_id>", methods=["PATCH"])

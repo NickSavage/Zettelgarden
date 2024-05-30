@@ -170,6 +170,7 @@ func (s *Server) queryFile(userID int, id int) (models.File, error) {
 		&partialCard.CreatedAt,
 		&partialCard.UpdatedAt,
 	); err != nil {
+		print("error %v", err)
 		return models.File{}, errors.New("unable to access file")
 	}
 	file.Card = partialCard
@@ -325,9 +326,14 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	log.Printf("writing output")
+	output := models.UploadFileResponse{
+		Message: "File successfully uploaded",
+		File:    newFile,
+	}
+	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(newFile)
+	json.NewEncoder(w).Encode(output)
 }
 
 func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
@@ -336,22 +342,26 @@ func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
 	cardPKStr := r.PathValue("id")
 	cardPK, err := strconv.Atoi(cardPKStr)
 	if err != nil {
+		print("error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	file, err := s.queryFile(userID, cardPK)
 	if err != nil {
+		print("error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	s3Output, err := downloadObject(s.s3, file.Path, "")
 	if err != nil {
+		print("error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	// Copy the file content to the response
 	if _, err := io.Copy(w, s3Output.Body); err != nil {
+		print("error %v", err)
 		http.Error(w, "Unable to send file", http.StatusInternalServerError)
 		return
 	}
@@ -407,10 +417,10 @@ func main() {
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
-	http.HandleFunc("POST /api/files/upload", jwtMiddleware(s.uploadFile))
+	http.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.uploadFile))
 	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))
 	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.editFileMetadata))
 	http.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.deleteFile))
-	http.HandleFunc("GET /api/files/download/{id}", jwtMiddleware(s.downloadFile))
+	http.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.downloadFile))
 	http.ListenAndServe(":8080", nil)
 }
