@@ -50,27 +50,20 @@ func parseJsonResponse(t *testing.T, body []byte, x interface{}) {
 	}
 }
 
-func sendRequest(t *testing.T, method string, url string, token string, function http.HandlerFunc) *httptest.ResponseRecorder {
+func TestGetAllFiles(t *testing.T) {
+	setup()
+	defer teardown()
 
-	req, err := http.NewRequest(method, url, nil)
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("GET", "/api/files", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(function)
-
+	handler := http.HandlerFunc(jwtMiddleware(s.getAllFiles))
 	handler.ServeHTTP(rr, req)
-	return rr
-}
-
-func TestGetAllFiles(t *testing.T) {
-	setup()
-	defer teardown()
-
-	token, _ := generateTestJWT(1)
-	rr := sendRequest(t, "GET", "/api/files", token, jwtMiddleware(s.getAllFiles))
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -86,7 +79,16 @@ func TestGetAllFilesNoToken(t *testing.T) {
 	setup()
 	defer teardown()
 
-	rr := sendRequest(t, "GET", "/api/files", "", jwtMiddleware(s.getAllFiles))
+	token := ""
+	req, err := http.NewRequest("GET", "/api/files", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.getAllFiles))
+	handler.ServeHTTP(rr, req)
 
 	//	print("%v", rr.Code)
 	if status := rr.Code; status == http.StatusOK {
@@ -280,16 +282,16 @@ func TestUploadFileSuccess(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
 
-	var response models.File
+	var response models.UploadFileResponse
 	err = json.Unmarshal(rr.Body.Bytes(), &response)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Name != "test.txt" {
+	if response.File.Name != "test.txt" {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), "File uploaded successfully")
 	}
