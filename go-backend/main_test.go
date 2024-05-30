@@ -15,41 +15,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func setup() {
-	var err error
-	dbConfig := databaseConfig{}
-	dbConfig.host = os.Getenv("DB_HOST")
-	dbConfig.port = os.Getenv("DB_PORT")
-	dbConfig.user = os.Getenv("DB_USER")
-	dbConfig.password = os.Getenv("DB_PASS")
-	dbConfig.databaseName = "zettelkasten_testing"
-
-	db, err := ConnectToDatabase(dbConfig)
-	if err != nil {
-		log.Fatalf("Unable to connect to the database: %v\n", err)
-	}
-	s = &Server{}
-	s.db = db
-	s.testing = true
-
-	s.s3 = createS3Client()
-
-	s.runMigrations()
-	s.importTestData()
-
-}
-
-func teardown() {
-	//s.resetDatabase()
-}
-
-func parseJsonResponse(t *testing.T, body []byte, x interface{}) {
-	err := json.Unmarshal(body, &x)
-	if err != nil {
-		t.Fatalf("could not unmarshal response: %v", err)
-	}
-}
-
 func TestGetAllFiles(t *testing.T) {
 	setup()
 	defer teardown()
