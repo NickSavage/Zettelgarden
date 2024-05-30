@@ -170,7 +170,6 @@ func (s *Server) queryFile(userID int, id int) (models.File, error) {
 		&partialCard.CreatedAt,
 		&partialCard.UpdatedAt,
 	); err != nil {
-		print("error %v", err)
 		return models.File{}, errors.New("unable to access file")
 	}
 	file.Card = partialCard
@@ -342,26 +341,22 @@ func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
 	cardPKStr := r.PathValue("id")
 	cardPK, err := strconv.Atoi(cardPKStr)
 	if err != nil {
-		print("error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	file, err := s.queryFile(userID, cardPK)
 	if err != nil {
-		print("error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	s3Output, err := downloadObject(s.s3, file.Filename, "")
 	if err != nil {
-		print("error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	// Copy the file content to the response
 	if _, err := io.Copy(w, s3Output.Body); err != nil {
-		print("error %v", err)
 		http.Error(w, "Unable to send file", http.StatusInternalServerError)
 		return
 	}
