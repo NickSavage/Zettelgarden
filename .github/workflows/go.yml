@@ -57,7 +57,7 @@ jobs:
         DB_HOST: localhost
         DB_PORT: 5432
         DB_USER: postgres
-        DB_PASSWORD: postgres
+        DB_PASS: postgres
         DB_NAME: zettelkasten
         B2_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
         B2_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
