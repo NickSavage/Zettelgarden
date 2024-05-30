@@ -12,7 +12,7 @@ pg_password = os.getenv("DB_PASS")
 b2_key_id = os.getenv("B2_ACCESS_KEY_ID")
 b2_application_key = os.getenv("B2_SECRET_ACCESS_KEY")
 b2_endpoint_url = "https://s3.us-east-005.backblazeb2.com"  # Example endpoint URL, update as necessary
-b2_bucket_name = "zettelgarden-files-dev"
+b2_bucket_name = "zettelgarden-files"
 
 def upload_to_b2(file_path, bucket_name, object_name):
     s3_client = boto3.client(
@@ -43,7 +43,7 @@ def main():
 
     # Process each file
     for file in files:
-        filename = "/home/nick/staging/files/" + file[0]
+        filename = "/media/harmonia/.config/zettelkasten/" + file[0]
         if os.path.isfile(filename):
             upload_to_b2(filename, b2_bucket_name, os.path.basename(filename))
         else:

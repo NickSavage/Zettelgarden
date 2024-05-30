@@ -353,7 +353,7 @@ func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	s3Output, err := downloadObject(s.s3, file.Path, "")
+	s3Output, err := downloadObject(s.s3, file.Filename, "")
 	if err != nil {
 		print("error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

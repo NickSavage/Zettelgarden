@@ -14,8 +14,9 @@ import (
 
 const (
 	b2Endpoint = "https://s3.us-east-005.backblazeb2.com"
-	bucketName = "zettelgarden-files-dev"
 )
+
+var bucketName = os.Getenv("B2_BUCKET_NAME")
 
 func createS3Client() *s3.Client {
 
