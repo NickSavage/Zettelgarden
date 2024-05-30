@@ -1,4 +1,4 @@
-xiname: Go CI
+name: Go CI
 
 on:
   push:
@@ -59,6 +59,9 @@ jobs:
         DB_USER: postgres
         DB_PASSWORD: postgres
         DB_NAME: zettelkasten
+        B2_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
+        B2_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
+        B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
       run: |
         cd go-backend
         go test ./...
