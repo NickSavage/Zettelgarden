@@ -283,6 +283,74 @@ func TestUploadFileNoFile(t *testing.T) {
 	}
 }
 
+func TestUploadFileNotAllowed(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+
+	var count int
+	err := s.db.QueryRow("SELECT count(*) FROM files").Scan(&count)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Add file field
+	fileWriter, err := writer.CreateFormFile("file", "test.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Open a test file to upload
+	testFile, err := os.Open("./testdata/test.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer testFile.Close()
+
+	// Copy the file content to the form field
+	_, err = io.Copy(fileWriter, testFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Add card_pk field
+	err = writer.WriteField("card_pk", "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Close the writer to finalize the multipart form
+	writer.Close()
+
+	token, _ := generateTestJWT(2)
+	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusForbidden {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusForbidden)
+	}
+	var newCount int
+	err = s.db.QueryRow("SELECT count(*) FROM files").Scan(&newCount)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if count != newCount {
+		t.Errorf("function created a file when it shouldn't have. old count %v new count %v", count, newCount)
+	}
+
+}
+
 func TestDownloadFile(t *testing.T) {
 	setup()
 	defer teardown()

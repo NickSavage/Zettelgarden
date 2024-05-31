@@ -245,8 +245,12 @@ type UploadFileParams struct {
 	ContentType string `json:"content_type"`
 }
 
-func userCanUploadFile(userID int, header *multipart.FileHeader) error {
-	return nil
+func userCanUploadFile(userID int, header *multipart.FileHeader) bool {
+	user, err := s.QueryUser(userID)
+	if err != nil {
+		return false
+	}
+	return user.CanUploadFiles
 }
 
 func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
@@ -265,9 +269,8 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	err = userCanUploadFile(userID, handler)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusForbidden)
+	if !userCanUploadFile(userID, handler) {
+		http.Error(w, "User cannot upload file", http.StatusForbidden)
 		return
 	}
 

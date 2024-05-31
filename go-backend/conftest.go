@@ -109,14 +109,19 @@ func (s *Server) generateData() map[string]interface{} {
 
 	users := []models.User{}
 	for i := 1; i <= 10; i++ {
-		users = append(users, models.User{
-			ID:        i,
-			Username:  randomString(10),
-			Email:     randomEmail(),
-			Password:  randomString(15),
-			CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-		})
+		user := models.User{
+			ID:             i,
+			Username:       randomString(10),
+			Email:          randomEmail(),
+			Password:       randomString(15),
+			CreatedAt:      randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt:      randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			CanUploadFiles: true,
+		}
+		if i == 2 {
+			user.CanUploadFiles = false
+		}
+		users = append(users, user)
 	}
 
 	cards := []models.Card{}
