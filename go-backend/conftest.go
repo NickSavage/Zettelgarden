@@ -59,8 +59,8 @@ func (s *Server) importTestData() error {
 	for _, user := range users {
 		var id int
 		err := s.db.QueryRow(
-			"INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-			user.Username, user.Email, user.Password, user.CreatedAt, user.UpdatedAt,
+			"INSERT INTO users (username, email, password, created_at, updated_at, can_upload_files) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+			user.Username, user.Email, user.Password, user.CreatedAt, user.UpdatedAt, user.CanUploadFiles,
 		).Scan(&id)
 		if err != nil {
 			return err
@@ -122,6 +122,7 @@ func (s *Server) generateData() map[string]interface{} {
 		if i == 2 {
 			user.CanUploadFiles = false
 		}
+		log.Printf("user %v", user.CanUploadFiles)
 		users = append(users, user)
 	}
 
