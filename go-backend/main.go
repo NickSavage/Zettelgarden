@@ -328,7 +328,6 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Printf("writing output")
 	output := models.UploadFileResponse{
 		Message: "File successfully uploaded",
 		File:    newFile,

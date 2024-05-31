@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-backend/models"
+	"log"
 )
 
 func (s *Server) QueryUser(id int) (models.User, error) {
@@ -10,7 +11,7 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 	err := s.db.QueryRow(`
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
-	is_admin, last_login, email_validated, can_upload_files, 
+	is_admin, email_validated, can_upload_files, 
 	max_file_storage 
 	FROM users WHERE id = $1
 	`, id).Scan(
@@ -21,12 +22,12 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.IsAdmin,
-		&user.LastLogin,
 		&user.EmailValidated,
 		&user.CanUploadFiles,
 		&user.MaxFileStorage,
 	)
 	if err != nil {
+		log.Printf("err %v", err)
 		return models.User{}, fmt.Errorf("something went wrong")
 	}
 	return user, nil
