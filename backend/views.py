@@ -549,22 +549,6 @@ def upload_file():
 
     return jsonify(response.json()), 201
 
-
-@bp.route("/api/files/<int:file_id>", methods=["GET"])
-@jwt_required()
-def get_file_metadata(file_id):
-
-    current_user = get_jwt_identity()  # Extract the user identity from the token
-    if not services.check_file_permission(file_id, current_user):
-        return jsonify({}), 401
-    
-    file_data = services.query_file(file_id)
-    if file_data:
-        return jsonify(file_data)
-    else:
-        return jsonify({"error": "File not found"}), 404
-
-
 @bp.route("/api/files", methods=["GET"])
 @jwt_required()
 def get_all_files():
