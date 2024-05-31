@@ -261,6 +261,28 @@ func TestUploadFileSuccess(t *testing.T) {
 			rr.Body.String(), "File uploaded successfully")
 	}
 }
+
+func TestUploadFileNoFile(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("POST", "/api/files/upload", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+}
+
 func TestDownloadFile(t *testing.T) {
 	setup()
 	defer teardown()
