@@ -419,5 +419,7 @@ func main() {
 	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.editFileMetadata))
 	http.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.deleteFile))
 	http.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.downloadFile))
+
+	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.getCard))
 	http.ListenAndServe(":8080", nil)
 }
