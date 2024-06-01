@@ -20,6 +20,7 @@ func TestGetAllFiles(t *testing.T) {
 	defer teardown()
 
 	token, _ := generateTestJWT(1)
+
 	req, err := http.NewRequest("GET", "/api/files", nil)
 	if err != nil {
 		t.Fatal(err)
