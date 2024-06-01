@@ -55,6 +55,7 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 	if err != nil {
 		return models.Card{}, fmt.Errorf("unable to access card")
 	}
+	s.logCardView(id, userID)
 	return card, nil
 
 }
