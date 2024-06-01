@@ -53,8 +53,7 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 		&card.UpdatedAt,
 	)
 	if err != nil {
-		log.Printf("err %v", err)
-		return models.Card{}, fmt.Errorf("something went wrong")
+		return models.Card{}, fmt.Errorf("unable to access card")
 	}
 	return card, nil
 
