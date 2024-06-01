@@ -32,3 +32,30 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 	}
 	return user, nil
 }
+
+func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
+	var card models.Card
+
+	err := s.db.QueryRow(`
+	SELECT 
+	id, card_id, user_id, title, body, link, created_at, updated_at 
+	FROM 
+	cards
+	WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
+	`, id, userID).Scan(
+		&card.ID,
+		&card.CardID,
+		&card.UserID,
+		&card.Title,
+		&card.Body,
+		&card.Link,
+		&card.CreatedAt,
+		&card.UpdatedAt,
+	)
+	if err != nil {
+		log.Printf("err %v", err)
+		return models.Card{}, fmt.Errorf("something went wrong")
+	}
+	return card, nil
+
+}
