@@ -77,3 +77,20 @@ func TestGetCardWrongUser(t *testing.T) {
 		t.Errorf("wrong log count, got %v want %v", logCount, 0)
 	}
 }
+
+func TestGetParentCardId(t *testing.T) {
+	cardID := "SP170/A.1/A.1/A.1/A.1"
+	expected := "SP170/A.1/A.1/A.1/A"
+	result := getParentIdAlternating(cardID)
+	if result != expected {
+		t.Errorf("function returned wrong result, got %v want %v", result, expected)
+	}
+
+	cardID = "1"
+	expected = "1"
+	result = getParentIdAlternating(cardID)
+	if result != expected {
+		t.Errorf("function returned wrong result, got %v want %v", result, expected)
+	}
+
+}
