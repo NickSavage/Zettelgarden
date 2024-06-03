@@ -199,14 +199,7 @@ func TestEditFileWrongUser(t *testing.T) {
 	}
 }
 
-func TestUploadFileSuccess(t *testing.T) {
-	setup()
-	defer teardown()
-
-	// Create a buffer to write our multipart form data
-	var buffer bytes.Buffer
-	writer := multipart.NewWriter(&buffer)
-
+func createTestFile(t *testing.T, buffer bytes.Buffer, writer *multipart.Writer) {
 	// Add file field
 	fileWriter, err := writer.CreateFormFile("file", "test.txt")
 	if err != nil {
@@ -234,6 +227,18 @@ func TestUploadFileSuccess(t *testing.T) {
 
 	// Close the writer to finalize the multipart form
 	writer.Close()
+
+}
+
+func TestUploadFileSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	// Create a buffer to write our multipart form data
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+
+	createTestFile(t, buffer, writer)
 
 	token, _ := generateTestJWT(1)
 	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
