@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -127,16 +128,20 @@ func (s *Server) generateData() map[string]interface{} {
 
 	cards := []models.Card{}
 	for i := 1; i <= 20; i++ {
-		cards = append(cards, models.Card{
+		card := models.Card{
 			ID:        i,
-			CardID:    randomString(20),
+			CardID:    strconv.Itoa(i),
 			UserID:    1,
 			Title:     randomString(20),
 			Body:      randomString(100),
 			Link:      fmt.Sprintf("https://%s.com", randomString(10)),
 			CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-		})
+		}
+		if i == 1 {
+			card.Body = card.Body + "\n[" + strconv.Itoa(i+1) + "]"
+		}
+		cards = append(cards, card)
 	}
 
 	backlinks := []models.Backlink{}

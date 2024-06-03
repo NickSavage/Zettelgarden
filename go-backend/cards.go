@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"go-backend/models"
 	"log"
 	"net/http"
 	"regexp"
@@ -61,6 +62,21 @@ func extractBacklinks(text string) []string {
 	return backlinks
 }
 
+func getDirectlinks(userID int, card models.Card) []models.PartialCard {
+	backlinks := extractBacklinks(card.Body)
+	var directLinks []models.PartialCard
+
+	for _, value := range backlinks {
+		card, err := s.QueryPartialCard(userID, value)
+		if err == nil {
+			directLinks = append(directLinks, card)
+		}
+
+	}
+
+	return directLinks
+}
+
 func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
@@ -83,6 +99,8 @@ func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Parent = parent
+
+	card.DirectLinks = getDirectlinks(userID, card)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
