@@ -2,8 +2,10 @@ package main
 
 import (
 	"go-backend/models"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -30,6 +32,7 @@ func TestGetCardSuccess(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
+		log.Printf("err %v", rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
@@ -93,4 +96,43 @@ func TestGetParentCardId(t *testing.T) {
 		t.Errorf("function returned wrong result, got %v want %v", result, expected)
 	}
 
+}
+
+func TestGetCardSuccessParent(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+
+	req, err := http.NewRequest("GET", "/api/cards/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.getCard))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var card models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	if card.Parent.CardID != card.CardID {
+		t.Errorf("wrong card parent returned. got %v want %v", card.Parent.CardID, card.CardID)
+	}
+
+}
+
+func TestExtractBacklinks(t *testing.T) {
+	text := "This is a sample text with [link1] and [another link]."
+	expected := []string{"link1", "another link"}
+	result := extractBacklinks(text)
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
 }
