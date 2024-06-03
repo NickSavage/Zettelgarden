@@ -50,7 +50,7 @@ function renderCardText(card, cards, handleViewBacklink) {
     const cardId = children;
     const id = getIdByCardId(cards, cardId);
 
-    const linkedCard = card.direct_links
+    const linkedCard = card.references
       .filter((x) => x !== null)
       .find((linked) => linked.card_id === cardId);
     const title = linkedCard ? linkedCard.title : "Card not found";
