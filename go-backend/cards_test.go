@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"go-backend/models"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -152,6 +154,47 @@ func TestGetCardSuccessDirectLinks(t *testing.T) {
 	if len(card.DirectLinks) > 0 && card.DirectLinks[0].CardID != expected[0] {
 		t.Errorf("linked to wrong card, got %v want %v", card.DirectLinks[0].CardID, expected[0])
 
+	}
+
+}
+
+func TestGetCardSuccessFiles(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardRequestSuccess(t)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var card models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	if len(card.Files) != 1 {
+		t.Errorf("wrong number of files associated with card, got %v want %v", len(card.Files), 1)
+	}
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+	createTestFile(t, buffer, writer)
+
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	rr = httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+
+	handler.ServeHTTP(rr, req)
+
+	rr = makeCardRequestSuccess(t)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	if len(card.Files) != 2 {
+		t.Errorf("wrong number of files associated with card, got %v want %v", len(card.Files), 2)
 	}
 
 }

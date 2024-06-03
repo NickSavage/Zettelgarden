@@ -99,8 +99,14 @@ func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Parent = parent
-
 	card.DirectLinks = getDirectlinks(userID, card)
+	files, err := getFilesFromCardPK(userID, card.ID)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	card.Files = files
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)

@@ -14,6 +14,7 @@ type Card struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 	Parent      PartialCard   `json:"parent"`
 	DirectLinks []PartialCard `json:"direct_links"`
+	Files       []File        `json:"files"`
 	Children    []PartialCard `json:"children"`
 	References  []PartialCard `json:"references"`
 	Backlinks   []PartialCard `json:"backlinks"`

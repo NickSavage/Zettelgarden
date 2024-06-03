@@ -176,6 +176,51 @@ func (s *Server) queryFile(userID int, id int) (models.File, error) {
 	return file, nil
 }
 
+func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
+
+	var files []models.File
+	rows, err := s.db.Query(`
+	SELECT 
+	files.id, files.name, files.type, files.path, files.filename, 
+	files.size, files.created_by, files.updated_by, files.card_pk,
+	files.is_deleted, files.created_at, files.updated_at
+	FROM files
+	WHERE files.is_deleted = FALSE and files.card_pk = $1`, cardPK)
+
+	if err != nil {
+		return files, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var file models.File
+		if err := rows.Scan(
+			&file.ID,
+			&file.Name,
+			&file.Filetype,
+			&file.Path,
+			&file.Filename,
+			&file.Size,
+			&file.CreatedBy,
+			&file.UpdatedBy,
+			&file.CardPK,
+			&file.IsDeleted,
+			&file.CreatedAt,
+			&file.UpdatedAt,
+		); err != nil {
+			return files, err
+		}
+		files = append(files, file)
+	}
+
+	if err := rows.Err(); err != nil {
+		return files, err
+	}
+	return files, nil
+
+}
+
 func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
