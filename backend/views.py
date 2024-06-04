@@ -284,9 +284,9 @@ def create_card():
     cur = conn.cursor()
     card = {
         "title": request.json.get("title"),
-        "body": request.json.get("body"),
+        "body": request.json.get("body", ""),
         "card_id": request.json.get("card_id"),
-        "link": request.json.get("link"),
+        "link": request.json.get("link", ""),
     }
 
     print(card)
@@ -318,6 +318,7 @@ def get_card(id):
         "Authorization": auth_header
     }
     response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/cards/" + str(id) + "/", headers=headers)
+    print(response.text)
     return jsonify(response.json()), response.status_code
 
 
