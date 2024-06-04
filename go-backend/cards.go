@@ -77,6 +77,41 @@ func getDirectlinks(userID int, card models.Card) []models.PartialCard {
 	return directLinks
 }
 
+func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
+
+	query := `
+	SELECT
+	id, card_id, user_id, title, created_at, updated_at 
+	FROM cards 
+	WHERE is_deleted = FALSE AND user_id = $1 and (card_id like $2 or card_id like $3)
+	`
+	rows, err := s.db.Query(query, userID, cardID+".%", cardID+"/%")
+	if err != nil {
+		log.Printf("err %v", err)
+	}
+	var cards []models.PartialCard
+
+	for rows.Next() {
+		var card models.PartialCard
+		if err := rows.Scan(
+			&card.ID,
+			&card.CardID,
+			&card.UserID,
+			&card.Title,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+		); err != nil {
+			log.Printf("err %v", err)
+			return cards, err
+		}
+
+		if card.CardID != cardID {
+			cards = append(cards, card)
+		}
+	}
+	return cards, nil
+}
+
 func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
@@ -99,7 +134,7 @@ func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Parent = parent
-	card.DirectLinks = getDirectlinks(userID, card)
+	//card.DirectLinks = getDirectlinks(userID, card)
 	files, err := getFilesFromCardPK(userID, card.ID)
 	if err != nil {
 		log.Printf("err %v", err)
@@ -107,6 +142,14 @@ func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Files = files
+
+	children, err := getChildren(userID, card.CardID)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	card.Children = children
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)

@@ -134,25 +134,26 @@ func TestExtractBacklinks(t *testing.T) {
 	}
 }
 
-func TestGetCardSuccessDirectLinks(t *testing.T) {
+func TestGetCardSuccessChildren(t *testing.T) {
 	setup()
 	defer teardown()
 
 	rr := makeCardRequestSuccess(t)
 	if status := rr.Code; status != http.StatusOK {
+		log.Printf("err %v", rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
 	var card models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &card)
-	if len(card.DirectLinks) == 0 {
-		t.Errorf("direct links was empty. got %v want %v", len(card.DirectLinks), 1)
+	if len(card.Children) == 0 {
+		t.Errorf("children was empty. got %v want %v", len(card.DirectLinks), 1)
 	}
 
-	expected := extractBacklinks(card.Body)
+	expected := "1/A"
 
-	if len(card.DirectLinks) > 0 && card.DirectLinks[0].CardID != expected[0] {
-		t.Errorf("linked to wrong card, got %v want %v", card.DirectLinks[0].CardID, expected[0])
+	if len(card.Children) > 0 && card.Children[0].CardID != expected {
+		t.Errorf("linked to wrong card, got %v want %v", card.Children[0].CardID, expected)
 
 	}
 
