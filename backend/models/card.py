@@ -42,8 +42,8 @@ def serialize_card(card: list) -> dict:
         "title": card[3],
         "body": card[4],
         "link": card[5],
-        "created_at": card[6].isoformat(),
-        "updated_at": card[7].isoformat(),
+        "created_at": card[6].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+        "updated_at": card[7].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
     }
     return card
     
@@ -52,7 +52,7 @@ def serialize_partial_card(card) -> dict:
         "id": card[0],
         "card_id": card[1],
         "title": card[2],
-        "created_at": card[3].isoformat(),
-        "updated_at": card[4].isoformat(),
+        "created_at": card[3].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+        "updated_at": card[4].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
     }
     return card
