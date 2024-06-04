@@ -147,7 +147,7 @@ func TestGetCardSuccessChildren(t *testing.T) {
 	var card models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.Children) == 0 {
-		t.Errorf("children was empty. got %v want %v", len(card.DirectLinks), 1)
+		t.Errorf("children was empty. got %v want %v", len(card.Children), 1)
 	}
 
 	expected := "1/A"
@@ -198,4 +198,26 @@ func TestGetCardSuccessFiles(t *testing.T) {
 		t.Errorf("wrong number of files associated with card, got %v want %v", len(card.Files), 2)
 	}
 
+}
+
+func TestGetCardReferencesSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardRequestSuccess(t)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var card models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	if len(card.References) != 2 {
+		t.Errorf("wrong number of references associated with card, got %v want %v", len(card.References), 2)
+	}
+	if len(card.References) > 0 && card.References[0].CardID != "2/A" {
+		t.Errorf("wrong card returned as a reference, got %v want %v", card.References[0].CardID, "2/A")
+	}
+
+	if len(card.References) > 1 && card.References[1].CardID != "2" {
+		t.Errorf("wrong card returned as a reference, got %v want %v", card.References[1].CardID, "2")
+	}
 }

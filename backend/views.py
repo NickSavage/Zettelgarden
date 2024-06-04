@@ -309,20 +309,16 @@ def create_card():
 @bp.route("/api/cards/<path:id>", methods=["GET"])
 @jwt_required()
 def get_card(id):
-    current_user = get_jwt_identity()  # Extract the user identity from the token
-    id = unquote(id)
-    card = services.query_full_card(id)
-    if not card:
-        return "Card not found", 404
-    print(card)
-    if "error" in card:
-        return jsonify(card), 400
 
-    if card["user_id"] != get_jwt_identity():
-        return jsonify({"error": "You do not have permission to view this card."}), 403
-
-    log_card_view(id, current_user)
-    return jsonify(card)
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return jsonify({"error": "Authorization header is missing"}), 401
+    # Forward the request to the Go backend
+    headers = {
+        "Authorization": auth_header
+    }
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/cards/" + str(id) + "/", headers=headers)
+    return jsonify(response.json()), response.status_code
 
 
 @bp.route("/api/cards/<path:id>", methods=["PUT"])

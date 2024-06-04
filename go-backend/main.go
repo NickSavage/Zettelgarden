@@ -178,7 +178,7 @@ func (s *Server) queryFile(userID int, id int) (models.File, error) {
 
 func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
 
-	var files []models.File
+	files := []models.File{}
 	rows, err := s.db.Query(`
 	SELECT 
 	files.id, files.name, files.type, files.path, files.filename, 

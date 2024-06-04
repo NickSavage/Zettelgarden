@@ -54,7 +54,7 @@ func (s *Server) importTestData() error {
 	users := data["users"].([]models.User)
 	cards := data["cards"].([]models.Card)
 	files := data["files"].([]models.File)
-	// backlinks := data["backlinks"].([]Backlink)
+	backlinks := data["backlinks"].([]models.Backlink)
 
 	var userIDs []int
 	for _, user := range users {
@@ -95,12 +95,13 @@ func (s *Server) importTestData() error {
 		return err
 	}
 
-	// for _, backlink := range backlinks {
-	//     _, err := db.Exec("INSERT INTO backlinks (source_id, target_id) VALUES ($1, $2)", backlink.SourceID, backlink.TargetID)
-	//     if err != nil {
-	//         return err
-	//     }
-	// }
+	for _, backlink := range backlinks {
+		_, err := s.db.Exec("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceID, backlink.TargetID, backlink.CreatedAt, backlink.UpdatedAt)
+		if err != nil {
+			log.Printf("err %v", err)
+			return err
+		}
+	}
 
 	return nil
 }
@@ -153,6 +154,16 @@ func (s *Server) generateData() map[string]interface{} {
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})
+	cards = append(cards, models.Card{
+		ID:        21,
+		CardID:    "2/A",
+		UserID:    1,
+		Title:     randomString(20),
+		Body:      randomString(20) + "[1]",
+		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+	})
 
 	backlinks := []models.Backlink{}
 	for i := 1; i <= 30; i++ {
@@ -163,6 +174,12 @@ func (s *Server) generateData() map[string]interface{} {
 			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 		})
 	}
+	backlinks = append(backlinks, models.Backlink{
+		SourceID:  "2/A",
+		TargetID:  "1",
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+	})
 
 	files := []models.File{}
 	for i := 1; i <= 20; i++ {

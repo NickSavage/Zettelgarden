@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 )
 
@@ -89,6 +90,42 @@ func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
 	if err != nil {
 		log.Printf("err %v", err)
 	}
+	cards := []models.PartialCard{}
+
+	for rows.Next() {
+		var card models.PartialCard
+		if err := rows.Scan(
+			&card.ID,
+			&card.CardID,
+			&card.UserID,
+			&card.Title,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+		); err != nil {
+			log.Printf("err %v", err)
+			return cards, err
+		}
+
+		if card.CardID != cardID {
+			cards = append(cards, card)
+		}
+	}
+	return cards, nil
+}
+
+func getBacklinks(cardID string) ([]models.PartialCard, error) {
+
+	query := `
+	SELECT 
+	cards.id, backlinks.source_id, cards.user_id, cards.title, cards.created_at, cards.updated_at
+	FROM backlinks 
+	JOIN cards ON backlinks.source_id = cards.card_id 
+	WHERE target_id = $1`
+
+	rows, err := s.db.Query(query, cardID)
+	if err != nil {
+		log.Printf("err %v", err)
+	}
 	var cards []models.PartialCard
 
 	for rows.Next() {
@@ -110,6 +147,20 @@ func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
 		}
 	}
 	return cards, nil
+
+}
+
+func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
+	directLinks := getDirectlinks(userID, card)
+	backlinks, _ := getBacklinks(card.CardID)
+	links := append(directLinks, backlinks...)
+	if len(links) == 0 {
+		return []models.PartialCard{}, nil
+	}
+	sort.Slice(links, func(x, y int) bool {
+		return links[x].CardID > links[y].CardID
+	})
+	return links, nil
 }
 
 func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
@@ -150,6 +201,14 @@ func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Children = children
+
+	references, err := getReferences(userID, card)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	card.References = references
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
