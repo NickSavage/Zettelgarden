@@ -251,8 +251,8 @@ func TestGetCardsSuccess(t *testing.T) {
 	}
 	var cards []models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 21 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+	if len(cards) != 22 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
 	}
 }
 
@@ -260,15 +260,15 @@ func TestGetCardsSuccessSearch(t *testing.T) {
 	setup()
 	defer teardown()
 
-	rr := makeCardsRequestSuccess(t, "search_term=[1]")
+	rr := makeCardsRequestSuccess(t, "search_term=test")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var cards []models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 21 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+	if len(cards) != 1 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 1)
 	}
 }
 
@@ -284,7 +284,7 @@ func TestGetCardsSuccessPartial(t *testing.T) {
 	var cards []models.PartialCard
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 22 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
 	}
 }
 func TestGetCardsSuccessPartialSearch(t *testing.T) {
@@ -313,7 +313,22 @@ func TestGetCardsSuccessSort(t *testing.T) {
 	}
 	var cards []models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 21 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+	if len(cards) != 22 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
+	}
+}
+
+func TestGetCardsFailureSort(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardsRequestSuccess(t, "partial=true&sort_method=asds")
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+	message := "invalid sort method, should be either id or date\n"
+	if rr.Body.String() != message {
+		t.Errorf("handler returned wrong message, want %v got %v", message, rr.Body.String())
 	}
 }

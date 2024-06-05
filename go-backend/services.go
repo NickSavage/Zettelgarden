@@ -89,6 +89,46 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 
 func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, error) {
 	var cards []models.Card
+	query := `
+    SELECT 
+		id, card_id, user_id, title, body, link, created_at, updated_at 
+    FROM 
+        cards
+    WHERE
+		user_id = $1`
+
+	// Add condition for searchTerm
+	var rows *sql.Rows
+	var err error
+	log.Printf("user %v", userID)
+	if searchTerm != "" {
+		query += " AND title ILIKE $2 OR body ILIKE $2 "
+		rows, err = s.db.Query(query, userID, "%"+searchTerm+"%")
+	} else {
+		rows, err = s.db.Query(query, userID)
+	}
+	if err != nil {
+		log.Printf("err %v", err)
+		return cards, err
+	}
+
+	for rows.Next() {
+		var card models.Card
+		if err := rows.Scan(
+			&card.ID,
+			&card.CardID,
+			&card.UserID,
+			&card.Title,
+			&card.Body,
+			&card.Link,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+		); err != nil {
+			log.Printf("err %v", err)
+			return cards, err
+		}
+		cards = append(cards, card)
+	}
 
 	return cards, nil
 }
