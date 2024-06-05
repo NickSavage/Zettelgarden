@@ -29,6 +29,24 @@ func makeCardRequestSuccess(t *testing.T) *httptest.ResponseRecorder {
 	return rr
 }
 
+func makeCardsRequestSuccess(t *testing.T, params string) *httptest.ResponseRecorder {
+
+	token, _ := generateTestJWT(1)
+
+	req, err := http.NewRequest("GET", "/api/cards/?"+params, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.getCards))
+	handler.ServeHTTP(rr, req)
+
+	return rr
+}
+
 func TestGetCardSuccess(t *testing.T) {
 	setup()
 	defer teardown()
@@ -219,5 +237,83 @@ func TestGetCardReferencesSuccess(t *testing.T) {
 
 	if len(card.References) > 1 && card.References[1].CardID != "2" {
 		t.Errorf("wrong card returned as a reference, got %v want %v", card.References[1].CardID, "2")
+	}
+}
+
+func TestGetCardsSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardsRequestSuccess(t, "")
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var cards []models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	if len(cards) != 21 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+	}
+}
+
+func TestGetCardsSuccessSearch(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardsRequestSuccess(t, "search_term=[1]")
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var cards []models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	if len(cards) != 21 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+	}
+}
+
+func TestGetCardsSuccessPartial(t *testing.T) {
+	setup()
+	//defer teardown()
+
+	rr := makeCardsRequestSuccess(t, "partial=true")
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var cards []models.PartialCard
+	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	if len(cards) != 22 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+	}
+}
+func TestGetCardsSuccessPartialSearch(t *testing.T) {
+	setup()
+	//defer teardown()
+
+	rr := makeCardsRequestSuccess(t, "partial=true&search_term=test")
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var cards []models.PartialCard
+	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	if len(cards) != 1 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 1)
+	}
+}
+func TestGetCardsSuccessSort(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardsRequestSuccess(t, "partial=true")
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var cards []models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	if len(cards) != 21 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
 	}
 }

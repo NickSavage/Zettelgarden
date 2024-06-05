@@ -213,3 +213,37 @@ func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
 }
+
+func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
+
+	var cards []models.Card
+	var partialCards []models.PartialCard
+	var err error
+
+	userID := r.Context().Value("current_user").(int)
+	searchTerm := r.URL.Query().Get("search_term")
+	partial := r.URL.Query().Get("partial")
+	//	sortMethod := r.URL.Query().Get("sort_method")
+	//	inactive := r.URL.Query().Get("inactive")
+
+	log.Printf("search %v", searchTerm)
+	log.Printf("partial %v", partial)
+	if partial == "true" {
+		partialCards, err = s.QueryPartialCards(userID, searchTerm)
+		if err != nil {
+			log.Printf("err %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(partialCards)
+	} else {
+		cards, err = s.QueryFullCards(userID, searchTerm)
+		if err != nil {
+			log.Printf("err %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(cards)
+	}
+
+}
