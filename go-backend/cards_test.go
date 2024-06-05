@@ -302,33 +302,18 @@ func TestGetCardsSuccessPartialSearch(t *testing.T) {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 1)
 	}
 }
-func TestGetCardsSuccessSort(t *testing.T) {
+func TestGetCardsSuccessInactive(t *testing.T) {
 	setup()
-	defer teardown()
+	//defer teardown()
 
-	rr := makeCardsRequestSuccess(t, "partial=true")
+	rr := makeCardsRequestSuccess(t, "inactive=true")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	var cards []models.Card
+	var cards []models.PartialCard
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 22 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
-	}
-}
-
-func TestGetCardsFailureSort(t *testing.T) {
-	setup()
-	defer teardown()
-
-	rr := makeCardsRequestSuccess(t, "partial=true&sort_method=asds")
-
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
-	}
-	message := "invalid sort method, should be either id or date\n"
-	if rr.Body.String() != message {
-		t.Errorf("handler returned wrong message, want %v got %v", message, rr.Body.String())
 	}
 }

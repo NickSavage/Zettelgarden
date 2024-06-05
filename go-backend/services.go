@@ -36,7 +36,6 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 
 func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard, error) {
 	var card models.PartialCard
-	log.Printf("cardID %v", cardID)
 
 	err := s.db.QueryRow(`
 	SELECT
@@ -100,7 +99,6 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 	// Add condition for searchTerm
 	var rows *sql.Rows
 	var err error
-	log.Printf("user %v", userID)
 	if searchTerm != "" {
 		query += " AND title ILIKE $2 OR body ILIKE $2 "
 		rows, err = s.db.Query(query, userID, "%"+searchTerm+"%")
@@ -146,13 +144,57 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 	// Add condition for searchTerm
 	var rows *sql.Rows
 	var err error
-	log.Printf("user %v", userID)
 	if searchTerm != "" {
 		query += " AND title ILIKE $2 "
 		rows, err = s.db.Query(query, userID, "%"+searchTerm+"%")
 	} else {
 		rows, err = s.db.Query(query, userID)
 	}
+	if err != nil {
+		log.Printf("err %v", err)
+		return cards, err
+	}
+
+	for rows.Next() {
+		var card models.PartialCard
+		if err := rows.Scan(
+			&card.ID,
+			&card.CardID,
+			&card.UserID,
+			&card.Title,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+		); err != nil {
+			log.Printf("err %v", err)
+			return cards, err
+		}
+		cards = append(cards, card)
+	}
+	return cards, nil
+}
+
+func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
+
+	cards := []models.PartialCard{}
+	query := `
+	SELECT c.id, c.card_id, c.user_id, c.title, c.created_at, c.updated_at
+	FROM cards c
+	LEFT JOIN (
+		SELECT card_pk, MAX(created_at) AS recent_view
+		FROM card_views
+		GROUP BY card_pk
+	) cv ON c.id = cv.card_pk
+	WHERE c.user_id = $1 AND c.is_deleted = FALSE AND
+	 c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
+	ORDER BY cv.recent_view DESC, RANDOM()
+	LIMIT 30;
+	`
+
+	// Add condition for searchTerm
+	var rows *sql.Rows
+	var err error
+
+	rows, err = s.db.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return cards, err

@@ -224,10 +224,18 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("search_term")
 	partial := r.URL.Query().Get("partial")
 	//	sortMethod := r.URL.Query().Get("sort_method")
-	//	inactive := r.URL.Query().Get("inactive")
+	inactive := r.URL.Query().Get("inactive")
 
-	log.Printf("search %v", searchTerm)
-	log.Printf("partial %v", partial)
+	if inactive == "true" {
+		partialCards, err = s.QueryInactiveCards(userID)
+		if err != nil {
+			log.Printf("err %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(partialCards)
+		return
+	}
 	if partial == "true" {
 		partialCards, err = s.QueryPartialCards(userID, searchTerm)
 		if err != nil {
@@ -236,6 +244,7 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(partialCards)
+		return
 	} else {
 		cards, err = s.QueryFullCards(userID, searchTerm)
 		if err != nil {
@@ -244,6 +253,7 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(cards)
+		return
 	}
 
 }
