@@ -223,8 +223,12 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
 	partial := r.URL.Query().Get("partial")
-	//	sortMethod := r.URL.Query().Get("sort_method")
+	sortMethod := r.URL.Query().Get("sort_method")
 	inactive := r.URL.Query().Get("inactive")
+
+	if sortMethod == "" {
+		sortMethod = "id"
+	}
 
 	if inactive == "true" {
 		partialCards, err = s.QueryInactiveCards(userID)
@@ -242,6 +246,15 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 			log.Printf("err %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+		if sortMethod == "id" {
+			sort.Slice(partialCards, func(x, y int) bool {
+				return partialCards[x].CardID > partialCards[y].CardID
+			})
+		} else if sortMethod == "date" {
+			sort.Slice(partialCards, func(x, y int) bool {
+				return partialCards[y].CreatedAt.Before(partialCards[x].CreatedAt)
+			})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(partialCards)
 		return
@@ -250,6 +263,15 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Printf("err %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		if sortMethod == "id" {
+			sort.Slice(cards, func(x, y int) bool {
+				return cards[x].ID > cards[y].ID
+			})
+		} else if sortMethod == "date" {
+			sort.Slice(cards, func(x, y int) bool {
+				return cards[y].CreatedAt.Before(cards[x].CreatedAt)
+			})
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(cards)

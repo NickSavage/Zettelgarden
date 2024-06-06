@@ -185,31 +185,31 @@ def check_token():
 @bp.route("/api/cards", methods=["GET"])
 @jwt_required()
 def get_cards():
-    current_user = get_jwt_identity()
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return jsonify({"error": "Authorization header is missing"}), 401
+    
     search_term = request.args.get("search_term", None)
     partial = request.args.get("partial", False)
-    sort_method = request.args.get("sort_method", "id")  # Default sort method is "id"
+    sort_method = request.args.get("sort_method", "id")
     inactive = request.args.get("inactive", False)
     
-    if inactive:
-        return jsonify(services.query_inactive_cards(current_user))
-    try:
-        if partial:
-            results = services.query_all_partial_cards(current_user, search_term)
-        else:
-            results = services.query_all_full_cards(current_user, search_term)
-        
-        if sort_method == "id":
-            results = sorted(results, key=lambda x: utils.sort_ids(x["card_id"]), reverse=True)
-        elif sort_method == "date":
-            results = sorted(results, key=lambda x: x["created_at"], reverse=True)
-        else:
-            return jsonify({"error": "Invalid sort method"})
-        
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    headers = {
+        "Authorization": auth_header
+    }
     
-    return jsonify(results)
+    # Forward the request to the Go backend
+    params = {
+        "search_term": search_term,
+        "partial": partial,
+        "sort_method": sort_method,
+        "inactive": inactive
+    }
+    print("http://" + os.getenv("FILES_HOST") + "/api/cards/")
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/cards/", params=params, headers=headers)
+    print(response)
+    
+    return jsonify(response.json()), response.status_code
 
 @bp.route("/api/cards/next", methods=["POST"])
 @jwt_required()
