@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"go-backend/models"
 	"log"
 	"mime/multipart"
@@ -304,7 +305,7 @@ func TestGetCardsSuccessPartialSearch(t *testing.T) {
 }
 func TestGetCardsSuccessInactive(t *testing.T) {
 	setup()
-	//defer teardown()
+	defer teardown()
 
 	rr := makeCardsRequestSuccess(t, "inactive=true")
 
@@ -316,4 +317,86 @@ func TestGetCardsSuccessInactive(t *testing.T) {
 	if len(cards) != 22 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
 	}
+}
+
+func TestUpdateCardSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardRequestSuccess(t)
+	var card models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+
+	token, _ := generateTestJWT(1)
+
+	expected := "asdfasdf"
+	newData := map[string]interface{}{
+		"title":   expected,
+		"body":    expected,
+		"card_id": card.CardID,
+		"link":    expected,
+	}
+	jsonData, err := json.Marshal(newData)
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+	req, err := http.NewRequest("PUT", "/api/cards/1", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr = httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.updateCard))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	rr = makeCardRequestSuccess(t)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	if card.Title != expected {
+		t.Errorf("handler return wrong title, ot %v want %v", card.Title, expected)
+	}
+}
+
+func TestUpdateCardUnauthorized(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(2)
+
+	expected := "asdfasdf"
+	newData := map[string]interface{}{
+		"title":   expected,
+		"body":    expected,
+		"card_id": "1",
+		"link":    expected,
+	}
+	jsonData, err := json.Marshal(newData)
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+	req, err := http.NewRequest("PUT", "/api/cards/1", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.updateCard))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+
 }

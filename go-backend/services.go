@@ -217,3 +217,18 @@ func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 	}
 	return cards, nil
 }
+
+func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {
+	query := `
+	UPDATE cards SET title = $1, body = $2, link = $3, updated_at = NOW(), card_id = $4
+	WHERE
+	id = $5
+	`
+	_, err := s.db.Exec(query, params.Title, params.Body, params.Link, params.CardID, cardPK)
+	if err != nil {
+		log.Printf("updatecard err %v", err)
+		return models.Card{}, err
+	}
+	return s.QueryFullCard(userID, cardPK)
+
+}
