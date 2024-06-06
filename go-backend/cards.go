@@ -227,7 +227,7 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 	inactive := r.URL.Query().Get("inactive")
 
 	if sortMethod == "" {
-		sortMethod = "id"
+		sortMethod = "date"
 	}
 
 	if inactive == "true" {

@@ -60,31 +60,37 @@ export function Sidebar({
 
   function handleFilter(e) {
     let filter = e.target.value;
-      let isIdSearch = filter.startsWith('!');
+    let isIdSearch = filter.startsWith('!');
     setFilter(filter);
 
     document.getElementById("select-filters").value = "all";
 
     const filteredCards = mainCards.filter((card) => {
-     if (isIdSearch) {
-	 return card.card_id.toLowerCase().includes(filter.slice(1).trim().toLowerCase());
-     } else {
+        let cardId = card.card_id.toString().toLowerCase(); // Ensure card_id is treated as a string
+        let title = card.title.toLowerCase();
 
-	 // Check if any of the search terms are present in the card title or ID
-	 return filter.split(" ").every((keyword) => {
-             return (
-		 keyword.trim().toLowerCase() === "" ||
-		     card.title.toLowerCase().includes(keyword.trim().toLowerCase()) ||
-		     card.card_id.toLowerCase().includes(keyword.trim().toLowerCase())
-             );
-	 });
-     }
+        if (isIdSearch) {
+            // Search only by card_id, remove the leading '!' and trim whitespace
+            return cardId.startsWith(filter.slice(1).trim().toLowerCase());
+        } else {
+            // Split filter into keywords and check each keyword in title or card_id
+            return filter.split(" ").every((keyword) => {
+                let cleanKeyword = keyword.trim().toLowerCase();
+                return (
+                    cleanKeyword === "" ||
+                    title.includes(cleanKeyword) ||
+                    cardId.includes(cleanKeyword)
+                );
+            });
+        }
     });
+    
     setSidebarCards(filteredCards);
-  }
+}
+
 
   async function setAllCards() {
-    await fetchPartialCards()
+    await fetchPartialCards("", "date")
       .then((data) => {
         setCards(data);
         let filtered = data.filter((card) => !card.card_id.includes("/"));
