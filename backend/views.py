@@ -640,14 +640,14 @@ def edit_file(file_id):
 @bp.route("/api/admin", methods=["GET"])
 @jwt_required()
 def check_admin():
-    current_user = get_jwt_identity()  # Extract the user identity from the token
-    user = services.query_full_user(current_user)
-    if "error" in user:
-        return jsonify(user), 400
-    if user["is_admin"]:
-        return jsonify({}), 204
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.get(f"http://{os.getenv('FILES_HOST')}/api/admin/", headers=headers)
+    if response.status_code == 400:
+        return jsonify(response.json()), response.status_code
     else:
-        return jsonify({}), 401
+        return jsonify({}), response.status_code
 
 @bp.route("/api/webhook", methods=["POST"])
 def webhook():

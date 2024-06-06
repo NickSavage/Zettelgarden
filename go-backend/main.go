@@ -467,5 +467,7 @@ func main() {
 
 	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.getCards))
 	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.getCard))
+
+	http.HandleFunc("GET /api/admin/", jwtMiddleware(s.getUserAdmin))
 	http.ListenAndServe(":8080", nil)
 }
