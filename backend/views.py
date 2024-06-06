@@ -325,23 +325,20 @@ def get_card(id):
 @bp.route("/api/cards/<path:id>", methods=["PUT"])
 @jwt_required()
 def update_card(id):
-    card = services.query_full_card(id)
-    if card["user_id"] != get_jwt_identity():
-        return jsonify({}), 401
-
     card = {
+        "card_id": request.json.get("card_id"),
         "title": request.json.get("title"),
         "body": request.json.get("body"),
-        "card_id": request.json.get("card_id"),
         "link": request.json.get("link"),
     }
 
-
-    # Update card in database
-    services.update_card(id, card)
-
-    # Update backlinks
-    return jsonify(services.query_full_card(id))
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+        "Content-Type": "application/json"
+    }
+    response = requests.put("http://" + os.getenv("FILES_HOST") + "/api/cards/" + str(id) + "/", headers=headers, json=card)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
 
 @bp.route("/api/cards/<path:id>", methods=["DELETE"])
