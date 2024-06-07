@@ -60,7 +60,7 @@ func makeCardDeleteRequestSuccess(t *testing.T, id int) *httptest.ResponseRecord
 	req.SetPathValue("id", strconv.Itoa(id))
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.deleteCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.DeleteCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	return rr
@@ -367,7 +367,7 @@ func TestUpdateCardSuccess(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr = httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.updateCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.UpdateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -411,7 +411,7 @@ func TestUpdateCardUnauthorized(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.updateCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.UpdateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -540,7 +540,7 @@ func TestDeleteCardWrongUser(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.deleteCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.DeleteCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {

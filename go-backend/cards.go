@@ -298,7 +298,7 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) updateCard(w http.ResponseWriter, r *http.Request) {
+func (s *Server) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	idStr := r.PathValue("id")
@@ -361,7 +361,7 @@ func (s *Server) createCard(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
-func (s *Server) deleteCard(w http.ResponseWriter, r *http.Request) {
+func (s *Server) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)

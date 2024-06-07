@@ -93,8 +93,8 @@ func main() {
 	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.getCards))
 	http.HandleFunc("POST /api/cards/", jwtMiddleware(s.createCard))
 	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.getCard))
-	http.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.updateCard))
-	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.deleteCard))
+	http.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute))
+	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
 
 	http.HandleFunc("GET /api/admin/", jwtMiddleware(s.getUserAdmin))
 	http.ListenAndServe(":8080", nil)
