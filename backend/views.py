@@ -272,16 +272,6 @@ def generate_next_id():
 @bp.route("/api/cards", methods=["POST"])
 @jwt_required()
 def create_card():
-    user_id = get_jwt_identity()  # Extract the user identity from the token
-
-    # Validate input data
-    required_fields = ["title", "body", "card_id"]
-    missing_fields = [field for field in required_fields if field not in request.json]
-    if missing_fields:
-        return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
-
-    conn = get_db()
-    cur = conn.cursor()
     card = {
         "title": request.json.get("title"),
         "body": request.json.get("body", ""),
@@ -289,21 +279,13 @@ def create_card():
         "link": request.json.get("link", ""),
     }
 
-    print(card)
-    # Insert card into database
-    result = services.create_card(card, user_id)
-    if "error" in result:
-        return jsonify(result), 400
-    elif "new_id" in result:
-        new_id = result["new_id"]
-    else:
-        return jsonify({"error": "Unknown error"}), 500
-
-    # Update backlinks
-    cur.close()
-
-    result = services.query_full_card(new_id)
-    return jsonify(result)
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+        "Content-Type": "application/json"
+    }
+    response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/cards/", headers=headers, json=card)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
 
 @bp.route("/api/cards/<path:id>", methods=["GET"])

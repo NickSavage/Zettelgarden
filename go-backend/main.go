@@ -466,6 +466,7 @@ func main() {
 	http.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.downloadFile))
 
 	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.getCards))
+	http.HandleFunc("POST /api/cards/", jwtMiddleware(s.createCard))
 	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.getCard))
 	http.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.updateCard))
 
