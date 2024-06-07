@@ -27,6 +27,22 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+func admin(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID := r.Context().Value("current_user").(int)
+		user, err := s.QueryUser(userID)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusBadRequest)
+			return
+		}
+		if !user.IsAdmin {
+			http.Error(w, "Access denied", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+}
+
 func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenStr := r.Header.Get("Authorization")
@@ -83,12 +99,12 @@ func main() {
 
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
-	http.HandleFunc("GET /api/files", jwtMiddleware(s.getAllFiles))
-	http.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.uploadFile))
-	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.getFileMetadata))
-	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.editFileMetadata))
-	http.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.deleteFile))
-	http.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.downloadFile))
+	http.HandleFunc("GET /api/files", jwtMiddleware(s.GetAllFilesRoute))
+	http.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.UploadFileRoute))
+	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute))
+	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.EditFileMetadataRoute))
+	http.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.DeleteFileRoute))
+	http.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.DownloadFileRoute))
 
 	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.GetCardsRoute))
 	http.HandleFunc("POST /api/cards/", jwtMiddleware(s.CreateCardRoute))
@@ -96,6 +112,7 @@ func main() {
 	http.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute))
 	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
 
-	http.HandleFunc("GET /api/admin/", jwtMiddleware(s.getUserAdmin))
+	http.HandleFunc("GET /api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute)))
+	http.HandleFunc("GET /api/admin/", jwtMiddleware(s.GetUserAdminRoute))
 	http.ListenAndServe(":8080", nil)
 }

@@ -28,7 +28,7 @@ func TestGetAllFiles(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.getAllFiles))
+	handler := http.HandlerFunc(jwtMiddleware(s.GetAllFilesRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -53,7 +53,7 @@ func TestGetAllFilesNoToken(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.getAllFiles))
+	handler := http.HandlerFunc(jwtMiddleware(s.GetAllFilesRoute))
 	handler.ServeHTTP(rr, req)
 
 	//	print("%v", rr.Code)
@@ -79,7 +79,7 @@ func TestGetFileSuccess(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.getFileMetadata)))
+	handler := http.HandlerFunc(jwtMiddleware((s.GetFileMetadataRoute)))
 
 	handler.ServeHTTP(rr, req)
 
@@ -110,7 +110,7 @@ func TestGetFileWrongUser(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.getFileMetadata)))
+	handler := http.HandlerFunc(jwtMiddleware((s.GetFileMetadataRoute)))
 
 	handler.ServeHTTP(rr, req)
 
@@ -146,7 +146,7 @@ func TestEditFileSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.editFileMetadata)))
+	handler := http.HandlerFunc(jwtMiddleware((s.EditFileMetadataRoute)))
 
 	handler.ServeHTTP(rr, req)
 
@@ -186,7 +186,7 @@ func TestEditFileWrongUser(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.editFileMetadata)))
+	handler := http.HandlerFunc(jwtMiddleware((s.EditFileMetadataRoute)))
 
 	handler.ServeHTTP(rr, req)
 
@@ -249,7 +249,7 @@ func TestUploadFileSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -281,7 +281,7 @@ func TestUploadFileNoFile(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -340,7 +340,7 @@ func TestUploadFileNotAllowed(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -373,7 +373,7 @@ func TestDownloadFile(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.downloadFile))
+	handler := http.HandlerFunc(jwtMiddleware(s.DownloadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -401,7 +401,7 @@ func TestDeleteFile(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.deleteFile))
+	handler := http.HandlerFunc(jwtMiddleware(s.DeleteFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -417,7 +417,7 @@ func TestDeleteFile(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(jwtMiddleware(s.getFileMetadata))
+	handler = http.HandlerFunc(jwtMiddleware(s.GetFileMetadataRoute))
 
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNotFound {

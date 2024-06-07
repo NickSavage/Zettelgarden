@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *Server) getAllFiles(w http.ResponseWriter, r *http.Request) {
+func (s *Server) GetAllFilesRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	rows, err := s.db.Query(`
 	SELECT
@@ -163,7 +163,7 @@ func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
 
 }
 
-func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
+func (s *Server) GetFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	idStr := r.PathValue("id")
@@ -183,7 +183,7 @@ func (s *Server) getFileMetadata(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(file)
 }
 
-func (s *Server) editFileMetadata(w http.ResponseWriter, r *http.Request) {
+func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	cardPKStr := r.PathValue("id")
@@ -235,7 +235,7 @@ func userCanUploadFile(userID int, header *multipart.FileHeader) bool {
 	return user.CanUploadFiles
 }
 
-func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
+func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 
@@ -319,7 +319,7 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(output)
 }
 
-func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
+func (s *Server) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	cardPKStr := r.PathValue("id")
@@ -349,7 +349,7 @@ func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) deleteFile(w http.ResponseWriter, r *http.Request) {
+func (s *Server) DeleteFileRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	cardPKStr := r.PathValue("id")
 	cardPK, err := strconv.Atoi(cardPKStr)

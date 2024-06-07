@@ -223,7 +223,7 @@ func TestGetCardSuccessFiles(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	rr = httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.uploadFile))
+	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 

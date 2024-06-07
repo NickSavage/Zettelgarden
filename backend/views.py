@@ -395,9 +395,12 @@ def get_users():
 @bp.route("/api/users/<path:id>", methods=["GET"])
 @jwt_required()
 def get_user(id):
-    id = unquote(id)
-    user = services.query_full_user(id)
-    return jsonify(user)
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/users/" + str(id) + "/", headers=headers)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
 @bp.route("/api/users/<path:id>/subscription", methods=["GET"])
 @jwt_required()
