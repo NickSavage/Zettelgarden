@@ -48,6 +48,22 @@ func getParentIdAlternating(cardID string) string {
 	return parentID
 }
 
+func (s *Server) checkIsCardIDUnique(userID int, cardID string) bool {
+	var count int
+	err := s.db.QueryRow(`SELECT count(*) FROM cards 
+		WHERE user_id = $1 AND card_id = $2 AND is_deleted = FALSE`, userID, cardID).Scan(&count)
+	log.Printf("count %v", count)
+	if err != nil {
+		log.Printf("err %v", err)
+		return false
+	}
+	if count > 0 {
+		return false
+	} else {
+		return true
+	}
+}
+
 func extractBacklinks(text string) []string {
 	re := regexp.MustCompile(`\[([^\]]+)\]`)
 
@@ -317,6 +333,34 @@ func (s *Server) updateCard(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
+func (s *Server) createCard(w http.ResponseWriter, r *http.Request) {
+	var params models.EditCardParams
+	var err error
+	userID := r.Context().Value("current_user").(int)
+
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&params)
+	if err != nil {
+		log.Printf("err? %v", err)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	if !s.checkIsCardIDUnique(userID, params.CardID) {
+		http.Error(w, "card_id already exists", http.StatusBadRequest)
+		return
+	}
+
+	card, err := s.CreateCard(userID, params)
+	if err != nil {
+		log.Printf("?")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(card)
+}
+
 func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard, error) {
 	var card models.PartialCard
 
@@ -514,4 +558,20 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 	}
 	return s.QueryFullCard(userID, cardPK)
 
+}
+
+func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Card, error) {
+	query := `
+	INSERT INTO cards 
+	(title, body, link, user_id, card_id, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+	RETURNING id;
+	`
+	var id int
+	err := s.db.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID).Scan(&id)
+	if err != nil {
+		log.Printf("updatecard err %v", err)
+		return models.Card{}, err
+	}
+	return s.QueryFullCard(userID, id)
 }

@@ -9,19 +9,20 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
-func makeCardRequestSuccess(t *testing.T) *httptest.ResponseRecorder {
+func makeCardRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
 
 	token, _ := generateTestJWT(1)
 
-	req, err := http.NewRequest("GET", "/api/cards/1", nil)
+	req, err := http.NewRequest("GET", "/api/cards/"+strconv.Itoa(id), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
-	req.SetPathValue("id", "1")
+	req.SetPathValue("id", strconv.Itoa(id))
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(jwtMiddleware(s.getCard))
@@ -57,7 +58,7 @@ func TestGetCardSuccess(t *testing.T) {
 	if logCount != 0 {
 		t.Errorf("wrong log count, got %v want %v", logCount, 0)
 	}
-	rr := makeCardRequestSuccess(t)
+	rr := makeCardRequestSuccess(t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		log.Printf("err %v", rr.Body.String())
@@ -130,7 +131,7 @@ func TestGetCardSuccessParent(t *testing.T) {
 	setup()
 	defer teardown()
 
-	rr := makeCardRequestSuccess(t)
+	rr := makeCardRequestSuccess(t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
@@ -157,7 +158,7 @@ func TestGetCardSuccessChildren(t *testing.T) {
 	setup()
 	defer teardown()
 
-	rr := makeCardRequestSuccess(t)
+	rr := makeCardRequestSuccess(t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		log.Printf("err %v", rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -182,7 +183,7 @@ func TestGetCardSuccessFiles(t *testing.T) {
 	setup()
 	defer teardown()
 
-	rr := makeCardRequestSuccess(t)
+	rr := makeCardRequestSuccess(t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
@@ -208,7 +209,7 @@ func TestGetCardSuccessFiles(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	rr = makeCardRequestSuccess(t)
+	rr = makeCardRequestSuccess(t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
@@ -223,7 +224,7 @@ func TestGetCardReferencesSuccess(t *testing.T) {
 	setup()
 	defer teardown()
 
-	rr := makeCardRequestSuccess(t)
+	rr := makeCardRequestSuccess(t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
@@ -323,7 +324,7 @@ func TestUpdateCardSuccess(t *testing.T) {
 	setup()
 	defer teardown()
 
-	rr := makeCardRequestSuccess(t)
+	rr := makeCardRequestSuccess(t, 1)
 	var card models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &card)
 
@@ -355,7 +356,7 @@ func TestUpdateCardSuccess(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	rr = makeCardRequestSuccess(t)
+	rr = makeCardRequestSuccess(t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -399,4 +400,87 @@ func TestUpdateCardUnauthorized(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
 
+}
+
+func TestCreateCardSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var card models.Card
+	var newCard models.Card
+	token, _ := generateTestJWT(1)
+
+	expected := "asdfasdf"
+	data := models.EditCardParams{
+		Title:  expected,
+		Body:   expected,
+		CardID: "1",
+		Link:   expected,
+	}
+	jsonData, _ := json.Marshal(data)
+	req, err := http.NewRequest("POST", "/api/cards/", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.createCard))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+
+	rr = makeCardRequestSuccess(t, card.ID)
+
+	parseJsonResponse(t, rr.Body.Bytes(), &newCard)
+	if newCard.Title != expected {
+		t.Errorf("handler returned wrong card: got %v want %v", newCard.Title, expected)
+	}
+}
+
+func TestCreateCardDuplicateCardID(t *testing.T) {
+	setup()
+	//defer teardown()
+
+	token, _ := generateTestJWT(1)
+
+	expected := "asdfasdf"
+	data := models.EditCardParams{
+		Title:  expected,
+		CardID: "asdf",
+		Link:   expected,
+	}
+	jsonData, _ := json.Marshal(data)
+	req, err := http.NewRequest("POST", "/api/cards/", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.createCard))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	req, err = http.NewRequest("POST", "/api/cards/", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(jwtMiddleware(s.createCard))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+	if rr.Body.String() != "card_id already exists\n" {
+		t.Errorf("handler returned wrong error message. got %v want %v", rr.Body.String(), "card_id already exists\n")
+	}
 }
