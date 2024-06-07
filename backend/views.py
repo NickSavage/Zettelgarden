@@ -326,17 +326,16 @@ def update_card(id):
 @bp.route("/api/cards/<path:id>", methods=["DELETE"])
 @jwt_required()
 def delete_card(id):
-
-    card = services.query_full_card(id)
-    if card["user_id"] != get_jwt_identity():
-        return jsonify({}), 401
-    
-    results = services.delete_card(id)
-    if "error" in results:
-        print(results)
-        return jsonify({"error": results["error"]}), results["code"]
-
-    return "", 204
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.delete("http://" + os.getenv("FILES_HOST") + "/api/cards/" + str(id) + "/", headers=headers)
+    print(response.text)
+    if response.status_code != 204: 
+        return jsonify({}), response.status_code
+    else: 
+        return jsonify(response.text), response.status_code
+   
 
 
 @bp.route("/api/users", methods=["POST"])

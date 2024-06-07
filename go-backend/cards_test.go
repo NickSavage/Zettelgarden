@@ -49,6 +49,24 @@ func makeCardsRequestSuccess(t *testing.T, params string) *httptest.ResponseReco
 	return rr
 }
 
+func makeCardDeleteRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
+	token, _ := generateTestJWT(1)
+
+	req, err := http.NewRequest("DELETE", "/api/cards/"+strconv.Itoa(id), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", strconv.Itoa(id))
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.deleteCard))
+	handler.ServeHTTP(rr, req)
+
+	return rr
+
+}
+
 func TestGetCardSuccess(t *testing.T) {
 	setup()
 	defer teardown()
@@ -443,7 +461,7 @@ func TestCreateCardSuccess(t *testing.T) {
 
 func TestCreateCardDuplicateCardID(t *testing.T) {
 	setup()
-	//defer teardown()
+	defer teardown()
 
 	token, _ := generateTestJWT(1)
 
@@ -482,5 +500,50 @@ func TestCreateCardDuplicateCardID(t *testing.T) {
 	}
 	if rr.Body.String() != "card_id already exists\n" {
 		t.Errorf("handler returned wrong error message. got %v want %v", rr.Body.String(), "card_id already exists\n")
+	}
+}
+
+func TestDeleteCardSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	id := 3
+	rr := makeCardDeleteRequestSuccess(t, id)
+
+	if status := rr.Code; status != http.StatusNoContent {
+		log.Printf(rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
+	}
+
+	rr = makeCardRequestSuccess(t, id)
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+	rr = makeCardDeleteRequestSuccess(t, id)
+
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestDeleteCardWrongUser(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(2)
+
+	req, err := http.NewRequest("DELETE", "/api/cards/"+strconv.Itoa(1), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.deleteCard))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
 }

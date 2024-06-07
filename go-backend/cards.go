@@ -361,6 +361,44 @@ func (s *Server) createCard(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
+func (s *Server) deleteCard(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+	card, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	backlinks, _ := getBacklinks(card.CardID)
+	if len(backlinks) > 0 {
+		http.Error(w, "card has backlinks, cannot be deleted", http.StatusBadRequest)
+		return
+	}
+	children, _ := getChildren(userID, card.CardID)
+	if len(children) > 0 {
+		http.Error(w, "card has children, cannot be deleted", http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.db.Exec(`
+	UPDATE cards SET is_deleted = TRUE, updated_at = NOW()
+	WHERE
+	id = $1 AND user_id = $2
+	`, id, userID)
+
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard, error) {
 	var card models.PartialCard
 
@@ -421,7 +459,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
     FROM 
         cards
     WHERE
-		user_id = $1`
+		user_id = $1 AND is_deleted = FALSE`
 
 	// Add condition for searchTerm
 	var rows *sql.Rows
@@ -466,7 +504,7 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
     FROM 
         cards
     WHERE
-		user_id = $1`
+		user_id = $1 AND is_deleted = FALSE`
 
 	// Add condition for searchTerm
 	var rows *sql.Rows
