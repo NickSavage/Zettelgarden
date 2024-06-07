@@ -26,3 +26,8 @@ type UploadFileResponse struct {
 	Message string `json:"message"`
 	File    File   `json:"file"`
 }
+
+type UploadFileParams struct {
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type"`
+}
