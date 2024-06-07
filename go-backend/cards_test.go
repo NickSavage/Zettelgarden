@@ -25,7 +25,7 @@ func makeCardRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
 	req.SetPathValue("id", strconv.Itoa(id))
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.getCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.GetCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	return rr
@@ -43,7 +43,7 @@ func makeCardsRequestSuccess(t *testing.T, params string) *httptest.ResponseReco
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.getCards))
+	handler := http.HandlerFunc(jwtMiddleware(s.GetCardsRoute))
 	handler.ServeHTTP(rr, req)
 
 	return rr
@@ -112,7 +112,7 @@ func TestGetCardWrongUser(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.getCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.GetCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -443,7 +443,7 @@ func TestCreateCardSuccess(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.createCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -479,7 +479,7 @@ func TestCreateCardDuplicateCardID(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.createCard))
+	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -492,7 +492,7 @@ func TestCreateCardDuplicateCardID(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(jwtMiddleware(s.createCard))
+	handler = http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {

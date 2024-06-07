@@ -181,7 +181,7 @@ func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
 	return links, nil
 }
 
-func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
+func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	idStr := r.PathValue("id")
@@ -232,7 +232,7 @@ func (s *Server) getCard(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
-func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
+func (s *Server) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 
 	var cards []models.Card
 	var partialCards []models.PartialCard
@@ -333,7 +333,7 @@ func (s *Server) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
-func (s *Server) createCard(w http.ResponseWriter, r *http.Request) {
+func (s *Server) CreateCardRoute(w http.ResponseWriter, r *http.Request) {
 	var params models.EditCardParams
 	var err error
 	userID := r.Context().Value("current_user").(int)

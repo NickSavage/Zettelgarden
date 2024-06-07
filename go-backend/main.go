@@ -90,9 +90,9 @@ func main() {
 	http.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.deleteFile))
 	http.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.downloadFile))
 
-	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.getCards))
-	http.HandleFunc("POST /api/cards/", jwtMiddleware(s.createCard))
-	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.getCard))
+	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.GetCardsRoute))
+	http.HandleFunc("POST /api/cards/", jwtMiddleware(s.CreateCardRoute))
+	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.GetCardRoute))
 	http.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute))
 	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
 
