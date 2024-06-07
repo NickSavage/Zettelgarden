@@ -414,7 +414,7 @@ func TestCreateCardSuccess(t *testing.T) {
 	data := models.EditCardParams{
 		Title:  expected,
 		Body:   expected,
-		CardID: "1",
+		CardID: "asd",
 		Link:   expected,
 	}
 	jsonData, _ := json.Marshal(data)
