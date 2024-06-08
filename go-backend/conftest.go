@@ -59,11 +59,19 @@ func (s *Server) importTestData() error {
 	var userIDs []int
 	for _, user := range users {
 		var id int
-		err := s.db.QueryRow(
-			"INSERT INTO users (username, email, password, created_at, updated_at, can_upload_files, stripe_subscription_status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
-			user.Username, user.Email, user.Password, user.CreatedAt, user.UpdatedAt, user.CanUploadFiles, user.StripeSubscriptionStatus,
+		err := s.db.QueryRow(`
+			INSERT INTO users 
+			(username, email, password, created_at, updated_at, can_upload_files, 
+			stripe_subscription_status, stripe_customer_id, stripe_current_plan, stripe_subscription_frequency, stripe_subscription_id) 
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+			RETURNING id`,
+			user.Username, user.Email, user.Password, user.CreatedAt,
+			user.UpdatedAt, user.CanUploadFiles, user.StripeSubscriptionStatus,
+			user.StripeCustomerID, user.StripeCurrentPlan, user.StripeSubscriptionFrequency,
+			user.StripeSubscriptionID,
 		).Scan(&id)
 		if err != nil {
+			log.Printf("err %v", err)
 			return err
 		}
 		userIDs = append(userIDs, id)
@@ -112,15 +120,19 @@ func (s *Server) generateData() map[string]interface{} {
 	users := []models.User{}
 	for i := 1; i <= 10; i++ {
 		user := models.User{
-			ID:                       i,
-			Username:                 randomString(10),
-			Email:                    randomEmail(),
-			Password:                 randomString(15),
-			CreatedAt:                randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-			UpdatedAt:                randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			CanUploadFiles:           true,
-			LastLogin:                randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			StripeSubscriptionStatus: "",
+			ID:                          i,
+			Username:                    randomString(10),
+			Email:                       randomEmail(),
+			Password:                    randomString(15),
+			CreatedAt:                   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt:                   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			CanUploadFiles:              true,
+			LastLogin:                   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			StripeSubscriptionStatus:    "",
+			StripeCustomerID:            "",
+			StripeCurrentPlan:           "",
+			StripeSubscriptionFrequency: "",
+			StripeSubscriptionID:        "",
 		}
 		if i == 2 {
 			user.CanUploadFiles = false

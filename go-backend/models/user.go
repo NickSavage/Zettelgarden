@@ -3,7 +3,7 @@ package models
 import "time"
 
 type User struct {
-	ID                          int       `json:"id:`
+	ID                          int       `json:"id"`
 	Username                    string    `json:"username"`
 	Email                       string    `json:"email"`
 	Password                    string    `json:"password"`
@@ -20,4 +20,14 @@ type User struct {
 	StripeSubscriptionFrequency string    `json:"stripe_subscription_frequency"`
 	StripeCurrentPlan           string    `json:"stripe_current_plan"`
 	IsActive                    bool      `json:"is_active"`
+}
+
+type UserSubscription struct {
+	ID                          int    `json:"id"`
+	StripeCustomerID            string `json:"stripe_customer_id"`
+	StripeSubscriptionID        string `json:"stripe_subscription_id"`
+	StripeSubscriptionStatus    string `json:"stripe_subscription_status"`
+	StripeSubscriptionFrequency string `json:"stripe_subscription_frequency"`
+	StripeCurrentPlan           string `json:"stripe_current_plan"`
+	IsActive                    bool   `json:"is_active"`
 }

@@ -149,7 +149,7 @@ export function getUser(id) {
 }
 
 export function getCurrentUser() {
-  const url = base_url + `/users/current`;
+  const url = base_url + `/current`;
   let token = localStorage.getItem("token");
 
   // Send a GET request to the URL

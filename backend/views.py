@@ -405,24 +405,21 @@ def get_user(id):
 @bp.route("/api/users/<path:id>/subscription", methods=["GET"])
 @jwt_required()
 def get_user_subscription(id: int):
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/users/" + str(id) + "/subscription/", headers=headers)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
-    current_user_id = get_jwt_identity()
-
-    current_user = services.query_full_user(current_user_id)
-    if current_user["id"] != int(id):
-        if not current_user["is_admin"]:
-            return jsonify({}), 403
-    
-    user = services.query_user_subscription(current_user)
-    return jsonify(user)
-
-@bp.route("/api/users/current", methods=["GET"])
+@bp.route("/api/current", methods=["GET"])
 @jwt_required()
 def get_current_user():
     headers = {
         "Authorization": request.headers.get("Authorization"),
     }
-    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/users/current/", headers=headers)
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/current/", headers=headers)
+    print("asdas")
     print(response.text)
     return jsonify(response.json()), response.status_code
 

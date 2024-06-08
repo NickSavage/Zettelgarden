@@ -51,12 +51,59 @@ func (s *Server) GetCurrentUserRoute(w http.ResponseWriter, r *http.Request) {
 
 	user, err := s.QueryUser(userID)
 	if err != nil {
+		log.Printf("user %v", userID)
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
+}
+
+func (s *Server) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request) {
+
+	var userSub models.UserSubscription
+
+	userID := r.Context().Value("current_user").(int)
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	user, err := s.QueryUser(userID)
+	if user.ID != id || !user.IsAdmin {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	err = s.db.QueryRow(`
+	SELECT 
+	id, stripe_customer_id, stripe_subscription_id, 
+	stripe_subscription_status,
+	stripe_subscription_frequency, stripe_current_plan
+	FROM users WHERE id = $1
+	`, id).Scan(
+		&userSub.ID,
+		&userSub.StripeCustomerID,
+		&userSub.StripeSubscriptionID,
+		&userSub.StripeSubscriptionStatus,
+		&userSub.StripeSubscriptionFrequency,
+		&userSub.StripeCurrentPlan,
+	)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if user.StripeSubscriptionStatus == "active" || user.StripeSubscriptionStatus == "trial" {
+		userSub.IsActive = true
+	} else {
+		userSub.IsActive = false
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(userSub)
 }
 
 func (s *Server) QueryUser(id int) (models.User, error) {
