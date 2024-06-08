@@ -113,6 +113,7 @@ func main() {
 	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
 
 	http.HandleFunc("GET /api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute)))
+	http.HandleFunc("GET /api/users/current/", jwtMiddleware(s.GetCurrentUserRoute))
 	http.HandleFunc("GET /api/admin/", jwtMiddleware(s.GetUserAdminRoute))
 	http.ListenAndServe(":8080", nil)
 }

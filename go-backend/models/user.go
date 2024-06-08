@@ -19,4 +19,5 @@ type User struct {
 	StripeSubscriptionStatus    string    `json:"stripe_subscription_status"`
 	StripeSubscriptionFrequency string    `json:"stripe_subscription_frequency"`
 	StripeCurrentPlan           string    `json:"stripe_current_plan"`
+	IsActive                    bool      `json:"is_active"`
 }

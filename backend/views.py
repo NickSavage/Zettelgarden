@@ -419,10 +419,12 @@ def get_user_subscription(id: int):
 @bp.route("/api/users/current", methods=["GET"])
 @jwt_required()
 def get_current_user():
-    
-    current_user = get_jwt_identity()  # Extract the user identity from the token
-    user = services.query_full_user(current_user)
-    return jsonify(user)
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/users/current/", headers=headers)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
 @bp.route("/api/users/<path:id>", methods=["PUT"])
 @jwt_required()

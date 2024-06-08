@@ -45,13 +45,27 @@ func (s *Server) GetUserRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+func (s *Server) GetCurrentUserRoute(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("current_user").(int)
+
+	user, err := s.QueryUser(userID)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}
+
 func (s *Server) QueryUser(id int) (models.User, error) {
 	var user models.User
 	err := s.db.QueryRow(`
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	max_file_storage 
+	stripe_subscription_status,max_file_storage 
 	FROM users WHERE id = $1
 	`, id).Scan(
 		&user.ID,
@@ -63,11 +77,17 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 		&user.IsAdmin,
 		&user.EmailValidated,
 		&user.CanUploadFiles,
+		&user.StripeSubscriptionStatus,
 		&user.MaxFileStorage,
 	)
 	if err != nil {
-		//	log.Printf("err %v", err)
+		log.Printf("err %v", err)
 		return models.User{}, fmt.Errorf("something went wrong")
+	}
+	if user.StripeSubscriptionStatus == "active" || user.StripeSubscriptionStatus == "trial" {
+		user.IsActive = true
+	} else {
+		user.IsActive = false
 	}
 	return user, nil
 }

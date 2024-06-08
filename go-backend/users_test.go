@@ -118,3 +118,29 @@ func TestGetUserBadInput(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
 }
+
+func TestGetCurrentUserSuccess(t *testing.T) {
+
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(3)
+	req, err := http.NewRequest("GET", "/api/user/current", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.GetCurrentUserRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var user models.User
+	parseJsonResponse(t, rr.Body.Bytes(), &user)
+	if user.ID != 3 {
+		t.Errorf("handler returned wrong user id, got %v want %v", user.ID, 3)
+	}
+}
