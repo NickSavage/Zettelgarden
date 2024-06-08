@@ -1,0 +1,731 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		010F155E2BFF459000AD2F66 /* ContentViewSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */; };
+		0111A7342BFD597300DDED68 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7332BFD597300DDED68 /* HomeView.swift */; };
+		0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7352BFD640400DDED68 /* FileViewModel.swift */; };
+		0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7372BFDF4A900DDED68 /* SidebarView.swift */; };
+		01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */; };
+		01201F5E2BF2BB6200DF973E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F5D2BF2BB6200DF973E /* ContentView.swift */; };
+		01201F602BF2BB6300DF973E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 01201F5F2BF2BB6300DF973E /* Assets.xcassets */; };
+		01201F632BF2BB6400DF973E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 01201F622BF2BB6400DF973E /* Preview Assets.xcassets */; };
+		01201F6D2BF2BB6400DF973E /* ZettelgardenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F6C2BF2BB6400DF973E /* ZettelgardenTests.swift */; };
+		01201F772BF2BB6400DF973E /* ZettelgardenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F762BF2BB6400DF973E /* ZettelgardenUITests.swift */; };
+		01201F792BF2BB6400DF973E /* ZettelgardenUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F782BF2BB6400DF973E /* ZettelgardenUITestsLaunchTests.swift */; };
+		01201F872BF2BBCE00DF973E /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F862BF2BBCE00DF973E /* Card.swift */; };
+		01201F892BF2BD3500DF973E /* PartialCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F882BF2BD3500DF973E /* PartialCard.swift */; };
+		01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */; };
+		01201F8D2BF2C9AB00DF973E /* CardListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8C2BF2C9AB00DF973E /* CardListView.swift */; };
+		01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8E2BF2C9E000DF973E /* CardListItem.swift */; };
+		0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E9D62BF55DCA007D4EAD /* Utils.swift */; };
+		01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888062BF6C72E00B3ACF1 /* SearchView.swift */; };
+		01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
+		01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
+		01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */; };
+		01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */; };
+		01B8881A2BFB5F7D00B3ACF1 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888192BFB5F7D00B3ACF1 /* File.swift */; };
+		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
+		01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */; };
+		01B888202BFB689000B3ACF1 /* IdentifiableURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */; };
+		01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888212BFB8FE400B3ACF1 /* FileListView.swift */; };
+		01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
+		01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */; };
+		01ECE50D2BF3747B00691C07 /* CardEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50C2BF3747B00691C07 /* CardEditView.swift */; };
+		01ECE50F2BF422D900691C07 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50E2BF422D900691C07 /* Api.swift */; };
+		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
+		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		01201F692BF2BB6400DF973E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 01201F502BF2BB6200DF973E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 01201F572BF2BB6200DF973E;
+			remoteInfo = Zettelgarden;
+		};
+		01201F732BF2BB6400DF973E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 01201F502BF2BB6200DF973E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 01201F572BF2BB6200DF973E;
+			remoteInfo = Zettelgarden;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSelection.swift; sourceTree = "<group>"; };
+		0111A7332BFD597300DDED68 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		0111A7352BFD640400DDED68 /* FileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewModel.swift; sourceTree = "<group>"; };
+		0111A7372BFDF4A900DDED68 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		01201F582BF2BB6200DF973E /* Zettelgarden.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zettelgarden.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZettelgardenApp.swift; sourceTree = "<group>"; };
+		01201F5D2BF2BB6200DF973E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		01201F5F2BF2BB6300DF973E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		01201F622BF2BB6400DF973E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		01201F682BF2BB6400DF973E /* ZettelgardenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZettelgardenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		01201F6C2BF2BB6400DF973E /* ZettelgardenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZettelgardenTests.swift; sourceTree = "<group>"; };
+		01201F722BF2BB6400DF973E /* ZettelgardenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZettelgardenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		01201F762BF2BB6400DF973E /* ZettelgardenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZettelgardenUITests.swift; sourceTree = "<group>"; };
+		01201F782BF2BB6400DF973E /* ZettelgardenUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZettelgardenUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		01201F862BF2BBCE00DF973E /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		01201F882BF2BD3500DF973E /* PartialCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCard.swift; sourceTree = "<group>"; };
+		01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDisplayView.swift; sourceTree = "<group>"; };
+		01201F8C2BF2C9AB00DF973E /* CardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListView.swift; sourceTree = "<group>"; };
+		01201F8E2BF2C9E000DF973E /* CardListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListItem.swift; sourceTree = "<group>"; };
+		0144E9D62BF55DCA007D4EAD /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		01B888062BF6C72E00B3ACF1 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
+		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
+		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
+		01B888192BFB5F7D00B3ACF1 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
+		01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCardListitem.swift; sourceTree = "<group>"; };
+		01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailView.swift; sourceTree = "<group>"; };
+		01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableURL.swift; sourceTree = "<group>"; };
+		01B888212BFB8FE400B3ACF1 /* FileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListView.swift; sourceTree = "<group>"; };
+		01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListViewModel.swift; sourceTree = "<group>"; };
+		01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardViewModel.swift; sourceTree = "<group>"; };
+		01ECE50C2BF3747B00691C07 /* CardEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditView.swift; sourceTree = "<group>"; };
+		01ECE50E2BF422D900691C07 /* Api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
+		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		01201F552BF2BB6200DF973E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01201F652BF2BB6400DF973E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01201F6F2BF2BB6400DF973E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01201F4F2BF2BB6200DF973E = {
+			isa = PBXGroup;
+			children = (
+				01201F5A2BF2BB6200DF973E /* Zettelgarden */,
+				01201F6B2BF2BB6400DF973E /* ZettelgardenTests */,
+				01201F752BF2BB6400DF973E /* ZettelgardenUITests */,
+				01201F592BF2BB6200DF973E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		01201F592BF2BB6200DF973E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				01201F582BF2BB6200DF973E /* Zettelgarden.app */,
+				01201F682BF2BB6400DF973E /* ZettelgardenTests.xctest */,
+				01201F722BF2BB6400DF973E /* ZettelgardenUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		01201F5A2BF2BB6200DF973E /* Zettelgarden */ = {
+			isa = PBXGroup;
+			children = (
+				01B8880F2BF814DC00B3ACF1 /* Views */,
+				01B888082BF6CA8700B3ACF1 /* ViewModels */,
+				01201F852BF2BBC200DF973E /* Models */,
+				01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */,
+				01201F5D2BF2BB6200DF973E /* ContentView.swift */,
+				01201F5F2BF2BB6300DF973E /* Assets.xcassets */,
+				01201F612BF2BB6400DF973E /* Preview Content */,
+				01ECE50E2BF422D900691C07 /* Api.swift */,
+				0144E9D62BF55DCA007D4EAD /* Utils.swift */,
+			);
+			path = Zettelgarden;
+			sourceTree = "<group>";
+		};
+		01201F612BF2BB6400DF973E /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				01201F622BF2BB6400DF973E /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		01201F6B2BF2BB6400DF973E /* ZettelgardenTests */ = {
+			isa = PBXGroup;
+			children = (
+				01201F6C2BF2BB6400DF973E /* ZettelgardenTests.swift */,
+			);
+			path = ZettelgardenTests;
+			sourceTree = "<group>";
+		};
+		01201F752BF2BB6400DF973E /* ZettelgardenUITests */ = {
+			isa = PBXGroup;
+			children = (
+				01201F762BF2BB6400DF973E /* ZettelgardenUITests.swift */,
+				01201F782BF2BB6400DF973E /* ZettelgardenUITestsLaunchTests.swift */,
+			);
+			path = ZettelgardenUITests;
+			sourceTree = "<group>";
+		};
+		01201F852BF2BBC200DF973E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				01201F862BF2BBCE00DF973E /* Card.swift */,
+				01201F882BF2BD3500DF973E /* PartialCard.swift */,
+				01B888192BFB5F7D00B3ACF1 /* File.swift */,
+				01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */,
+				010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		01B888082BF6CA8700B3ACF1 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */,
+				01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */,
+				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
+				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
+				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		01B8880F2BF814DC00B3ACF1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				01B888102BF8159300B3ACF1 /* Components */,
+				01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */,
+				01ECE50C2BF3747B00691C07 /* CardEditView.swift */,
+				01ECE5102BF43B4D00691C07 /* LoginView.swift */,
+				01ECE5122BF4C75A00691C07 /* SettingsView.swift */,
+				01B888062BF6C72E00B3ACF1 /* SearchView.swift */,
+				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
+				01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */,
+				01B888212BFB8FE400B3ACF1 /* FileListView.swift */,
+				0111A7332BFD597300DDED68 /* HomeView.swift */,
+				0111A7372BFDF4A900DDED68 /* SidebarView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		01B888102BF8159300B3ACF1 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				01201F8E2BF2C9E000DF973E /* CardListItem.swift */,
+				01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */,
+				01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */,
+				01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		01201F572BF2BB6200DF973E /* Zettelgarden */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01201F7C2BF2BB6400DF973E /* Build configuration list for PBXNativeTarget "Zettelgarden" */;
+			buildPhases = (
+				01201F542BF2BB6200DF973E /* Sources */,
+				01201F552BF2BB6200DF973E /* Frameworks */,
+				01201F562BF2BB6200DF973E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Zettelgarden;
+			productName = Zettelgarden;
+			productReference = 01201F582BF2BB6200DF973E /* Zettelgarden.app */;
+			productType = "com.apple.product-type.application";
+		};
+		01201F672BF2BB6400DF973E /* ZettelgardenTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01201F7F2BF2BB6400DF973E /* Build configuration list for PBXNativeTarget "ZettelgardenTests" */;
+			buildPhases = (
+				01201F642BF2BB6400DF973E /* Sources */,
+				01201F652BF2BB6400DF973E /* Frameworks */,
+				01201F662BF2BB6400DF973E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				01201F6A2BF2BB6400DF973E /* PBXTargetDependency */,
+			);
+			name = ZettelgardenTests;
+			productName = ZettelgardenTests;
+			productReference = 01201F682BF2BB6400DF973E /* ZettelgardenTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		01201F712BF2BB6400DF973E /* ZettelgardenUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01201F822BF2BB6400DF973E /* Build configuration list for PBXNativeTarget "ZettelgardenUITests" */;
+			buildPhases = (
+				01201F6E2BF2BB6400DF973E /* Sources */,
+				01201F6F2BF2BB6400DF973E /* Frameworks */,
+				01201F702BF2BB6400DF973E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				01201F742BF2BB6400DF973E /* PBXTargetDependency */,
+			);
+			name = ZettelgardenUITests;
+			productName = ZettelgardenUITests;
+			productReference = 01201F722BF2BB6400DF973E /* ZettelgardenUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		01201F502BF2BB6200DF973E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1530;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					01201F572BF2BB6200DF973E = {
+						CreatedOnToolsVersion = 15.3;
+					};
+					01201F672BF2BB6400DF973E = {
+						CreatedOnToolsVersion = 15.3;
+						TestTargetID = 01201F572BF2BB6200DF973E;
+					};
+					01201F712BF2BB6400DF973E = {
+						CreatedOnToolsVersion = 15.3;
+						TestTargetID = 01201F572BF2BB6200DF973E;
+					};
+				};
+			};
+			buildConfigurationList = 01201F532BF2BB6200DF973E /* Build configuration list for PBXProject "Zettelgarden" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 01201F4F2BF2BB6200DF973E;
+			productRefGroup = 01201F592BF2BB6200DF973E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				01201F572BF2BB6200DF973E /* Zettelgarden */,
+				01201F672BF2BB6400DF973E /* ZettelgardenTests */,
+				01201F712BF2BB6400DF973E /* ZettelgardenUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		01201F562BF2BB6200DF973E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01201F632BF2BB6400DF973E /* Preview Assets.xcassets in Resources */,
+				01201F602BF2BB6300DF973E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01201F662BF2BB6400DF973E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01201F702BF2BB6400DF973E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		01201F542BF2BB6200DF973E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01ECE50F2BF422D900691C07 /* Api.swift in Sources */,
+				01ECE50D2BF3747B00691C07 /* CardEditView.swift in Sources */,
+				01201F5E2BF2BB6200DF973E /* ContentView.swift in Sources */,
+				01201F8D2BF2C9AB00DF973E /* CardListView.swift in Sources */,
+				01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */,
+				01201F872BF2BBCE00DF973E /* Card.swift in Sources */,
+				01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */,
+				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
+				01B8881A2BFB5F7D00B3ACF1 /* File.swift in Sources */,
+				01201F892BF2BD3500DF973E /* PartialCard.swift in Sources */,
+				01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */,
+				01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */,
+				01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */,
+				0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */,
+				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
+				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
+				01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */,
+				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,
+				01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */,
+				01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */,
+				01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */,
+				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
+				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
+				01B888202BFB689000B3ACF1 /* IdentifiableURL.swift in Sources */,
+				01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */,
+				010F155E2BFF459000AD2F66 /* ContentViewSelection.swift in Sources */,
+				0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */,
+				01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01201F642BF2BB6400DF973E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01201F6D2BF2BB6400DF973E /* ZettelgardenTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01201F6E2BF2BB6400DF973E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01201F772BF2BB6400DF973E /* ZettelgardenUITests.swift in Sources */,
+				01201F792BF2BB6400DF973E /* ZettelgardenUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		01201F6A2BF2BB6400DF973E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 01201F572BF2BB6200DF973E /* Zettelgarden */;
+			targetProxy = 01201F692BF2BB6400DF973E /* PBXContainerItemProxy */;
+		};
+		01201F742BF2BB6400DF973E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 01201F572BF2BB6200DF973E /* Zettelgarden */;
+			targetProxy = 01201F732BF2BB6400DF973E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		01201F7A2BF2BB6400DF973E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		01201F7B2BF2BB6400DF973E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		01201F7D2BF2BB6400DF973E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Zettelgarden/Preview Content\"";
+				DEVELOPMENT_TEAM = K2F766LH7S;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.Zettelgarden;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		01201F7E2BF2BB6400DF973E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Zettelgarden/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.Zettelgarden;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		01201F802BF2BB6400DF973E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.ZettelgardenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Zettelgarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Zettelgarden";
+			};
+			name = Debug;
+		};
+		01201F812BF2BB6400DF973E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.ZettelgardenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Zettelgarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Zettelgarden";
+			};
+			name = Release;
+		};
+		01201F832BF2BB6400DF973E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.ZettelgardenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Zettelgarden;
+			};
+			name = Debug;
+		};
+		01201F842BF2BB6400DF973E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.ZettelgardenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Zettelgarden;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		01201F532BF2BB6200DF973E /* Build configuration list for PBXProject "Zettelgarden" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01201F7A2BF2BB6400DF973E /* Debug */,
+				01201F7B2BF2BB6400DF973E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01201F7C2BF2BB6400DF973E /* Build configuration list for PBXNativeTarget "Zettelgarden" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01201F7D2BF2BB6400DF973E /* Debug */,
+				01201F7E2BF2BB6400DF973E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01201F7F2BF2BB6400DF973E /* Build configuration list for PBXNativeTarget "ZettelgardenTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01201F802BF2BB6400DF973E /* Debug */,
+				01201F812BF2BB6400DF973E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01201F822BF2BB6400DF973E /* Build configuration list for PBXNativeTarget "ZettelgardenUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01201F832BF2BB6400DF973E /* Debug */,
+				01201F842BF2BB6400DF973E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 01201F502BF2BB6200DF973E /* Project object */;
+}
