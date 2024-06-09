@@ -81,6 +81,32 @@ func extractBacklinks(text string) []string {
 	return backlinks
 }
 
+func updateBacklinks(cardID string, backlinks []string) error {
+	tx, _ := s.db.Begin()
+	_, err := tx.Exec("DELETE FROM backlinks WHERE source_id = $1", cardID)
+	if err != nil {
+		log.Fatal(err.Error())
+		tx.Rollback()
+		return err
+	}
+	for _, targetID := range backlinks {
+		_, err = tx.Exec(
+			"INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES ($1, $2, NOW(), NOW());",
+			cardID, targetID,
+		)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
 func getDirectlinks(userID int, card models.Card) []models.PartialCard {
 	backlinks := extractBacklinks(card.Body)
 	var directLinks []models.PartialCard
@@ -594,8 +620,11 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
 	}
-	return s.QueryFullCard(userID, cardPK)
 
+	card, err := s.QueryFullCard(userID, cardPK)
+	backlinks := extractBacklinks(card.Body)
+	updateBacklinks(card.CardID, backlinks)
+	return s.QueryFullCard(userID, cardPK)
 }
 
 func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Card, error) {
@@ -611,5 +640,8 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
 	}
+	card, err := s.QueryFullCard(userID, id)
+	backlinks := extractBacklinks(card.Body)
+	updateBacklinks(card.CardID, backlinks)
 	return s.QueryFullCard(userID, id)
 }
