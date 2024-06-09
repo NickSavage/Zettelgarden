@@ -56,7 +56,7 @@ func TestGetUserSuccess(t *testing.T) {
 	defer teardown()
 
 	token, _ := generateTestJWT(1)
-	req, err := http.NewRequest("GET", "/api/user/1", nil)
+	req, err := http.NewRequest("GET", "/api/users/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func TestGetUserUnauthorized(t *testing.T) {
 	defer teardown()
 
 	token, _ := generateTestJWT(2)
-	req, err := http.NewRequest("GET", "/api/user/1", nil)
+	req, err := http.NewRequest("GET", "/api/users/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func TestGetUserBadInput(t *testing.T) {
 	defer teardown()
 
 	token, _ := generateTestJWT(1)
-	req, err := http.NewRequest("GET", "/api/user/-1", nil)
+	req, err := http.NewRequest("GET", "/api/users/-1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,7 +125,7 @@ func TestGetCurrentUserSuccess(t *testing.T) {
 	defer teardown()
 
 	token, _ := generateTestJWT(3)
-	req, err := http.NewRequest("GET", "/api/user/current", nil)
+	req, err := http.NewRequest("GET", "/api/current", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func TestGetUserSubscriptionSuccess(t *testing.T) {
 	defer teardown()
 
 	token, _ := generateTestJWT(1)
-	req, err := http.NewRequest("GET", "/api/user/1/subscription", nil)
+	req, err := http.NewRequest("GET", "/api/users/1/subscription", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,12 +172,11 @@ func TestGetUserSubscriptionSuccess(t *testing.T) {
 	}
 }
 func TestGetUserSubscriptionUnauthorized(t *testing.T) {
-
 	setup()
 	defer teardown()
 
 	token, _ := generateTestJWT(3)
-	req, err := http.NewRequest("GET", "/api/user/1/subscription", nil)
+	req, err := http.NewRequest("GET", "/api/users/1/subscription", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -190,5 +189,30 @@ func TestGetUserSubscriptionUnauthorized(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
+	}
+}
+
+func TestGetUsersRouteSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("GET", "/api/users", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.GetUsersRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var users []models.User
+	parseJsonResponse(t, rr.Body.Bytes(), &users)
+	if len(users) != 10 {
+		t.Errorf("handler returned wrong number of users, got %v want %v", len(users), 10)
 	}
 }

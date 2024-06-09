@@ -388,9 +388,11 @@ def admin_only(func):
 @jwt_required()
 @admin_only
 def get_users():
-    users = services.query_all_users()
-    return jsonify(users)
-
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/users/", headers=headers)
+    return jsonify(response.json()), response.status_code
 
 @bp.route("/api/users/<path:id>", methods=["GET"])
 @jwt_required()
