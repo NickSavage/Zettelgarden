@@ -428,50 +428,28 @@ def get_current_user():
 @bp.route("/api/users/<path:id>", methods=["PUT"])
 @jwt_required()
 def update_user(id):
-    # Assuming you have a function to get the full user by id
     user = services.query_full_user(id)
-    
-    current_user = get_jwt_identity()  # Extract the user identity from the token
-    user = services.query_full_user(current_user)
-    if not user["is_admin"] or user["id"] != current_user:
-        return jsonify({"message": "Unauthorized"}), 403
-        
-    # Extract the fields to be updated from the request
-    is_admin = request.json.get("is_admin")
-    username = request.json.get("username")
-    email = request.json.get("email")
-    
     old_email = user["email"]
-    # Validate the input (basic example, you should expand on this)
-    if not username or not email:
-        return jsonify({"message": "Username and email are required"}), 400
     
+    is_admin = request.json.get("is_admin")
     if "is_admin" not in request.json:
         is_admin = user["is_admin"]
-    # Prepare the user update dictionary
-    user_update = {
+    user = {
         "is_admin": is_admin,
-        "username": username,
-        "email": email
+        "username": request.json.get("username"),
+        "email": request.json.get("email")
     }
-    
-    # Update user in database
-    services.update_user(id, user_update)
-    
-    user = services.query_full_user(id)
-
-    if old_email != email:
-        conn = get_db()
-        cur = conn.cursor()
-
-        cur.execute("UPDATE users SET email_validated = FALSE WHERE id = %s", (user["id"],))
-
-        conn.commit()
-        cur.close()
-        send_email_validation(user)
-    # Return the updated user information
-    return jsonify(services.query_full_user(id))
-
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+        "Content-Type": "application/json"
+    }
+    response = requests.put("http://" + os.getenv("FILES_HOST") + "/api/users/" + str(id) + "/", headers=headers, json=user)
+    print(response.text)
+    if response.status_code == 200:
+        if old_email != user["email"]:
+            user = services.query_full_user(id)
+            send_email_validation(user)
+    return jsonify(response.json()), response.status_code
 
 @bp.route("/api/user/<path:id>/password", methods=["PUT"])
 def update_password(id):

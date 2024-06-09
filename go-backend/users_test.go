@@ -1,12 +1,31 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"go-backend/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 )
+
+func makeUserRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("GET", "/api/users/"+strconv.Itoa(id), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", strconv.Itoa(id))
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(admin(s.GetUserRoute)))
+	handler.ServeHTTP(rr, req)
+
+	return rr
+}
 
 func TestUserGetAdmin(t *testing.T) {
 	setup()
@@ -55,17 +74,7 @@ func TestGetUserSuccess(t *testing.T) {
 	setup()
 	defer teardown()
 
-	token, _ := generateTestJWT(1)
-	req, err := http.NewRequest("GET", "/api/users/1", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-	req.SetPathValue("id", "1")
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(admin(s.GetUserRoute)))
-	handler.ServeHTTP(rr, req)
+	rr := makeUserRequestSuccess(t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -215,4 +224,43 @@ func TestGetUsersRouteSuccess(t *testing.T) {
 	if len(users) != 10 {
 		t.Errorf("handler returned wrong number of users, got %v want %v", len(users), 10)
 	}
+}
+
+func TestUpdateUserRouteSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	expected := "asdfasdf"
+
+	rr := makeUserRequestSuccess(t, 1)
+	var user models.User
+	parseJsonResponse(t, rr.Body.Bytes(), &user)
+
+	token, _ := generateTestJWT(1)
+	newData := map[string]interface{}{
+		"username": expected,
+		"is_admin": true,
+		"email":    expected,
+	}
+	jsonData, err := json.Marshal(newData)
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+	req, err := http.NewRequest("PUT", "/api/users/1", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr = httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.UpdateUserRoute))
+	handler.ServeHTTP(rr, req)
+
+	rr = makeUserRequestSuccess(t, 1)
+	parseJsonResponse(t, rr.Body.Bytes(), &user)
+	if user.Username != expected {
+		t.Errorf("handler returned wrong username, got %v want %v", user.Username, expected)
+	}
+
 }

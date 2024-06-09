@@ -113,6 +113,7 @@ func main() {
 	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
 
 	http.HandleFunc("GET /api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute)))
+	http.HandleFunc("PUT /api/users/{id}/", jwtMiddleware(s.UpdateUserRoute))
 	http.HandleFunc("GET /api/users/", jwtMiddleware(admin(s.GetUsersRoute)))
 	http.HandleFunc("GET /api/users/{id}/subscription/", jwtMiddleware(admin(s.GetUserSubscriptionRoute)))
 	http.HandleFunc("GET /api/current/", jwtMiddleware(s.GetCurrentUserRoute))

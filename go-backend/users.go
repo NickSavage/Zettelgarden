@@ -57,6 +57,42 @@ func (s *Server) GetUsersRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *Server) UpdateUserRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+	user, _ := s.QueryUser(userID)
+	if !user.IsAdmin {
+		if user.ID != id {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+	}
+
+	var params models.EditUserParams
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&params)
+	if err != nil {
+		log.Printf("err? %v", err)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	user, err = s.UpdateUser(id, params)
+	if err != nil {
+		log.Printf("?")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+
+}
+
 func (s *Server) GetCurrentUserRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
@@ -193,4 +229,29 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 		user.IsActive = false
 	}
 	return user, nil
+}
+
+func (s *Server) UpdateUser(id int, params models.EditUserParams) (models.User, error) {
+	user, _ := s.QueryUser(id)
+	oldEmail := user.Email
+
+	query := `
+	UPDATE users SET username = $1, email = $2, is_admin = $3, updated_at = NOW()
+	WHERE
+	id = $4
+	`
+	_, err := s.db.Exec(query, params.Username, params.Email, params.IsAdmin, id)
+	if err != nil {
+		log.Printf("updateuser err %v", err)
+		return models.User{}, err
+	}
+	user, err = s.QueryUser(id)
+	if user.Email != oldEmail {
+		_, err := s.db.Exec(`UPDATE users SET email_validated = FALSE WHERE id = $1`, id)
+		if err != nil {
+			return models.User{}, err
+		}
+	}
+	return user, err
+
 }

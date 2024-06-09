@@ -31,3 +31,9 @@ type UserSubscription struct {
 	StripeCurrentPlan           string `json:"stripe_current_plan"`
 	IsActive                    bool   `json:"is_active"`
 }
+
+type EditUserParams struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	IsAdmin  bool   `json:"is_admin"`
+}
