@@ -227,12 +227,23 @@ func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func userCanUploadFile(userID int, header *multipart.FileHeader) bool {
+func userCanUploadFile(userID int, header *multipart.FileHeader) error {
 	user, err := s.QueryUser(userID)
 	if err != nil {
-		return false
+		return fmt.Errorf("unknown problem")
 	}
-	return user.CanUploadFiles
+	if !user.CanUploadFiles {
+		return fmt.Errorf("user does not have permissions to upload files")
+	}
+	var alreadyUploaded int
+	err = s.db.QueryRow(`SELECT sum(size) FROM files WHERE created_by = $1`, userID).Scan(&alreadyUploaded)
+	if err != nil {
+		return err
+	}
+	if alreadyUploaded+int(header.Size) > user.MaxFileStorage {
+		return fmt.Errorf("out of storage")
+	}
+	return nil
 }
 
 func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
@@ -251,8 +262,9 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	if !userCanUploadFile(userID, handler) {
-		http.Error(w, "User cannot upload file", http.StatusForbidden)
+	err = userCanUploadFile(userID, handler)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
 

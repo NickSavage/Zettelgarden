@@ -28,29 +28,6 @@ import utils
 bp = Blueprint("bp", __name__)
 
 
-def log_card_view(card_pk, user_id):
-    conn = get_db()
-    cur = conn.cursor()
-    try:
-        # Assuming 'card_id' is the primary key of the card in your cards table
-        if card_pk is not None and card_pk != "null":
-            cur.execute(
-                "INSERT INTO card_views (card_pk, user_id, created_at) VALUES (%s, %s, CURRENT_TIMESTAMP);",
-                (
-                    card_pk,
-                    user_id,
-                ),
-            )
-            conn.commit()  # Commit the transaction
-            return {"success": "View logged"}
-        else:
-            return {"error": "Invalid card ID"}
-    except Exception as e:
-        print(e, flush=True)
-        return {"error": str(e)}
-    finally:
-        cur.close()
-
 def log_last_login(user: dict) -> None:
     conn = get_db()
     cur = conn.cursor()

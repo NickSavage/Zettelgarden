@@ -296,27 +296,6 @@ def delete_file(file_id) -> None:
     cur.close()
 
 
-def user_can_upload_file(current_user: int, file: dict):
-    user = query_full_user(current_user)
-
-    cur = get_db().cursor()
-    
-    if not user["can_upload_files"]:
-        return {"error": True, "message": "User does not have permissions to upload the file"}
-        
-    cur.execute("SELECT sum(size) FROM files WHERE created_by = %s", (current_user,))
-    already_uploaded = cur.fetchone()
-    cur.close()
-
-    size = file.content_length
-    current_storage = already_uploaded[0]
-    if not current_storage:
-        current_storage = 0
-    if current_storage + size > user["max_file_storage"]:
-        return {"error": True, "message": "Out of storage"}
-    
-    return {"error": False, "message": ""}
-    
 def upload_file(card_pk: str, file: dict, current_user: int) -> int:
     original_filename = secure_filename(file.filename)
     file_extension = os.path.splitext(original_filename)[1]
@@ -607,22 +586,6 @@ def create_user(data: dict) -> dict:
 
     return {"new_id": new_id}
 
-def update_user(id, user_update):
-    conn = get_db()
-    cur = conn.cursor()
-    
-    cur.execute(
-        """
-        UPDATE users SET username = %s, email = %s, is_admin = %s, updated_at = NOW()
-        WHERE id = %s;
-        """,
-        (user_update["username"], user_update["email"], user_update["is_admin"], id),
-    )
-    conn.commit()
-    
-    cur.close()
-    
-    
 def fulfill_subscription(payload: dict, session):
     
     user = query_user_by_email(payload["data"]["object"]["customer_details"]["email"])
