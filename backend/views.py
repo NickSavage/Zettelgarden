@@ -339,15 +339,6 @@ def create_user():
         return jsonify({"new_id": result["new_id"], "message": "Check your email for a validation email."}), 200
 
 
-@bp.route("/api/users/validate", methods=["GET"])
-def validate_user():
-    user = {"email": request.json.get("email")}
-    if not services.validate_unique_email(user["email"]):
-        return {"email_exists": True, "message": "Email is already in use."}
-    else:
-        return {"email_exists": False, "message": "Email is available."}
-
-
 def admin_only(func):
     def wrapper(*args, **kwargs):
 
