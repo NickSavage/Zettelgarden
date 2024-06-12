@@ -166,3 +166,7 @@ func (s *Server) LoginRoute(w http.ResponseWriter, r *http.Request) {
 
 	s.LogLastLogin(user)
 }
+
+func (s *Server) CheckTokenRoute(w http.ResponseWriter, r *http.Request) {
+
+}

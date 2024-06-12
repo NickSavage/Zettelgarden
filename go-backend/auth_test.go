@@ -114,3 +114,20 @@ func TestAuthLoginFailure(t *testing.T) {
 	}
 
 }
+
+func TestAuthSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+	token, _ := generateResetToken(1)
+
+	req, _ := http.NewRequest("GET", "/api/reset-password", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.CheckTokenRoute))
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+}
