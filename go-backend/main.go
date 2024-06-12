@@ -93,6 +93,9 @@ func main() {
 
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
+	http.HandleFunc("POST /api/login/", s.LoginRoute)
+	http.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)
+
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.GetAllFilesRoute))
 	http.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.UploadFileRoute))
 	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute))

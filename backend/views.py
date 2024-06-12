@@ -38,9 +38,17 @@ def log_last_login(user: dict) -> None:
 @bp.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
-
+    params = {
+        "email": data.get("email"),
+        "password": data.get("password")
+    }
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+        "Content-Type": "application/json"
+    }
+    response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/login/", headers=headers, json=params)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
     user = services.query_user_by_email(email, True)
 
     if not user or "error" in user:
@@ -88,23 +96,16 @@ def reset_password():
     token = data.get("token")
     new_password = data.get("new_password")
     
-    decoded = decode_token(token)
-    identity = decoded["sub"]
-#    user_id = decode_token(token)["identity"]  # This needs error handling for expired or invalid tokens
-    user = services.query_full_user(identity)
-    
-    if user:
-        hashed_password = g.bcrypt.generate_password_hash(new_password).decode('utf-8')
-
-        conn = get_db()
-        cur = conn.cursor()
-
-        cur.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, user["id"]))
-
-        conn.commit()
-        cur.close()
-        return jsonify({"message": "Your password has been updated."}), 200
-    return jsonify({"error": "Invalid token."}), 400
+    params = {
+        "token": data.get("token"),
+        "new_password": data.get("new_password")
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/reset-password/", headers=headers, json=params)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
 def send_email_validation(user: dict):
 

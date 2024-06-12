@@ -118,9 +118,12 @@ func (s *Server) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	response := models.ResetPasswordResponse{
+		Message: "Your password has been updated",
+	}
 	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 	w.WriteHeader(http.StatusOK)
-
 }
 
 func (s *Server) LoginRoute(w http.ResponseWriter, r *http.Request) {

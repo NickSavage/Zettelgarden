@@ -5,8 +5,12 @@ import (
 )
 
 type ResetPasswordParams struct {
-	Token       string
-	NewPassword string
+	Token       string `json:"token"`
+	NewPassword string `json:"new_password"`
+}
+
+type ResetPasswordResponse struct {
+	Message string `json:"message"`
 }
 
 type LoginParams struct {
