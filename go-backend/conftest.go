@@ -136,6 +136,7 @@ func (s *Server) generateData() map[string]interface{} {
 		}
 		if i == 2 {
 			user.CanUploadFiles = false
+			user.Email = "test@test.com"
 		}
 		users = append(users, user)
 	}
@@ -244,7 +245,7 @@ func generateTestJWT(userID int) (string, error) {
 	var jwtKey = []byte(os.Getenv("SECRET_KEY"))
 	now := time.Now()
 
-	claims := &Claims{
+	claims := &models.Claims{
 		Sub:   userID,
 		Fresh: false, // Assuming 'fresh' is always false for test token
 		Type:  "access",

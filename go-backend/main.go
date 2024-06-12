@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"go-backend/models"
 	"log"
 	"net/http"
 	"os"
@@ -18,13 +19,6 @@ type Server struct {
 	s3             *s3.Client
 	testing        bool
 	jwt_secret_key []byte
-}
-
-type Claims struct {
-	Sub   int    `json:"sub"`
-	Fresh bool   `json:"fresh"`
-	Type  string `json:"type"`
-	jwt.RegisteredClaims
 }
 
 func admin(next http.HandlerFunc) http.HandlerFunc {
@@ -54,7 +48,7 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		tokenStr = tokenStr[len("Bearer "):]
 
-		claims := &Claims{}
+		claims := &models.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return s.jwt_secret_key, nil

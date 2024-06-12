@@ -198,6 +198,40 @@ func (s *Server) QueryUsers() ([]models.User, error) {
 	return users, nil
 }
 
+func (s *Server) QueryUserByEmail(email string) (models.User, error) {
+
+	var user models.User
+	err := s.db.QueryRow(`
+	SELECT 
+	id, username, email, password, created_at, updated_at, 
+	is_admin, email_validated, can_upload_files, 
+	stripe_subscription_status,max_file_storage 
+	FROM users WHERE email = $1
+	`, email).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.IsAdmin,
+		&user.EmailValidated,
+		&user.CanUploadFiles,
+		&user.StripeSubscriptionStatus,
+		&user.MaxFileStorage,
+	)
+	if err != nil {
+		log.Printf("err %v", err)
+		return models.User{}, fmt.Errorf("something went wrong")
+	}
+	if user.StripeSubscriptionStatus == "active" || user.StripeSubscriptionStatus == "trial" {
+		user.IsActive = true
+	} else {
+		user.IsActive = false
+	}
+	return user, nil
+
+}
 func (s *Server) QueryUser(id int) (models.User, error) {
 	var user models.User
 	err := s.db.QueryRow(`
