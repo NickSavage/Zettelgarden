@@ -37,3 +37,17 @@ type EditUserParams struct {
 	Email    string `json:"email"`
 	IsAdmin  bool   `json:"is_admin"`
 }
+
+type CreateUserParams struct {
+	Username        string `json:"username"`
+	Email           string `json:"email"`
+	Password        string `json:"password"`
+	ConfirmPassword string `json:"confirmPassword"`
+}
+
+type CreateUserResponse struct {
+	Error   bool   `json:"error"`
+	Message string `json:"message"`
+	NewID   int    `json:"new_id"`
+	User    User   `json:"user"`
+}

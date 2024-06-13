@@ -47,6 +47,7 @@ def login():
         "Content-Type": "application/json"
     }
     response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/login/", headers=headers, json=params)
+    print(response)
     print(response.text)
     return jsonify(response.json()), response.status_code
     user = services.query_user_by_email(email, True)
@@ -318,26 +319,20 @@ def delete_card(id):
 
 @bp.route("/api/users", methods=["POST"])
 def create_user():
-    if not request.json.get("password") == request.json.get("confirmPassword"):
-        return jsonify({"error": True, "message": "Passwords do not match"}), 400
 
-    user = {
-        "username": request.json.get("username"),
-        "email": request.json.get("email"),
-        "hashed_password": g.bcrypt.generate_password_hash(
-            request.json.get("password")
-        ).decode("utf-8"),
+    headers = {
+        "Content-Type": "application/json"
     }
-    result = services.create_user(user)
+    response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/users/", headers=headers, json=request.json)
+    print(response)
+    print(response.text)
 
-    user = services.query_full_user(result["new_id"])
-    print(user)
-    if "error" in result:
-        return jsonify(result), 400
+    if "error" in response and response["error"]:
+        return jsonify(response.json()), response.status_code
     else:
         if not g.testing:
-            send_email_validation(user)
-        return jsonify({"new_id": result["new_id"], "message": "Check your email for a validation email."}), 200
+            send_email_validation(response.json()["user"])
+        return jsonify(response.json()), response.status_code
 
 
 def admin_only(func):

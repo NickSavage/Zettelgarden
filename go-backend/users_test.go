@@ -264,3 +264,61 @@ func TestUpdateUserRouteSuccess(t *testing.T) {
 	}
 
 }
+
+func createUserWithParams(t *testing.T, params models.CreateUserParams) *httptest.ResponseRecorder {
+	jsonData, _ := json.Marshal(params)
+	req, _ := http.NewRequest("POST", "/api/users/", bytes.NewBuffer(jsonData))
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(s.CreateUserRoute)
+	handler.ServeHTTP(rr, req)
+
+	return rr
+}
+
+func TestCreateUserSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	params := models.CreateUserParams{
+		Username:        "asdfadf",
+		Password:        "asdfasdfasdf",
+		ConfirmPassword: "asdfasdfasdf",
+		Email:           "asdf@asdf.com",
+	}
+	rr := createUserWithParams(t, params)
+
+	var response models.CreateUserResponse
+	parseJsonResponse(t, rr.Body.Bytes(), &response)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	if response.NewID != 11 {
+		t.Errorf("handler returned unexpected result, got %v want %v", response.NewID, 11)
+	}
+}
+
+func TestCreateUserMismatchedPass(t *testing.T) {
+	setup()
+	defer teardown()
+
+	params := models.CreateUserParams{
+		Username:        "asdfadf",
+		Password:        "asdfasdfasdf",
+		ConfirmPassword: "a",
+		Email:           "asdf@asdf.com",
+	}
+	rr := createUserWithParams(t, params)
+
+	var response models.CreateUserResponse
+	parseJsonResponse(t, rr.Body.Bytes(), &response)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+	if response.NewID != 0 {
+		t.Errorf("handler returned unexpected result, got %v want %v", response.NewID, 0)
+	}
+
+}

@@ -93,6 +93,54 @@ func (s *Server) UpdateUserRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *Server) CreateUserRoute(w http.ResponseWriter, r *http.Request) {
+	var params models.CreateUserParams
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&params)
+	if err != nil {
+		log.Printf("err? %v", err)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	log.Printf("params %v", params)
+	response := models.CreateUserResponse{
+		NewID:   0,
+		Message: "",
+		Error:   false,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	if params.ConfirmPassword != params.Password {
+		response.Error = true
+		response.Message = "Passwords do not match"
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	newID, err := s.CreateUser(params)
+	if err != nil {
+		response.Error = true
+		response.Message = "Passwords do not match"
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	user, err := s.QueryUser(newID)
+	if err != nil {
+		response.Error = true
+		response.Message = "Unable to fetch created used"
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response)
+		return
+
+	}
+	response.NewID = newID
+	response.Message = "Check your email for a validation email"
+	response.User = user
+
+	json.NewEncoder(w).Encode(response)
+}
+
 func (s *Server) GetCurrentUserRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
@@ -288,4 +336,38 @@ func (s *Server) UpdateUser(id int, params models.EditUserParams) (models.User, 
 	}
 	return user, err
 
+}
+
+func (s *Server) CreateUser(params models.CreateUserParams) (int, error) {
+	if params.Email == "" {
+		return -1, fmt.Errorf("Email is blank.")
+	}
+	if params.Username == "" {
+		return -1, fmt.Errorf("Username is blank.")
+	}
+	if params.Password == "" {
+		return -1, fmt.Errorf("Password is blank.")
+	}
+
+	hashedPassword, err := hashPassword(params.Password)
+	if err != nil {
+		return -1, fmt.Errorf("Unable to hash password")
+	}
+
+	_, err = s.QueryUserByEmail(params.Email)
+	if err == nil {
+		return -1, fmt.Errorf("Email already exists")
+	}
+
+	var newID int
+	query := `
+	INSERT INTO users (username, email, password, created_at, updated_at,
+	stripe_customer_id, stripe_subscription_id, stripe_subscription_status, 
+	stripe_subscription_frequency, stripe_current_plan
+	)
+	VALUES ($1, $2, $3, NOW(), NOW(), '', '', '', '', '') RETURNING id
+	`
+
+	err = s.db.QueryRow(query, params.Username, params.Email, hashedPassword).Scan(&newID)
+	return newID, err
 }
