@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -19,6 +22,12 @@ type Server struct {
 	s3             *s3.Client
 	testing        bool
 	jwt_secret_key []byte
+	mail           *MailClient
+}
+
+type MailClient struct {
+	Host     string
+	Password string
 }
 
 func admin(next http.HandlerFunc) http.HandlerFunc {
@@ -74,6 +83,51 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+type Email struct {
+	Subject   string `json:"subject"`
+	Recipient string `json:"recipient"`
+	Body      string `json:"body"`
+}
+
+func (mail *MailClient) SendEmail(subject, recipient, body string) error {
+	email := Email{
+		Subject:   subject,
+		Recipient: recipient,
+		Body:      body,
+	}
+
+	// Convert email struct to JSON
+
+	emailJSON, err := json.Marshal(email)
+	if err != nil {
+		return err
+	}
+
+	// Create a new request
+	req, err := http.NewRequest("POST", mail.Host+"/api/send", bytes.NewBuffer(emailJSON))
+	if err != nil {
+		return err
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", mail.Password)
+
+	// Send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to send email: %s", resp.Status)
+	}
+	return nil
+}
+
 func main() {
 	s = &Server{}
 
@@ -91,8 +145,13 @@ func main() {
 	s.db = db
 	s.s3 = createS3Client()
 
+	s.mail = &MailClient{
+		Host:     os.Getenv("MAIL_HOST"),
+		Password: os.Getenv("MAIL_PASSWORD"),
+	}
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
+	http.HandleFunc("GET /api/send", s.SendTestMail)
 	http.HandleFunc("GET /api/auth/", jwtMiddleware(s.CheckTokenRoute))
 	http.HandleFunc("POST /api/login/", s.LoginRoute)
 	http.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)

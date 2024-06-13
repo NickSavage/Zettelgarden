@@ -28,12 +28,31 @@ import utils
 bp = Blueprint("bp", __name__)
 
 
-def log_last_login(user: dict) -> None:
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user["id"],))
-    conn.commit()
-    cur.close()
+def protected(func):
+    def mail_wrapper(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or auth_header != os.getenv("MAIL_PASSWORD"):
+            return jsonify({"error": "Unauthorized"}), 401
+
+        result = func(*args, **kwargs)
+        return result
+    return mail_wrapper
+
+@bp.route("/api/send", methods=["POST"])
+@protected
+def send_mail():
+    data = request.get_json()
+    subject = data.get("subject")
+    if subject == "":
+        return jsonify({"message": "Email needs a subject"}), 400
+    recipient = data.get("recipient")
+    if subject == "":
+        return jsonify({"message": "Email needs a recipient"}), 400
+    body = data.get("body")
+    message = Message(subject, recipients=[recipient], body=body)
+    g.mail.send(message)
+    return jsonify({}), 200
+
 
 @bp.route("/api/login", methods=["POST"])
 def login():
@@ -50,26 +69,6 @@ def login():
     print(response)
     print(response.text)
     return jsonify(response.json()), response.status_code
-    user = services.query_user_by_email(email, True)
-
-    if not user or "error" in user:
-        g.logger.info('Failed login: %s', email)
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    #    if user and user['password'] == password:
-    if user and g.bcrypt.check_password_hash(user["password"], password):
-        access_token = create_access_token(
-            identity=user["id"], expires_delta=timedelta(days=15)
-        )
-        del user["password"]
-        print(access_token)
-        results = {"access_token": access_token, "user": user}
-        g.logger.info('Successful login: id %s, username %s', user['id'], email)
-        log_last_login(user)
-        return jsonify(results), 200
-    else:
-        g.logger.info('Failed login: %s', email)
-        return jsonify({"message": "Invalid credentials"}), 401
 
 def generate_temp_token(user_id):
     expires = timedelta(minutes=5)  # Token expires in 24 hours
