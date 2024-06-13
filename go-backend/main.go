@@ -151,7 +151,6 @@ func main() {
 	}
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
-	http.HandleFunc("GET /api/send", s.SendTestMail)
 	http.HandleFunc("GET /api/auth/", jwtMiddleware(s.CheckTokenRoute))
 	http.HandleFunc("POST /api/login/", s.LoginRoute)
 	http.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)

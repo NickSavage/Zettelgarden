@@ -83,6 +83,28 @@ func generateAccessToken(userID int) (string, error) {
 	return tokenString, nil
 }
 
+func generateTempToken(userID int) (string, error) {
+	expirationTime := time.Now().Add(5 * time.Minute)
+
+	claims := &models.Claims{
+		Sub:   userID,
+		Fresh: true,
+		Type:  "temp",
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(s.jwt_secret_key) // assuming s.jwt_secret_key is defined in your scope
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
 func (s *Server) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
 
 	var params models.ResetPasswordParams

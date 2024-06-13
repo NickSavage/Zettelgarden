@@ -6,6 +6,7 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -369,5 +370,34 @@ func (s *Server) CreateUser(params models.CreateUserParams) (int, error) {
 	`
 
 	err = s.db.QueryRow(query, params.Username, params.Email, hashedPassword).Scan(&newID)
+	user, _ := s.QueryUser(newID)
+	s.sendEmailValidation(user)
 	return newID, err
+}
+
+func (s *Server) sendEmailValidation(user models.User) error {
+	log.Printf("do we get here?")
+	if s.testing {
+		log.Printf("not sending email, in testing")
+		return nil
+	}
+	host := os.Getenv("ZETTEL_URL")
+	token, err := generateTempToken(user.ID)
+	if err != nil {
+		return err
+	}
+
+	url := host + "/validate?token=" + token
+	messageBody := fmt.Sprintf(`
+	Welcome to ZettelGarden, %s.
+
+	Please click the following link to confirm your email address: %s.
+
+	Thank you.
+	`, user.Username, url)
+
+	go func() {
+		s.mail.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
+	}()
+	return nil
 }

@@ -325,13 +325,7 @@ def create_user():
     response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/users/", headers=headers, json=request.json)
     print(response)
     print(response.text)
-
-    if "error" in response and response["error"]:
-        return jsonify(response.json()), response.status_code
-    else:
-        if not g.testing:
-            send_email_validation(response.json()["user"])
-        return jsonify(response.json()), response.status_code
+    return jsonify({}), response.status_code
 
 
 def admin_only(func):
