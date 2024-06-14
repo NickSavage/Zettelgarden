@@ -408,24 +408,6 @@ def update_user(id):
             send_email_validation(user)
     return jsonify(response.json()), response.status_code
 
-@bp.route("/api/user/<path:id>/password", methods=["PUT"])
-def update_password(id):
-    conn = get_db()
-    cur = conn.cursor()
-    data = request.get_json()
-    password = data.get("password")
-
-    user = services.query_full_user(id)
-
-    if "error" in user:
-        return jsonify({"message": "Wrong user"}), 401
-    hashed_password = g.bcrypt.generate_password_hash(password).decode("utf-8")
-
-    cur.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, id))
-    conn.commit()
-    cur.close()
-    return jsonify({"message": "success"})
-
 @bp.route("/api/files/upload", methods=["POST"])
 @jwt_required()
 def upload_file():
