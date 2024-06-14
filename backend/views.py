@@ -123,13 +123,13 @@ def send_email_validation(user: dict):
 @bp.route("/api/email-validate", methods=["GET"])
 @jwt_required()
 def resend_email_validation():
-    current_user = get_jwt_identity() 
-    user = services.query_full_user(current_user)
-    print(user)
-    if user["email_validated"]:
-        return jsonify({"error": "Email already validated."}), 400
-    send_email_validation(user)
-    return jsonify({"message": "Email sent, check your inbox."}), 200
+    headers = {
+        "Authorization": request.headers.get("Authorization"),
+    }
+    response = requests.get("http://" + os.getenv("FILES_HOST") + "/api/email-validate/", headers=headers)
+    print(response)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
     
     
 @bp.route("/api/email-validate", methods=["POST"])

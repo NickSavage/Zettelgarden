@@ -154,6 +154,7 @@ func main() {
 	http.HandleFunc("GET /api/auth/", jwtMiddleware(s.CheckTokenRoute))
 	http.HandleFunc("POST /api/login/", s.LoginRoute)
 	http.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)
+	http.HandleFunc("GET /api/email-validate/", jwtMiddleware(s.ResendEmailValidationRoute))
 
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.GetAllFilesRoute))
 	http.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.UploadFileRoute))

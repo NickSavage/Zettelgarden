@@ -326,3 +326,65 @@ func TestCreateUserMismatchedPass(t *testing.T) {
 	}
 
 }
+
+func TestResendValidateEmailAlreadyValidated(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+	req, err := http.NewRequest("GET", "/api/email-validate", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.ResendEmailValidationRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+}
+
+func TestResendValidateEmailNotValidated(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+
+	expected := "asdfasdf"
+	newData := map[string]interface{}{
+		"username": expected,
+		"is_admin": true,
+		"email":    expected,
+	}
+	jsonData, err := json.Marshal(newData)
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+	req, err := http.NewRequest("PUT", "/api/users/1", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.UpdateUserRoute))
+	handler.ServeHTTP(rr, req)
+
+	req, err = http.NewRequest("GET", "/api/email-validate", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(jwtMiddleware(s.ResendEmailValidationRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+}

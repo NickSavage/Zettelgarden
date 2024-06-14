@@ -203,6 +203,37 @@ func (s *Server) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(userSub)
 }
 
+func (s *Server) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	var response models.GenericResponse
+	w.Header().Set("Content-Type", "application/json")
+	log.Printf("test")
+
+	user, err := s.QueryUser(userID)
+	if err != nil {
+		log.Printf("asdas")
+		response.Message = err.Error()
+		response.Error = true
+		w.WriteHeader(http.StatusBadGateway)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	if user.EmailValidated {
+		log.Printf("here?")
+		response.Message = "email already validated"
+		response.Error = true
+		w.WriteHeader(http.StatusBadGateway)
+		json.NewEncoder(w).Encode(response)
+	}
+	s.sendEmailValidation(user)
+
+	response.Message = "Email sent, check your inbox."
+	response.Error = false
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
 func (s *Server) QueryUsers() ([]models.User, error) {
 
 	users := []models.User{}
@@ -303,7 +334,7 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 		&user.MaxFileStorage,
 	)
 	if err != nil {
-		log.Printf("err %v", err)
+		log.Printf("errsd %v", err)
 		return models.User{}, fmt.Errorf("something went wrong")
 	}
 	if user.StripeSubscriptionStatus == "active" || user.StripeSubscriptionStatus == "trial" {
@@ -378,9 +409,7 @@ func (s *Server) CreateUser(params models.CreateUserParams) (int, error) {
 }
 
 func (s *Server) sendEmailValidation(user models.User) error {
-	log.Printf("do we get here?")
 	if s.testing {
-		log.Printf("not sending email, in testing")
 		return nil
 	}
 	host := os.Getenv("ZETTEL_URL")
