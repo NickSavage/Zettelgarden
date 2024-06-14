@@ -402,10 +402,6 @@ def update_user(id):
     }
     response = requests.put("http://" + os.getenv("FILES_HOST") + "/api/users/" + str(id) + "/", headers=headers, json=user)
     print(response.text)
-    if response.status_code == 200:
-        if old_email != user["email"]:
-            user = services.query_full_user(id)
-            send_email_validation(user)
     return jsonify(response.json()), response.status_code
 
 @bp.route("/api/files/upload", methods=["POST"])

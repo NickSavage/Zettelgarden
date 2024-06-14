@@ -334,6 +334,8 @@ func (s *Server) UpdateUser(id int, params models.EditUserParams) (models.User, 
 		if err != nil {
 			return models.User{}, err
 		}
+		user, _ := s.QueryUser(id)
+		s.sendEmailValidation(user)
 	}
 	return user, err
 

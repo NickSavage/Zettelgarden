@@ -262,6 +262,10 @@ func TestUpdateUserRouteSuccess(t *testing.T) {
 	if user.Username != expected {
 		t.Errorf("handler returned wrong username, got %v want %v", user.Username, expected)
 	}
+	if user.EmailValidated {
+		t.Errorf("handler returned wrong email validation, got %v want %v", user.EmailValidated, false)
+
+	}
 
 }
 
