@@ -215,7 +215,7 @@ func (s *Server) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Reque
 		log.Printf("asdas")
 		response.Message = err.Error()
 		response.Error = true
-		w.WriteHeader(http.StatusBadGateway)
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -223,12 +223,58 @@ func (s *Server) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Reque
 		log.Printf("here?")
 		response.Message = "email already validated"
 		response.Error = true
-		w.WriteHeader(http.StatusBadGateway)
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(response)
+		return
 	}
 	s.sendEmailValidation(user)
 
 	response.Message = "Email sent, check your inbox."
+	response.Error = false
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+func (s *Server) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
+	var response models.GenericResponse
+	var params models.ValidateEmailParams
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&params)
+	if err != nil {
+		response.Error = true
+		response.Message = err.Error()
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	claims, err := decodeToken(params.Token)
+	if err != nil {
+		response.Error = true
+		response.Message = err.Error()
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	user, err := s.QueryUser(claims.Sub)
+	if err != nil {
+		response.Error = true
+		response.Message = "Invalid token"
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	_, err = s.db.Exec(`UPDATE users SET email_validated = TRUE WHERE id = $1`, user.ID)
+	if err != nil {
+		response.Error = true
+		response.Message = err.Error()
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	response.Message = "Your email has been validated."
 	response.Error = false
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)

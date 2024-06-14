@@ -30,3 +30,7 @@ type Claims struct {
 	Type  string `json:"type"`
 	jwt.RegisteredClaims
 }
+
+type ValidateEmailParams struct {
+	Token string `json:"token"`
+}

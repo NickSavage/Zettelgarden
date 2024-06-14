@@ -388,3 +388,43 @@ func TestResendValidateEmailNotValidated(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 }
+
+func TestValidateEmail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTempToken(1)
+
+	_, err := s.db.Exec(`UPDATE users SET email_validated = FALSE WHERE id = 1`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	user, err := s.QueryUser(1)
+	if user.EmailValidated {
+		t.Fatal("something has gone wrong: email is validated when it shouldn't be")
+	}
+
+	data := map[string]interface{}{
+		"token": token,
+	}
+	jsonData, err := json.Marshal(data)
+	req, err := http.NewRequest("POST", "/api/email-validate", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.ValidateEmailRoute))
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		log.Printf("err %v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	user, err = s.QueryUser(1)
+	if !user.EmailValidated {
+		t.Fatal("something has gone wrong: email is not validated when it should be")
+	}
+
+}

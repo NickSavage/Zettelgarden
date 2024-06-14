@@ -107,19 +107,6 @@ def reset_password():
     print(response.text)
     return jsonify(response.json()), response.status_code
 
-def send_email_validation(user: dict):
-
-    token = generate_temp_token(user["id"])
-    reset_url = f"{g.config['ZETTEL_URL']}/validate?token={token}"
-    
-    message_body = f"""
-    Welcome to ZettelGarden, {user["username"]}.\n\nPlease click the following link to confirm your email address: {reset_url}.\n\nThank you.
-    """
-    
-    message = Message("Please confirm your ZettelGarden email", recipients=[user["email"]], body=message_body)
-    g.mail.send(message)
-    g.logger.info('Email Validation: sent email for id %s, email %s', user['id'], user['email'])
-
 @bp.route("/api/email-validate", methods=["GET"])
 @jwt_required()
 def resend_email_validation():
@@ -136,23 +123,16 @@ def resend_email_validation():
 def validate_email():
     data = request.get_json()
     token = data.get("token")
-    decoded = decode_token(token)
-
-    identity = decoded["sub"]
-#    user_id = decode_token(token)["identity"]  # This needs error handling for expired or invalid tokens
-    user = services.query_full_user(identity)
     
-    if user:
-        
-        conn = get_db()
-        cur = conn.cursor()
-
-        cur.execute("UPDATE users SET email_validated = TRUE WHERE id = %s", (user["id"],))
-
-        conn.commit()
-        cur.close()
-        return jsonify({"message": "Your email has been validated."}), 200
-    return jsonify({"error": "Invalid token."}), 400
+    params = {
+        "token": data.get("token"),
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/email-validate/", headers=headers, json=params)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
 @bp.route("/api/auth", methods=["GET"])
 @jwt_required()
