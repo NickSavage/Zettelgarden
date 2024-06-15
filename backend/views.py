@@ -77,18 +77,17 @@ def generate_temp_token(user_id):
 @bp.route("/api/request-reset", methods=["POST"])
 def request_password_reset():
     data = request.get_json()
+    params = {
+        "email": data.get("email")
+    }
     email = data.get("email")
-    
-    user = services.query_user_by_email(email) 
-    
-    if user and "error" not in user:
-        token = generate_temp_token(user["id"])
-        reset_url = f"{g.config['ZETTEL_URL']}/reset?token={token}"
-        message = Message("Password Reset Request", recipients=[email], body=f"Please go to this link to reset your password: {reset_url}")
-        g.logger.info('Password reset: sent email for id %s, username %s, email %s', user['id'], user["username"], email)
-        g.mail.send(message)
-    g.logger.info('Password reset: Failed for email %s', email)
-    return jsonify({"message": "If your email is in our system, you will receive a password reset link."}), 200
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post("http://" + os.getenv("FILES_HOST") + "/api/request-reset/", headers=headers, json=params)
+    print(response)
+    print(response.text)
+    return jsonify(response.json()), response.status_code
 
 @bp.route("/api/reset-password", methods=["POST"])
 def reset_password():

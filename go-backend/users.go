@@ -455,9 +455,6 @@ func (s *Server) CreateUser(params models.CreateUserParams) (int, error) {
 }
 
 func (s *Server) sendEmailValidation(user models.User) error {
-	if s.testing {
-		return nil
-	}
 	host := os.Getenv("ZETTEL_URL")
 	token, err := generateTempToken(user.ID)
 	if err != nil {
@@ -473,8 +470,6 @@ func (s *Server) sendEmailValidation(user models.User) error {
 	Thank you.
 	`, user.Username, url)
 
-	go func() {
-		s.mail.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
-	}()
+	s.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
 	return nil
 }

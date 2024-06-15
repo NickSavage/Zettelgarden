@@ -33,6 +33,7 @@ func setup() {
 	s.testing = true
 
 	s.s3 = createS3Client()
+	s.TestInspector = &TestInspector{}
 
 	s.runMigrations()
 	s.importTestData()

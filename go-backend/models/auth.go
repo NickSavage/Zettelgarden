@@ -13,6 +13,10 @@ type ResetPasswordResponse struct {
 	Message string `json:"message"`
 }
 
+type RequestPasswordResetParams struct {
+	Email string
+}
+
 type LoginParams struct {
 	Email    string
 	Password string

@@ -131,3 +131,58 @@ func TestAuthSuccess(t *testing.T) {
 	}
 
 }
+
+func TestRequestPasswordResetSuccess(t *testing.T) {
+	setup()
+	defer teardown()
+
+	sent := s.TestInspector.EmailsSent
+	params := models.RequestPasswordResetParams{
+		Email: "test@test.com",
+	}
+
+	jsonData, _ := json.Marshal(params)
+	req, err := http.NewRequest("GET", "/api/request-reset", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(s.RequestPasswordResetRoute)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	if s.TestInspector.EmailsSent == sent {
+		t.Errorf("no email was sent when one email should have been sent")
+	}
+	if s.TestInspector.EmailsSent > sent+1 {
+		t.Errorf("more than one email was sent when one email should have been sent")
+	}
+}
+
+func TestRequestPasswordResetWrongEmail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	sent := s.TestInspector.EmailsSent
+	params := models.RequestPasswordResetParams{
+		Email: "wrongemail@test.com",
+	}
+
+	jsonData, _ := json.Marshal(params)
+	req, err := http.NewRequest("GET", "/api/request-reset", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(s.RequestPasswordResetRoute)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	if s.TestInspector.EmailsSent != sent {
+		t.Errorf("email sent when no email should have been sent")
+	}
+}

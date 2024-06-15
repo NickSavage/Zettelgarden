@@ -6,6 +6,7 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -191,4 +192,42 @@ func (s *Server) LoginRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) CheckTokenRoute(w http.ResponseWriter, r *http.Request) {
 
+}
+
+func (s *Server) RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request) {
+	var params models.RequestPasswordResetParams
+	var response models.GenericResponse
+
+	w.Header().Set("Content-Type", "application/json")
+	response.Error = false
+	response.Message = "If your email is in our system, you will receive a password reset link."
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&params)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	user, err := s.QueryUserByEmail(params.Email)
+	if err != nil {
+		log.Printf("user not found")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	token, err := generateTempToken(user.ID)
+	if err != nil {
+		log.Printf("err %v", err.Error())
+		response.Error = true
+		response.Message = err.Error()
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	url := fmt.Sprintf("%s/reset?token=%s", os.Getenv("ZETTEL_URL"), token)
+	messageBody := fmt.Sprintf("Please go to this link to reset your password: %s", url)
+
+	s.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
+	json.NewEncoder(w).Encode(response)
 }

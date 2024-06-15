@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -23,11 +22,16 @@ type Server struct {
 	testing        bool
 	jwt_secret_key []byte
 	mail           *MailClient
+	TestInspector  *TestInspector
 }
 
 type MailClient struct {
 	Host     string
 	Password string
+}
+
+type TestInspector struct {
+	EmailsSent int
 }
 
 func admin(next http.HandlerFunc) http.HandlerFunc {
@@ -89,7 +93,11 @@ type Email struct {
 	Body      string `json:"body"`
 }
 
-func (mail *MailClient) SendEmail(subject, recipient, body string) error {
+func (s *Server) SendEmail(subject, recipient, body string) error {
+	if s.testing {
+		s.TestInspector.EmailsSent += 1
+		return nil
+	}
 	email := Email{
 		Subject:   subject,
 		Recipient: recipient,
@@ -102,29 +110,32 @@ func (mail *MailClient) SendEmail(subject, recipient, body string) error {
 	if err != nil {
 		return err
 	}
+	go func() {
 
-	// Create a new request
-	req, err := http.NewRequest("POST", mail.Host+"/api/send", bytes.NewBuffer(emailJSON))
-	if err != nil {
-		return err
-	}
+		// Create a new request
+		req, err := http.NewRequest("POST", s.mail.Host+"/api/send", bytes.NewBuffer(emailJSON))
+		if err != nil {
+			return
+		}
 
-	// Set headers
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", mail.Password)
+		// Set headers
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", s.mail.Password)
 
-	// Send the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+		// Send the request
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			return
+		}
+		defer resp.Body.Close()
 
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to send email: %s", resp.Status)
-	}
+		// Check the response status code
+		if resp.StatusCode != http.StatusOK {
+			log.Printf("failed to send email: %s", resp.Status)
+			return
+		}
+	}()
 	return nil
 }
 
@@ -156,6 +167,7 @@ func main() {
 	http.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)
 	http.HandleFunc("GET /api/email-validate/", jwtMiddleware(s.ResendEmailValidationRoute))
 	http.HandleFunc("POST /api/email-validate/", s.ValidateEmailRoute)
+	http.HandleFunc("POST /api/request-reset/", s.RequestPasswordResetRoute)
 
 	http.HandleFunc("GET /api/files", jwtMiddleware(s.GetAllFilesRoute))
 	http.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.UploadFileRoute))
