@@ -425,6 +425,98 @@ func (s *Server) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Server) getNextIDReference(userID int) string {
+	var result string
+
+	query := `
+        SELECT card_id FROM cards 
+		WHERE card_id LIKE 'REF%' AND is_deleted = FALSE AND user_id = $1
+
+        ORDER BY CAST(SUBSTRING(card_id FROM 'REF(.*)$') AS INTEGER) DESC
+        LIMIT 1
+	`
+	err := s.db.QueryRow(query, userID).Scan(&result)
+	if err != nil && err != sql.ErrNoRows {
+		log.Fatal(err)
+		return ""
+	}
+
+	var newCardID string
+	if result != "" {
+		re := regexp.MustCompile(`REF(\d+)`)
+		matches := re.FindStringSubmatch(result)
+		if len(matches) > 1 {
+			highestNumber, _ := strconv.Atoi(matches[1])
+			nextNumber := highestNumber + 1
+			newCardID = fmt.Sprintf("REF%03d", nextNumber)
+		}
+	} else {
+		newCardID = "REF001"
+	}
+	return newCardID
+}
+
+func (s *Server) getNextIDMeeting(userID int) string {
+	var result string
+	query := `
+        SELECT card_id FROM cards WHERE card_id LIKE 'MM%' AND is_deleted = FALSE
+        ORDER BY CAST(SUBSTRING(card_id FROM 'MM(.*)$') AS INTEGER) DESC
+        LIMIT 1`
+
+	err := s.db.QueryRow(query).Scan(&result)
+	if err != nil && err != sql.ErrNoRows {
+		log.Fatal(err)
+	}
+
+	var newCardID string
+	if result != "" {
+		re := regexp.MustCompile(`MM(\d+)`)
+		matches := re.FindStringSubmatch(result)
+		if len(matches) > 1 {
+			highestNumber, _ := strconv.Atoi(matches[1])
+			nextNumber := highestNumber + 1
+			newCardID = fmt.Sprintf("MM%03d", nextNumber)
+		}
+	} else {
+		newCardID = "MM001"
+	}
+	return newCardID
+}
+
+func (s *Server) NextIDRoute(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var response models.NextIDResponse
+	var params models.NextIDParams
+
+	userID := r.Context().Value("current_user").(int)
+
+	log.Printf("body %v", r.Body)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&params)
+	if err != nil {
+		log.Printf("err? %v", err)
+		response.Error = true
+		json.NewEncoder(w).Encode(response)
+		response.Message = err.Error()
+		return
+	}
+
+	if params.CardType == "reference" {
+		response.NextID = s.getNextIDReference(userID)
+		w.WriteHeader(http.StatusOK)
+	} else if params.CardType == "meeting" {
+		response.NextID = s.getNextIDMeeting(userID)
+		w.WriteHeader(http.StatusOK)
+	} else {
+		response.Error = true
+		response.Message = "Unknown or unsupported card type. Supported card types are 'reference' and 'meeting', was provided: " + params.CardType
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	json.NewEncoder(w).Encode(response)
+
+}
+
 func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard, error) {
 	var card models.PartialCard
 

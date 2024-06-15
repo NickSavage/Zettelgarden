@@ -333,8 +333,8 @@ func TestGetCardsSuccessInactive(t *testing.T) {
 	}
 	var cards []models.PartialCard
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 22 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
+	if len(cards) != 21 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
 	}
 }
 
@@ -558,5 +558,65 @@ func TestDeleteCardWrongUser(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestGenerateNextIDReference(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+	data := models.NextIDParams{
+		CardType: "reference",
+	}
+	jsonData, _ := json.Marshal(data)
+	req, err := http.NewRequest("POST", "/api/cards/next", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.NextIDRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var response models.NextIDResponse
+	parseJsonResponse(t, rr.Body.Bytes(), &response)
+	if response.NextID != "REF002" {
+		t.Errorf("wrong id returned, got %v want %v", response.NextID, "REF002")
+
+	}
+}
+
+func TestGenerateNextIDMeeting(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+	data := models.NextIDParams{
+		CardType: "meeting",
+	}
+	jsonData, _ := json.Marshal(data)
+	req, err := http.NewRequest("POST", "/api/cards/next", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.NextIDRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var response models.NextIDResponse
+	parseJsonResponse(t, rr.Body.Bytes(), &response)
+	if response.NextID != "MM002" {
+		t.Errorf("wrong id returned, got %v want %v", response.NextID, "MM002")
+
 	}
 }

@@ -159,6 +159,12 @@ func (s *Server) generateData() map[string]interface{} {
 		if i == 1 {
 			card.Body = card.Body + "\n[" + strconv.Itoa(i+1) + "]"
 		}
+		if i == 4 {
+			card.CardID = "REF001"
+		}
+		if i == 5 {
+			card.CardID = "MM001"
+		}
 		cards = append(cards, card)
 	}
 	cards = append(cards, models.Card{
@@ -172,7 +178,7 @@ func (s *Server) generateData() map[string]interface{} {
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})
 	cards = append(cards, models.Card{
-		ID:        21,
+		ID:        22,
 		CardID:    "2/A",
 		UserID:    1,
 		Title:     "test card",

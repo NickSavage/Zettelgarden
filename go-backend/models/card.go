@@ -33,3 +33,13 @@ type EditCardParams struct {
 	Body   string `json:"body"`
 	Link   string `json:"link"`
 }
+
+type NextIDParams struct {
+	CardType string `json:"card_type"`
+}
+
+type NextIDResponse struct {
+	Error   bool   `json:"error"`
+	Message string `json:"message"`
+	NextID  string `json:"new_id"`
+}

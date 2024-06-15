@@ -178,6 +178,7 @@ func main() {
 
 	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.GetCardsRoute))
 	http.HandleFunc("POST /api/cards/", jwtMiddleware(s.CreateCardRoute))
+	http.HandleFunc("POST /api/next/", jwtMiddleware(s.NextIDRoute))
 	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.GetCardRoute))
 	http.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute))
 	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))

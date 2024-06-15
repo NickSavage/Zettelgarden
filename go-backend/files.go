@@ -8,6 +8,7 @@ import (
 	"go-backend/models"
 	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -252,6 +253,7 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
+		log.Printf("1")
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
 	}
@@ -264,6 +266,8 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 	err = userCanUploadFile(userID, handler)
 	if err != nil {
+		log.Printf("e?")
+		log.Printf("err %v", err.Error())
 		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
