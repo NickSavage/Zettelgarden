@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/rs/cors"
 )
 
 var s *Server
@@ -162,33 +163,36 @@ func main() {
 	}
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
-	http.HandleFunc("GET /api/auth/", jwtMiddleware(s.CheckTokenRoute))
-	http.HandleFunc("POST /api/login/", s.LoginRoute)
-	http.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)
-	http.HandleFunc("GET /api/email-validate/", jwtMiddleware(s.ResendEmailValidationRoute))
-	http.HandleFunc("POST /api/email-validate/", s.ValidateEmailRoute)
-	http.HandleFunc("POST /api/request-reset/", s.RequestPasswordResetRoute)
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /api/auth/", jwtMiddleware(s.CheckTokenRoute))
+	mux.HandleFunc("POST /api/login/", s.LoginRoute)
+	mux.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)
+	mux.HandleFunc("GET /api/email-validate/", jwtMiddleware(s.ResendEmailValidationRoute))
+	mux.HandleFunc("POST /api/email-validate/", s.ValidateEmailRoute)
+	mux.HandleFunc("POST /api/request-reset/", s.RequestPasswordResetRoute)
 
-	http.HandleFunc("GET /api/files", jwtMiddleware(s.GetAllFilesRoute))
-	http.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.UploadFileRoute))
-	http.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute))
-	http.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.EditFileMetadataRoute))
-	http.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.DeleteFileRoute))
-	http.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.DownloadFileRoute))
+	mux.HandleFunc("GET /api/files", jwtMiddleware(s.GetAllFilesRoute))
+	mux.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.UploadFileRoute))
+	mux.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute))
+	mux.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.EditFileMetadataRoute))
+	mux.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.DeleteFileRoute))
+	mux.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.DownloadFileRoute))
 
-	http.HandleFunc("GET /api/cards/", jwtMiddleware(s.GetCardsRoute))
-	http.HandleFunc("POST /api/cards/", jwtMiddleware(s.CreateCardRoute))
-	http.HandleFunc("POST /api/next/", jwtMiddleware(s.NextIDRoute))
-	http.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.GetCardRoute))
-	http.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute))
-	http.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
+	mux.HandleFunc("GET /api/cards/", jwtMiddleware(s.GetCardsRoute))
+	mux.HandleFunc("POST /api/cards/", jwtMiddleware(s.CreateCardRoute))
+	mux.HandleFunc("POST /api/next/", jwtMiddleware(s.NextIDRoute))
+	mux.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.GetCardRoute))
+	mux.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute))
+	mux.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
 
-	http.HandleFunc("GET /api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute)))
-	http.HandleFunc("PUT /api/users/{id}/", jwtMiddleware(s.UpdateUserRoute))
-	http.HandleFunc("GET /api/users/", jwtMiddleware(admin(s.GetUsersRoute)))
-	http.HandleFunc("POST /api/users/", s.CreateUserRoute)
-	http.HandleFunc("GET /api/users/{id}/subscription/", jwtMiddleware(admin(s.GetUserSubscriptionRoute)))
-	http.HandleFunc("GET /api/current/", jwtMiddleware(s.GetCurrentUserRoute))
-	http.HandleFunc("GET /api/admin/", jwtMiddleware(s.GetUserAdminRoute))
-	http.ListenAndServe(":8080", nil)
+	mux.HandleFunc("GET /api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute)))
+	mux.HandleFunc("PUT /api/users/{id}/", jwtMiddleware(s.UpdateUserRoute))
+	mux.HandleFunc("GET /api/users/", jwtMiddleware(admin(s.GetUsersRoute)))
+	mux.HandleFunc("POST /api/users/", s.CreateUserRoute)
+	mux.HandleFunc("GET /api/users/{id}/subscription/", jwtMiddleware(admin(s.GetUserSubscriptionRoute)))
+	mux.HandleFunc("GET /api/current/", jwtMiddleware(s.GetCurrentUserRoute))
+	mux.HandleFunc("GET /api/admin/", jwtMiddleware(s.GetUserAdminRoute))
+
+	handler := cors.Default().Handler(mux)
+	http.ListenAndServe(":8080", handler)
 }
