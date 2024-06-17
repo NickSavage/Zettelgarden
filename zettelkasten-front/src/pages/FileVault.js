@@ -7,8 +7,8 @@ import {
   editFile,
 } from "../api";
 import { sortCards } from "../utils";
-import { FileRenameModal } from "./FileRenameModal.js";
-import { FileListItem } from "./FileListItem";
+import { FileRenameModal } from "../components/FileRenameModal.js";
+import { FileListItem } from "../components/FileListItem";
 
 import { useNavigate } from "react-router-dom";
 
