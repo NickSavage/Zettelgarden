@@ -20,7 +20,7 @@ jobs:
           node-version: "18" # Specify the Node.js version you are using
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
         working-directory: ./zettelkasten-front
 
       - name: Run TypeScript compiler
