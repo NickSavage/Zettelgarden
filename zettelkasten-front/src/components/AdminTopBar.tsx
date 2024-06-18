@@ -1,8 +1,11 @@
+import React, { ReactNode } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-export function AdminTopBar({ children }) {
-  const navigate = useNavigate();
+interface AdminTopBarProps {
+  children?: ReactNode;
+}
 
+export function AdminTopBar({ children }: AdminTopBarProps ) {
   return (
     <div className="top-bar">
       <div className="top-bar-left">
