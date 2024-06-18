@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   frontend:
@@ -9,7 +9,7 @@ services:
         REACT_APP_URL: ${REACT_APP_URL}
         REACT_APP_USERNAME: ${REACT_APP_USERNAME}
         REACT_APP_PASSWORD: ${REACT_APP_PASSWORD}
-    image: 192.168.0.129:50000/zettelkasten_frontend:latest
+    image: 192.168.0.97:50000/zettelkasten_frontend:latest
     ports:
       - "3001:3000"
     environment:
@@ -21,7 +21,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: 192.168.0.129:50000/zettelkasten_backend:latest
+    image: 192.168.0.97:50000/zettelkasten_backend:latest
     ports:
       - "5000:5000"
     volumes:
@@ -33,9 +33,8 @@ services:
     build:
       context: ./go-backend
       dockerfile: Dockerfile
-    image: 192.168.0.129:50000/zettelkasten_go_backend:latest
+    image: 192.168.0.97:50000/zettelkasten_go_backend:latest
     ports:
       - "8080:8080"
     env_file:
       - .env
-      
