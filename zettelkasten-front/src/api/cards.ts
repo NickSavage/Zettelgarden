@@ -62,3 +62,23 @@ export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = f
     });
 }
 
+export function getCard(id: number) {
+  // Assuming your backend is running on the same IP and port as in previous example
+  let encoded = encodeURIComponent(id);
+  const url = base_url + `/cards/${encoded}`;
+
+  let token = localStorage.getItem("token");
+  // Send a GET request to the URL
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<Card>;
+      } else {
+            return Promise.reject(new Error("Response is undefined"));
+      }
+    })
+    .catch((error) => {
+      return { error: error };
+    });
+}

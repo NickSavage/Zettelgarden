@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CardBody } from "../components/CardBody";
 import { CardItem } from "../components/CardItem";
 import { FileListItem } from "../components/FileListItem";
-import { getCard } from "../api";
+import { getCard } from "../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 

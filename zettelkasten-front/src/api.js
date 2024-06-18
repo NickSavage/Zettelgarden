@@ -26,23 +26,7 @@ export function checkLogin() {
     }
   });
 }
-export function getCard(id) {
-  // Assuming your backend is running on the same IP and port as in previous example
-  let encoded = encodeURIComponent(id);
-  const url = base_url + `/cards/${encoded}`;
 
-  let token = localStorage.getItem("token");
-  // Send a GET request to the URL
-  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-    .then(checkStatus)
-    .then((cardData) => {
-      return cardData.json();
-      // Process the card data here (if needed) and return it
-    })
-    .catch((error) => {
-      return { error: error };
-    });
-}
 export function saveNewCard(card) {
   const url = base_url + `/cards`;
   const method = "POST";
