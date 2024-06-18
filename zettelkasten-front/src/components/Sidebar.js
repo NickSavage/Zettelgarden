@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchPartialCards } from "../api";
+import { fetchPartialCards } from "../api/cards";
 import { sortCards } from "../utils";
 import { CardItem } from "./CardItem";
 import { useNavigate } from "react-router-dom";

@@ -1,4 +1,4 @@
-import { Card } from "../models/Card";
+import { Card, PartialCard } from "../models/Card";
 
 const base_url = process.env.REACT_APP_URL;
 
@@ -33,3 +33,32 @@ export function fetchCards(searchTerm = "") {
           }
     });
 }
+
+export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = false) {
+  console.log([searchTerm, sortMethod, inactive])
+  let token = localStorage.getItem("token");
+  let url = base_url + "/cards?partial=true";
+  if (searchTerm) {
+    url += `&search_term=${encodeURIComponent(searchTerm)}`;
+  }
+  if (sortMethod) {
+    url += `&sort_method=${encodeURIComponent(sortMethod)}`;
+  }
+  if (inactive) {
+    url += `&inactive=${encodeURIComponent(inactive)}`;
+  }
+
+  console.log(url)
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+        if (response) {
+            return response.json() as Promise<PartialCard[]>;
+          } else {
+            return Promise.reject(new Error("Response is undefined"));
+          }
+    });
+}
+

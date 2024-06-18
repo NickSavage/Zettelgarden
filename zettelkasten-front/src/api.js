@@ -26,32 +26,6 @@ export function checkLogin() {
     }
   });
 }
-
-export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = false) {
-  console.log([searchTerm, sortMethod, inactive])
-  let token = localStorage.getItem("token");
-  let url = base_url + "/cards?partial=true";
-  if (searchTerm) {
-    url += `&search_term=${encodeURIComponent(searchTerm)}`;
-  }
-  if (sortMethod) {
-    url += `&sort_method=${encodeURIComponent(sortMethod)}`;
-  }
-  if (inactive) {
-    url += `&inactive=${encodeURIComponent(inactive)}`;
-  }
-
-  console.log(url)
-  return fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(checkStatus)
-    .then((response) => {
-      let results = response.json();
-      return results;
-    });
-}
-
 export function getCard(id) {
   // Assuming your backend is running on the same IP and port as in previous example
   let encoded = encodeURIComponent(id);

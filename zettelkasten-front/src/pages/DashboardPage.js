@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchPartialCards } from "../api";
+import { fetchPartialCards } from "../api/cards";
 import { CardItem } from "../components/CardItem";
 import { useState, useEffect } from "react";
 
