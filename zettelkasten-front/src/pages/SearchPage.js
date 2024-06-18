@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchCards } from "../api";
+import { fetchCards } from "../api/cards";
 
 import { useNavigate } from "react-router-dom";
 

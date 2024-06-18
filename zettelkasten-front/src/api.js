@@ -27,22 +27,6 @@ export function checkLogin() {
   });
 }
 
-export function fetchCards(searchTerm = "") {
-  let token = localStorage.getItem("token");
-  let url = base_url + "/cards";
-  if (searchTerm) {
-    url += `?search_term=${encodeURIComponent(searchTerm)}`;
-  }
-
-  return fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(checkStatus)
-    .then((response) => {
-      let results = response.json();
-      return results;
-    });
-}
 export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = false) {
   console.log([searchTerm, sortMethod, inactive])
   let token = localStorage.getItem("token");
