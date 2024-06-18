@@ -14,7 +14,7 @@ function checkStatus(response: Response) {
   throw new Error(`Request failed with status: ${response.status}`);
 }
 
-export function fetchCards(searchTerm = "") {
+export function fetchCards(searchTerm = ""): Promise<Card[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/cards";
   if (searchTerm) {
@@ -34,7 +34,7 @@ export function fetchCards(searchTerm = "") {
     });
 }
 
-export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = false) {
+export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = false): Promise<PartialCard[]> {
   console.log([searchTerm, sortMethod, inactive])
   let token = localStorage.getItem("token");
   let url = base_url + "/cards?partial=true";
@@ -62,7 +62,7 @@ export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = f
     });
 }
 
-export function getCard(id: number) {
+export function getCard(id: number): Promise<Card> {
   // Assuming your backend is running on the same IP and port as in previous example
   let encoded = encodeURIComponent(id);
   const url = base_url + `/cards/${encoded}`;
@@ -78,7 +78,60 @@ export function getCard(id: number) {
             return Promise.reject(new Error("Response is undefined"));
       }
     })
-    .catch((error) => {
-      return { error: error };
+}
+
+export function saveNewCard(card: Card): Promise<Card> {
+  const url = base_url + `/cards`;
+  const method = "POST";
+  return saveCard(url, method, card);
+}
+
+export function saveExistingCard(card: Card): Promise<Card> {
+  const url = base_url + `/cards/${encodeURIComponent(card.id)}`;
+  const method = "PUT";
+  return saveCard(url, method, card);
+}
+export function saveCard(url: string, method: string, card: Card): Promise<Card> {
+  let token = localStorage.getItem("token");
+  return fetch(url, {
+    method: method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(card),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<Card>;
+      } else {
+            return Promise.reject(new Error("Response is undefined"));
+      }
+    })
+}
+
+export function deleteCard(id: number): Promise<Card|null> {
+  let encodedId = encodeURIComponent(id);
+  const url = `${base_url}/cards/${encodedId}`;
+
+  let token = localStorage.getItem("token");
+
+  // Send a DELETE request to the URL
+  return fetch(url, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+
+      if (response) {
+        if (response.status === 204) {
+          return null;
+        }
+        return response.json() as Promise<Card>;
+      } else {
+            return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }

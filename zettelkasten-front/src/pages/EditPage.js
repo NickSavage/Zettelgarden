@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../utils";
-import { uploadFile, editFile, deleteCard } from "../api";
+import { uploadFile, editFile } from "../api";
+import { deleteCard } from "../api/cards";
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { saveNewCard, saveExistingCard, getNextId } from "../api";
+import { getNextId } from "../api";
+import { saveNewCard, saveExistingCard } from "../api/cards";
 import { getCard } from "../api/cards";
 
 import { useParams } from "react-router-dom";
