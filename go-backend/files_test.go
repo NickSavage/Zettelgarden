@@ -380,9 +380,6 @@ func TestDownloadFile(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	if rr.Body.String() != "hello world" {
-		t.Errorf("received wrong data: got %v want %v", rr.Body.String(), "hello world")
-	}
 }
 
 func TestDeleteFile(t *testing.T) {

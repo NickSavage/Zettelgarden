@@ -237,7 +237,7 @@ func userCanUploadFile(userID int, header *multipart.FileHeader) error {
 		return fmt.Errorf("user does not have permissions to upload files")
 	}
 	var alreadyUploaded int
-	err = s.db.QueryRow(`SELECT sum(size) FROM files WHERE created_by = $1`, userID).Scan(&alreadyUploaded)
+	err = s.db.QueryRow(`SELECT COALESCE(sum(size), 0) FROM files WHERE created_by = $1`, userID).Scan(&alreadyUploaded)
 	if err != nil {
 		return err
 	}
@@ -297,7 +297,7 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 	uuidKey := uuid.New().String()
 	s3Key := fmt.Sprintf("%s/%s", strconv.Itoa(userID), uuidKey)
 
-	uploadObject(s.s3, s3Key, tempFile.Name())
+	s.uploadObject(s.s3, s3Key, tempFile.Name())
 
 	fileSize, err := tempFile.Seek(0, io.SeekEnd)
 	if err != nil {
@@ -350,18 +350,21 @@ func (s *Server) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	s3Output, err := downloadObject(s.s3, file.Filename, "")
+	s3Output, err := s.downloadObject(s.s3, file.Filename, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
+	w.Header().Set("Content-Type", "application/octet-stream")
+	if s.testing {
+		return
+	}
 	// Copy the file content to the response
 	if _, err := io.Copy(w, s3Output.Body); err != nil {
 		http.Error(w, "Unable to send file", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", file.Filename))
-	w.Header().Set("Content-Type", "application/octet-stream")
 
 }
 
@@ -384,7 +387,7 @@ func (s *Server) DeleteFileRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = deleteObject(s.s3, file.Path)
+	err = s.deleteObject(s.s3, file.Path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		_, _ = s.db.Exec(`UPDATE files SET is_deleted = false WHERE id = $1`, cardPK)

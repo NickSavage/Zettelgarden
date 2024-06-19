@@ -32,7 +32,7 @@ func setup() {
 	s.db = db
 	s.testing = true
 
-	s.s3 = createS3Client()
+	s.s3 = s.createS3Client()
 	s.TestInspector = &TestInspector{}
 
 	s.runMigrations()
@@ -282,7 +282,7 @@ func (s *Server) uploadTestFile() {
 	}
 	uuidKey := uuid.New().String()
 
-	uploadObject(s.s3, uuidKey, testFile.Name())
+	s.uploadObject(s.s3, uuidKey, testFile.Name())
 
 	query := `UPDATE files SET path = $1, filename = $2 WHERE id = 1`
 	s.db.QueryRow(query, uuidKey, uuidKey)

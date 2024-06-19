@@ -32,7 +32,8 @@ type MailClient struct {
 }
 
 type TestInspector struct {
-	EmailsSent int
+	EmailsSent    int
+	FilesUploaded int
 }
 
 func admin(next http.HandlerFunc) http.HandlerFunc {
@@ -155,7 +156,7 @@ func main() {
 		log.Fatalf("Unable to connect to the database: %v\n", err)
 	}
 	s.db = db
-	s.s3 = createS3Client()
+	s.s3 = s.createS3Client()
 
 	s.mail = &MailClient{
 		Host:     os.Getenv("MAIL_HOST"),

@@ -227,6 +227,12 @@ func TestGetCardSuccessFiles(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
+	}
+	if s.TestInspector.FilesUploaded != 1 {
+		t.Errorf("test inspector wrong number of files associated with card, got %v want %v", len(card.Files), 2)
+	}
 	rr = makeCardRequestSuccess(t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)

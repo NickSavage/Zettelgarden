@@ -18,7 +18,7 @@ const (
 
 var bucketName = os.Getenv("B2_BUCKET_NAME")
 
-func createS3Client() *s3.Client {
+func (s *Server) createS3Client() *s3.Client {
 
 	accessKeyID := os.Getenv("B2_ACCESS_KEY_ID")
 	secretAccessKey := os.Getenv("B2_SECRET_ACCESS_KEY")
@@ -49,7 +49,7 @@ func createS3Client() *s3.Client {
 	return client
 }
 
-func listObjects(client *s3.Client) {
+func (s *Server) listObjects(client *s3.Client) {
 	// List the objects in the bucket
 	resp, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(bucketName),
@@ -62,13 +62,17 @@ func listObjects(client *s3.Client) {
 		fmt.Printf("Name: %s, Size: %d\n", *item.Key, item.Size)
 	}
 }
-func uploadObject(client *s3.Client, key, filePath string) {
+func (s *Server) uploadObject(client *s3.Client, key, filePath string) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatalf("unable to open file %q, %v", filePath, err)
 	}
 	defer file.Close()
 
+	if s.testing {
+		s.TestInspector.FilesUploaded += 1
+		return
+	}
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(key),
@@ -79,7 +83,11 @@ func uploadObject(client *s3.Client, key, filePath string) {
 	}
 }
 
-func downloadObject(client *s3.Client, key, filePath string) (*s3.GetObjectOutput, error) {
+func (s *Server) downloadObject(client *s3.Client, key, filePath string) (*s3.GetObjectOutput, error) {
+
+	if s.testing {
+		return nil, nil
+	}
 	result, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(key),
@@ -102,7 +110,11 @@ func downloadObject(client *s3.Client, key, filePath string) (*s3.GetObjectOutpu
 
 	// fmt.Printf("Successfully downloaded %q to %q\n", key, filePath)
 }
-func deleteObject(client *s3.Client, key string) error {
+func (s *Server) deleteObject(client *s3.Client, key string) error {
+	if s.testing {
+		s.TestInspector.FilesUploaded -= 1
+		return nil
+	}
 	_, err := client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(key),
