@@ -7,9 +7,9 @@ export function FileListItem({
   openRenameModal,
   displayCard,
 }) {
-  const handleFileDownload = (fileId, e) => {
+  const handleFileDownload = (file, e) => {
     e.preventDefault();
-    renderFile(fileId).catch((error) => {
+    renderFile(file.id, file.name).catch((error) => {
       console.error("Error downloading file:", error);
     });
   };
@@ -34,7 +34,7 @@ export function FileListItem({
           {" "}
           {/* Ensure file.id is unique */}
           <span>{file.id} - </span>
-          <a href="#" onClick={(e) => handleFileDownload(file.id, e)}>
+          <a href="#" onClick={(e) => handleFileDownload(file, e)}>
             {file.name}
           </a>
           <br />

@@ -106,7 +106,7 @@ export function uploadFile(file, card_pk) {
     .then((response) => response.json());
 }
 
-export function renderFile(fileId) {
+export function renderFile(fileId, filename) {
   let token = localStorage.getItem("token");
   const url = `${base_url}/files/download/${fileId}`;
 
@@ -127,7 +127,7 @@ export function renderFile(fileId) {
       // Create a temporary anchor tag to trigger the download
       const a = document.createElement("a");
       a.href = localUrl;
-      a.download = ""; // Optional: Provide a default download name for the file
+      a.download = filename || "downloaded_file";
       document.body.appendChild(a);
       a.click();
 
