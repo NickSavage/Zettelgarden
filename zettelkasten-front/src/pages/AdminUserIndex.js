@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { checkAdmin, getUsers } from "../api";
+import { getUsers } from "../api/users";
 import { useAuth } from "../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getUser, editUser } from "../api";
+import { getUser, editUser } from "../api/users";
 
 export function AdminEditUserPage() {
   const [user, setUser] = useState({

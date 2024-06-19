@@ -10,7 +10,7 @@ import { Topbar } from "../components/Topbar";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
-import { getCurrentUser } from "../api";
+import { getCurrentUser } from "../api/users";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
 import { BillingSuccess } from "../pages/BillingSuccess";
 import { BillingCancelled } from "../pages/BillingCancelled";

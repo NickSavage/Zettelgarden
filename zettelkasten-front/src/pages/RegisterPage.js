@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createUser } from "../api";
+import { createUser } from "../api/users";
 import { Link, useNavigate } from "react-router-dom";
 
 function RegisterPage() {

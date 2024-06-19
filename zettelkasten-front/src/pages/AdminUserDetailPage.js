@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getUser, requestPasswordReset } from "../api";
+import { requestPasswordReset } from "../api";
+import { getUser } from "../api/users";
 import { Link, useParams } from "react-router-dom";
 
 export function AdminUserDetailPage() {

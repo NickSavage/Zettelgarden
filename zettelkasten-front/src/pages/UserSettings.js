@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getCurrentUser, editUser, getUserSubscription, createCheckoutSession } from "../api";
+import { getUserSubscription } from "../api/users";
+import { getCurrentUser } from "../api/users";
+import { editUser } from "../api/users";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState(null);

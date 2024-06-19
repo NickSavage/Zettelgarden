@@ -1,5 +1,6 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
-import { checkAdmin, getCurrentUser } from "./api";
+import { checkAdmin } from "./api/users";
+import { getCurrentUser } from "./api/users";
 
 const AuthContext = createContext(null);
 

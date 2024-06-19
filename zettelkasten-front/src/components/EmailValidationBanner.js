@@ -1,4 +1,4 @@
-import { resendValidateEmail } from "../api";
+import { resendValidateEmail } from "../api/users";
 
 export function EmailValidationBanner({ user }) {
   function resendEmail() {

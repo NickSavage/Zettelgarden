@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { validateEmail } from "../api"; // Ensure this is implemented in api.js
+import { validateEmail } from "../api/users";
 
 function EmailValidation() {
   const [token, setToken] = useState("");

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { checkAdmin, getUsers } from "../api";
 import { useAuth } from "../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import AdminTopBar from "../components/AdminTopBar";
