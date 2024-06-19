@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { editFile } from "../api";
+import { editFile } from "../api/files";
 
 export function FileRenameModal({ isOpen, onClose, onRename, file }) {
   const [newName, setNewName] = useState("");

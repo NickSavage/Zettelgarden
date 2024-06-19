@@ -16,3 +16,12 @@ export interface File {
   updated_at: Date;
   card: PartialCard;
 }
+
+export interface UploadFileResponse {
+  message: string;
+  file: File;
+}
+
+export interface EditFileMetadataParams {
+  name: string;
+}

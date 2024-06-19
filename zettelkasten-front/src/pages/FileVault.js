@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
-  renderFile,
-  uploadFile,
   getAllFiles,
-  deleteFile,
-  editFile,
-} from "../api";
+} from "../api/files";
 import { sortCards } from "../utils";
 import { FileRenameModal } from "../components/FileRenameModal.js";
 import { FileListItem } from "../components/FileListItem";

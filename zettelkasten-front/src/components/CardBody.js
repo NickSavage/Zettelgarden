@@ -1,7 +1,7 @@
 import Markdown from "react-markdown";
 import React, { useState, useEffect } from "react";
 import { getIdByCardId } from "../utils";
-import { downloadFile } from "../api";
+import { downloadFile } from "../api/files";
 
 import { useNavigate } from "react-router-dom";
 

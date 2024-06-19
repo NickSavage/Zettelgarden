@@ -1,4 +1,4 @@
-import { renderFile, deleteFile } from "../api";
+import { renderFile, deleteFile } from "../api/files";
 
 export function FileListItem({
   file,

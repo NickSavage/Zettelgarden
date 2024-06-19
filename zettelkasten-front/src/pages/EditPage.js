@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../utils";
-import { uploadFile, editFile } from "../api";
+import { uploadFile, editFile } from "../api/files";
 import { deleteCard } from "../api/cards";
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
