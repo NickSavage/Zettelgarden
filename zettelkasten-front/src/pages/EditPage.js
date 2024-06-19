@@ -6,7 +6,7 @@ import { FileListItem } from "../components/FileListItem";
 import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { getNextId } from "../api";
+import { getNextId } from "../api/cards";
 import { saveNewCard, saveExistingCard } from "../api/cards";
 import { getCard } from "../api/cards";
 

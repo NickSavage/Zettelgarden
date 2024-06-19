@@ -135,3 +135,25 @@ export function deleteCard(id: number): Promise<Card|null> {
       }
     });
 }
+export async function getNextId(cardType: string): Promise<string> {
+  const url = `${base_url}/cards/next`;
+
+  let token = localStorage.getItem("token");
+
+  return await fetch(url, {
+    method: "POST",
+    body: JSON.stringify({ card_type: cardType }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<string>;
+      } else {
+            return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
