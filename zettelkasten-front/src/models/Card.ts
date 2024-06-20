@@ -11,7 +11,7 @@ export interface PartialCard {
   }
   
   
-  export interface Card {
+ export interface Card {
     id: number;
     card_id: string;
     user_id: number;
@@ -25,4 +25,4 @@ export interface PartialCard {
     files: File[];
     children: PartialCard[];
     references: PartialCard[];
-  }
+ }

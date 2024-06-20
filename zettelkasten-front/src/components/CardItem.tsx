@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Card } from "../models/Card";
+import { PartialCard } from "../models/Card";
 
 interface CardItemProps {
-  card: Card;
+  card: PartialCard;
 }
 
 export function CardItem({ card }: CardItemProps) {

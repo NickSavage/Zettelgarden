@@ -1,23 +1,28 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { fetchPartialCards } from "../api/cards";
-import { sortCards } from "../utils";
 import { CardItem } from "./CardItem";
-import { useNavigate } from "react-router-dom";
+import { PartialCard } from "../models/Card";
+
+interface SidebarProps {
+  cards: PartialCard[];
+  setCards: (cards: PartialCard[]) => void;
+  refreshSidebar: boolean;
+  setRefreshSidebar: (set: boolean) => void;
+}
 
 export function Sidebar({
   cards,
   setCards,
   refreshSidebar,
   setRefreshSidebar,
-}) {
-  const navigate = useNavigate();
+}: SidebarProps) {
   const [filter, setFilter] = useState("");
-  const [isSidebarHidden, setIsSidebarHidden] = useState(false);
-  const [mainCards, setMainCards] = useState([]);
-  const [filteredCards, setFilteredCards] = useState([]);
-  const [sidebarView, setSidebarView] = useState("all");
+  const [isSidebarHidden] = useState(false);
+  const [mainCards, setMainCards] = useState<PartialCard[]>([]);
+  const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
+  const [sidebarView] = useState("all");
 
-  function handleFilter(e) {
+  function handleFilter(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     let filter = e.target.value;
     let isIdSearch = filter.startsWith('!');
     setFilter(filter);
@@ -31,7 +36,7 @@ export function Sidebar({
             return cardId.startsWith(filter.slice(1).trim().toLowerCase());
         } else {
             // Split filter into keywords and check each keyword in title or card_id
-            return filter.split(" ").every((keyword) => {
+            return filter.split(" ").every((keyword: string) => {
                 let cleanKeyword = keyword.trim().toLowerCase();
                 return (
                     cleanKeyword === "" ||
