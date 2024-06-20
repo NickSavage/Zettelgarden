@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { requestPasswordReset, resetPassword } from "../api"; // Make sure these are implemented in api.js
+import { requestPasswordReset, resetPassword } from "../api/auth"; // Make sure these are implemented in api.js
 
 function PasswordReset() {
   const [email, setEmail] = useState("");

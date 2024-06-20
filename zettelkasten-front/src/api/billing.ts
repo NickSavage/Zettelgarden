@@ -1,8 +1,7 @@
 // API
-import { checkStatus } from "./api/common";
 const base_url = process.env.REACT_APP_URL;
 
-export async function createCheckoutSession(interval) {
+export async function createCheckoutSession(interval: string) {
   let token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
 
   // Define the API endpoint
@@ -31,7 +30,7 @@ export async function createCheckoutSession(interval) {
   }
 }
 // Add this function to your API functions file
-export async function getSuccessfulSessionData(sessionId) {
+export async function getSuccessfulSessionData(sessionId: string) {
   let token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
 
   // Define the API endpoint

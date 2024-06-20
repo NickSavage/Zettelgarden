@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getSuccessfulSessionData } from '../api';
+import { getSuccessfulSessionData } from '../api/billing';
 
 export function BillingSuccess() {
     const [sessionData, setSessionData] = useState(null);
