@@ -12,8 +12,8 @@ export interface File {
   updated_by: number;
   card_pk: number;
   is_deleted: boolean;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   card: PartialCard;
 }
 

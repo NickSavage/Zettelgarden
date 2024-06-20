@@ -1,4 +1,15 @@
+import { File } from "../models/File";
+import { Card } from "../models/Card";
 import { renderFile, deleteFile } from "../api/files";
+import React from "react";
+
+interface FileListItemProps {
+  file: File;
+  onDelete: (file_id: number) => void;
+  handleViewCard: (card_pk: number) => void;
+  openRenameModal: (file: File) => void;
+  displayCard: (card: Card) => void;
+}
 
 export function FileListItem({
   file,
@@ -6,14 +17,14 @@ export function FileListItem({
   handleViewCard,
   openRenameModal,
   displayCard,
-}) {
-  const handleFileDownload = (file, e) => {
+}: FileListItemProps) {
+  const handleFileDownload = (file: File, e: React.MouseEvent) => {
     e.preventDefault();
     renderFile(file.id, file.name).catch((error) => {
       console.error("Error downloading file:", error);
     });
   };
-  const handleFileDelete = (file_id, e) => {
+  const handleFileDelete = (file_id: number, e: React.MouseEvent) => {
     e.preventDefault();
 
     // Show confirmation dialog
@@ -27,6 +38,7 @@ export function FileListItem({
         });
     }
   };
+  console.log(file.created_at); // Check the type and value
   return (
     <li key={file.id}>
       <div className="file-item">
@@ -38,7 +50,6 @@ export function FileListItem({
             {file.name}
           </a>
           <br />
-          {displayCard && (
             <div>
               <a
                 href="#"
@@ -56,8 +67,7 @@ export function FileListItem({
 
               <br />
             </div>
-          )}
-          <span>Created At: {file["created_at"]}</span>
+          <span>Created At: {file.created_at}</span>
         </div>
         <div className="file-item-right">
           <button className="btn" onClick={(e) => openRenameModal(file)}>
