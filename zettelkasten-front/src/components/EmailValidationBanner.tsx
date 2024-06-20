@@ -1,6 +1,12 @@
+import React from "react";
 import { resendValidateEmail } from "../api/users";
+import { User } from "../models/User";
 
-export function EmailValidationBanner({ user }) {
+interface EmailValidationBannerProps {
+  user: User;
+}
+
+export function EmailValidationBanner({ user }: EmailValidationBannerProps) {
   function resendEmail() {
     resendValidateEmail();
   }
@@ -8,7 +14,7 @@ export function EmailValidationBanner({ user }) {
     return <div></div>;
   }
   return (
-    <div class="validation-banner">
+    <div className="validation-banner">
       <span>
         Go validate your email. Click{" "}
         <a href="#" onClick={resendEmail}>

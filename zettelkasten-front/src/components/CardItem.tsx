@@ -1,7 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
+import { Card } from "../models/Card";
 
-export function CardItem({ handleViewCard, card }) {
-  const navigate = useNavigate();
+interface CardItemProps {
+  card: Card;
+}
+
+export function CardItem({ card }: CardItemProps) {
   return (
     <div key={card.id}>
       <Link to={`/app/card/${card.id}`} style={{ textDecoration: 'none', color: 'inherit'}}>
