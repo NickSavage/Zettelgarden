@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useAuth, isAdmin } from "../AuthContext";
+import React, { useState } from "react";
+import { useAuth } from "../AuthContext";
 import { Link } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
+
+interface TopbarProps {
+  handleNewCard:(cardType: string) => void,
+  handleViewFileVault: () => void,
+  handleViewSettings: () => void,
+  handleIndexClick: () => void,
+}
 
 export function Topbar({
   handleNewCard,
   handleViewFileVault,
   handleViewSettings,
-  handleIndexClick,
-}) {
+}: TopbarProps) {
   const { logoutUser } = useAuth();
   const { isAdmin } = useAuth();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
