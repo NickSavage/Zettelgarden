@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUser, editUser } from "../api/users";
+import { User, defaultUser } from "../models/User"
 
 export function AdminEditUserPage() {
-  const [user, setUser] = useState({
-    username: "",
-    email: "",
-    is_admin: false,
-  });
+  const [user, setUser] = useState<User>(defaultUser);
   const [error, setError] = useState(null);
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    getUser(id).then((data) => setUser(data));
+    getUser(id!)
+      .then((data) => setUser(data))
+      .catch((error) => setError(error.message));
   }, [id]);
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
     setUser({
       ...user,
@@ -24,9 +23,9 @@ export function AdminEditUserPage() {
     });
   };
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    await editUser(id, user)
+    await editUser(id!, user)
       .then(() => {
         navigate(`/admin/user/${id}`); // Use backticks here for template literals
       })

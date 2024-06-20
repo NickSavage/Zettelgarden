@@ -24,7 +24,7 @@ export function createUser(userData: CreateUserParams): Promise<CreateUserRespon
     });
 }
 
-export function getUser(id: number): Promise<User> {
+export function getUser(id: string): Promise<User> {
   let encoded = encodeURIComponent(id);
   const url = base_url + `/users/${encoded}`;
   let token = localStorage.getItem("token");
@@ -55,7 +55,7 @@ export function getUsers(): Promise<User[]> {
     });
 }
 
-export async function editUser(userId: number, updateData: EditUserParams): Promise<User> {
+export async function editUser(userId: string, updateData: EditUserParams): Promise<User> {
   let token = localStorage.getItem("token");
   const url = `${base_url}/users/${userId}`;
 

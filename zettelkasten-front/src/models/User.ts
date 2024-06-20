@@ -2,6 +2,7 @@
 export interface User {
     id: number;
     username: string;
+    email: string;
     password: string;
     created_at: Date;
     updated_at: Date;
@@ -17,6 +18,25 @@ export interface User {
     stripe_current_plan: string;
     is_active: boolean;
 }
+export const defaultUser: User = {
+    id: 0,
+    username: "",
+    email: "",
+    password: "",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_admin: false,
+    last_login: new Date(),
+    email_validated: false,
+    can_upload_files: false,
+    max_file_storage: 0,
+    stripe_customer_id: "",
+    stripe_subscription_id: "",
+    stripe_subscription_status: "",
+    stripe_subscription_frequency: "",
+    stripe_current_plan: "",
+    is_active: false,
+  };
 
 export interface UserSubscription {
     id: number;
