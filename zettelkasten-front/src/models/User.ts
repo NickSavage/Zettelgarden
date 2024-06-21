@@ -4,10 +4,10 @@ export interface User {
     username: string;
     email: string;
     password: string;
-    created_at: Date;
-    updated_at: Date;
+    created_at: string;
+    updated_at: string;
     is_admin: boolean;
-    last_login: Date;
+    last_login: string;
     email_validated: boolean;
     can_upload_files: boolean;
     max_file_storage: number;
@@ -23,10 +23,10 @@ export const defaultUser: User = {
     username: "",
     email: "",
     password: "",
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: "",
+    updated_at: "",
     is_admin: false,
-    last_login: new Date(),
+    last_login: "",
     email_validated: false,
     can_upload_files: false,
     max_file_storage: 0,

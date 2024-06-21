@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { getUsers } from "../api/users";
-import { useAuth } from "../AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { User } from "../models/User"
 
 export function AdminUserIndex() {
-  const { isAdmin, isLoading } = useAuth();
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   useEffect(() => {
     const fetchUsers = async () => {
       let tempUsers = await getUsers();
@@ -40,7 +39,6 @@ export function AdminUserIndex() {
 		<td>{user["email_validated"] ? "Yes" : "No"}</td>
 		<td>{user["stripe_subscription_status"]}</td>
               <td>{user["created_at"]}</td>
-              <td>{user["cards"]}</td>
             </tr>
           ))}
       </table>

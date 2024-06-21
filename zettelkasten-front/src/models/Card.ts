@@ -6,8 +6,8 @@ export interface PartialCard {
     card_id: string;
     user_id: number;
     title: string;
-    created_at: Date;
-    updated_at: Date;
+    created_at: string;
+    updated_at: string;
   }
   
   
@@ -19,8 +19,8 @@ export interface PartialCard {
     body: string;
     link: string;
     is_deleted: boolean;
-    created_at: Date;
-    updated_at: Date;
+    created_at: string;
+    updated_at: string;
     parent: PartialCard;
     files: File[];
     children: PartialCard[];
