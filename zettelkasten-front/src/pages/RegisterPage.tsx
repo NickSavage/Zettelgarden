@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { createUser } from "../api/users";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -13,7 +13,7 @@ function RegisterPage() {
   const navigate = useNavigate();
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     // Basic validation to check if passwords match

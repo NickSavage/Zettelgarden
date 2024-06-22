@@ -1,18 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards } from "../api/cards";
-
+import { Card } from "../models/Card";
 import { useNavigate } from "react-router-dom";
 
-export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
+interface SearchPageProps {
+  searchTerm: string;
+  setSearchTerm: (searchTerm: string) => void;
+  cards: Card[];
+  setCards: (cards: Card[]) => void;
+}
+
+export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }: SearchPageProps) {
   const [sortBy, setSortBy] = useState("relevant");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const navigate = useNavigate();
 
-  function handleCardClick(card_id) {
+  function handleCardClick(card_id: number) {
     navigate(`/app/card/${card_id}`);
   }
-  function handleSearchUpdate(e) {
+
+  function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
   }
 
@@ -21,7 +29,8 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
       setCards(data);
     });
   }
-  function handleSortChange(e) {
+
+  function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSortBy(e.target.value); // Update sort state when user selects a different option
   }
 
@@ -29,11 +38,11 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
     switch (sortBy) {
       case "newest":
         return [...cards].sort(
-          (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+          (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
         );
       case "oldest":
         return [...cards].sort(
-          (a, b) => new Date(a.updated_at) - new Date(b.updated_at),
+          (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
         );
       case "a-z":
         return [...cards].sort((a, b) => a.title.localeCompare(b.title));
@@ -43,6 +52,7 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
         return cards; // Default case for relevance or other non-sorting options
     }
   }
+
   const sortedCards = sortCards(); // Call sortCards to get the sorted cards
 
   // Calculate the index of the last and first item on the current page
@@ -52,12 +62,10 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
   const currentItems = sortedCards.slice(indexOfFirstItem, indexOfLastItem);
 
   // Change page handler
-  function paginate(pageNumber) {
-    setCurrentPage(pageNumber);
-  }
   useEffect(() => {
     document.title = "Zettelgarden - Search";
   }, []);
+
   return (
     <div>
       <input
@@ -67,7 +75,7 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }) {
         value={searchTerm}
         placeholder="Search"
         onChange={handleSearchUpdate}
-        onKeyPress={(event) => {
+        onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
           if (event.key === "Enter") {
             handleSearch();
           }
