@@ -1,36 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUserSubscription } from "../api/users";
 import { getCurrentUser } from "../api/users";
 import { editUser } from "../api/users";
+import { User, EditUserParams, UserSubscription } from "../models/User";
 
 export function UserSettingsPage() {
-  const [user, setUser] = useState(null);
-    const [subscription, setSubscription] = useState(null);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [user, setUser] = useState<User|null>(null);
+    const [subscription, setSubscription] = useState<UserSubscription|null>(null);
+  const [error, setError] = useState<string|null>(null);
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault(); // Prevent the default form submit action
 
     // Get the form data
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
     const updatedUsername = formData.get('username');
     const updatedEmail = formData.get('email');
+
+    if (!user) {
+      setError("User data is not loaded");
+      return;
+    }
 
     // Prepare the data to be updated
     const updateData = {
       username: updatedUsername,
       email: updatedEmail,
+      is_admin: user.is_admin
     };
 
     try {
       // Call the editUser function with userId and the update data
-      await editUser(user.id, updateData);
+      await editUser(user.id.toString(), updateData as EditUserParams);
       // Optionally, navigate to another route upon success or just show success message
       // navigate('/some-success-page'); or
       alert('User updated successfully');
-    } catch (error) {
+    } catch (error: any) {
       // Handle any errors that occur during the update
       console.error('Failed to update user:', error);
       setError(error.message);

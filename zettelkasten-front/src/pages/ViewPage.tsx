@@ -6,40 +6,60 @@ import { getCard } from "../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-export function ViewPage({ cards, setLastCardId }) {
-  const navigate = useNavigate();
+import { Card } from "../models/Card";
+import { File } from "../models/File";
+import {isErrorResponse} from "../models/common";
+
+interface ViewPageProps {
+  cards: Card[];
+  setLastCardId: (cardId: string) => void;
+}
+
+export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
   const [error, setError] = useState("");
-  const [viewingCard, setViewCard] = useState(null);
-  const [parentCard, setParentCard] = useState(null);
-  const { id } = useParams();
+  const [viewingCard, setViewCard] = useState<Card | null> (null);
+  const [parentCard, setParentCard] = useState<Card | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  function onFileDelete(file_id: number) {}
+  function handleViewCard(card_id: number) {}
+  function openRenameModal(file: File) {}
 
   function handleEditCard() {
+    if (viewingCard === null) {
+      return
+    }
     navigate(`/app/card/${viewingCard.id}/edit`);
   }
-  function onFileDelete(file_id) {}
 
-  async function fetchCard(id) {
-    let refreshed = await getCard(id);
-
-    if ("error" in refreshed) {
-      setError(refreshed["error"]);
-    } else {
-      setViewCard(refreshed);
-      document.title = "Zettelgarden - " + refreshed.card_id + " - View";
-      setLastCardId(refreshed.card_id);
-      if ("id" in refreshed.parent) {
-        let parentCardId = refreshed.parent.id;
-        const parentCard = await getCard(parentCardId);
-        setParentCard(parentCard);
+  async function fetchCard(id: string) {
+    try {
+      let refreshed = await getCard(id);
+  
+      if (isErrorResponse(refreshed)) {
+        setError(refreshed["error"]);
       } else {
-        setParentCard(null);
+        setViewCard(refreshed);
+        document.title = "Zettelgarden - " + refreshed.card_id + " - View";
+        setLastCardId(refreshed.card_id);
+  
+        if (refreshed.parent && "id" in refreshed.parent) {
+          let parentCardId = refreshed.parent.id;
+          const parentCard = await getCard(parentCardId.toString());
+          setParentCard(parentCard);
+        } else {
+          setParentCard(null);
+        }
       }
+    } catch (error: any) {
+      setError(error.message);
     }
   }
 
   useEffect(() => {
     setError("");
-    fetchCard(id);
+    fetchCard(id!);
   }, [id]);
   return (
     <div>
@@ -86,8 +106,8 @@ export function ViewPage({ cards, setLastCardId }) {
               <FileListItem
                 file={file}
                 onDelete={onFileDelete}
-                handleViewCard={null}
-                openRenameModal={null}
+                handleViewCard={handleViewCard}
+                openRenameModal={openRenameModal}
               />
             ))}
           </ul>

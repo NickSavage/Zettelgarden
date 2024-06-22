@@ -40,11 +40,11 @@ export const defaultUser: User = {
 
 export interface UserSubscription {
     id: number;
-    stripeCustomerId: string;
-    stripeSubscriptionId: string;
-    stripeSubscriptionStatus: string;
-    stripeSubscriptionFrequency: string;
-    stripeCurrentPlan: string;
+    stripe_customer_id: string;
+    stripe_subscription_id: string;
+    stripe_subscription_status: string;
+    stripe_subscription_frequency: string;
+    stripe_current_plan: string;
     isActive: boolean;
 }
 

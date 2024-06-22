@@ -51,7 +51,7 @@ export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = f
     });
 }
 
-export function getCard(id: number): Promise<Card> {
+export function getCard(id: string): Promise<Card> {
   // Assuming your backend is running on the same IP and port as in previous example
   let encoded = encodeURIComponent(id);
   const url = base_url + `/cards/${encoded}`;
