@@ -1,5 +1,5 @@
 import { checkStatus } from "./common";
-import { EditFileMetadataParams, UploadFileResponse } from "../models/File";
+import { File, EditFileMetadataParams, UploadFileResponse } from "../models/File";
 import { GenericResponse } from "../models/common";
 
 const base_url = process.env.REACT_APP_URL;

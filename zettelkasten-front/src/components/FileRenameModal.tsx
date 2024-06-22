@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from "react";
 
 import { editFile } from "../api/files";
+import { File } from "../models/File";
 
-export function FileRenameModal({ isOpen, onClose, onRename, file }) {
+interface FileRenameModal {
+  isOpen: boolean;
+  onClose: () => void;
+  onRename:(file_id: number, updatedFile: File) => void;
+  file: File | null;
+}
+
+export function FileRenameModal({ isOpen, onClose, onRename, file }: FileRenameModal) {
   const [newName, setNewName] = useState("");
 
   function handleRename() {
+    if (file === null) {
+      return
+    }
     console.log("handleRename");
     editFile(file["id"], { name: newName })
       .then((updatedFile) => {

@@ -3,7 +3,7 @@ import {
   getAllFiles,
 } from "../api/files";
 import { sortCards } from "../utils";
-import { FileRenameModal } from "../components/FileRenameModal.js";
+import { FileRenameModal } from "../components/FileRenameModal";
 import { FileListItem } from "../components/FileListItem";
 
 import { useNavigate } from "react-router-dom";
