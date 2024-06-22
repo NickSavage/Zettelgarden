@@ -10,6 +10,7 @@ type ResetPasswordParams struct {
 }
 
 type ResetPasswordResponse struct {
+	Error   bool   `json:"error"`
 	Message string `json:"message"`
 }
 

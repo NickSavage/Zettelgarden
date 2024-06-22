@@ -88,7 +88,6 @@ export function ViewPage({ cards, setLastCardId }) {
                 onDelete={onFileDelete}
                 handleViewCard={null}
                 openRenameModal={null}
-                displayCard={false}
               />
             ))}
           </ul>

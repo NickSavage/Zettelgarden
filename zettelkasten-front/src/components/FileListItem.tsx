@@ -8,7 +8,6 @@ interface FileListItemProps {
   onDelete: (file_id: number) => void;
   handleViewCard: (card_pk: number) => void;
   openRenameModal: (file: File) => void;
-  displayCard: (card: Card) => void;
 }
 
 export function FileListItem({
@@ -16,7 +15,6 @@ export function FileListItem({
   onDelete,
   handleViewCard,
   openRenameModal,
-  displayCard,
 }: FileListItemProps) {
   const handleFileDownload = (file: File, e: React.MouseEvent) => {
     e.preventDefault();

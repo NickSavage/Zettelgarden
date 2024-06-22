@@ -7,5 +7,6 @@ export interface LoginResponse {
 }
 
 export interface ResetPasswordResponse {
+    error: boolean;
     message: string;
 }

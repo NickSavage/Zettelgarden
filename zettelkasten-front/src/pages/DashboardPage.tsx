@@ -1,12 +1,13 @@
 import React from 'react';
 import { fetchPartialCards } from "../api/cards";
 import { CardItem } from "../components/CardItem";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { PartialCard } from "../models/Card"
 
 
 export function DashboardPage() {
-    const [partialCards, setPartialCards] = React.useState([]);
-    const [inactiveCards, setInactiveCards] = React.useState([]);
+    const [partialCards, setPartialCards] = React.useState<PartialCard[]>([]);
+    const [inactiveCards, setInactiveCards] = React.useState<PartialCard[]>([]);
 
     useEffect(() => {
         fetchPartialCards("", "date")

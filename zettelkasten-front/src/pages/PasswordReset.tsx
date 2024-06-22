@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { requestPasswordReset, resetPassword } from "../api/auth"; // Make sure these are implemented in api.js
 
@@ -19,13 +19,13 @@ function PasswordReset() {
     }
   }, [location]);
 
-  const handleRequestReset = async (e) => {
+  const handleRequestReset = async (e: FormEvent) => {
     e.preventDefault();
     setMessage("");
     try {
       const response = await requestPasswordReset(email);
       if (response.error) {
-        setMessage(response.error);
+        setMessage(response.message);
       } else {
         setMessage(
           "If your email is in our system, you will receive a password reset link.",
@@ -36,7 +36,7 @@ function PasswordReset() {
     }
   };
 
-  const handleResetPassword = async (e) => {
+  const handleResetPassword = async (e: FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       setMessage("Passwords do not match.");
@@ -45,7 +45,7 @@ function PasswordReset() {
     try {
       const response = await resetPassword(token, newPassword);
       if (response.error) {
-        setMessage(response.error);
+        setMessage(response.message);
       } else {
         setMessage("Your password has been successfully updated.");
         navigate("/login"); // Redirect to login page or wherever appropriate

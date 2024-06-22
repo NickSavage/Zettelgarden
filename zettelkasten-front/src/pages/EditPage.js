@@ -363,7 +363,6 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
                     onDelete={onFileDelete}
                     handleViewCard={null}
                     openRenameModal={null}
-                    displayCard={false}
                   />
                 ))}
               </ul>

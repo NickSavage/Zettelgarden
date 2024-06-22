@@ -8,25 +8,27 @@ import { FileListItem } from "../components/FileListItem";
 
 import { useNavigate } from "react-router-dom";
 
+import { File } from "../models/File"
+
 export function FileVault() {
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
-  const [fileToRename, setFileToRename] = useState(null);
+  const [fileToRename, setFileToRename] = useState<File | null>(null);
   const navigate = useNavigate();
 
-  function handleCardClick(id) {
+  function handleCardClick(id: number) {
     navigate(`/app/card/${id}`);
   }
-  const openRenameModal = (file) => {
+  const openRenameModal = (file: File) => {
     setFileToRename(file);
     setIsRenameModalOpen(true);
   };
 
-  function onDelete(file_id) {
+  function onDelete(file_id: number) {
     setFiles(files.filter((file) => file.id !== file_id));
   }
 
-  function onRename(fileId, updatedFile) {
+  function onRename(fileId: number, updatedFile: File) {
     setFiles((prevFiles) =>
       prevFiles.map((f) => (f.id === updatedFile.id ? updatedFile : f)),
     );
@@ -55,7 +57,6 @@ export function FileVault() {
               onDelete={onDelete}
               handleViewCard={handleCardClick}
               openRenameModal={openRenameModal}
-              displayCard={true}
             />
           ))}
         </ul>
