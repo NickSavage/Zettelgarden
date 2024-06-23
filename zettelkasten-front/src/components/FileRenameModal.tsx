@@ -18,7 +18,7 @@ export function FileRenameModal({ isOpen, onClose, onRename, file }: FileRenameM
       return
     }
     console.log("handleRename");
-    editFile(file["id"], { name: newName })
+    editFile(file["id"].toString(), { name: newName })
       .then((updatedFile) => {
         onRename(file["id"], updatedFile);
       })

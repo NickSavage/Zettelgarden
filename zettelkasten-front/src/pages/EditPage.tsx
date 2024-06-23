@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../utils";
 import { uploadFile, editFile } from "../api/files";
-import { deleteCard } from "../api/cards";
+import { deleteCard, getNextId, saveNewCard, saveExistingCard, getCard } from "../api/cards";
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { Card, defaultCard } from "../models/Card";
+import { File } from "../models/File";
 
-import { getNextId } from "../api/cards";
-import { saveNewCard, saveExistingCard } from "../api/cards";
-import { getCard } from "../api/cards";
+interface EditPageProps {
+  cards: Card[];
+  newCard: Card | null;
+  setRefreshSidebar: (refreshSidebar: boolean) => void;
+  lastCardId: string;
+}
 
-import { useParams } from "react-router-dom";
+function handleViewCard(card_pk: number) {}
+function openRenameModal(file: File) {}
+function onFileDelete(file_id: number) {}
 
-// Render the warning label
-function renderWarningLabel(cards, editingCard) {
+function renderWarningLabel(cards: Card[], editingCard: Card) {
   if (!editingCard.card_id) return null;
   if (!isCardIdUnique(cards, editingCard.card_id)) {
     return <span style={{ color: "red" }}>Card ID is not unique!</span>;
@@ -21,27 +27,27 @@ function renderWarningLabel(cards, editingCard) {
   return null;
 }
 
-export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [linktitle, setLinktitle] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [link, setLink] = useState("");
-  const [topResults, setTopResults] = useState([]);
-  const [editingCard, setEditingCard] = useState(null);
-  const [fileIds, setFileIds] = useState([]);
+export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: EditPageProps) {
+  const [error, setError] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [linktitle, setLinktitle] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [link, setLink] = useState<string>("");
+  const [topResults, setTopResults] = useState<Card[]>([]);
+  const [editingCard, setEditingCard] = useState<Card>(defaultCard);
+  const [fileIds, setFileIds] = useState<string[]>([]);
 
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const cardType = location.state?.cardType;
 
-  const addFileId = (fileId) => {
-    setFileIds(prevFileIds => [...prevFileIds, fileId]);
+  const addFileId = (fileId: string) => {
+    setFileIds((prevFileIds) => [...prevFileIds, fileId]);
   };
-  async function fetchCard(id) {
-    let refreshed = await getCard(id);
 
+  async function fetchCard(id: string) {
+    let refreshed = await getCard(id);
     setEditingCard(refreshed);
     document.title = "Zettelgarden - " + refreshed.card_id + " - Edit";
   }
@@ -55,31 +61,35 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     }
 
     if (!("error" in response)) {
-      if (newCard) {
-        fileIds.forEach(fileId => {
-          editFile(fileId, { card_pk: response.id });
-        })
-
-      }
+      // if (newCard) {
+      //   fileIds.forEach((fileId) => {
+      //     editFile(fileId, { card_pk: response.id });
+      //   });
+      // }
       navigate(`/app/card/${response.id}`);
     } else {
-      setError(response["error"]);
+      setError("Unable to save card, something has gone wrong.");
     }
     setRefreshSidebar(true);
   }
-  async function prefillNextId() {
-    let nextId;
+
+  async function prefillNextId(): Promise<string> {
+    let nextId = lastCardId;
     if (cardType === "reference" || cardType === "meeting") {
       let response = await getNextId(cardType);
+      if (response === null) {
+        return ""
+      }
       nextId = response["new_id"];
     } else {
       nextId = lastCardId;
     }
     return nextId;
   }
+
   useEffect(() => {
     if (!newCard) {
-      fetchCard(id);
+      fetchCard(id!);
     } else {
       document.title = "Zettelgarden - New Card";
       prefillNextId().then((nextId) => {
@@ -91,38 +101,37 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
           const day = String(today.getDate()).padStart(2, "0");
           title = `${year}-${month}-${day} - `;
         }
-        setEditingCard({ card_id: nextId, title, body: "" });
+        setEditingCard({ ...defaultCard, card_id: nextId, title, body: "" });
       });
     }
   }, [id]);
 
-  function onFileDelete(file_id) {}
 
   function handleCancelButtonClick() {
-      if (editingCard.id) {
-	  
-	  navigate(`/app/card/${editingCard.id}`);
-      } else {
-	  navigate('/');
-      }
+    if (editingCard.id) {
+      navigate(`/app/card/${editingCard.id}`);
+    } else {
+      navigate("/");
+    }
   }
+
   function handleDeleteButtonClick() {
     if (
       window.confirm(
-        "Are you sure you want to delete this card? This cannot be reversed",
+        "Are you sure you want to delete this card? This cannot be reversed"
       )
     ) {
-      deleteCard(editingCard["id"])
+      deleteCard(editingCard.id)
         .then(() => setRefreshSidebar(true))
         .catch((error) =>
           setMessage(
-            "Unable to delete card. Does it have backlinks, children or files?",
-          ),
+            "Unable to delete card. Does it have backlinks, children or files?"
+          )
         );
     }
   }
 
-  function handleLinkInputChange(e) {
+  function handleLinkInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     setLink(e.target.value);
     const search = e.target.value; // assuming you want case-insensitive matching
     setSearchTerm(search);
@@ -131,7 +140,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
       const matchingCards = cards.filter(
         (card) =>
           card.card_id.toLowerCase().startsWith(search.toLowerCase()) ||
-          card.title.toLowerCase().includes(search.toLowerCase()),
+          card.title.toLowerCase().includes(search.toLowerCase())
       );
 
       // If an exact match is found, make sure it is at the front of the array
@@ -140,7 +149,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
         : matchingCards;
       filteredCards = filteredCards.filter(
         (card, index, self) =>
-          index === self.findIndex((t) => t.card_id === card.card_id),
+          index === self.findIndex((t) => t.card_id === card.card_id)
       );
       // Update linktitle with the title of the matching card, or an empty string if no match is found
       setLinktitle(
@@ -148,7 +157,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
           ? exactMatchCard.title
           : matchingCards.length > 0
           ? matchingCards[0].title
-          : "",
+          : ""
       );
       let results = filteredCards.slice(0, 5);
       setTopResults(results);
@@ -158,95 +167,82 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     }
   }
 
-  function handleBodyChange(event) {
-    console.log(event);
+  function handleBodyChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     setEditingCard({ ...editingCard, body: event.target.value });
   }
 
-  const handleDrop = async (event) => {
+  const handleDrop = async (event: React.DragEvent<HTMLTextAreaElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
-/*     if (newCard) {
-      setMessage(
-        "Error: Cannot upload files for new cards, please save the card first",
-      );
-      return;
-    } */
     const files = event.dataTransfer.files;
 
     if (files.length > 0) {
       for (let i = 0; i < files.length; i++) {
         try {
-          const response = await uploadFile(files[i], editingCard["id"]);
-	    if ("error" in response) {
-		setMessage("Error uploading file: " + response["message"])
-	    } else {
-		    setMessage("File uploaded successfully: " + response["file"]["name"]);
-        addFileId(response["file"]["id"]);
-	    }
+          const response = await uploadFile(files[i], editingCard.id);
+          if ("error" in response) {
+            setMessage("Error uploading file: " + response["message"]);
+          } else {
+            setMessage("File uploaded successfully: " + response["file"]["name"]);
+            addFileId(response["file"]["id"].toString());
+          }
         } catch (error) {
-          setMessage("Error uploading file: " + error, error);
+          setMessage("Error uploading file: " + error);
         }
       }
     }
   };
-  const handlePaste = async (event) => {
-    // Prevent the default pasting action
+
+  const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     event.preventDefault();
 
-    // Check if there are any items being pasted
     if (event.clipboardData && event.clipboardData.items) {
-      const items = event.clipboardData.items;
-      for (const item of items) {
-        // Check if the item is an image
-        if (item.type.indexOf("image") !== -1) {
+       const items = Array.from(event.clipboardData.items);
+       for (const item of items) {
+         if (item.type.indexOf("image") !== -1) {
           const file = item.getAsFile();
 
           if (newCard) {
             setMessage(
-              "Error: Cannot upload images for new cards, please save the card first",
+              "Error: Cannot upload images for new cards, please save the card first"
             );
             return;
           }
 
           try {
-            const response = await uploadFile(file, editingCard["id"]);
+            const response = await uploadFile(file!, editingCard.id);
 
-	    if ("error" in response) {
-		setMessage("Error uploading file: " + response["message"])
-	    } else {
-		let append_text = "\n\n![](" + response["file"]["id"] + ")";
-		setMessage(
-		    `File uploaded successfully: ${response["file"]["name"]}`,
-		);
+            if ("error" in response) {
+              setMessage("Error uploading file: " + response["message"]);
+            } else {
+              let append_text = "\n\n![](" + response["file"]["id"] + ")";
+              setMessage(`File uploaded successfully: ${response["file"]["name"]}`);
 
-		// if uploading an image, we want to automatically link it in the body
-		setEditingCard((prevEditingCard) => ({
-		    ...editingCard,
-		    body: editingCard.body + append_text, // Append the text
-		}));
-	    }
+              setEditingCard((prevEditingCard) => ({
+                ...prevEditingCard,
+                body: prevEditingCard.body + append_text,
+              }));
+            }
           } catch (error) {
             setMessage(`Error uploading file: ${error}`);
           }
         } else if (item.type === "text/plain") {
-          // If the pasted content is not an image, handle the usual text pasting
           const text = event.clipboardData.getData("text/plain");
-	    setEditingCard(prevEditingCard => ({
-		...prevEditingCard,
-		body: prevEditingCard.body + text // Append the pasted text to the existing body
-	    }));
+          setEditingCard((prevEditingCard) => ({
+            ...prevEditingCard,
+            body: prevEditingCard.body + text,
+          }));
         }
       }
     }
   };
 
-  const handleDragOver = (event) => {
+  const handleDragOver = (event: React.DragEvent<HTMLTextAreaElement>) => {
     event.preventDefault();
   };
 
-  function addBacklink(selectedCard) {
+  function addBacklink(selectedCard: Card | undefined) {
     let text = "";
     if (selectedCard) {
       text = "\n\n[" + selectedCard.card_id + "] - " + selectedCard.title;
@@ -256,13 +252,13 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
     setLink("");
     setSearchTerm("");
     setTopResults([]);
-    // Your specific function to run
     setEditingCard((prevEditingCard) => ({
-      ...editingCard,
-      body: editingCard.body + text, // Append the text
+      ...prevEditingCard,
+      body: prevEditingCard.body + text,
     }));
   }
-  function handleEnterPress(e) {
+
+  function handleEnterPress(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       setTopResults([]);
       let enteredCard = topResults.find((card) => card.card_id === searchTerm);
@@ -284,14 +280,13 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
                 setEditingCard({ ...editingCard, card_id: e.target.value })
               }
               placeholder="ID"
-              style={{ display: "block", marginBottom: "10px" }} // Added styles here
+              style={{ display: "block", marginBottom: "10px" }} 
             />
             {newCard && renderWarningLabel(cards, editingCard)}
           </div>
-          {/* Title Section */}
           <label htmlFor="title">Title:</label>
           <input
-            style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
+            style={{ display: "block", width: "100%", marginBottom: "10px" }} 
             type="text"
             id="title"
             value={editingCard.title}
@@ -303,7 +298,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
 
           <label htmlFor="body">Body:</label>
           <textarea
-            style={{ display: "block", width: "100%", height: "200px" }} // Updated style here
+            style={{ display: "block", width: "100%", height: "200px" }} 
             id="body"
             value={editingCard.body}
             onChange={handleBodyChange}
@@ -325,7 +320,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
             <input
               type="text"
               value={link}
-              onChange={(e) => handleLinkInputChange(e)}
+              onChange={handleLinkInputChange}
               placeholder="ID"
               onKeyDown={handleEnterPress}
               style={{ display: "block", marginRight: "10px" }}
@@ -359,10 +354,11 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }) {
               <ul>
                 {editingCard.files.map((file, index) => (
                   <FileListItem
+                    key={index}
                     file={file}
                     onDelete={onFileDelete}
-                    handleViewCard={null}
-                    openRenameModal={null}
+                    handleViewCard={handleViewCard}
+                    openRenameModal={openRenameModal}
                   />
                 ))}
               </ul>

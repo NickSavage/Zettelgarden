@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { useAuth } from "../AuthContext";
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -12,7 +12,7 @@ function LoginForm() {
   const location = useLocation();
   const message = location.state?.message;
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     const base_url = process.env.REACT_APP_URL;
     try {

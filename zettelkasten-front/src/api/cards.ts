@@ -1,4 +1,4 @@
-import { Card, PartialCard } from "../models/Card";
+import { Card, PartialCard, NextIdResponse } from "../models/Card";
 import { checkStatus } from "./common";
 
 const base_url = process.env.REACT_APP_URL;
@@ -124,7 +124,7 @@ export function deleteCard(id: number): Promise<Card|null> {
       }
     });
 }
-export async function getNextId(cardType: string): Promise<string> {
+export async function getNextId(cardType: string): Promise<NextIdResponse> {
   const url = `${base_url}/cards/next`;
 
   let token = localStorage.getItem("token");
@@ -140,7 +140,7 @@ export async function getNextId(cardType: string): Promise<string> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json() as Promise<string>;
+        return response.json() as Promise<NextIdResponse>;
       } else {
             return Promise.reject(new Error("Response is undefined"));
       }

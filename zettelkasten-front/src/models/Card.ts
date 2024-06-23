@@ -26,3 +26,35 @@ export interface PartialCard {
     children: PartialCard[];
     references: PartialCard[];
  }
+
+export const defaultPartialCard: PartialCard = {
+   id: -1,
+   card_id: "",
+   user_id: -1,
+   title: "",
+   created_at: "",
+   updated_at: "",
+}
+
+ export const defaultCard: Card = {
+   id: -1,
+   card_id: "",
+   user_id: -1,
+   title: "",
+   body: "",
+   link: "",
+   is_deleted: false,
+   created_at: "",
+   updated_at: "",
+   parent: defaultPartialCard,
+   files: [],
+   children: [],
+   references: [],
+
+ }
+
+ export interface NextIdResponse {
+   error: boolean;
+   message: string;
+   new_id: string;
+ }

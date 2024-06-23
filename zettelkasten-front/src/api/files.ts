@@ -128,7 +128,7 @@ export function deleteFile(fileId: number): Promise<GenericResponse> {
         }
     });
 }
-export function editFile(fileId: number, updateData: EditFileMetadataParams): Promise<File> {
+export function editFile(fileId: string, updateData: EditFileMetadataParams): Promise<File> {
   let token = localStorage.getItem("token");
   const url = `${base_url}/files/${fileId}`;
 
