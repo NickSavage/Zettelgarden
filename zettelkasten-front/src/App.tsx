@@ -1,3 +1,4 @@
+import React from "react";
 import { Admin } from "./pages/AdminPage";
 import LandingPage from "./pages/LandingPage";
 import LoginForm from "./pages/LoginPage";
