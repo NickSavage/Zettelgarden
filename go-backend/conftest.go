@@ -161,6 +161,7 @@ func (s *Server) generateData() map[string]interface{} {
 		}
 		if i == 4 {
 			card.CardID = "REF001"
+			card.Body = card.Body + "\n[3]"
 		}
 		if i == 5 {
 			card.CardID = "MM001"
@@ -200,6 +201,12 @@ func (s *Server) generateData() map[string]interface{} {
 	backlinks = append(backlinks, models.Backlink{
 		SourceID:  "2/A",
 		TargetID:  "1",
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+	})
+	backlinks = append(backlinks, models.Backlink{
+		SourceID:  "3",
+		TargetID:  "REF001",
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})

@@ -266,6 +266,25 @@ func TestGetCardReferencesSuccess(t *testing.T) {
 	}
 }
 
+func TestGetCardReferencesDuplicateLinks(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardRequestSuccess(t, 4)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var card models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	if len(card.References) != 1 {
+		if len(card.References) == 2 && (card.References[0].CardID == card.References[1].CardID) {
+			t.Errorf("returned duplicate references to the same card")
+		} else {
+			t.Errorf("wrong number of references associated with card, got %v want %v", len(card.References), 2)
+		}
+	}
+}
+
 func TestGetCardsSuccess(t *testing.T) {
 	setup()
 	defer teardown()

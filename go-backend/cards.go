@@ -194,6 +194,33 @@ func getBacklinks(cardID string) ([]models.PartialCard, error) {
 
 }
 
+func Ints(input []int) []int {
+	u := make([]int, 0, len(input))
+	m := make(map[int]bool)
+
+	for _, val := range input {
+		if _, ok := m[val]; !ok {
+			m[val] = true
+			u = append(u, val)
+		}
+	}
+
+	return u
+}
+
+func getUniqueCards(input []models.PartialCard) []models.PartialCard {
+	u := make([]models.PartialCard, 0, len(input))
+	m := make(map[string]bool)
+
+	for _, card := range input {
+		if _, ok := m[card.CardID]; !ok {
+			m[card.CardID] = true
+			u = append(u, card)
+		}
+	}
+	return u
+}
+
 func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
 	directLinks := getDirectlinks(userID, card)
 	backlinks, _ := getBacklinks(card.CardID)
@@ -204,6 +231,7 @@ func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
 	sort.Slice(links, func(x, y int) bool {
 		return links[x].CardID > links[y].CardID
 	})
+	links = getUniqueCards(links)
 	return links, nil
 }
 
