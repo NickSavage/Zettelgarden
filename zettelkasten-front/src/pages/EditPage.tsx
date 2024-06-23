@@ -5,12 +5,12 @@ import { deleteCard, getNextId, saveNewCard, saveExistingCard, getCard } from ".
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { Card, defaultCard } from "../models/Card";
+import { Card, PartialCard, defaultCard } from "../models/Card";
 import { File } from "../models/File";
 
 interface EditPageProps {
-  cards: Card[];
-  newCard: Card | null;
+  cards: PartialCard[];
+  newCard: boolean;
   setRefreshSidebar: (refreshSidebar: boolean) => void;
   lastCardId: string;
 }
@@ -19,7 +19,7 @@ function handleViewCard(card_pk: number) {}
 function openRenameModal(file: File) {}
 function onFileDelete(file_id: number) {}
 
-function renderWarningLabel(cards: Card[], editingCard: Card) {
+function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
   if (!editingCard.card_id) return null;
   if (!isCardIdUnique(cards, editingCard.card_id)) {
     return <span style={{ color: "red" }}>Card ID is not unique!</span>;
@@ -33,7 +33,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
   const [linktitle, setLinktitle] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [link, setLink] = useState<string>("");
-  const [topResults, setTopResults] = useState<Card[]>([]);
+  const [topResults, setTopResults] = useState<PartialCard[]>([]);
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
   const [fileIds, setFileIds] = useState<string[]>([]);
 
@@ -242,7 +242,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
     event.preventDefault();
   };
 
-  function addBacklink(selectedCard: Card | undefined) {
+  function addBacklink(selectedCard: PartialCard) {
     let text = "";
     if (selectedCard) {
       text = "\n\n[" + selectedCard.card_id + "] - " + selectedCard.title;
@@ -262,6 +262,9 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
     if (e.key === "Enter") {
       setTopResults([]);
       let enteredCard = topResults.find((card) => card.card_id === searchTerm);
+      if (enteredCard === undefined) {
+        return
+      }
       addBacklink(enteredCard);
     }
   }

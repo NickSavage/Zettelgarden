@@ -2,7 +2,7 @@ import Markdown from "react-markdown";
 import React, { useState, useEffect } from "react";
 import { getIdByCardId } from "../utils";
 import { downloadFile } from "../api/files";
-import { Card } from "../models/Card";
+import { Card, PartialCard } from "../models/Card";
 import { useNavigate } from "react-router-dom";
 
 interface CustomImageRendererProps {
@@ -13,7 +13,7 @@ interface CustomImageRendererProps {
 
 interface CardBodyProps {
   viewingCard: Card;
-  cards: Card[];
+  cards: PartialCard[];
 }
 
 function preprocessCardLinks(body: string): string {
@@ -52,7 +52,7 @@ const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({ src, alt, tit
   );
 };
 
-function renderCardText(card: Card, cards: Card[], handleViewBacklink: (card_id: number) => void) {
+function renderCardText(card: Card, cards: PartialCard[], handleViewBacklink: (card_id: number) => void) {
   let body = card.body;
   body = preprocessCardLinks(body);
 

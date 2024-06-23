@@ -6,12 +6,12 @@ import { getCard } from "../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-import { Card } from "../models/Card";
+import { Card, PartialCard } from "../models/Card";
 import { File } from "../models/File";
 import {isErrorResponse} from "../models/common";
 
 interface ViewPageProps {
-  cards: Card[];
+  cards: PartialCard[];
   setLastCardId: (cardId: string) => void;
 }
 

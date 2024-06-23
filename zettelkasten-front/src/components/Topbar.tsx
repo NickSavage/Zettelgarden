@@ -8,7 +8,6 @@ interface TopbarProps {
   handleNewCard:(cardType: string) => void,
   handleViewFileVault: () => void,
   handleViewSettings: () => void,
-  handleIndexClick: () => void,
 }
 
 export function Topbar({

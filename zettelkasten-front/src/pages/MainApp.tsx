@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
-import { SearchPage } from "../pages/SearchPage";
-import { UserSettingsPage } from "../pages/UserSettings";
-import { FileVault } from "../pages/FileVault";
-import { ViewPage } from "../pages/ViewPage";
-import { EditPage } from "../pages/EditPage";
+import { SearchPage } from "./SearchPage";
+import { UserSettingsPage } from "./UserSettings";
+import { FileVault } from "./FileVault";
+import { ViewPage } from "./ViewPage";
+import { EditPage } from "./EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
 import { useAuth } from "../AuthContext";
@@ -12,28 +12,30 @@ import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import { getCurrentUser } from "../api/users";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
-import { BillingSuccess } from "../pages/BillingSuccess";
-import { BillingCancelled } from "../pages/BillingCancelled";
-import { SubscriptionPage } from "../pages/SubscriptionPage";
-import { DashboardPage } from "../pages/DashboardPage";
+import { BillingSuccess } from "./BillingSuccess";
+import { BillingCancelled } from "./BillingCancelled";
+import { SubscriptionPage } from "./SubscriptionPage";
+import { DashboardPage } from "./DashboardPage";
+
+import { User } from "../models/User"
+import { Card, PartialCard } from "../models/Card"
 
 function MainApp() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [cards, setCards] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [newCard, setNewCard] = useState(null);
+  const [cards, setCards] = useState<PartialCard[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [lastCardId, setLastCardId] = useState("");
   const [refreshSidebar, setRefreshSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchCards, setSearchCards] = useState([]);
+  const [searchCards, setSearchCards] = useState<Card[]>([]);
     const { isAuthenticated, isLoading, logoutUser } = useAuth();
     const [isActive, setIsActive] = useState(false);
 
     
   // changing pages
 
-  async function handleNewCard(cardType) {
+  async function handleNewCard(cardType: string) {
     navigate("/app/card/new", { state: { cardType: cardType } });
   }
   function handleViewFileVault() {
@@ -106,8 +108,9 @@ function MainApp() {
               element={
                 <EditPage
                   cards={cards}
-                  newCard={newCard}
+                  newCard={false}
                   setRefreshSidebar={setRefreshSidebar}
+                  lastCardId={lastCardId}
                 />
               }
             />
