@@ -69,7 +69,7 @@ export function renderFile(fileId: number, filename: string) {
     .catch((error) => console.error("Download error:", error));
 }
 
-export function downloadFile(fileId: number) {
+export function downloadFile(fileId: string) {
   let token = localStorage.getItem("token");
   const url = `${base_url}/files/download/${fileId}`;
 
