@@ -3,16 +3,23 @@ import { requestPasswordReset } from "../api/auth";
 import { getUser } from "../api/users";
 import { Link, useParams } from "react-router-dom";
 
+import { User } from "../models/User"
+
 export function AdminUserDetailPage() {
-  const [user, setUser] = useState(null);
-  const { id } = useParams();
+  const [user, setUser] = useState<User | null>(null);
+  const { id } = useParams<{ id: string }>();
+
 
     function handlePasswordReset() {
+      if (user === null) {
+        return
+
+      }
 	requestPasswordReset(user["email"]);
     }
 
   useEffect(() => {
-    getUser(id).then((d) => setUser(d));
+    getUser(id!).then((d) => setUser(d));
   }, []);
   console.log(user);
   //console.log(user);
@@ -36,9 +43,6 @@ export function AdminUserDetailPage() {
               </li>
               <li>
                 <b>Is Admin:</b> {user["is_admin"] ? "True" : "False"}
-              </li>
-              <li>
-                <b>Cards:</b> {user["cards"]}
               </li>
 		<li>
 		    <b>Stripe Customer ID: </b> 
