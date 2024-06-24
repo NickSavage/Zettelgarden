@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { CardBody } from "../components/CardBody";
 import { CardItem } from "../components/CardItem";
 import { FileListItem } from "../components/FileListItem";
-import { getCard } from "../api/cards";
+import { BacklinkInput } from "../components/BacklinkInput";
+import { getCard, saveExistingCard } from "../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +27,26 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
   function handleViewCard(card_id: number) {}
   function openRenameModal(file: File) {}
 
+  async function handleAddBacklink(selectedCard: PartialCard) {
+    if (viewingCard === null) {
+      return
+    }
+    let text = "";
+    if (selectedCard) {
+      text = "\n\n[" + selectedCard.card_id + "] - " + selectedCard.title;
+    } else {
+      text = "";
+    }
+    let editedCard = {
+      ...viewingCard,
+      body: viewingCard.body + text,
+
+    };
+    let response = await saveExistingCard(editedCard);
+    setViewCard(editedCard)
+
+
+  }
   function handleEditCard() {
     if (viewingCard === null) {
       return
@@ -66,6 +87,7 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
       {error && (
         <div>
           <h3>Unauthorized</h3>
+          <div>{error}</div>
         </div>
       )}
       {viewingCard && (
@@ -122,6 +144,14 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
               </li>
             ))}
           </ul>
+          <div>
+            <BacklinkInput
+            cards={cards}
+            currentCard={viewingCard}
+            addBacklink={handleAddBacklink}
+
+            />
+          </div>
           <button onClick={handleEditCard}>Edit</button>
           <h4>Children:</h4>
           <ul>
