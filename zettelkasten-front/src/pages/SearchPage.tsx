@@ -2,6 +2,8 @@ import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards } from "../api/cards";
 import { Card } from "../models/Card";
 import { useNavigate } from "react-router-dom";
+import { sortCards } from "../utils";
+
 
 interface SearchPageProps {
   searchTerm: string;
@@ -31,29 +33,9 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }: Searc
   }
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
-    setSortBy(e.target.value); // Update sort state when user selects a different option
+    setSortBy(e.target.value);
   }
-
-  function sortCards() {
-    switch (sortBy) {
-      case "newest":
-        return [...cards].sort(
-          (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-        );
-      case "oldest":
-        return [...cards].sort(
-          (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
-        );
-      case "a-z":
-        return [...cards].sort((a, b) => a.title.localeCompare(b.title));
-      case "z-a":
-        return [...cards].sort((a, b) => b.title.localeCompare(a.title));
-      default:
-        return cards; // Default case for relevance or other non-sorting options
-    }
-  }
-
-  const sortedCards = sortCards(); // Call sortCards to get the sorted cards
+  const sortedCards = sortCards(cards, "sortBigSmall");
 
   // Calculate the index of the last and first item on the current page
   const indexOfLastItem = currentPage * itemsPerPage;
