@@ -62,7 +62,7 @@ function renderCardText(card: Card, cards: PartialCard[], handleViewBacklink: (c
       components={{
         a({ children, href, ...props }) {
           const cardId = children as string;
-          const id = getIdByCardId(cards, parseInt(cardId, 10));
+          const id = getIdByCardId(cards, cardId);
           const linkedCard = card.references
             .filter((x) => x !== null)
             .find((linked) => linked.card_id === cardId);
