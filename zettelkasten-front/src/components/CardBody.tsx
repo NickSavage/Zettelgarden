@@ -5,6 +5,8 @@ import { downloadFile } from "../api/files";
 import { Card, PartialCard } from "../models/Card";
 import { useNavigate } from "react-router-dom";
 
+import { CardLink } from "./CardLink";
+
 interface CustomImageRendererProps {
   src?: string; // Make src optional
   alt?: string; // Make alt optional
@@ -70,25 +72,16 @@ function renderCardText(
       components={{
         a({ children, href, ...props }) {
           const cardId = children as string;
-          const id = getIdByCardId(cards, cardId);
-          const linkedCard = card.references
-            .filter((x) => x !== null)
-            .find((linked) => linked.card_id === cardId);
-          const title = linkedCard ? linkedCard.title : "Card not found";
 
           return (
-            <a
-              href="#"
-              title={title}
-              onClick={(e) => {
-                e.preventDefault();
-                handleViewBacklink(id);
-              }}
-              style={{ fontWeight: "bold", color: "blue" }}
-              {...props}
-            >
-              [{cardId}]
-            </a>
+            <span>
+            <CardLink 
+            card={card}
+            cards={cards}
+            card_id={cardId} 
+            handleViewBacklink={handleViewBacklink}
+            />
+            </span>
           );
         },
         img({ src, alt, title, ...props }) {
