@@ -75,12 +75,11 @@ function renderCardText(
 
           return (
             <span>
-            <CardLink 
-            card={card}
-            cards={cards}
-            card_id={cardId} 
-            handleViewBacklink={handleViewBacklink}
-            />
+              <CardLink
+                currentCard={card}
+                card_id={cardId}
+                handleViewBacklink={handleViewBacklink}
+              />
             </span>
           );
         },

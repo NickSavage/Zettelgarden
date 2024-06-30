@@ -1,36 +1,41 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 import { Card, PartialCard } from "../models/Card";
-import { getIdByCardId } from "../utils";
+import { CardPreviewWindow } from "./CardPreviewWindow";
 
 interface CardLinkProps {
-    card: Card;
-    cards: PartialCard[];
-    card_id: string;
-    handleViewBacklink: (card_id: number) => void;
+  currentCard: Card;
+  card_id: string;
+  handleViewBacklink: (card_id: number) => void;
 }
 
-export function CardLink({card, cards, card_id, handleViewBacklink}: CardLinkProps) {
+export function CardLink({
+  currentCard,
+  card_id,
+  handleViewBacklink,
+}: CardLinkProps) {
+  const [showHover, setShowHover] = useState(false);
+  const linkedCard = currentCard.references
+    .filter((x) => x !== null)
+    .find((linked) => linked.card_id === card_id);
+  const title = linkedCard ? linkedCard.title : "Card not found";
 
-    const id = getIdByCardId(cards, card_id);
-    const linkedCard = card.references
-        .filter((x) => x !== null)
-        .find((linked) => linked.card_id === card_id);
-    const title = linkedCard ? linkedCard.title : "Card not found";
-    return (
-        <span>
-            <a
-              href="#"
-              title={title}
-              onClick={(e) => {
-                e.preventDefault();
-                handleViewBacklink(id);
-              }}
-              style={{ fontWeight: "bold", color: "blue" }}
-            >
-              [{card_id}]
-            </a>
-        </span>
-    )
-
+  return (
+    <span
+      onMouseEnter={() => setShowHover(true)}
+      onMouseLeave={() => setShowHover(false)}
+    >
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          handleViewBacklink(linkedCard!.id);
+        }}
+        style={{ fontWeight: "bold", color: "blue" }}
+      >
+        [{card_id}]
+      </a>
+      {showHover && linkedCard && <CardPreviewWindow card={linkedCard} />}
+    </span>
+  );
 }
