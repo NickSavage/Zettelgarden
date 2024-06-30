@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CardBody } from "../components/CardBody";
 import { CardItem } from "../components/CardItem";
+import { CardList } from "../components/CardList";
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInput } from "../components/BacklinkInput";
 import { getCard, saveExistingCard } from "../api/cards";
@@ -135,15 +136,7 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
           </ul>
 
           <h4>References:</h4>
-          <ul>
-              {viewingCard.references
-               .sort((a, b) => a.card_id.localeCompare(b.card_id))
-	       .map((backlink, index) => (
-              <li style={{paddingTop: "5px", paddingBottom: "5px"}}>
-                <CardItem card={backlink} />
-              </li>
-            ))}
-          </ul>
+          <CardList cards={viewingCard.references} />
           <div>
             <BacklinkInput
             cards={cards}
@@ -154,15 +147,7 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
           </div>
           <button onClick={handleEditCard}>Edit</button>
           <h4>Children:</h4>
-          <ul>
-            {viewingCard["children"]
-              .sort((a, b) => a.card_id.localeCompare(b.card_id))
-              .map((childCard, index) => (
-                <li style={{paddingTop: "5px", paddingBottom: "5px"}}>
-                  <CardItem card={childCard} />
-                </li>
-              ))}
-          </ul>
+          <CardList cards={viewingCard.children} />
         </div>
       )}
     </div>
