@@ -16,7 +16,7 @@ if (rootElement) {
           <App />
         </AuthProvider>
       </BrowserRouter>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 } else {
   console.error("Root element not found");

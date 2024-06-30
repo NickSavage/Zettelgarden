@@ -10,16 +10,16 @@ import { useNavigate } from "react-router-dom";
 
 import { Card, PartialCard } from "../models/Card";
 import { File } from "../models/File";
-import {isErrorResponse} from "../models/common";
+import { isErrorResponse } from "../models/common";
 
 interface ViewPageProps {
   cards: PartialCard[];
   setLastCardId: (cardId: string) => void;
 }
 
-export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
+export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   const [error, setError] = useState("");
-  const [viewingCard, setViewCard] = useState<Card | null> (null);
+  const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
 
   async function handleAddBacklink(selectedCard: PartialCard) {
     if (viewingCard === null) {
-      return
+      return;
     }
     let text = "";
     if (selectedCard) {
@@ -41,16 +41,13 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
     let editedCard = {
       ...viewingCard,
       body: viewingCard.body + text,
-
     };
     let response = await saveExistingCard(editedCard);
-    setViewCard(editedCard)
-
-
+    setViewCard(editedCard);
   }
   function handleEditCard() {
     if (viewingCard === null) {
-      return
+      return;
     }
     navigate(`/app/card/${viewingCard.id}/edit`);
   }
@@ -58,14 +55,14 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
   async function fetchCard(id: string) {
     try {
       let refreshed = await getCard(id);
-  
+
       if (isErrorResponse(refreshed)) {
         setError(refreshed["error"]);
       } else {
         setViewCard(refreshed);
         document.title = "Zettelgarden - " + refreshed.card_id + " - View";
         setLastCardId(refreshed.card_id);
-  
+
         if (refreshed.parent && "id" in refreshed.parent) {
           let parentCardId = refreshed.parent.id;
           const parentCard = await getCard(parentCardId.toString());
@@ -139,10 +136,9 @@ export function ViewPage({ cards, setLastCardId}: ViewPageProps) {
           <CardList cards={viewingCard.references} />
           <div>
             <BacklinkInput
-            cards={cards}
-            currentCard={viewingCard}
-            addBacklink={handleAddBacklink}
-
+              cards={cards}
+              currentCard={viewingCard}
+              addBacklink={handleAddBacklink}
             />
           </div>
           <button onClick={handleEditCard}>Edit</button>

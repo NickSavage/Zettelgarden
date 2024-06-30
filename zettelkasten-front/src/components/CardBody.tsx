@@ -20,7 +20,11 @@ function preprocessCardLinks(body: string): string {
   return body.replace(/\[([A-Za-z0-9_.-/]+)\]/g, "[$1](#)");
 }
 
-const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({ src, alt, title }) => {
+const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
+  src,
+  alt,
+  title,
+}) => {
   const [imageSrc, setImageSrc] = useState<string>("");
 
   useEffect(() => {
@@ -52,7 +56,11 @@ const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({ src, alt, tit
   );
 };
 
-function renderCardText(card: Card, cards: PartialCard[], handleViewBacklink: (card_id: number) => void) {
+function renderCardText(
+  card: Card,
+  cards: PartialCard[],
+  handleViewBacklink: (card_id: number) => void,
+) {
   let body = card.body;
   body = preprocessCardLinks(body);
 
@@ -84,7 +92,9 @@ function renderCardText(card: Card, cards: PartialCard[], handleViewBacklink: (c
           );
         },
         img({ src, alt, title, ...props }) {
-          return <CustomImageRenderer src={src} alt={alt} title={title} {...props} />;
+          return (
+            <CustomImageRenderer src={src} alt={alt} title={title} {...props} />
+          );
         },
       }}
     />

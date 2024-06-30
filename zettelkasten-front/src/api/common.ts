@@ -1,4 +1,3 @@
-
 export function checkStatus(response: Response) {
   if (response.status === 401 || response.status === 422) {
     localStorage.removeItem("token");

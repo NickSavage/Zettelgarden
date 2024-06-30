@@ -9,12 +9,15 @@ interface CardItemProps {
 export function CardItem({ card }: CardItemProps) {
   return (
     <div key={card.id}>
-      <Link to={`/app/card/${card.id}`} style={{ textDecoration: 'none', color: 'inherit'}}>
+      <Link
+        to={`/app/card/${card.id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
         <span style={{ color: "blue", fontWeight: "bold" }}>
-         - {card.card_id}
+          - {card.card_id}
         </span>
         : {card.title}
-        </Link>
-      </div>
+      </Link>
+    </div>
   );
 }

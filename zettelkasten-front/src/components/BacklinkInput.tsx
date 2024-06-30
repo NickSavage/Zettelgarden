@@ -1,16 +1,20 @@
-import React, {useState} from "react"
+import React, { useState } from "react";
 
 import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
 
-import {PartialCard, Card} from "../models/Card";
+import { PartialCard, Card } from "../models/Card";
 
 interface BacklinkInputProps {
-    cards: PartialCard[];
-    currentCard: Card;
-    addBacklink: (selectedCard: PartialCard) => void
+  cards: PartialCard[];
+  currentCard: Card;
+  addBacklink: (selectedCard: PartialCard) => void;
 }
 
-export function BacklinkInput({cards, currentCard, addBacklink}: BacklinkInputProps) {
+export function BacklinkInput({
+  cards,
+  currentCard,
+  addBacklink,
+}: BacklinkInputProps) {
   const [topResults, setTopResults] = useState<PartialCard[]>([]);
   const [link, setLink] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -24,7 +28,7 @@ export function BacklinkInput({cards, currentCard, addBacklink}: BacklinkInputPr
       const matchingCards = cards.filter(
         (card) =>
           card.card_id.toLowerCase().startsWith(search.toLowerCase()) ||
-          card.title.toLowerCase().includes(search.toLowerCase())
+          card.title.toLowerCase().includes(search.toLowerCase()),
       );
 
       // If an exact match is found, make sure it is at the front of the array
@@ -33,7 +37,7 @@ export function BacklinkInput({cards, currentCard, addBacklink}: BacklinkInputPr
         : matchingCards;
       filteredCards = filteredCards.filter(
         (card, index, self) =>
-          index === self.findIndex((t) => t.card_id === card.card_id)
+          index === self.findIndex((t) => t.card_id === card.card_id),
       );
       let results = filteredCards.slice(0, 5);
       setTopResults(results);
@@ -47,7 +51,7 @@ export function BacklinkInput({cards, currentCard, addBacklink}: BacklinkInputPr
       setTopResults([]);
       let enteredCard = topResults.find((card) => card.card_id === searchTerm);
       if (enteredCard === undefined) {
-        return
+        return;
       }
       setLink("");
       setTopResults([]);
@@ -57,39 +61,37 @@ export function BacklinkInput({cards, currentCard, addBacklink}: BacklinkInputPr
   }
 
   function handleDropdownClick(enteredCard: PartialCard) {
-      setLink("");
-      setTopResults([]);
-      setSearchTerm("");
-      addBacklink(enteredCard);
+    setLink("");
+    setTopResults([]);
+    setSearchTerm("");
+    addBacklink(enteredCard);
   }
 
-
-    return (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            <label htmlFor="refInput" style={{ marginRight: "10px" }}>
-              Add Backlink:
-            </label>
-            <input
-              type="text"
-              value={link}
-              onChange={handleLinkInputChange}
-              placeholder="ID"
-              onKeyDown={handleEnterPress}
-              style={{ display: "block", marginRight: "10px" }}
-            />
-            {topResults && (
-              <BacklinkInputDropdownList
-                addBacklink={handleDropdownClick}
-                cards={topResults}
-              />
-            )}
-          </div>
-    )
-
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        position: "relative",
+      }}
+    >
+      <label htmlFor="refInput" style={{ marginRight: "10px" }}>
+        Add Backlink:
+      </label>
+      <input
+        type="text"
+        value={link}
+        onChange={handleLinkInputChange}
+        placeholder="ID"
+        onKeyDown={handleEnterPress}
+        style={{ display: "block", marginRight: "10px" }}
+      />
+      {topResults && (
+        <BacklinkInputDropdownList
+          addBacklink={handleDropdownClick}
+          cards={topResults}
+        />
+      )}
+    </div>
+  );
 }

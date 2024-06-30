@@ -6,16 +6,21 @@ import { File } from "../models/File";
 interface FileRenameModal {
   isOpen: boolean;
   onClose: () => void;
-  onRename:(file_id: number, updatedFile: File) => void;
+  onRename: (file_id: number, updatedFile: File) => void;
   file: File | null;
 }
 
-export function FileRenameModal({ isOpen, onClose, onRename, file }: FileRenameModal) {
+export function FileRenameModal({
+  isOpen,
+  onClose,
+  onRename,
+  file,
+}: FileRenameModal) {
   const [newName, setNewName] = useState("");
 
   function handleRename() {
     if (file === null) {
-      return
+      return;
     }
     console.log("handleRename");
     editFile(file["id"].toString(), { name: newName })

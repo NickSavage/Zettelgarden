@@ -16,9 +16,9 @@ function LoginForm() {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await login(email, password)
-        loginUser(response)
-        navigate("/app");
+      const response = await login(email, password);
+      loginUser(response);
+      navigate("/app");
     } catch (message) {
       setError("Login Failed: " + message);
     }

@@ -1,4 +1,10 @@
-import React, { useEffect, useState, createContext, useContext, ReactNode } from "react";
+import React, {
+  useEffect,
+  useState,
+  createContext,
+  useContext,
+  ReactNode,
+} from "react";
 import { checkAdmin } from "./api/users";
 import { getCurrentUser } from "./api/users";
 import { LoginResponse } from "./models/Auth";
@@ -21,7 +27,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Added loading state
-    const [isActive, setIsActive] = useState("inactive");
+  const [isActive, setIsActive] = useState("inactive");
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -32,7 +38,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Assume checkAdmin will resolve to true/false based on the admin status
         const adminStatus = await checkAdmin();
         setIsAdmin(adminStatus);
-	  const currentUser = await getCurrentUser();
+        const currentUser = await getCurrentUser();
       }
       setIsLoading(false);
     };

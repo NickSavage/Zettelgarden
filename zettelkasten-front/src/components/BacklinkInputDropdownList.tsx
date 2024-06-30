@@ -1,13 +1,16 @@
 import React from "react";
 
-import { Card, PartialCard } from "../models/Card" 
+import { Card, PartialCard } from "../models/Card";
 
 interface BacklinkInputDropdownListProps {
   addBacklink: (card: PartialCard) => void;
   cards: PartialCard[];
 }
 
-export function BacklinkInputDropdownList({ addBacklink, cards }: BacklinkInputDropdownListProps) {
+export function BacklinkInputDropdownList({
+  addBacklink,
+  cards,
+}: BacklinkInputDropdownListProps) {
   return (
     <ul className="input-link-dropdown">
       {cards.map((card, index) => (

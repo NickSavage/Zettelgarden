@@ -10,22 +10,22 @@ export async function createCheckoutSession(interval: string) {
   try {
     // Send a GET request to the server
     const response = await fetch(url, {
-      method: 'POST', // Specify the method
+      method: "POST", // Specify the method
       headers: {
         Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
-	  "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
-	body: JSON.stringify({ interval: interval }),
+      body: JSON.stringify({ interval: interval }),
     });
 
     // Check if the response is successful
     if (!response.ok) {
-      throw new Error('Failed to create checkout session. Please try again.');
+      throw new Error("Failed to create checkout session. Please try again.");
     }
 
-      return response.json();
+    return response.json();
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    console.error("Error creating checkout session:", error);
     // Handle errors, such as by showing a message to the user
   }
 }
@@ -38,7 +38,7 @@ export async function getSuccessfulSessionData(sessionId: string) {
 
   try {
     const response = await fetch(url, {
-      method: 'GET', // Specify the method
+      method: "GET", // Specify the method
       headers: {
         Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
       },
@@ -46,12 +46,12 @@ export async function getSuccessfulSessionData(sessionId: string) {
 
     // Check if the response is successful
     if (!response.ok) {
-      throw new Error('Failed to retrieve session data. Please try again.');
+      throw new Error("Failed to retrieve session data. Please try again.");
     }
 
     return response.json();
   } catch (error) {
-    console.error('Error retrieving session data:', error);
+    console.error("Error retrieving session data:", error);
     // Handle errors, such as by showing a message to the user
   }
 }

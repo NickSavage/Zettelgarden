@@ -15,16 +15,20 @@ export function fetchCards(searchTerm = ""): Promise<Card[]> {
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<Card[]>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<Card[]>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 
-export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = false): Promise<PartialCard[]> {
-  console.log([searchTerm, sortMethod, inactive])
+export function fetchPartialCards(
+  searchTerm = "",
+  sortMethod = "",
+  inactive = false,
+): Promise<PartialCard[]> {
+  console.log([searchTerm, sortMethod, inactive]);
   let token = localStorage.getItem("token");
   let url = base_url + "/cards?partial=true";
   if (searchTerm) {
@@ -37,17 +41,17 @@ export function fetchPartialCards(searchTerm = "", sortMethod = "", inactive = f
     url += `&inactive=${encodeURIComponent(inactive)}`;
   }
 
-  console.log(url)
+  console.log(url);
   return fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<PartialCard[]>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<PartialCard[]>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 
@@ -64,9 +68,9 @@ export function getCard(id: string): Promise<Card> {
       if (response) {
         return response.json() as Promise<Card>;
       } else {
-            return Promise.reject(new Error("Response is undefined"));
+        return Promise.reject(new Error("Response is undefined"));
       }
-    })
+    });
 }
 
 export function saveNewCard(card: Card): Promise<Card> {
@@ -80,7 +84,11 @@ export function saveExistingCard(card: Card): Promise<Card> {
   const method = "PUT";
   return saveCard(url, method, card);
 }
-export function saveCard(url: string, method: string, card: Card): Promise<Card> {
+export function saveCard(
+  url: string,
+  method: string,
+  card: Card,
+): Promise<Card> {
   let token = localStorage.getItem("token");
   return fetch(url, {
     method: method,
@@ -95,12 +103,12 @@ export function saveCard(url: string, method: string, card: Card): Promise<Card>
       if (response) {
         return response.json() as Promise<Card>;
       } else {
-            return Promise.reject(new Error("Response is undefined"));
+        return Promise.reject(new Error("Response is undefined"));
       }
-    })
+    });
 }
 
-export function deleteCard(id: number): Promise<Card|null> {
+export function deleteCard(id: number): Promise<Card | null> {
   let encodedId = encodeURIComponent(id);
   const url = `${base_url}/cards/${encodedId}`;
 
@@ -113,14 +121,13 @@ export function deleteCard(id: number): Promise<Card|null> {
   })
     .then(checkStatus)
     .then((response) => {
-
       if (response) {
         if (response.status === 204) {
           return null;
         }
         return response.json() as Promise<Card>;
       } else {
-            return Promise.reject(new Error("Response is undefined"));
+        return Promise.reject(new Error("Response is undefined"));
       }
     });
 }
@@ -142,7 +149,7 @@ export async function getNextId(cardType: string): Promise<NextIdResponse> {
       if (response) {
         return response.json() as Promise<NextIdResponse>;
       } else {
-            return Promise.reject(new Error("Response is undefined"));
+        return Promise.reject(new Error("Response is undefined"));
       }
     });
 }

@@ -12,14 +12,14 @@ export function login(email: string, password: string): Promise<LoginResponse> {
     },
     body: JSON.stringify({ email, password }),
   })
-  .then(checkStatus)
-  .then((response) => {
-    if (response) {
-      return response.json() as Promise<LoginResponse>
-    } else {
-      return Promise.reject(new Error("something has gone wrong"))
-    }
-  });
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<LoginResponse>;
+      } else {
+        return Promise.reject(new Error("something has gone wrong"));
+      }
+    });
 }
 
 export function requestPasswordReset(email: string): Promise<GenericResponse> {
@@ -34,16 +34,18 @@ export function requestPasswordReset(email: string): Promise<GenericResponse> {
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<GenericResponse>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<GenericResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
-    
 }
 
-export function resetPassword(token: string, new_password: string): Promise<ResetPasswordResponse> {
+export function resetPassword(
+  token: string,
+  new_password: string,
+): Promise<ResetPasswordResponse> {
   const url = `${base_url}/reset-password`;
 
   return fetch(url, {
@@ -55,10 +57,10 @@ export function resetPassword(token: string, new_password: string): Promise<Rese
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<ResetPasswordResponse>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<ResetPasswordResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }

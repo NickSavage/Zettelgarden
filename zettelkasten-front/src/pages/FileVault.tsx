@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import {
-  getAllFiles,
-} from "../api/files";
+import { getAllFiles } from "../api/files";
 import { sortCards } from "../utils";
 import { FileRenameModal } from "../components/FileRenameModal";
 import { FileListItem } from "../components/FileListItem";
 
 import { useNavigate } from "react-router-dom";
 
-import { File } from "../models/File"
+import { File } from "../models/File";
 
 export function FileVault() {
   const [files, setFiles] = useState<File[]>([]);

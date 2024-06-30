@@ -48,23 +48,23 @@ export function FileListItem({
             {file.name}
           </a>
           <br />
-            <div>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleViewCard(file["card"]["id"]);
-                }}
-                style={{ color: "black", textDecoration: "none" }}
-              >
-                <span style={{ color: "blue", fontWeight: "bold" }}>
-                  {file["card"]["card_id"]}
-                </span>
-                <span>: {file["card"]["title"]} </span>
-              </a>
+          <div>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleViewCard(file["card"]["id"]);
+              }}
+              style={{ color: "black", textDecoration: "none" }}
+            >
+              <span style={{ color: "blue", fontWeight: "bold" }}>
+                {file["card"]["card_id"]}
+              </span>
+              <span>: {file["card"]["title"]} </span>
+            </a>
 
-              <br />
-            </div>
+            <br />
+          </div>
           <span>Created At: {file.created_at}</span>
         </div>
         <div className="file-item-right">

@@ -1,10 +1,18 @@
-import { User, CreateUserParams, CreateUserResponse, EditUserParams, UserSubscription } from "../models/User";
+import {
+  User,
+  CreateUserParams,
+  CreateUserResponse,
+  EditUserParams,
+  UserSubscription,
+} from "../models/User";
 import { GenericResponse } from "../models/common";
 import { checkStatus } from "./common";
 
 const base_url = process.env.REACT_APP_URL;
 
-export function createUser(userData: CreateUserParams): Promise<CreateUserResponse> {
+export function createUser(
+  userData: CreateUserParams,
+): Promise<CreateUserResponse> {
   let token = localStorage.getItem("token");
   return fetch(base_url + "/users", {
     method: "POST",
@@ -16,11 +24,11 @@ export function createUser(userData: CreateUserParams): Promise<CreateUserRespon
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<CreateUserResponse>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<CreateUserResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 
@@ -33,11 +41,11 @@ export function getUser(id: string): Promise<User> {
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<User>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<User>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 export function getUsers(): Promise<User[]> {
@@ -47,15 +55,18 @@ export function getUsers(): Promise<User[]> {
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<User[]>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<User[]>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 
-export async function editUser(userId: string, updateData: EditUserParams): Promise<User> {
+export async function editUser(
+  userId: string,
+  updateData: EditUserParams,
+): Promise<User> {
   let token = localStorage.getItem("token");
   const url = `${base_url}/users/${userId}`;
 
@@ -82,11 +93,11 @@ export function getCurrentUser(): Promise<User> {
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<User>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<User>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 
@@ -116,11 +127,11 @@ export function validateEmail(token: string): Promise<GenericResponse> {
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<GenericResponse>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<GenericResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 export async function resendValidateEmail(): Promise<GenericResponse> {
@@ -136,11 +147,11 @@ export async function resendValidateEmail(): Promise<GenericResponse> {
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<GenericResponse>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<GenericResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 
@@ -151,21 +162,21 @@ export function getUserSubscription(id: number): Promise<UserSubscription> {
 
   // Send a GET request to the URL
   return fetch(url, {
-    method: 'GET', // Specify the method
+    method: "GET", // Specify the method
     headers: {
       Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
     },
   })
-  .then(checkStatus)
+    .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<UserSubscription>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<UserSubscription>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     })
-    .catch(error => {
-        console.error('Error fetching user subscription:', error);
-        throw error;
+    .catch((error) => {
+      console.error("Error fetching user subscription:", error);
+      throw error;
     });
 }

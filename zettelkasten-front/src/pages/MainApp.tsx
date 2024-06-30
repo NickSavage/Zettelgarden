@@ -17,8 +17,8 @@ import { BillingCancelled } from "./BillingCancelled";
 import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
 
-import { User } from "../models/User"
-import { Card, PartialCard } from "../models/Card"
+import { User } from "../models/User";
+import { Card, PartialCard } from "../models/Card";
 
 function MainApp() {
   const navigate = useNavigate();
@@ -29,10 +29,9 @@ function MainApp() {
   const [refreshSidebar, setRefreshSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
-    const { isAuthenticated, isLoading, logoutUser } = useAuth();
-    const [isActive, setIsActive] = useState(false);
+  const { isAuthenticated, isLoading, logoutUser } = useAuth();
+  const [isActive, setIsActive] = useState(false);
 
-    
   // changing pages
 
   async function handleNewCard(cardType: string) {
@@ -47,8 +46,8 @@ function MainApp() {
 
   async function fetchCurrentUser() {
     let response = await getCurrentUser();
-      setCurrentUser(response);
-      setIsActive(response["is_active"]);
+    setCurrentUser(response);
+    setIsActive(response["is_active"]);
   }
 
   useEffect(() => {
@@ -61,10 +60,10 @@ function MainApp() {
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
-    console.log([isLoading, isActive])
-    if (!isLoading && !isActive) {
-	return (<SubscriptionPage />)
-    }
+  console.log([isLoading, isActive]);
+  if (!isLoading && !isActive) {
+    return <SubscriptionPage />;
+  }
   return (
     <div>
       <Topbar
@@ -127,8 +126,14 @@ function MainApp() {
               }
             />
             <Route path="settings" element={<UserSettingsPage />} />
-	      <Route path="settings/billing/success" element={<BillingSuccess />} />
-	      <Route path="settings/billing/cancelled" element={<BillingCancelled />} />
+            <Route
+              path="settings/billing/success"
+              element={<BillingSuccess />}
+            />
+            <Route
+              path="settings/billing/cancelled"
+              element={<BillingCancelled />}
+            />
             <Route path="files" element={<FileVault />} />
             <Route path="*" element={<DashboardPage />} />
           </Routes>

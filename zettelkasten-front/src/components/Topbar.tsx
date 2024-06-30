@@ -5,9 +5,9 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 interface TopbarProps {
-  handleNewCard:(cardType: string) => void,
-  handleViewFileVault: () => void,
-  handleViewSettings: () => void,
+  handleNewCard: (cardType: string) => void;
+  handleViewFileVault: () => void;
+  handleViewSettings: () => void;
 }
 
 export function Topbar({

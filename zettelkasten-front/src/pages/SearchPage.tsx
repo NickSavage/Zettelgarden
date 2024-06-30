@@ -4,7 +4,6 @@ import { Card } from "../models/Card";
 import { useNavigate } from "react-router-dom";
 import { sortCards } from "../utils";
 
-
 interface SearchPageProps {
   searchTerm: string;
   setSearchTerm: (searchTerm: string) => void;
@@ -12,7 +11,12 @@ interface SearchPageProps {
   setCards: (cards: Card[]) => void;
 }
 
-export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }: SearchPageProps) {
+export function SearchPage({
+  searchTerm,
+  setSearchTerm,
+  cards,
+  setCards,
+}: SearchPageProps) {
   const [sortBy, setSortBy] = useState("relevant");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
@@ -99,11 +103,22 @@ export function SearchPage({ searchTerm, setSearchTerm, cards, setCards }: Searc
         ))}
       </ul>
       <div>
-        <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+        <button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
           Previous
         </button>
-        <span> Page {currentPage} of {Math.ceil(sortedCards.length / itemsPerPage)} </span>
-        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === Math.ceil(sortedCards.length / itemsPerPage)}>
+        <span>
+          {" "}
+          Page {currentPage} of {Math.ceil(sortedCards.length / itemsPerPage)}{" "}
+        </span>
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={
+            currentPage === Math.ceil(sortedCards.length / itemsPerPage)
+          }
+        >
           Next
         </button>
       </div>

@@ -1,18 +1,27 @@
 import { checkStatus } from "./common";
-import { File, EditFileMetadataParams, UploadFileResponse } from "../models/File";
+import {
+  File,
+  EditFileMetadataParams,
+  UploadFileResponse,
+} from "../models/File";
 import { GenericResponse } from "../models/common";
 
 const base_url = process.env.REACT_APP_URL;
 
-export function uploadFile(file: Blob, card_pk: number): Promise<UploadFileResponse> {
+export function uploadFile(
+  file: Blob,
+  card_pk: number,
+): Promise<UploadFileResponse> {
   let token = localStorage.getItem("token");
   const url = base_url + "/files/upload";
 
-    const maxSize = 10 * 1024 * 1024; // 10 MB in bytes
-    if (file.size > maxSize) {
-	return Promise.reject(new Error("File size exceeds the maximum limit of 10 MB."));
-    }
-    
+  const maxSize = 10 * 1024 * 1024; // 10 MB in bytes
+  if (file.size > maxSize) {
+    return Promise.reject(
+      new Error("File size exceeds the maximum limit of 10 MB."),
+    );
+  }
+
   // Create a FormData object and append the file
   let formData = new FormData();
   formData.append("file", file);
@@ -29,11 +38,11 @@ export function uploadFile(file: Blob, card_pk: number): Promise<UploadFileRespo
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<UploadFileResponse>;
-          } else {
-            return Promise.reject(new Error("Response is undefined"));
-          }
+      if (response) {
+        return response.json() as Promise<UploadFileResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
 
@@ -104,7 +113,7 @@ export function getAllFiles(): Promise<File[]> {
       if (response && response.status !== 204) {
         return response.json() as Promise<File[]>;
       } else {
-            return Promise.reject(new Error("Response is undefined"));
+        return Promise.reject(new Error("Response is undefined"));
       }
     });
 }
@@ -121,14 +130,17 @@ export function deleteFile(fileId: number): Promise<GenericResponse> {
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<GenericResponse>
-        } else {
-            return Promise.reject(new Error("Response is undefined"));
-        }
+      if (response) {
+        return response.json() as Promise<GenericResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }
-export function editFile(fileId: string, updateData: EditFileMetadataParams): Promise<File> {
+export function editFile(
+  fileId: string,
+  updateData: EditFileMetadataParams,
+): Promise<File> {
   let token = localStorage.getItem("token");
   const url = `${base_url}/files/${fileId}`;
 
@@ -142,10 +154,10 @@ export function editFile(fileId: string, updateData: EditFileMetadataParams): Pr
   })
     .then(checkStatus)
     .then((response) => {
-        if (response) {
-            return response.json() as Promise<File>
-        } else {
-            return Promise.reject(new Error("Response is undefined"));
-        }
+      if (response) {
+        return response.json() as Promise<File>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
     });
 }

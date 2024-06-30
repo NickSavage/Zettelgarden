@@ -5,7 +5,7 @@ interface AdminTopBarProps {
   children?: ReactNode;
 }
 
-export function AdminTopBar({ children }: AdminTopBarProps ) {
+export function AdminTopBar({ children }: AdminTopBarProps) {
   return (
     <div className="top-bar">
       <div className="top-bar-left">

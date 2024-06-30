@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../utils";
 import { uploadFile, editFile } from "../api/files";
-import { deleteCard, getNextId, saveNewCard, saveExistingCard, getCard } from "../api/cards";
+import {
+  deleteCard,
+  getNextId,
+  saveNewCard,
+  saveExistingCard,
+  getCard,
+} from "../api/cards";
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInput } from "../components/BacklinkInput";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -27,7 +33,12 @@ function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
   return null;
 }
 
-export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: EditPageProps) {
+export function EditPage({
+  cards,
+  newCard,
+  setRefreshSidebar,
+  lastCardId,
+}: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
@@ -74,7 +85,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
     if (cardType === "reference" || cardType === "meeting") {
       let response = await getNextId(cardType);
       if (response === null) {
-        return ""
+        return "";
       }
       nextId = response["new_id"];
     } else {
@@ -102,7 +113,6 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
     }
   }, [id]);
 
-
   function handleCancelButtonClick() {
     if (editingCard.id) {
       navigate(`/app/card/${editingCard.id}`);
@@ -114,15 +124,15 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
   function handleDeleteButtonClick() {
     if (
       window.confirm(
-        "Are you sure you want to delete this card? This cannot be reversed"
+        "Are you sure you want to delete this card? This cannot be reversed",
       )
     ) {
       deleteCard(editingCard.id)
         .then(() => setRefreshSidebar(true))
         .catch((error) =>
           setMessage(
-            "Unable to delete card. Does it have backlinks, children or files?"
-          )
+            "Unable to delete card. Does it have backlinks, children or files?",
+          ),
         );
     }
   }
@@ -144,7 +154,9 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
           if ("error" in response) {
             setMessage("Error uploading file: " + response["message"]);
           } else {
-            setMessage("File uploaded successfully: " + response["file"]["name"]);
+            setMessage(
+              "File uploaded successfully: " + response["file"]["name"],
+            );
             addFileId(response["file"]["id"].toString());
           }
         } catch (error) {
@@ -154,18 +166,20 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
     }
   };
 
-  const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+  const handlePaste = async (
+    event: React.ClipboardEvent<HTMLTextAreaElement>,
+  ) => {
     event.preventDefault();
 
     if (event.clipboardData && event.clipboardData.items) {
-       const items = Array.from(event.clipboardData.items);
-       for (const item of items) {
-         if (item.type.indexOf("image") !== -1) {
+      const items = Array.from(event.clipboardData.items);
+      for (const item of items) {
+        if (item.type.indexOf("image") !== -1) {
           const file = item.getAsFile();
 
           if (newCard) {
             setMessage(
-              "Error: Cannot upload images for new cards, please save the card first"
+              "Error: Cannot upload images for new cards, please save the card first",
             );
             return;
           }
@@ -177,7 +191,9 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
               setMessage("Error uploading file: " + response["message"]);
             } else {
               let append_text = "\n\n![](" + response["file"]["id"] + ")";
-              setMessage(`File uploaded successfully: ${response["file"]["name"]}`);
+              setMessage(
+                `File uploaded successfully: ${response["file"]["name"]}`,
+              );
 
               setEditingCard((prevEditingCard) => ({
                 ...prevEditingCard,
@@ -229,13 +245,13 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
                 setEditingCard({ ...editingCard, card_id: e.target.value })
               }
               placeholder="ID"
-              style={{ display: "block", marginBottom: "10px" }} 
+              style={{ display: "block", marginBottom: "10px" }}
             />
             {newCard && renderWarningLabel(cards, editingCard)}
           </div>
           <label htmlFor="title">Title:</label>
           <input
-            style={{ display: "block", width: "100%", marginBottom: "10px" }} 
+            style={{ display: "block", width: "100%", marginBottom: "10px" }}
             type="text"
             id="title"
             value={editingCard.title}
@@ -247,7 +263,7 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
 
           <label htmlFor="body">Body:</label>
           <textarea
-            style={{ display: "block", width: "100%", height: "200px" }} 
+            style={{ display: "block", width: "100%", height: "200px" }}
             id="body"
             value={editingCard.body}
             onChange={handleBodyChange}
@@ -256,13 +272,14 @@ export function EditPage({ cards, newCard, setRefreshSidebar, lastCardId }: Edit
             onPaste={handlePaste}
             placeholder="Body"
           />
-          <div><BacklinkInput 
-            cards={cards} 
-            currentCard={editingCard}
-            addBacklink={addBacklink}
-          />
-            </div>
- 
+          <div>
+            <BacklinkInput
+              cards={cards}
+              currentCard={editingCard}
+              addBacklink={addBacklink}
+            />
+          </div>
+
           <label htmlFor="title">Source/URL:</label>
           <input
             style={{ display: "block", width: "100%", marginBottom: "10px" }}

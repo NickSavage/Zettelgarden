@@ -22,44 +22,44 @@ export function Sidebar({
   const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
   const [sidebarView] = useState("all");
 
-  function handleFilter(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  function handleFilter(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) {
     let filter = e.target.value;
-    let isIdSearch = filter.startsWith('!');
+    let isIdSearch = filter.startsWith("!");
     setFilter(filter);
 
     const filtered = mainCards.filter((card) => {
-        let cardId = card.card_id.toString().toLowerCase(); // Ensure card_id is treated as a string
-        let title = card.title.toLowerCase();
+      let cardId = card.card_id.toString().toLowerCase(); // Ensure card_id is treated as a string
+      let title = card.title.toLowerCase();
 
-        if (isIdSearch) {
-            // Search only by card_id, remove the leading '!' and trim whitespace
-            return cardId.startsWith(filter.slice(1).trim().toLowerCase());
-        } else {
-            // Split filter into keywords and check each keyword in title or card_id
-            return filter.split(" ").every((keyword: string) => {
-                let cleanKeyword = keyword.trim().toLowerCase();
-                return (
-                    cleanKeyword === "" ||
-                    title.includes(cleanKeyword) ||
-                    cardId.includes(cleanKeyword)
-                );
-            });
-        }
+      if (isIdSearch) {
+        // Search only by card_id, remove the leading '!' and trim whitespace
+        return cardId.startsWith(filter.slice(1).trim().toLowerCase());
+      } else {
+        // Split filter into keywords and check each keyword in title or card_id
+        return filter.split(" ").every((keyword: string) => {
+          let cleanKeyword = keyword.trim().toLowerCase();
+          return (
+            cleanKeyword === "" ||
+            title.includes(cleanKeyword) ||
+            cardId.includes(cleanKeyword)
+          );
+        });
+      }
     });
-    
-    setFilteredCards(filtered);
-}
 
+    setFilteredCards(filtered);
+  }
 
   async function setAllCards() {
-    await fetchPartialCards("", "date")
-      .then((data) => {
-        setCards(data);
-        let filtered = data.filter((card) => !card.card_id.includes("/"));
-        setMainCards(filtered);
-        setFilteredCards(filtered);
-        return filtered;
-      });
+    await fetchPartialCards("", "date").then((data) => {
+      setCards(data);
+      let filtered = data.filter((card) => !card.card_id.includes("/"));
+      setMainCards(filtered);
+      setFilteredCards(filtered);
+      return filtered;
+    });
   }
 
   useEffect(() => {
