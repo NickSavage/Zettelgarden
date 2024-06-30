@@ -1,5 +1,6 @@
 import React, { FormEvent, useState } from "react";
 import { useAuth } from "../AuthContext";
+import { login } from "../api/auth";
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -14,24 +15,10 @@ function LoginForm() {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    const base_url = process.env.REACT_APP_URL;
     try {
-      const response = await fetch(base_url + "/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data["error"]);
-      } else {
-        loginUser(data); // pass the token you received from the backend
+      const response = await login(email, password)
+        loginUser(response)
         navigate("/app");
-      }
-      // Redirect to a protected route or dashboard here.
     } catch (message) {
       setError("Login Failed: " + message);
     }
