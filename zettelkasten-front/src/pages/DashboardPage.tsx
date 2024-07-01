@@ -49,7 +49,7 @@ export function DashboardPage() {
           ))}
         </div>
         <div style={{ flex: 1 }}>
-          <h3>Recent Cards</h3>
+          <h3>Inactive Cards</h3>
           {inactiveCards.slice(0, 10).map((card) => (
             <div key={card.id} style={{ marginBottom: "10px" }}>
               <CardItem card={card} />
