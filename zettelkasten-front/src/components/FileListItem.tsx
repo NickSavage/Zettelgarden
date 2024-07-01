@@ -40,7 +40,7 @@ export function FileListItem({
   return (
     <li key={file.id}>
       <div className="file-item">
-        <div className="file-item-left">
+        <div>
           {" "}
           {/* Ensure file.id is unique */}
           <span>{file.id} - </span>

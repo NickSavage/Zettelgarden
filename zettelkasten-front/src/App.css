@@ -12,55 +12,6 @@
   height: 100vh;
 }
 
-.icon-button {
-  padding: 10px;
-  margin-bottom: 20px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-left: 20px;
-}
-
-.sidebar-button {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.sidebar input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-
-.sidebar div {
-  margin-bottom: 10px;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.sidebar div:hover {
-  background-color: #f0f0f0;
-}
-
-/* New CSS class to hide the sidebar on mobile */
-.sidebar-hidden {
-  transform: translateX(-100%);
-}
-
-/* Hamburger Icon */
-.hamburger {
-  display: none; /* Show it on mobile */
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  cursor: pointer;
-  font-size: 1.5rem;
-  margin: 0rem;
-  z-index: 2;
-}
 
 /* Dropdown Styles */
 select {
@@ -131,7 +82,6 @@ option {
   padding: 10px;
 }
 
-/* Main Content Area Styles */
 .main-content {
   display: flex;
   padding-top: 10;
@@ -145,6 +95,24 @@ option {
   border-right: 1px solid #ccc;
   background-color: white;
 }
+
+.sidebar input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.sidebar div {
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.sidebar div:hover {
+  background-color: #f0f0f0;
+}
+
 .content {
   flex-grow: 1; /* takes the remaining space */
   height: calc(100vh - 50px);
@@ -182,9 +150,6 @@ option {
   width: 100%;
   align-items: center; /* Center items vertically */
   justify-content: space-between;
-}
-
-.file-item-left {
 }
 
 .file-item-right {
@@ -237,56 +202,6 @@ option {
   color: red;
 }
 
-.login-form {
-  max-width: 300px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #ffffff; /* Matching the light background */
-  border: 1px solid #dddddd; /* Slightly darker border for definition */
-  border-radius: 4px; /* Softer corner radius to match main page elements */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
-  text-align: center;
-}
-
-.login-input {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px 10px; /* Slightly less padding for a more compact feel */
-  border: 1px solid #cccccc; /* Lighter border color */
-  border-radius: 2px; /* Softer corners to match your main page inputs */
-  box-sizing: border-box; /* Ensuring padding does not affect width */
-  background-color: #f8f8f8; /* Light gray background for input */
-}
-
-.login-button {
-  width: 100%;
-  padding: 8px 10px; /* Padding to match inputs */
-  border: none;
-  border-radius: 2px;
-  background-color: #4c7cf3; /* Using a primary color that seems to match the buttons on your main page */
-  color: white;
-  font-size: 16px;
-  font-weight: bold; /* Assuming your main buttons have a bold font */
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px; /* Adding a margin-top to separate from inputs */
-}
-
-.login-button:hover {
-  background-color: #405dcf; /* A slightly darker hue on hover */
-}
-
-/* Focus styles for inputs */
-.login-input:focus {
-  outline: none;
-  border-color: #4c7cf3; /* Using the same blue for focus to match the button */
-}
-
-/* Placeholder styling for consistency */
-.login-input::placeholder {
-  color: #999999; /* A neutral color for placeholders */
-}
-
 .dropdown {
   position: relative;
   display: inline-block;
@@ -331,6 +246,18 @@ option {
   left: 0; /* Align to the left side of the input field */
 }
 
+/* Card Preview Window */
+
+.card-preview-window {
+  position: absolute;
+  background: white;
+  width: 25%;
+  height: 25%;
+  padding: 10px;
+  border: 1px solid #635bff;
+  overflow: hidden;        /* Hides overflow content */
+  text-overflow: ellipsis; /* Optionally, add ellipsis for overflow text */
+}
 /* registration page */
 
 .registration-container {
@@ -453,15 +380,4 @@ h1 {
 .plan-cost {
   font-size: 14px;
   opacity: 0.8;
-}
-
-.card-preview-window {
-  position: absolute;
-  background: white;
-  width: 25%;
-  height: 25%;
-  padding: 10px;
-  border: 1px solid #635bff;
-  overflow: hidden;        /* Hides overflow content */
-  text-overflow: ellipsis; /* Optionally, add ellipsis for overflow text */
 }
