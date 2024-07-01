@@ -64,7 +64,7 @@ func (s *Server) runMigrations() {
 	queryString := "SELECT * FROM migrations WHERE migration_name = $1"
 	insertString := "INSERT INTO migrations (migration_name) VALUES ($1)"
 
-	files, err := ioutil.ReadDir("../backend/schema")
+	files, err := ioutil.ReadDir("./schema")
 	if err != nil {
 		log.Fatal(err)
 	}
