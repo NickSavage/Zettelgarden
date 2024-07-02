@@ -144,12 +144,12 @@ func (s *Server) SendEmail(subject, recipient, body string) error {
 func main() {
 	s = &Server{}
 
-	dbConfig := databaseConfig{}
-	dbConfig.host = os.Getenv("DB_HOST")
-	dbConfig.port = os.Getenv("DB_PORT")
-	dbConfig.user = os.Getenv("DB_USER")
-	dbConfig.password = os.Getenv("DB_PASS")
-	dbConfig.databaseName = os.Getenv("DB_NAME")
+	dbConfig := models.DatabaseConfig{}
+	dbConfig.Host = os.Getenv("DB_HOST")
+	dbConfig.Port = os.Getenv("DB_PORT")
+	dbConfig.User = os.Getenv("DB_USER")
+	dbConfig.Password = os.Getenv("DB_PASS")
+	dbConfig.DatabaseName = os.Getenv("DB_NAME")
 
 	db, err := ConnectToDatabase(dbConfig)
 

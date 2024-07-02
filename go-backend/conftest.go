@@ -17,12 +17,12 @@ import (
 
 func setup() {
 	var err error
-	dbConfig := databaseConfig{}
-	dbConfig.host = os.Getenv("DB_HOST")
-	dbConfig.port = os.Getenv("DB_PORT")
-	dbConfig.user = os.Getenv("DB_USER")
-	dbConfig.password = os.Getenv("DB_PASS")
-	dbConfig.databaseName = "zettelkasten_testing"
+	dbConfig := models.DatabaseConfig{}
+	dbConfig.Host = os.Getenv("DB_HOST")
+	dbConfig.Port = os.Getenv("DB_PORT")
+	dbConfig.User = os.Getenv("DB_USER")
+	dbConfig.Password = os.Getenv("DB_PASS")
+	dbConfig.DatabaseName = "zettelkasten_testing"
 
 	db, err := ConnectToDatabase(dbConfig)
 	if err != nil {
