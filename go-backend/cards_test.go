@@ -358,8 +358,8 @@ func TestGetCardsSuccessInactive(t *testing.T) {
 	}
 	var cards []models.PartialCard
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 21 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 21)
+	if len(cards) != 20 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 20)
 	}
 }
 
@@ -643,5 +643,24 @@ func TestGenerateNextIDMeeting(t *testing.T) {
 	if response.NextID != "MM002" {
 		t.Errorf("wrong id returned, got %v want %v", response.NextID, "MM002")
 
+	}
+}
+
+func TestGenerateInactiveCards(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var count int
+	cards := 20
+
+	_ = s.db.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&count)
+	if count != 0 {
+		t.Errorf("wrong number of initial inactive cards, got %v want 0", count)
+	}
+	s.GenerateInactiveCards(1)
+	var newCount int
+	_ = s.db.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&newCount)
+	if newCount != cards {
+		t.Errorf("wrong number of post-run inactive cards, got %v want %v", newCount, cards)
 	}
 }

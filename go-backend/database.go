@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"sort"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -39,6 +40,7 @@ func (s *Server) resetDatabase() error {
 			DROP TABLE IF EXISTS cards CASCADE;
 			DROP TABLE IF EXISTS backlinks CASCADE;
 			DROP TABLE IF EXISTS card_views CASCADE;
+			DROP TABLE IF EXISTS inactive_cards CASCADE;
 			DROP TABLE IF EXISTS files CASCADE;
 			DROP TABLE IF EXISTS migrations CASCADE;
 			DROP TABLE IF EXISTS stripe_plans CASCADE;
@@ -54,6 +56,7 @@ func (s *Server) resetDatabase() error {
 
 	return nil
 }
+
 func (s *Server) runMigrations() {
 	if s.testing {
 		if err := s.resetDatabase(); err != nil {
@@ -61,7 +64,7 @@ func (s *Server) runMigrations() {
 		}
 	}
 
-	queryString := "SELECT * FROM migrations WHERE migration_name = $1"
+	queryString := "SELECT applied_at FROM migrations WHERE migration_name = $1"
 	insertString := "INSERT INTO migrations (migration_name) VALUES ($1)"
 
 	files, err := ioutil.ReadDir("./schema")
@@ -76,7 +79,7 @@ func (s *Server) runMigrations() {
 	sort.Strings(fileNames)
 
 	for _, fileName := range fileNames {
-		var result string
+		var result time.Time
 		err = s.db.QueryRow(queryString, fileName).Scan(&result)
 
 		if err == sql.ErrNoRows {

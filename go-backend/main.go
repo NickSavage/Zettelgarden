@@ -152,10 +152,12 @@ func main() {
 	dbConfig.databaseName = os.Getenv("DB_NAME")
 
 	db, err := ConnectToDatabase(dbConfig)
+
 	if err != nil {
 		log.Fatalf("Unable to connect to the database: %v\n", err)
 	}
 	s.db = db
+	s.runMigrations()
 	s.s3 = s.createS3Client()
 
 	s.mail = &MailClient{

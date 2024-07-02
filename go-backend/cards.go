@@ -689,19 +689,18 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 
 func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 
+	var count int
+	_ = s.db.QueryRow("SELECT count(*) FROM inactive_cards WHERE user_id = $1", userID).Scan(&count)
+	if count == 0 {
+		log.Printf("derp")
+		s.GenerateInactiveCards(userID)
+	}
 	cards := []models.PartialCard{}
 	query := `
 	SELECT c.id, c.card_id, c.user_id, c.title, c.created_at, c.updated_at
-	FROM cards c
-	LEFT JOIN (
-		SELECT card_pk, MAX(created_at) AS recent_view
-		FROM card_views
-		GROUP BY card_pk
-	) cv ON c.id = cv.card_pk
-	WHERE c.user_id = $1 AND c.is_deleted = FALSE AND
-	 c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
-	ORDER BY cv.recent_view DESC
-	LIMIT 30;
+	FROM inactive_cards i
+	JOIN cards c on c.id = i.card_pk
+	WHERE i.user_id = $1 AND c.is_deleted = FALSE
 	`
 
 	// Add condition for searchTerm
@@ -767,4 +766,37 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	backlinks := extractBacklinks(card.Body)
 	updateBacklinks(card.CardID, backlinks)
 	return s.QueryFullCard(userID, id)
+}
+
+func (s *Server) GenerateInactiveCards(userID int) error {
+	tx, _ := s.db.Begin()
+	_, err := tx.Exec("DELETE FROM inactive_cards WHERE user_id = $1", userID)
+	if err != nil {
+		log.Fatal(err.Error())
+		tx.Rollback()
+		return err
+	}
+	query := `
+	INSERT INTO inactive_cards (card_pk, user_id, card_updated_at)
+SELECT c.id, c.user_id, c.updated_at
+FROM cards c
+LEFT JOIN (
+    SELECT card_pk, MAX(created_at) AS recent_view
+    FROM card_views
+    GROUP BY card_pk
+) cv ON c.id = cv.card_pk
+WHERE c.user_id = $1 AND c.is_deleted = FALSE AND
+ c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
+ORDER BY cv.recent_view DESC, RANDOM()
+LIMIT 20;
+	`
+	_, err = tx.Exec(query, userID)
+	if err != nil {
+		log.Printf("err %v", err)
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
 }

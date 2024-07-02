@@ -43,3 +43,12 @@ type NextIDResponse struct {
 	Message string `json:"message"`
 	NextID  string `json:"new_id"`
 }
+
+type InactiveCard struct {
+	ID            int       `json:"id"`
+	CardPK        int       `json:"card_pk"`
+	UserID        int       `json:"user_id"`
+	CardUpdatedAt time.Time `json:"card_updated_at"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+}
