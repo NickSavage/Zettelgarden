@@ -700,7 +700,7 @@ func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 	) cv ON c.id = cv.card_pk
 	WHERE c.user_id = $1 AND c.is_deleted = FALSE AND
 	 c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
-	ORDER BY cv.recent_view DESC, RANDOM()
+	ORDER BY cv.recent_view DESC
 	LIMIT 30;
 	`
 
