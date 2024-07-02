@@ -49,6 +49,9 @@ func getParentIdAlternating(cardID string) string {
 }
 
 func (s *Server) checkIsCardIDUnique(userID int, cardID string) bool {
+	if cardID == "" {
+		return true
+	}
 	var count int
 	err := s.db.QueryRow(`SELECT count(*) FROM cards 
 		WHERE user_id = $1 AND card_id = $2 AND is_deleted = FALSE`, userID, cardID).Scan(&count)
