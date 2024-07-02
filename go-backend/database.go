@@ -80,7 +80,7 @@ func (s *Server) runMigrations() {
 		err = s.db.QueryRow(queryString, fileName).Scan(&result)
 
 		if err == sql.ErrNoRows {
-			content, err := ioutil.ReadFile("../backend/schema/" + fileName)
+			content, err := ioutil.ReadFile("./schema/" + fileName)
 			if err != nil {
 				log.Fatal(err)
 			}
