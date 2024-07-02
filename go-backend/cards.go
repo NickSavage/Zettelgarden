@@ -167,7 +167,7 @@ func getBacklinks(cardID string) ([]models.PartialCard, error) {
 	cards.id, backlinks.source_id, cards.user_id, cards.title, cards.created_at, cards.updated_at
 	FROM backlinks 
 	JOIN cards ON backlinks.source_id = cards.card_id 
-	WHERE target_id = $1`
+	WHERE target_id = $1 AND cards.is_deleted = FALSE`
 
 	rows, err := s.db.Query(query, cardID)
 	if err != nil {
