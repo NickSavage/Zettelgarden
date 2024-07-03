@@ -19,10 +19,16 @@ export function CardLink({
     .filter((x) => x !== null)
     .find((linked) => linked.card_id === card_id);
   const title = linkedCard ? linkedCard.title : "Card not found";
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    setMousePosition({ x: e.clientX, y: e.clientY });
+    setShowHover(true);
+  };
 
   return (
     <span
-      onMouseEnter={() => setShowHover(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShowHover(false)}
     >
       <a
@@ -35,7 +41,7 @@ export function CardLink({
       >
         [{card_id}]
       </a>
-      {showHover && linkedCard && <CardPreviewWindow card={linkedCard} />}
+      {showHover && linkedCard && <CardPreviewWindow card={linkedCard} mousePosition={mousePosition} />}
     </span>
   );
 }

@@ -10,9 +10,16 @@ interface CardItemProps {
 
 export function CardItem({ card }: CardItemProps) {
   const [showHover, setShowHover] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    setMousePosition({ x: e.clientX, y: e.clientY });
+    setShowHover(true);
+  };
+
   return (
     <div key={card.id}
-      onMouseEnter={() => setShowHover(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShowHover(false)}
     >
       <Link
@@ -24,7 +31,7 @@ export function CardItem({ card }: CardItemProps) {
         </span>
         : {card.title}
       </Link>
-      {showHover && card && <CardPreviewWindow card={card} />}
+      {showHover && card && <CardPreviewWindow card={card} mousePosition={mousePosition} />}
     </div>
   );
 }

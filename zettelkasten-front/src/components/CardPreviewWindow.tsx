@@ -7,9 +7,10 @@ import { isErrorResponse } from "../models/common";
 
 interface CardPreviewWindowProps {
   card: PartialCard;
+  mousePosition: { x: number; y: number };
 }
 
-export function CardPreviewWindow({ card }: CardPreviewWindowProps) {
+export function CardPreviewWindow({ card, mousePosition }: CardPreviewWindowProps) {
   const [viewingCard, setViewingCard] = useState<Card | null>(null);
   const [error, setError] = useState("");
 
@@ -26,8 +27,17 @@ export function CardPreviewWindow({ card }: CardPreviewWindowProps) {
     console.log("asdasasdasd");
     fetchCard(card.id.toString());
   }, []);
+  const windowHeight = window.innerHeight;
+  const previewHeight = 300; // Approximate height of your preview window, adjust as needed
+  const topPosition = mousePosition.y + previewHeight > windowHeight 
+    ? mousePosition.y - previewHeight 
+    : mousePosition.y;
+
   return (
-    <div className="card-preview-window">
+    <div
+      className="card-preview-window"
+      style={{ top: topPosition, left: mousePosition.x + 10, position: 'absolute' }}
+    >
       {viewingCard && (
         <div>
           <h3 style={{ marginBottom: "10px" }}>
