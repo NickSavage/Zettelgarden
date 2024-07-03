@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Card, PartialCard } from "../models/Card";
+import { Card } from "../models/Card";
 import { CardPreviewWindow } from "./CardPreviewWindow";
 
 interface CardLinkProps {
@@ -18,7 +18,6 @@ export function CardLink({
   const linkedCard = currentCard.references
     .filter((x) => x !== null)
     .find((linked) => linked.card_id === card_id);
-  const title = linkedCard ? linkedCard.title : "Card not found";
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const handleMouseEnter = (e: React.MouseEvent) => {

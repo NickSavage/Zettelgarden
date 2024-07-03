@@ -26,7 +26,7 @@ export function CardPreviewWindow({ card, mousePosition }: CardPreviewWindowProp
   useEffect(() => {
     console.log("asdasasdasd");
     fetchCard(card.id.toString());
-  }, []);
+  }, [card.id]);
   const windowHeight = window.innerHeight;
   const previewHeight = 300; // Approximate height of your preview window, adjust as needed
   const topPosition = mousePosition.y + previewHeight > windowHeight 
@@ -38,6 +38,9 @@ export function CardPreviewWindow({ card, mousePosition }: CardPreviewWindowProp
       className="card-preview-window"
       style={{ top: topPosition, left: mousePosition.x + 10, position: 'absolute' }}
     >
+      {error && (
+        <div>{error}</div>
+      )}
       {viewingCard && (
         <div>
           <h3 style={{ marginBottom: "10px" }}>
