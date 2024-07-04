@@ -168,35 +168,49 @@ func main() {
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
 	r := mux.NewRouter()
-	r.HandleFunc("/api/auth/", jwtMiddleware(s.CheckTokenRoute)).Methods("GET")
-	r.HandleFunc("/api/login/", s.LoginRoute).Methods("POST")
-	r.HandleFunc("/api/reset-password/", s.ResetPasswordRoute).Methods("POST")
-	r.HandleFunc("/api/email-validate/", jwtMiddleware(s.ResendEmailValidationRoute)).Methods("GET")
-	r.HandleFunc("/api/email-validate/", s.ValidateEmailRoute).Methods("POST")
-	r.HandleFunc("/api/request-reset/", s.RequestPasswordResetRoute).Methods("POST")
+	r.HandleFunc("/api/auth", jwtMiddleware(s.CheckTokenRoute)).Methods("GET")
+	r.HandleFunc("/api/login", s.LoginRoute).Methods("POST")
+	r.HandleFunc("/api/reset-password", s.ResetPasswordRoute).Methods("POST")
+	r.HandleFunc("/api/email-validate", jwtMiddleware(s.ResendEmailValidationRoute)).Methods("GET")
+	r.HandleFunc("/api/email-validate", s.ValidateEmailRoute).Methods("POST")
+	r.HandleFunc("/api/request-reset", s.RequestPasswordResetRoute).Methods("POST")
 
 	r.HandleFunc("/api/files", jwtMiddleware(s.GetAllFilesRoute)).Methods("GET")
-	r.HandleFunc("/api/files/upload/", jwtMiddleware(s.UploadFileRoute)).Methods("POST")
+	r.HandleFunc("/api/files/upload", jwtMiddleware(s.UploadFileRoute)).Methods("POST")
 	r.HandleFunc("/api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute)).Methods("GET")
-	r.HandleFunc("/api/files/{id}/", jwtMiddleware(s.EditFileMetadataRoute)).Methods("PATCH")
-	r.HandleFunc("/api/files/{id}/", jwtMiddleware(s.DeleteFileRoute)).Methods("DELETE")
-	r.HandleFunc("/api/files/download/{id}/", jwtMiddleware(s.DownloadFileRoute)).Methods("GET")
+	r.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute)).Methods("PATCH")
+	r.HandleFunc("/api/files/{id}", jwtMiddleware(s.DeleteFileRoute)).Methods("DELETE")
+	r.HandleFunc("/api/files/download/{id}", jwtMiddleware(s.DownloadFileRoute)).Methods("GET")
 
-	r.HandleFunc("/api/cards/", jwtMiddleware(s.GetCardsRoute)).Methods("GET")
-	r.HandleFunc("/api/cards/", jwtMiddleware(s.CreateCardRoute)).Methods("POST")
-	r.HandleFunc("/api/next/", jwtMiddleware(s.NextIDRoute)).Methods("POST")
-	r.HandleFunc("/api/cards/{id}/", jwtMiddleware(s.GetCardRoute)).Methods("GET")
-	r.HandleFunc("/api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute)).Methods("PUT")
-	r.HandleFunc("/api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute)).Methods("DELETE")
+	r.HandleFunc("/api/cards", jwtMiddleware(s.GetCardsRoute)).Methods("GET")
+	r.HandleFunc("/api/cards", jwtMiddleware(s.CreateCardRoute)).Methods("POST")
+	r.HandleFunc("/api/next", jwtMiddleware(s.NextIDRoute)).Methods("POST")
+	r.HandleFunc("/api/cards/{id}", jwtMiddleware(s.GetCardRoute)).Methods("GET")
+	r.HandleFunc("/api/cards/{id}", jwtMiddleware(s.UpdateCardRoute)).Methods("PUT")
+	r.HandleFunc("/api/cards/{id}", jwtMiddleware(s.DeleteCardRoute)).Methods("DELETE")
 
-	r.HandleFunc("/api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute))).Methods("GET")
-	r.HandleFunc("/api/users/{id}/", jwtMiddleware(s.UpdateUserRoute)).Methods("PUT")
-	r.HandleFunc("/api/users/", jwtMiddleware(admin(s.GetUsersRoute))).Methods("GET")
-	r.HandleFunc("/api/users/", s.CreateUserRoute).Methods("POST")
-	r.HandleFunc("/api/users/{id}/subscription/", jwtMiddleware(admin(s.GetUserSubscriptionRoute))).Methods("GET")
-	r.HandleFunc("/api/current/", jwtMiddleware(s.GetCurrentUserRoute)).Methods("GET")
-	r.HandleFunc("/api/admin/", jwtMiddleware(s.GetUserAdminRoute)).Methods("GET")
+	r.HandleFunc("/api/users/{id}", jwtMiddleware(admin(s.GetUserRoute))).Methods("GET")
+	r.HandleFunc("/api/users/{id}", jwtMiddleware(s.UpdateUserRoute)).Methods("PUT")
+	r.HandleFunc("/api/users", jwtMiddleware(admin(s.GetUsersRoute))).Methods("GET")
+	r.HandleFunc("/api/users", s.CreateUserRoute).Methods("POST")
+	r.HandleFunc("/api/users/{id}/subscription", jwtMiddleware(admin(s.GetUserSubscriptionRoute))).Methods("GET")
+	r.HandleFunc("/api/current", jwtMiddleware(s.GetCurrentUserRoute)).Methods("GET")
+	r.HandleFunc("/api/admin", jwtMiddleware(s.GetUserAdminRoute)).Methods("GET")
 
-	handler := cors.Default().Handler(r)
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("{\"hello\": \"world\"}"))
+	})
+	//handler := cors.Default().Handler(r)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://fortuna:3000"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"authorization", "content-type"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		// Enable Debugging for testing, consider disabling in production
+		//Debug: true,
+	})
+
+	handler := c.Handler(r)
 	http.ListenAndServe(":8080", handler)
 }
