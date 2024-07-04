@@ -203,7 +203,7 @@ func main() {
 	})
 	//handler := cors.Default().Handler(r)
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://fortuna:3000"},
+		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"authorization", "content-type"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
