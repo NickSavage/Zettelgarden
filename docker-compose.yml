@@ -17,18 +17,6 @@ services:
       - REACT_APP_USERNAME=${REACT_APP_USERNAME}
       - REACT_APP_PASSWORD=${REACT_APP_PASSWORD}
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: 192.168.0.97:50000/zettelkasten_backend:latest
-    ports:
-      - "5000:5000"
-    volumes:
-      - /home/media/.config/zettelkasten:/usr/src/app/files
-    env_file:
-      - .env
-
   go-backend:
     build:
       context: ./go-backend
