@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
@@ -166,36 +167,36 @@ func main() {
 	}
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/auth/", jwtMiddleware(s.CheckTokenRoute))
-	mux.HandleFunc("POST /api/login/", s.LoginRoute)
-	mux.HandleFunc("POST /api/reset-password/", s.ResetPasswordRoute)
-	mux.HandleFunc("GET /api/email-validate/", jwtMiddleware(s.ResendEmailValidationRoute))
-	mux.HandleFunc("POST /api/email-validate/", s.ValidateEmailRoute)
-	mux.HandleFunc("POST /api/request-reset/", s.RequestPasswordResetRoute)
+	r := mux.NewRouter()
+	r.HandleFunc("/api/auth/", jwtMiddleware(s.CheckTokenRoute)).Methods("GET")
+	r.HandleFunc("/api/login/", s.LoginRoute).Methods("POST")
+	r.HandleFunc("/api/reset-password/", s.ResetPasswordRoute).Methods("POST")
+	r.HandleFunc("/api/email-validate/", jwtMiddleware(s.ResendEmailValidationRoute)).Methods("GET")
+	r.HandleFunc("/api/email-validate/", s.ValidateEmailRoute).Methods("POST")
+	r.HandleFunc("/api/request-reset/", s.RequestPasswordResetRoute).Methods("POST")
 
-	mux.HandleFunc("GET /api/files", jwtMiddleware(s.GetAllFilesRoute))
-	mux.HandleFunc("POST /api/files/upload/", jwtMiddleware(s.UploadFileRoute))
-	mux.HandleFunc("GET /api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute))
-	mux.HandleFunc("PATCH /api/files/{id}/", jwtMiddleware(s.EditFileMetadataRoute))
-	mux.HandleFunc("DELETE /api/files/{id}/", jwtMiddleware(s.DeleteFileRoute))
-	mux.HandleFunc("GET /api/files/download/{id}/", jwtMiddleware(s.DownloadFileRoute))
+	r.HandleFunc("/api/files", jwtMiddleware(s.GetAllFilesRoute)).Methods("GET")
+	r.HandleFunc("/api/files/upload/", jwtMiddleware(s.UploadFileRoute)).Methods("POST")
+	r.HandleFunc("/api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute)).Methods("GET")
+	r.HandleFunc("/api/files/{id}/", jwtMiddleware(s.EditFileMetadataRoute)).Methods("PATCH")
+	r.HandleFunc("/api/files/{id}/", jwtMiddleware(s.DeleteFileRoute)).Methods("DELETE")
+	r.HandleFunc("/api/files/download/{id}/", jwtMiddleware(s.DownloadFileRoute)).Methods("GET")
 
-	mux.HandleFunc("GET /api/cards/", jwtMiddleware(s.GetCardsRoute))
-	mux.HandleFunc("POST /api/cards/", jwtMiddleware(s.CreateCardRoute))
-	mux.HandleFunc("POST /api/next/", jwtMiddleware(s.NextIDRoute))
-	mux.HandleFunc("GET /api/cards/{id}/", jwtMiddleware(s.GetCardRoute))
-	mux.HandleFunc("PUT /api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute))
-	mux.HandleFunc("DELETE /api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute))
+	r.HandleFunc("/api/cards/", jwtMiddleware(s.GetCardsRoute)).Methods("GET")
+	r.HandleFunc("/api/cards/", jwtMiddleware(s.CreateCardRoute)).Methods("POST")
+	r.HandleFunc("/api/next/", jwtMiddleware(s.NextIDRoute)).Methods("POST")
+	r.HandleFunc("/api/cards/{id}/", jwtMiddleware(s.GetCardRoute)).Methods("GET")
+	r.HandleFunc("/api/cards/{id}/", jwtMiddleware(s.UpdateCardRoute)).Methods("PUT")
+	r.HandleFunc("/api/cards/{id}/", jwtMiddleware(s.DeleteCardRoute)).Methods("DELETE")
 
-	mux.HandleFunc("GET /api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute)))
-	mux.HandleFunc("PUT /api/users/{id}/", jwtMiddleware(s.UpdateUserRoute))
-	mux.HandleFunc("GET /api/users/", jwtMiddleware(admin(s.GetUsersRoute)))
-	mux.HandleFunc("POST /api/users/", s.CreateUserRoute)
-	mux.HandleFunc("GET /api/users/{id}/subscription/", jwtMiddleware(admin(s.GetUserSubscriptionRoute)))
-	mux.HandleFunc("GET /api/current/", jwtMiddleware(s.GetCurrentUserRoute))
-	mux.HandleFunc("GET /api/admin/", jwtMiddleware(s.GetUserAdminRoute))
+	r.HandleFunc("/api/users/{id}/", jwtMiddleware(admin(s.GetUserRoute))).Methods("GET")
+	r.HandleFunc("/api/users/{id}/", jwtMiddleware(s.UpdateUserRoute)).Methods("PUT")
+	r.HandleFunc("/api/users/", jwtMiddleware(admin(s.GetUsersRoute))).Methods("GET")
+	r.HandleFunc("/api/users/", s.CreateUserRoute).Methods("POST")
+	r.HandleFunc("/api/users/{id}/subscription/", jwtMiddleware(admin(s.GetUserSubscriptionRoute))).Methods("GET")
+	r.HandleFunc("/api/current/", jwtMiddleware(s.GetCurrentUserRoute)).Methods("GET")
+	r.HandleFunc("/api/admin/", jwtMiddleware(s.GetUserAdminRoute)).Methods("GET")
 
-	handler := cors.Default().Handler(mux)
+	handler := cors.Default().Handler(r)
 	http.ListenAndServe(":8080", handler)
 }

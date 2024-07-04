@@ -15,6 +15,7 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 func (s *Server) GetAllFilesRoute(w http.ResponseWriter, r *http.Request) {
@@ -167,8 +168,8 @@ func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
 func (s *Server) GetFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
@@ -187,8 +188,7 @@ func (s *Server) GetFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
-	cardPKStr := r.PathValue("id")
-	cardPK, err := strconv.Atoi(cardPKStr)
+	cardPK, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -370,8 +370,7 @@ func (s *Server) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) DeleteFileRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
-	cardPKStr := r.PathValue("id")
-	cardPK, err := strconv.Atoi(cardPKStr)
+	cardPK, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

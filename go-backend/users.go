@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func (s *Server) GetUserAdminRoute(w http.ResponseWriter, r *http.Request) {
@@ -30,8 +32,8 @@ func (s *Server) GetUserAdminRoute(w http.ResponseWriter, r *http.Request) {
 // admin protected
 func (s *Server) GetUserRoute(w http.ResponseWriter, r *http.Request) {
 	log.Printf("aoea")
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
@@ -60,8 +62,7 @@ func (s *Server) GetUsersRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) UpdateUserRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
@@ -162,8 +163,7 @@ func (s *Server) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request
 	var userSub models.UserSubscription
 
 	userID := r.Context().Value("current_user").(int)
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return

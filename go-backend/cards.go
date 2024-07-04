@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func getParentIdAlternating(cardID string) string {
@@ -239,11 +241,10 @@ func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
 }
 
 func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
-
 	userID := r.Context().Value("current_user").(int)
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
+		log.Printf("error %v", err)
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
 	}
@@ -358,8 +359,7 @@ func (s *Server) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 func (s *Server) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
@@ -420,8 +420,7 @@ func (s *Server) CreateCardRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
