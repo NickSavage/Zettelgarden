@@ -197,6 +197,8 @@ func main() {
 	r.HandleFunc("/api/current", jwtMiddleware(s.GetCurrentUserRoute)).Methods("GET")
 	r.HandleFunc("/api/admin", jwtMiddleware(s.GetUserAdminRoute)).Methods("GET")
 
+	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.GetTaskRoute)).Methods("GET")
+
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte("{\"hello\": \"world\"}"))

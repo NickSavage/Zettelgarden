@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
@@ -56,6 +57,7 @@ func (s *Server) importTestData() error {
 	cards := data["cards"].([]models.Card)
 	files := data["files"].([]models.File)
 	backlinks := data["backlinks"].([]models.Backlink)
+	tasks := data["tasks"].([]models.Task)
 
 	var userIDs []int
 	for _, user := range users {
@@ -107,6 +109,24 @@ func (s *Server) importTestData() error {
 
 	for _, backlink := range backlinks {
 		_, err := s.db.Exec("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceID, backlink.TargetID, backlink.CreatedAt, backlink.UpdatedAt)
+		if err != nil {
+			log.Printf("err %v", err)
+			return err
+		}
+	}
+
+	for _, task := range tasks {
+		_, err := s.db.Exec(
+			"INSERT INTO tasks (card_pk, user_id, created_at, updated_at, due_date, scheduled_date, title, is_complete) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+			task.CardPK,
+			task.UserID,
+			task.CreatedAt,
+			task.UpdatedAt,
+			task.DueDate,
+			task.ScheduledDate,
+			task.Title,
+			task.IsComplete,
+		)
 		if err != nil {
 			log.Printf("err %v", err)
 			return err
@@ -229,11 +249,32 @@ func (s *Server) generateData() map[string]interface{} {
 		})
 	}
 
+	tasks := []models.Task{}
+	for i := 1; i < 20; i++ {
+		task := models.Task{
+			ID:            i,
+			CardPK:        i,
+			UserID:        1,
+			CreatedAt:     randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt:     randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			DueDate:       randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			ScheduledDate: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			Title:         randomString(20),
+			IsComplete:    false,
+		}
+		if i == 2 {
+			task.IsComplete = true
+			task.CompletedAt = randomNullTime(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC))
+		}
+		tasks = append(tasks, task)
+	}
+
 	results := map[string]interface{}{
 		"users":     users,
 		"cards":     cards,
 		"backlinks": backlinks,
 		"files":     files,
+		"tasks":     tasks,
 	}
 	return results
 }
@@ -255,6 +296,9 @@ func randomDate(start, end time.Time) time.Time {
 	delta := end.Unix() - start.Unix()
 	sec := rand.Int63n(delta) + start.Unix()
 	return time.Unix(sec, 0)
+}
+func randomNullTime(start, end time.Time) sql.NullTime {
+	return sql.NullTime{Time: randomDate(start, end), Valid: true}
 }
 
 func generateTestJWT(userID int) (string, error) {
