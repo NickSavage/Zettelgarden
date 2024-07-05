@@ -338,8 +338,7 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 func (s *Server) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
-	cardPKStr := r.PathValue("id")
-	cardPK, err := strconv.Atoi(cardPKStr)
+	cardPK, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

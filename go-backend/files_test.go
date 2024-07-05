@@ -12,6 +12,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
@@ -76,12 +77,12 @@ func TestGetFileSuccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
-	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.GetFileMetadataRoute)))
 
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/files/{id}", jwtMiddleware((s.GetFileMetadataRoute)))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		log.Printf("%v", rr.Body.String())
@@ -110,9 +111,9 @@ func TestGetFileWrongUser(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.GetFileMetadataRoute)))
-
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/files/{id}", jwtMiddleware((s.GetFileMetadataRoute)))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		log.Printf("%v", rr.Body.String())
@@ -146,9 +147,9 @@ func TestEditFileSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.EditFileMetadataRoute)))
-
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		log.Printf("%v", rr.Body.String())
@@ -186,9 +187,9 @@ func TestEditFileWrongUser(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware((s.EditFileMetadataRoute)))
-
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		log.Printf("%v", rr.Body.String())
@@ -373,9 +374,9 @@ func TestDownloadFile(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.DownloadFileRoute))
-
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/files/download/{id}", jwtMiddleware((s.DownloadFileRoute)))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -398,9 +399,9 @@ func TestDeleteFile(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.DeleteFileRoute))
-
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.DeleteFileRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -414,9 +415,9 @@ func TestDeleteFile(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(jwtMiddleware(s.GetFileMetadataRoute))
-
-	handler.ServeHTTP(rr, req)
+	router = mux.NewRouter()
+	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute))
+	router.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 

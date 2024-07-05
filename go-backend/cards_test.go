@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 func makeCardRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
@@ -25,8 +27,9 @@ func makeCardRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
 	req.SetPathValue("id", strconv.Itoa(id))
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetCardRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.GetCardRoute))
+	router.ServeHTTP(rr, req)
 
 	return rr
 }
@@ -60,8 +63,9 @@ func makeCardDeleteRequestSuccess(t *testing.T, id int) *httptest.ResponseRecord
 	req.SetPathValue("id", strconv.Itoa(id))
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.DeleteCardRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.DeleteCardRoute))
+	router.ServeHTTP(rr, req)
 
 	return rr
 
@@ -112,8 +116,9 @@ func TestGetCardWrongUser(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetCardRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.GetCardRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
@@ -396,11 +401,11 @@ func TestUpdateCardSuccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
-	req.SetPathValue("id", "1")
 
 	rr = httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UpdateCardRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.UpdateCardRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -449,8 +454,9 @@ func TestUpdateCardUnauthorized(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UpdateCardRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.UpdateCardRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
@@ -578,8 +584,9 @@ func TestDeleteCardWrongUser(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.DeleteCardRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.DeleteCardRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)

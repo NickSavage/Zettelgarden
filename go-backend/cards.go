@@ -361,6 +361,7 @@ func (s *Server) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
+		log.Printf("asdsa id %v %v", id, err)
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
 	}

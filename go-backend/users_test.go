@@ -9,6 +9,8 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 func makeUserRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
@@ -21,8 +23,9 @@ func makeUserRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
 	req.SetPathValue("id", strconv.Itoa(id))
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(admin(s.GetUserRoute)))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/users/{id}", jwtMiddleware(s.GetUserRoute))
+	router.ServeHTTP(rr, req)
 
 	return rr
 }
@@ -99,8 +102,9 @@ func TestGetUserUnauthorized(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(admin(s.GetUserRoute)))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/users/{id}", jwtMiddleware(admin(s.GetUserRoute)))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
@@ -168,8 +172,9 @@ func TestGetUserSubscriptionSuccess(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetUserSubscriptionRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/users/{id}/subscription", jwtMiddleware(s.GetUserSubscriptionRoute))
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -193,7 +198,7 @@ func TestGetUserSubscriptionUnauthorized(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetUserSubscriptionRoute))
+	handler := http.HandlerFunc(jwtMiddleware(admin(s.GetUserSubscriptionRoute)))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
@@ -254,8 +259,9 @@ func TestUpdateUserRouteSuccess(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr = httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UpdateUserRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/users/{id}", jwtMiddleware(s.UpdateUserRoute))
+	router.ServeHTTP(rr, req)
 
 	rr = makeUserRequestSuccess(t, 1)
 	parseJsonResponse(t, rr.Body.Bytes(), &user)
@@ -371,8 +377,9 @@ func TestResendValidateEmailNotValidated(t *testing.T) {
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UpdateUserRoute))
-	handler.ServeHTTP(rr, req)
+	router := mux.NewRouter()
+	router.HandleFunc("/api/users/{id}", jwtMiddleware(s.UpdateUserRoute))
+	router.ServeHTTP(rr, req)
 
 	req, err = http.NewRequest("GET", "/api/email-validate", nil)
 	if err != nil {
@@ -381,7 +388,7 @@ func TestResendValidateEmailNotValidated(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(jwtMiddleware(s.ResendEmailValidationRoute))
+	handler := http.HandlerFunc(jwtMiddleware(s.ResendEmailValidationRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
