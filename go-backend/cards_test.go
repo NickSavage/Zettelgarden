@@ -113,7 +113,6 @@ func TestGetCardWrongUser(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
-	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()

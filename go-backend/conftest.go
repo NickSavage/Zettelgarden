@@ -250,15 +250,15 @@ func (s *Server) generateData() map[string]interface{} {
 	}
 
 	tasks := []models.Task{}
-	for i := 1; i < 20; i++ {
+	for i := 1; i <= 20; i++ {
 		task := models.Task{
 			ID:            i,
 			CardPK:        i,
 			UserID:        1,
 			CreatedAt:     randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 			UpdatedAt:     randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			DueDate:       randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			ScheduledDate: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			DueDate:       randomNullTime(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			ScheduledDate: randomNullTime(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 			Title:         randomString(20),
 			IsComplete:    false,
 		}

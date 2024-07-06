@@ -37,6 +37,7 @@ func (s *Server) resetDatabase() error {
 			DROP TABLE IF EXISTS files CASCADE;
 			DROP TABLE IF EXISTS migrations CASCADE;
 			DROP TABLE IF EXISTS stripe_plans CASCADE;
+			DROP TABLE IF EXISTS tasks CASCADE;
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,
 				migration_name VARCHAR(255) NOT NULL,

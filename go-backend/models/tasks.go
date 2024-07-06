@@ -9,8 +9,8 @@ type Task struct {
 	ID            int          `json:"id"`
 	CardPK        int          `json:"card_pk"`
 	UserID        int          `json:"user_id"`
-	ScheduledDate time.Time    `json:"scheduled_date"`
-	DueDate       time.Time    `json:"due_date"`
+	ScheduledDate sql.NullTime `json:"scheduled_date"`
+	DueDate       sql.NullTime `json:"due_date"`
 	CreatedAt     time.Time    `json:"created_at"`
 	UpdatedAt     time.Time    `json:"updated_at"`
 	CompletedAt   sql.NullTime `json:"completed_at"`
