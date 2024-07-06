@@ -3,26 +3,26 @@ export interface Task {
     id: number;
     cardPK: number;
     userId: number;
-    scheduledDate: Date | null;
+    scheduled_date: Date | null;
     dueDate: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-    completedAt: Date | null;
+    created_at: Date;
+    updated_at: Date;
+    completed_at: Date | null;
     title: string;
-    isComplete: boolean;
-    isDeleted: boolean;
+    is_complete: boolean;
+    is_deleted: boolean;
   };
   
   export const emptyTask: Task = {
     id: -1,
     cardPK: -1,
     userId: -1,
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
+    created_at: new Date(0),
+    updated_at: new Date(0),
     dueDate: new Date(0),
-    scheduledDate: new Date(0),
-    completedAt: new Date(0),
+    scheduled_date: new Date(0),
+    completed_at: new Date(0),
     title: "",
-    isComplete: false,
-    isDeleted: false,
+    is_complete: false,
+    is_deleted: false,
   }

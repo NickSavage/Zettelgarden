@@ -1,6 +1,5 @@
 
-import { CLIENT_STATIC_FILES_RUNTIME_REACT_REFRESH } from "next/dist/shared/lib/constants";
-import React, { useState } from "react";
+import React, { useState, KeyboardEvent } from "react";
 import { saveNewTask } from "src/api/tasks";
 
 import { Task, emptyTask } from "src/models/Task";
@@ -22,12 +21,18 @@ export function CreateTaskWindow({setRefresh}: CreateTaskWindowProps) {
     }
 
     return (
-        <div>
+        <div style={{display: "flex", marginBottom: "10px"}}>
             <input 
+              style={{ width: "100%"}}
               value={newTask.title}
               onChange={(e) =>
                 setNewTask({ ...newTask, title: e.target.value})
               }
+        onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+          if (event.key === "Enter") {
+            handleSaveTask();
+          }
+        }}
             />
             <button onClick={handleSaveTask}>Save</button>
         </div>

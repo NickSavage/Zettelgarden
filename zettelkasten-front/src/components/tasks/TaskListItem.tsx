@@ -7,9 +7,10 @@ interface TaskListItemProps {
 }
 
 export function TaskListItem({ task }: TaskListItemProps) {
+    console.log(task)
     return (
         <div>
-            <span>{task.title}</span>
+            <span className={task.is_complete ? "task-completed" : ""}>{task.title}</span>
         </div>
     )
 }

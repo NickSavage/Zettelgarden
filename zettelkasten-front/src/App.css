@@ -381,3 +381,7 @@ h1 {
   font-size: 14px;
   opacity: 0.8;
 }
+
+.task-completed {
+  text-decoration: line-through;
+}
