@@ -36,34 +36,36 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
             setRefresh(true);
         }
     }
-
     return (
-        <div>
-            <div>
-                <span onClick={handleToggleComplete}>{task.is_complete ? "[x] - " : "[ ] - "}</span>
-                {editTitle ? 
-                <input
-                  style={{ width: "100%" }}
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-                    if (event.key === "Enter") {
-                        handleTitleEdit();
-                    }
-                  }}
-                /> :
-                <span onClick={handleTitleClick} className={task.is_complete ? "task-completed" : ""}>{task.title}</span>}
-
-            </div>
-            <div>
-            {task.card && task.card.id > 0 && (
-                <span
-                style={{ fontWeight: "bold", color: "blue" }}
-                >[{task.card?.card_id}]</span>
+        <div className="task-list-item">
+          <div className="task-list-item-checkbox">
+            <span onClick={handleToggleComplete}>
+              {task.is_complete ? "[x]" : "[ ]"}
+            </span>
+          </div>
+          <div className="task-list-item-title">
+            {editTitle ? (
+              <input
+                className="task-list-item-title-input"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+                  if (event.key === "Enter") {
+                    handleTitleEdit();
+                  }
+                }}
+              />
+            ) : (
+              <span onClick={handleTitleClick} className={task.is_complete ? "task-completed" : "task-title"}>
+                {task.title}
+              </span>
             )}
-
-            </div>
-
+          </div>
+          <div className="task-list-item-card">
+            {task.card && task.card.id > 0 && (
+              <span className="card-id">[{task.card.card_id}]</span>
+            )}
+          </div>
         </div>
-    )
+      );
 }

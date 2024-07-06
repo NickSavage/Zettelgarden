@@ -412,3 +412,38 @@ h1 {
   justify-content: flex-end; /* Align the button to the right */
   align-items: flex-end; /* Align the button at the bottom */
 }
+
+.task-list-item {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.task-list-item-checkbox {
+  margin-right: 10px;
+}
+
+.task-list-item-title {
+  flex-grow: 1;
+}
+
+.task-title {
+  cursor: pointer;
+}
+
+.task-completed {
+  text-decoration: line-through;
+}
+
+.task-list-item-title-input {
+  width: 100%;
+}
+
+.task-list-item-card {
+  margin-left: 10px;
+}
+
+.card-id {
+  font-weight: bold;
+  color: blue;
+}
