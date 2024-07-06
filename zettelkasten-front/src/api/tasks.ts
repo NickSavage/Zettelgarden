@@ -37,18 +37,18 @@ export function fetchTask(id: string): Promise<Task> {
     });
 
 }
-export function saveNewtask(task: Task): Promise<Task> {
+export function saveNewTask(task: Task): Promise<Task> {
   const url = base_url + `/tasks`;
   const method = "POST";
-  return savetask(url, method, task);
+  return saveTask(url, method, task);
 }
 
-export function saveExistingtask(task: Task): Promise<Task> {
+export function saveExistingTask(task: Task): Promise<Task> {
   const url = base_url + `/tasks/${encodeURIComponent(task.id)}`;
   const method = "PUT";
-  return savetask(url, method, task);
+  return saveTask(url, method, task);
 }
-export function savetask(
+export function saveTask(
   url: string,
   method: string,
   task: Task,
@@ -72,7 +72,7 @@ export function savetask(
     });
 }
 
-export function deleteCard(id: number): Promise<Task | null> {
+export function deleteTask(id: number): Promise<Task | null> {
   let encodedId = encodeURIComponent(id);
   const url = `${base_url}/cards/${encodedId}`;
 

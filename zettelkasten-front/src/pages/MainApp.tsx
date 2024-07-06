@@ -19,6 +19,7 @@ import { DashboardPage } from "./DashboardPage";
 
 import { User } from "../models/User";
 import { Card, PartialCard } from "../models/Card";
+import { TaskList } from "./tasks/TaskList";
 
 function MainApp() {
   const navigate = useNavigate();
@@ -135,6 +136,7 @@ function MainApp() {
               element={<BillingCancelled />}
             />
             <Route path="files" element={<FileVault />} />
+            <Route path="tasks" element={<TaskList />} />
             <Route path="*" element={<DashboardPage />} />
           </Routes>
         </div>
