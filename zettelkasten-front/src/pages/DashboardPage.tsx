@@ -42,7 +42,7 @@ export function DashboardPage() {
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <h3>Tasks</h3>
-          {tasks
+          {tasks && tasks
             .filter((task => !task.is_complete))
             .slice(0, 10)
             .map((task) => (
