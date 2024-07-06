@@ -10,7 +10,10 @@ interface CardPreviewWindowProps {
   mousePosition: { x: number; y: number };
 }
 
-export function CardPreviewWindow({ card, mousePosition }: CardPreviewWindowProps) {
+export function CardPreviewWindow({
+  card,
+  mousePosition,
+}: CardPreviewWindowProps) {
   const [viewingCard, setViewingCard] = useState<Card | null>(null);
   const [error, setError] = useState("");
 
@@ -29,18 +32,21 @@ export function CardPreviewWindow({ card, mousePosition }: CardPreviewWindowProp
   }, [card.id]);
   const windowHeight = window.innerHeight;
   const previewHeight = 300; // Approximate height of your preview window, adjust as needed
-  const topPosition = mousePosition.y + previewHeight > windowHeight 
-    ? mousePosition.y - previewHeight 
-    : mousePosition.y;
+  const topPosition =
+    mousePosition.y + previewHeight > windowHeight
+      ? mousePosition.y - previewHeight
+      : mousePosition.y;
 
   return (
     <div
       className="card-preview-window"
-      style={{ top: topPosition, left: mousePosition.x + 10, position: 'absolute' }}
+      style={{
+        top: topPosition,
+        left: mousePosition.x + 10,
+        position: "absolute",
+      }}
     >
-      {error && (
-        <div>{error}</div>
-      )}
+      {error && <div>{error}</div>}
       {viewingCard && (
         <div>
           <h3 style={{ marginBottom: "10px" }}>

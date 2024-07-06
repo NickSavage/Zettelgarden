@@ -9,10 +9,7 @@ interface BacklinkInputProps {
   addBacklink: (selectedCard: PartialCard) => void;
 }
 
-export function BacklinkInput({
-  cards,
-  addBacklink,
-}: BacklinkInputProps) {
+export function BacklinkInput({ cards, addBacklink }: BacklinkInputProps) {
   const [topResults, setTopResults] = useState<PartialCard[]>([]);
   const [link, setLink] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");

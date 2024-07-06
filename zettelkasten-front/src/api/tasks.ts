@@ -16,11 +16,15 @@ export function fetchTasks(): Promise<Task[]> {
         return response.json().then((tasks: Task[]) => {
           return tasks.map((task) => ({
             ...task,
-            scheduled_date: task.scheduled_date ? new Date(task.scheduled_date) : null,
+            scheduled_date: task.scheduled_date
+              ? new Date(task.scheduled_date)
+              : null,
             dueDate: task.dueDate ? new Date(task.dueDate) : null,
             created_at: new Date(task.created_at),
             updated_at: new Date(task.updated_at),
-            completed_at: task.completed_at ? new Date(task.completed_at) : null,
+            completed_at: task.completed_at
+              ? new Date(task.completed_at)
+              : null,
           }));
         });
       } else {
@@ -30,7 +34,6 @@ export function fetchTasks(): Promise<Task[]> {
 }
 
 export function fetchTask(id: string): Promise<Task> {
-
   let encoded = encodeURIComponent(id);
   const url = base_url + `/tasks/${encoded}`;
   let token = localStorage.getItem("token");
@@ -44,7 +47,6 @@ export function fetchTask(id: string): Promise<Task> {
         return Promise.reject(new Error("Response is undefined"));
       }
     });
-
 }
 export function saveNewTask(task: Task): Promise<Task> {
   const url = base_url + `/tasks`;

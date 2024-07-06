@@ -14,11 +14,12 @@ export function DashboardPage() {
 
   useEffect(() => {
     fetchTasks()
-    .then((response) => {
-      setTasks(response);
-    })
-    .catch((error) => {
-      console.error("somehting is bad", error)});
+      .then((response) => {
+        setTasks(response);
+      })
+      .catch((error) => {
+        console.error("somehting is bad", error);
+      });
 
     fetchPartialCards("", "date")
       .then((response) => {
@@ -42,39 +43,46 @@ export function DashboardPage() {
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <h3>Tasks</h3>
-          {tasks && tasks
-            .filter((task => !task.is_complete))
-            .slice(0, 10)
-            .map((task) => (
-              <TaskListItem task={task} setRefresh={(refresh: boolean) => {}} />
-            ))}
+          {tasks &&
+            tasks
+              .filter((task) => !task.is_complete)
+              .slice(0, 10)
+              .map((task) => (
+                <TaskListItem
+                  task={task}
+                  setRefresh={(refresh: boolean) => {}}
+                />
+              ))}
         </div>
         <div style={{ flex: 1 }}>
           <h3>Unsorted Cards</h3>
-          {partialCards && partialCards
-            .filter((card) => card.card_id === "")
-            .slice(0, 10)
-            .map((card) => (
+          {partialCards &&
+            partialCards
+              .filter((card) => card.card_id === "")
+              .slice(0, 10)
+              .map((card) => (
+                <div key={card.id} style={{ marginBottom: "10px" }}>
+                  <CardItem card={card} />
+                </div>
+              ))}
+        </div>
+        <div style={{ flex: 1 }}>
+          <h3>Recent Cards</h3>
+          {partialCards &&
+            partialCards.slice(0, 10).map((card) => (
               <div key={card.id} style={{ marginBottom: "10px" }}>
                 <CardItem card={card} />
               </div>
             ))}
         </div>
         <div style={{ flex: 1 }}>
-          <h3>Recent Cards</h3>
-          {partialCards && partialCards.slice(0, 10).map((card) => (
-            <div key={card.id} style={{ marginBottom: "10px" }}>
-              <CardItem card={card} />
-            </div>
-          ))}
-        </div>
-        <div style={{ flex: 1 }}>
           <h3>Inactive Cards</h3>
-          {inactiveCards && inactiveCards.slice(0, 10).map((card) => (
-            <div key={card.id} style={{ marginBottom: "10px" }}>
-              <CardItem card={card} />
-            </div>
-          ))}
+          {inactiveCards &&
+            inactiveCards.slice(0, 10).map((card) => (
+              <div key={card.id} style={{ marginBottom: "10px" }}>
+                <CardItem card={card} />
+              </div>
+            ))}
         </div>
       </div>
     </div>

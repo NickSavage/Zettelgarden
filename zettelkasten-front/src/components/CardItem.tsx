@@ -18,7 +18,8 @@ export function CardItem({ card }: CardItemProps) {
   };
 
   return (
-    <div key={card.id}
+    <div
+      key={card.id}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShowHover(false)}
     >
@@ -31,7 +32,9 @@ export function CardItem({ card }: CardItemProps) {
         </span>
         : {card.title}
       </Link>
-      {showHover && card && <CardPreviewWindow card={card} mousePosition={mousePosition} />}
+      {showHover && card && (
+        <CardPreviewWindow card={card} mousePosition={mousePosition} />
+      )}
     </div>
   );
 }

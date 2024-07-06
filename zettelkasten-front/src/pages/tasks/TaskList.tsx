@@ -7,41 +7,38 @@ import { fetchPartialCards } from "src/api/cards";
 import { PartialCard } from "src/models/Card";
 
 interface TaskListProps {
-    cards: PartialCard[];
+  cards: PartialCard[];
 }
 
-export function TaskList({cards}: TaskListProps) {
-        
-    const [refresh, setRefresh] = useState<boolean>(true);
-    const [tasks, setTasks] = useState<Task[] | null>([]);
+export function TaskList({ cards }: TaskListProps) {
+  const [refresh, setRefresh] = useState<boolean>(true);
+  const [tasks, setTasks] = useState<Task[] | null>([]);
 
-    async function setAllTasks() {
-        if (!refresh) {
-            return;
-        } 
-        await fetchTasks().then((data) => {
-            setTasks(data);
-            console.log(data)
-            setRefresh(false);
-        })
-
+  async function setAllTasks() {
+    if (!refresh) {
+      return;
     }
-    useEffect(() => {
-        setAllTasks()
-    }, [refresh])
-    return (
-        <div>
-            <CreateTaskWindow 
-              cards={cards} 
-              setRefresh={setRefresh}
-            />
-            <ul>
-            {tasks?.filter((task) => !task.is_complete).map((task, index) => (
-                <li key={index}>
-                    <TaskListItem task={task} setRefresh={setRefresh}/>
-                </li>
-            ))}
-            </ul>
-        </div>
-    )
+    await fetchTasks().then((data) => {
+      setTasks(data);
+      console.log(data);
+      setRefresh(false);
+    });
+  }
+  useEffect(() => {
+    setAllTasks();
+  }, [refresh]);
+  return (
+    <div>
+      <CreateTaskWindow cards={cards} setRefresh={setRefresh} />
+      <ul>
+        {tasks
+          ?.filter((task) => !task.is_complete)
+          .map((task, index) => (
+            <li key={index}>
+              <TaskListItem task={task} setRefresh={setRefresh} />
+            </li>
+          ))}
+      </ul>
+    </div>
+  );
 }

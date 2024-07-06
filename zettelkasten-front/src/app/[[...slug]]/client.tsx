@@ -1,12 +1,12 @@
-'use client'
- 
-import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import { AuthProvider } from 'src/AuthContext'
-import dynamic from 'next/dynamic'
- 
-const App = dynamic(() => import('../../App'), { ssr: false })
- 
+"use client";
+
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "src/AuthContext";
+import dynamic from "next/dynamic";
+
+const App = dynamic(() => import("../../App"), { ssr: false });
+
 export function ClientOnly() {
   return (
     <React.StrictMode>
@@ -16,5 +16,5 @@ export function ClientOnly() {
         </AuthProvider>
       </BrowserRouter>
     </React.StrictMode>
-  )
+  );
 }

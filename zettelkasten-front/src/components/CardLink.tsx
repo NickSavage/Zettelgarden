@@ -40,7 +40,9 @@ export function CardLink({
       >
         [{card_id}]
       </a>
-      {showHover && linkedCard && <CardPreviewWindow card={linkedCard} mousePosition={mousePosition} />}
+      {showHover && linkedCard && (
+        <CardPreviewWindow card={linkedCard} mousePosition={mousePosition} />
+      )}
     </span>
   );
 }
