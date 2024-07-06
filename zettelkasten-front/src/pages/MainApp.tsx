@@ -136,7 +136,7 @@ function MainApp() {
               element={<BillingCancelled />}
             />
             <Route path="files" element={<FileVault />} />
-            <Route path="tasks" element={<TaskList />} />
+            <Route path="tasks" element={<TaskList cards={cards} />} />
             <Route path="*" element={<DashboardPage />} />
           </Routes>
         </div>

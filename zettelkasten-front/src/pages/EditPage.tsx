@@ -275,7 +275,6 @@ export function EditPage({
           <div>
             <BacklinkInput
               cards={cards}
-              currentCard={editingCard}
               addBacklink={addBacklink}
             />
           </div>

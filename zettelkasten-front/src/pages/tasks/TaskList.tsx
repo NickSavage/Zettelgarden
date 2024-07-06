@@ -3,11 +3,14 @@ import { Task } from "src/models/Task";
 import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
+import { fetchPartialCards } from "src/api/cards";
+import { PartialCard } from "src/models/Card";
 
 interface TaskListProps {
+    cards: PartialCard[];
 }
 
-export function TaskList({}: TaskListProps) {
+export function TaskList({cards}: TaskListProps) {
         
     const [refresh, setRefresh] = useState<boolean>(true);
     const [tasks, setTasks] = useState<Task[] | null>([]);
@@ -22,10 +25,15 @@ export function TaskList({}: TaskListProps) {
         })
 
     }
-    useEffect(() => {setAllTasks()}, [refresh])
+    useEffect(() => {
+        setAllTasks()
+    }, [refresh])
     return (
         <div>
-            <CreateTaskWindow setRefresh={setRefresh} />
+            <CreateTaskWindow 
+              cards={cards} 
+              setRefresh={setRefresh}
+            />
             <ul>
             {tasks?.map((task, index) => (
                 <li key={index}>

@@ -297,8 +297,8 @@ func randomDate(start, end time.Time) time.Time {
 	sec := rand.Int63n(delta) + start.Unix()
 	return time.Unix(sec, 0)
 }
-func randomNullTime(start, end time.Time) sql.NullTime {
-	return sql.NullTime{Time: randomDate(start, end), Valid: true}
+func randomNullTime(start, end time.Time) models.NullTime {
+	return models.NullTime{NullTime: sql.NullTime{Time: randomDate(start, end), Valid: true}}
 }
 
 func generateTestJWT(userID int) (string, error) {

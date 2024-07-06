@@ -137,7 +137,6 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
           <div>
             <BacklinkInput
               cards={cards}
-              currentCard={viewingCard}
               addBacklink={handleAddBacklink}
             />
           </div>

@@ -1,8 +1,8 @@
 
 export interface Task {
     id: number;
-    cardPK: number;
-    userId: number;
+    card_pk: number;
+    user_id: number;
     scheduled_date: Date | null;
     dueDate: Date | null;
     created_at: Date;
@@ -14,9 +14,9 @@ export interface Task {
   };
   
   export const emptyTask: Task = {
-    id: -1,
-    cardPK: -1,
-    userId: -1,
+    id: 0,
+    card_pk: 0,
+    user_id: 0,
     created_at: new Date(0),
     updated_at: new Date(0),
     dueDate: new Date(0),

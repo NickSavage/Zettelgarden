@@ -385,3 +385,30 @@ h1 {
 .task-completed {
   text-decoration: line-through;
 }
+
+.create-task-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.create-task-window-top {
+  flex: 0 1 auto; /* Allow the top input to grow based on its content */
+}
+
+.create-task-window-bottom {
+  display: flex;
+  flex: 1 0 auto; /* Allow the bottom section to grow */
+  align-items: flex-end; /* Align items at the bottom */
+}
+
+.create-task-window-bottom-left {
+  flex: 0 1 auto; /* Allow the bottom-left to be as small as its content */
+}
+
+.create-task-window-bottom-right {
+  flex: 1 1 auto; /* Allow the bottom-right to take up remaining space */
+  display: flex;
+  justify-content: flex-end; /* Align the button to the right */
+  align-items: flex-end; /* Align the button at the bottom */
+}

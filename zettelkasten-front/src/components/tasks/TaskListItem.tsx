@@ -11,6 +11,7 @@ export function TaskListItem({ task }: TaskListItemProps) {
     return (
         <div>
             <span className={task.is_complete ? "task-completed" : ""}>{task.title}</span>
+            
         </div>
     )
 }

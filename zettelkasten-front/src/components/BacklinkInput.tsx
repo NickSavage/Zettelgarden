@@ -6,13 +6,11 @@ import { PartialCard, Card } from "../models/Card";
 
 interface BacklinkInputProps {
   cards: PartialCard[];
-  currentCard: Card;
   addBacklink: (selectedCard: PartialCard) => void;
 }
 
 export function BacklinkInput({
   cards,
-  currentCard,
   addBacklink,
 }: BacklinkInputProps) {
   const [topResults, setTopResults] = useState<PartialCard[]>([]);

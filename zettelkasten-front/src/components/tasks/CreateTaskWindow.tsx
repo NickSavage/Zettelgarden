@@ -3,13 +3,17 @@ import React, { useState, KeyboardEvent } from "react";
 import { saveNewTask } from "src/api/tasks";
 
 import { Task, emptyTask } from "src/models/Task";
+import { PartialCard } from "src/models/Card";
+import { BacklinkInput } from "../BacklinkInput";
 
 interface CreateTaskWindowProps {
-    setRefresh: (boolean) => void;
+    cards: PartialCard[];
+    setRefresh: (refresh: boolean) => void;
 }
 
-export function CreateTaskWindow({setRefresh}: CreateTaskWindowProps) {
+export function CreateTaskWindow({cards, setRefresh}: CreateTaskWindowProps) {
     const [newTask, setNewTask] = useState<Task>(emptyTask);
+    const [selectedCard, setSelectedCard] = useState<PartialCard|null>(null);
     async function handleSaveTask() {
         let response;
 
@@ -17,11 +21,17 @@ export function CreateTaskWindow({setRefresh}: CreateTaskWindowProps) {
         if (!("error" in response)) {
             setRefresh(true);
             setNewTask(emptyTask);
+            setSelectedCard(null);
         }
+    }
+    function handleBacklink(card: PartialCard) {
+      setSelectedCard(card);
+      setNewTask({ ...newTask, card_pk: card.id})
     }
 
     return (
-        <div style={{display: "flex", marginBottom: "10px"}}>
+        <div className="create-task-window">
+          <div className="create-task-window-top">
             <input 
               style={{ width: "100%"}}
               value={newTask.title}
@@ -34,7 +44,26 @@ export function CreateTaskWindow({setRefresh}: CreateTaskWindowProps) {
           }
         }}
             />
-            <button onClick={handleSaveTask}>Save</button>
+            </div>
+            <div className="create-task-window-bottom">
+              <div className="create-task-window-bottom-left">
+                <BacklinkInput
+                  cards={cards}
+                  addBacklink={handleBacklink}
+                />
+              </div>
+              <div className="crate-task-window-bottom-middle">
+                {selectedCard && (
+                <span
+                style={{ fontWeight: "bold", color: "blue" }}
+                
+                >[{selectedCard?.card_id}]</span>
+    )}
+              </div>
+              <div className="create-task-window-bottom-right">
+                <button onClick={handleSaveTask}>Save</button>
+              </div>
+            </div>
         </div>
     )
 }
