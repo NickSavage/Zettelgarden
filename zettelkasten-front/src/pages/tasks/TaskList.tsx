@@ -21,6 +21,7 @@ export function TaskList({cards}: TaskListProps) {
         } 
         await fetchTasks().then((data) => {
             setTasks(data);
+            console.log(data)
             setRefresh(false);
         })
 

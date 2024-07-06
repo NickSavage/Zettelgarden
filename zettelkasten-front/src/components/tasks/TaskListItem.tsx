@@ -3,9 +3,34 @@ import { saveExistingTask } from "src/api/tasks";
 
 import { Task } from "src/models/Task";
 
+import { compareDates, getToday, getTomorrow, getYesterday } from "src/utils";
+
 interface TaskListItemProps {
     task: Task;
     setRefresh: (refresh: boolean) => void;
+}
+
+function displayTaskScheduledDate(task: Task) {
+  let isToday = compareDates(task.scheduled_date, getToday());
+  let isTomorrow = compareDates(task.scheduled_date, getTomorrow());
+  let isYesterday = compareDates(task.scheduled_date, getYesterday());
+
+  let displayText = "";
+  if (isToday) {
+    displayText = "Today";
+  } else if (isTomorrow) {
+    displayText = "Tomorrow";
+  } else if (isYesterday) {
+    displayText = "Yesterday";
+  } else if (task.scheduled_date) {
+    displayText = task.scheduled_date.toLocaleDateString();
+  }
+
+  return (
+    <div>
+      {displayText}
+    </div>
+  );
 }
 
 export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
@@ -43,23 +68,30 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
               {task.is_complete ? "[x]" : "[ ]"}
             </span>
           </div>
-          <div className="task-list-item-title">
-            {editTitle ? (
-              <input
-                className="task-list-item-title-input"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-                  if (event.key === "Enter") {
-                    handleTitleEdit();
-                  }
-                }}
-              />
-            ) : (
-              <span onClick={handleTitleClick} className={task.is_complete ? "task-completed" : "task-title"}>
-                {task.title}
-              </span>
-            )}
+          <div className="task-list-item-middle-container">
+           <div className="task-list-item-title">
+              {editTitle ? (
+                <input
+                  className="task-list-item-title-input"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+                    if (event.key === "Enter") {
+                      handleTitleEdit();
+                    }
+                  }}
+                />
+              ) : (
+                <span onClick={handleTitleClick} className={task.is_complete ? "task-completed" : "task-title"}>
+                  {task.title}
+                </span>
+              )}
+            </div>
+            <div className="task-list-item-details">
+              <span>{displayTaskScheduledDate(task)}</span>
+
+           </div>
+
           </div>
           <div className="task-list-item-card">
             {task.card && task.card.id > 0 && (

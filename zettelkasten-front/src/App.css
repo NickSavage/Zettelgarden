@@ -416,15 +416,21 @@ h1 {
 .task-list-item {
   display: flex;
   align-items: center;
-  margin: 10px 0;
 }
 
 .task-list-item-checkbox {
   margin-right: 10px;
 }
 
-.task-list-item-title {
+.task-list-item-middle-container {
   flex-grow: 1;
+}
+
+.task-list-item-title {
+}
+
+.task-list-item-details {
+
 }
 
 .task-title {

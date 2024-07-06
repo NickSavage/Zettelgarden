@@ -13,7 +13,16 @@ export function fetchTasks(): Promise<Task[]> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json() as Promise<Task[]>;
+        return response.json().then((tasks: Task[]) => {
+          return tasks.map((task) => ({
+            ...task,
+            scheduled_date: task.scheduled_date ? new Date(task.scheduled_date) : null,
+            dueDate: task.dueDate ? new Date(task.dueDate) : null,
+            created_at: new Date(task.created_at),
+            updated_at: new Date(task.updated_at),
+            completed_at: task.completed_at ? new Date(task.completed_at) : null,
+          }));
+        });
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }
