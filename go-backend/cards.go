@@ -548,6 +548,30 @@ func (s *Server) NextIDRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *Server) QueryPartialCardByID(userID, id int) (models.PartialCard, error) {
+	var card models.PartialCard
+
+	err := s.db.QueryRow(`
+	SELECT
+	id, card_id, user_id, title, created_at, updated_at 
+	FROM cards 
+	WHERE is_deleted = FALSE AND id = $1 AND user_id = $2
+	`, id, userID).Scan(
+		&card.ID,
+		&card.CardID,
+		&card.UserID,
+		&card.Title,
+		&card.CreatedAt,
+		&card.UpdatedAt,
+	)
+	if err != nil {
+		log.Printf("err %v", err)
+		return models.PartialCard{}, fmt.Errorf("something went wrong")
+	}
+	return card, nil
+
+}
+
 func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard, error) {
 	var card models.PartialCard
 
