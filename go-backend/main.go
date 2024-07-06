@@ -198,6 +198,10 @@ func main() {
 	r.HandleFunc("/api/admin", jwtMiddleware(s.GetUserAdminRoute)).Methods("GET")
 
 	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.GetTaskRoute)).Methods("GET")
+	r.HandleFunc("/api/tasks", jwtMiddleware(s.GetTasksRoute)).Methods("GET")
+	r.HandleFunc("/api/tasks", jwtMiddleware(s.CreateTaskRoute)).Methods("POST")
+	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute)).Methods("PUT")
+	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.DeleteTaskRoute)).Methods("DELETE")
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
