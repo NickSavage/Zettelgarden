@@ -37,7 +37,7 @@ export function TaskList({cards}: TaskListProps) {
             <ul>
             {tasks?.map((task, index) => (
                 <li key={index}>
-                    <TaskListItem task={task} />
+                    <TaskListItem task={task} setRefresh={setRefresh}/>
                 </li>
             ))}
             </ul>
