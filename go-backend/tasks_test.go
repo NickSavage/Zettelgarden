@@ -225,11 +225,12 @@ func TestDeleteTaskSuccess(t *testing.T) {
 	}
 	deleteReq.Header.Set("Authorization", "Bearer "+token)
 
-	deleteRR := httptest.NewRecorder()
-	deleteHandler := http.HandlerFunc(jwtMiddleware(s.DeleteTaskRoute))
-	deleteHandler.ServeHTTP(deleteRR, deleteReq)
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.DeleteTaskRoute))
+	router.ServeHTTP(rr, deleteReq)
 
-	if status := deleteRR.Code; status != http.StatusNoContent {
+	if status := rr.Code; status != http.StatusNoContent {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
 	}
 
@@ -240,11 +241,9 @@ func TestDeleteTaskSuccess(t *testing.T) {
 	}
 	getReq.Header.Set("Authorization", "Bearer "+token)
 
-	getRR := httptest.NewRecorder()
-	getHandler := http.HandlerFunc(jwtMiddleware(s.GetTaskRoute))
-	getHandler.ServeHTTP(getRR, getReq)
+	rr = makeTaskRequestSuccess(t, 1)
 
-	if status := getRR.Code; status != http.StatusNotFound {
+	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
 }
