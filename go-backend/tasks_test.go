@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"go-backend/models"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -59,6 +60,7 @@ func TestGetTaskSuccess(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var task models.Task
+	log.Printf("%v", rr.Body.String())
 	parseJsonResponse(t, rr.Body.Bytes(), &task)
 	if task.ID != 1 {
 		t.Errorf("handler returned wrong task, got %v want %v", task.ID, 1)
@@ -164,14 +166,14 @@ func TestCreateTaskSuccess(t *testing.T) {
 	token, _ := generateTestJWT(1)
 
 	expectedTitle := "Test Task"
-	expectedScheduledDate := sql.NullTime{
+	expectedScheduledDate := models.NullTime{NullTime: sql.NullTime{
 		Time:  time.Date(2024, 7, 5, 10, 0, 0, 0, time.UTC),
 		Valid: true,
-	}
-	expectedDueDate := sql.NullTime{
+	}}
+	expectedDueDate := models.NullTime{NullTime: sql.NullTime{
 		Time:  time.Date(2024, 7, 10, 10, 0, 0, 0, time.UTC),
 		Valid: true,
-	}
+	}}
 	expected := models.Task{
 		CardPK:        1,
 		ScheduledDate: expectedScheduledDate,

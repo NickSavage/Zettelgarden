@@ -34,16 +34,25 @@ func (nt *NullTime) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// MarshalJSON custom marshals a NullTime to a JSON string
+func (nt NullTime) MarshalJSON() ([]byte, error) {
+	if !nt.Valid {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(nt.Time.Format("2006-01-02T15:04:05Z"))
+}
+
 type Task struct {
-	ID            int       `json:"id"`
-	CardPK        int       `json:"card_pk"`
-	UserID        int       `json:"user_id"`
-	ScheduledDate NullTime  `json:"scheduled_date"`
-	DueDate       NullTime  `json:"due_date"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
-	CompletedAt   NullTime  `json:"completed_at"`
-	Title         string    `json:"title"`
-	IsComplete    bool      `json:"is_complete"`
-	IsDeleted     bool      `json:"is_deleted"`
+	ID            int         `json:"id"`
+	CardPK        int         `json:"card_pk"`
+	UserID        int         `json:"user_id"`
+	ScheduledDate NullTime    `json:"scheduled_date"`
+	DueDate       NullTime    `json:"due_date"`
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     time.Time   `json:"updated_at"`
+	CompletedAt   NullTime    `json:"completed_at"`
+	Title         string      `json:"title"`
+	IsComplete    bool        `json:"is_complete"`
+	IsDeleted     bool        `json:"is_deleted"`
+	Card          PartialCard `json:"card"`
 }

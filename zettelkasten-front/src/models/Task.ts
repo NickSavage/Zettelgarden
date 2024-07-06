@@ -1,3 +1,4 @@
+import { PartialCard } from "./Card";
 
 export interface Task {
     id: number;
@@ -11,6 +12,7 @@ export interface Task {
     title: string;
     is_complete: boolean;
     is_deleted: boolean;
+    card: PartialCard | null;
   };
   
   export const emptyTask: Task = {
@@ -25,4 +27,5 @@ export interface Task {
     title: "",
     is_complete: false,
     is_deleted: false,
+    card: null,
   }
