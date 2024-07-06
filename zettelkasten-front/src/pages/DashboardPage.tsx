@@ -51,7 +51,7 @@ export function DashboardPage() {
         </div>
         <div style={{ flex: 1 }}>
           <h3>Unsorted Cards</h3>
-          {partialCards
+          {partialCards && partialCards
             .filter((card) => card.card_id === "")
             .slice(0, 10)
             .map((card) => (
@@ -62,7 +62,7 @@ export function DashboardPage() {
         </div>
         <div style={{ flex: 1 }}>
           <h3>Recent Cards</h3>
-          {partialCards.slice(0, 10).map((card) => (
+          {partialCards && partialCards.slice(0, 10).map((card) => (
             <div key={card.id} style={{ marginBottom: "10px" }}>
               <CardItem card={card} />
             </div>
@@ -70,7 +70,7 @@ export function DashboardPage() {
         </div>
         <div style={{ flex: 1 }}>
           <h3>Inactive Cards</h3>
-          {inactiveCards.slice(0, 10).map((card) => (
+          {inactiveCards && inactiveCards.slice(0, 10).map((card) => (
             <div key={card.id} style={{ marginBottom: "10px" }}>
               <CardItem card={card} />
             </div>
