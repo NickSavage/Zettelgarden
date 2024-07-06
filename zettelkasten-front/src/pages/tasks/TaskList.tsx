@@ -35,7 +35,7 @@ export function TaskList({cards}: TaskListProps) {
               setRefresh={setRefresh}
             />
             <ul>
-            {tasks?.map((task, index) => (
+            {tasks?.filter((task) => !task.is_complete).map((task, index) => (
                 <li key={index}>
                     <TaskListItem task={task} setRefresh={setRefresh}/>
                 </li>
