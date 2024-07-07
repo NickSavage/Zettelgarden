@@ -43,35 +43,3 @@ export function sortCards(cards, value) {
   }
   return temp;
 }
-
-export function getToday() {
-  let result = new Date()
-  const today = new Date();
-  result.setDate(today.getDate() - 1);
-  return result;
-}
-
-export function getTomorrow() {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate());
-  return tomorrow;
-}
-
-export function getYesterday() {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate());
-  return yesterday;
-}
-
-export function compareDates(date1, date2) {
-  if (date1 === null || date2 === null) {
-    return false;
-  }
-  return (
-    date1.getDate() === date2.getDate() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getFullYear() === date2.getFullYear()
-  );
-}

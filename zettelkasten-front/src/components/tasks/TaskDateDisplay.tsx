@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Task } from "src/models/Task";
 
-import { compareDates, getToday, getTomorrow, getYesterday } from "src/utils";
+import { compareDates, getToday, getTomorrow, getYesterday } from "src/utils/dates";
 import { saveExistingTask } from "src/api/tasks";
 
 interface TaskDateDisplayProps {
@@ -43,6 +43,11 @@ const getDisplayColor = () => {
 
 
   function updateDisplayText() {
+    if (task.scheduled_date === null) {
+      setDisplayText("")
+      return
+    }
+    console.log("task", task)
     let isToday = compareDates(task.scheduled_date, getToday());
     let isTomorrow = compareDates(task.scheduled_date, getTomorrow());
     let isYesterday = compareDates(task.scheduled_date, getYesterday());

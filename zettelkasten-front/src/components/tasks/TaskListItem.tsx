@@ -4,8 +4,6 @@ import { saveExistingTask } from "src/api/tasks";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Task } from "src/models/Task";
 
-import { compareDates, getToday, getTomorrow, getYesterday } from "src/utils";
-
 interface TaskListItemProps {
   task: Task;
   setRefresh: (refresh: boolean) => void;

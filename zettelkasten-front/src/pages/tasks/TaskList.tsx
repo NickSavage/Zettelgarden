@@ -4,7 +4,7 @@ import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { PartialCard } from "src/models/Card";
-import { compareDates, getToday, getTomorrow } from "src/utils";
+import { compareDates, getToday, getTomorrow } from "src/utils/dates";
 
 interface TaskListProps {
   cards: PartialCard[];
