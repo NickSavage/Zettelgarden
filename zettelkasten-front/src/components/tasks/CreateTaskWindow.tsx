@@ -4,6 +4,7 @@ import { saveNewTask } from "src/api/tasks";
 import { Task, emptyTask } from "src/models/Task";
 import { PartialCard } from "src/models/Card";
 import { BacklinkInput } from "../BacklinkInput";
+import { TaskDateDisplay } from "./TaskDateDisplay";
 
 interface CreateTaskWindowProps {
   cards: PartialCard[];
@@ -16,10 +17,12 @@ export function CreateTaskWindow({ cards, setRefresh }: CreateTaskWindowProps) {
   async function handleSaveTask() {
     let response;
 
+    console.log(newTask)
     response = await saveNewTask(newTask);
     if (!("error" in response)) {
       setRefresh(true);
-      setNewTask(emptyTask);
+      let date = newTask.scheduled_date
+      setNewTask({ ...emptyTask, scheduled_date: date});
       setSelectedCard(null);
     }
   }
@@ -52,6 +55,12 @@ export function CreateTaskWindow({ cards, setRefresh }: CreateTaskWindowProps) {
               [{selectedCard?.card_id}]
             </span>
           )}
+          <TaskDateDisplay 
+          task={newTask} 
+          setTask={setNewTask}
+          setRefresh={setRefresh}
+          saveOnChange={false}
+          />
         </div>
         <div className="create-task-window-bottom-right">
           <button onClick={handleSaveTask}>Save</button>

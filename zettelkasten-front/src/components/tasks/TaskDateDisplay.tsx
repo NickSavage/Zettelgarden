@@ -6,10 +6,12 @@ import { saveExistingTask } from "src/api/tasks";
 
 interface TaskDateDisplayProps {
   task: Task;
+  setTask: (task: Task) => void;
   setRefresh: (refresh: boolean) => void;
+  saveOnChange: boolean;
 }
 
-export function TaskDateDisplay({ task, setRefresh }: TaskDateDisplayProps) {
+export function TaskDateDisplay({ task, setTask, setRefresh, saveOnChange }: TaskDateDisplayProps) {
   const [displayText, setDisplayText] = useState<string>("");
 
 async function handleScheduledDateChange(e) {
@@ -17,9 +19,13 @@ async function handleScheduledDateChange(e) {
     let date = new Date(e.target.valueAsDate)
     console.log("date", date)
     let editedTask = { ...task, scheduled_date: date };
-    let response = await saveExistingTask(editedTask);
-    if (!("error" in response)) {
-      setRefresh(true);
+    if (saveOnChange) {
+      let response = await saveExistingTask(editedTask);
+      if (!("error" in response)) {
+        setRefresh(true);
+      }
+    } else {
+      setTask(editedTask)
     }
 }
 
