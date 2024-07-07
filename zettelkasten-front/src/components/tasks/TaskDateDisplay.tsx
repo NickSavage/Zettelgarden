@@ -28,6 +28,19 @@ async function handleScheduledDateChange(e) {
       setTask(editedTask)
     }
 }
+const getDisplayColor = () => {
+  switch (displayText) {
+    case "Today":
+      return "green";
+    case "Tomorrow":
+      return "green";
+    case "Yesterday":
+      return "red";
+    default:
+      return "black";
+  }
+};
+
 
   function updateDisplayText() {
     let isToday = compareDates(task.scheduled_date, getToday());
@@ -49,7 +62,7 @@ async function handleScheduledDateChange(e) {
 
   return (
     <div>
-      <div>{displayText}</div>
+      <div style={{color: getDisplayColor()}}>{displayText}</div>
       <div>
         <input
           aria-label="Date"
