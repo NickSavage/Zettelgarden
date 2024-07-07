@@ -12,7 +12,6 @@ interface TaskListItemProps {
 export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
-  console.log(task);
 
   async function handleTitleClick() {
     setNewTitle(task.title);

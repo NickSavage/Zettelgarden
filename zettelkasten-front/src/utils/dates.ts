@@ -21,7 +21,6 @@ export function compareDates(date1: Date | null, date2: Date | null): boolean {
   if (date1 === null || date2 === null) {
     return false;
   }
-  console.log(date1, date2)
   return (
     date1.getDate() === date2.getDate() &&
     date1.getMonth() === date2.getMonth() &&

@@ -15,10 +15,15 @@ export function TaskDateDisplay({ task, setTask, setRefresh, saveOnChange }: Tas
   const [displayText, setDisplayText] = useState<string>("");
 
 async function handleScheduledDateChange(e) {
-    console.log("set date", e.target.valueAsDate)
-    let date = new Date(e.target.valueAsDate)
+    console.log("set date", e.target.value)
+    let date = new Date(e.target.value)
     console.log("date", date)
-    let editedTask = { ...task, scheduled_date: date };
+    const localTimezoneOffset = date.getTimezoneOffset(); // Get the local timezone offset in minutes
+
+// Adjust the date to UTC
+    const utcDate = new Date(date.getTime() + localTimezoneOffset * 60000); // Convert offset to milliseconds
+    let editedTask = { ...task, scheduled_date: utcDate };
+    console.log(editedTask)
     if (saveOnChange) {
       let response = await saveExistingTask(editedTask);
       if (!("error" in response)) {
@@ -47,7 +52,6 @@ const getDisplayColor = () => {
       setDisplayText("")
       return
     }
-    console.log("task", task)
     let isToday = compareDates(task.scheduled_date, getToday());
     let isTomorrow = compareDates(task.scheduled_date, getTomorrow());
     let isYesterday = compareDates(task.scheduled_date, getYesterday());
