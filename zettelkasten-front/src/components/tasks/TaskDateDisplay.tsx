@@ -13,7 +13,10 @@ export function TaskDateDisplay({ task, setRefresh }: TaskDateDisplayProps) {
   const [displayText, setDisplayText] = useState<string>("");
 
 async function handleScheduledDateChange(e) {
-    let editedTask = { ...task, scheduled_date: e.target.valueAsDate };
+    console.log("set date", e.target.valueAsDate)
+    let date = new Date(e.target.valueAsDate)
+    console.log("date", date)
+    let editedTask = { ...task, scheduled_date: date };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
       setRefresh(true);

@@ -3,6 +3,8 @@ import { fetchPartialCards } from "../api/cards";
 import { CardItem } from "./CardItem";
 import { PartialCard } from "../models/Card";
 
+import { Link } from "react-router-dom";
+
 interface SidebarProps {
   cards: PartialCard[];
   setCards: (cards: PartialCard[]) => void;
@@ -71,8 +73,19 @@ export function Sidebar({
   }, [cards, sidebarView]);
 
   return (
-    <div className={`sidebar ${isSidebarHidden ? "sidebar-hidden" : ""}`}>
+    <div className={`sidebar`}>
       <div>
+        <div className="sidebar-upper">
+          <ul>
+            <li>
+              <Link className="sidebar-nav-link" to="/app/tasks">Tasks</Link>
+            </li>
+            <li>
+              <Link className="sidebar-nav-link" to="/app/search">Search</Link>
+            </li>
+          </ul>
+
+        </div>
         <input
           type="text"
           value={filter}

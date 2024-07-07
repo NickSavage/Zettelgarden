@@ -83,9 +83,6 @@ export function Topbar({
         <button className="btn" onClick={handleViewFileVault}>
           File Vault
         </button>
-        <button className="btn" onClick={handleOpenSearch}>
-          Search
-        </button>
         <div className="dropdown">
           <button className="btn" onClick={toggleProfileDropdown}>
             {username}

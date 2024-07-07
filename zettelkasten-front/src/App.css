@@ -48,10 +48,9 @@ option {
 
 .main-content ul {
   list-style-type: none;
-  margin-bottom: 20px;
 }
 
-.main-content li {
+.content li {
   background-color: #f0f0f0;
   padding: 5px;
   margin-bottom: 5px;
@@ -97,19 +96,33 @@ option {
 
 .sidebar input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
   font-size: 16px;
 }
 
 .sidebar div {
-  margin-bottom: 10px;
   cursor: pointer;
   padding: 5px;
 }
 
-.sidebar div:hover {
-  background-color: #f0f0f0;
+.sidebar-upper li {
+  background-color: #c7f9cc;
+}
+
+.sidebar-upper a {
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  text-decoration: none;
+  color: #22577a;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Hover and active states */
+.sidebar-upper a:hover,
+.sidebar-upper a.active {
+  background-color: #57cc99;
 }
 
 .content {
