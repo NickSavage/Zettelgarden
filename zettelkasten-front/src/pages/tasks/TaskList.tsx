@@ -25,6 +25,11 @@ export function TaskList({ cards }: TaskListProps) {
   function filterTasks(task: Task): boolean {
     if (filterStatus === "all") {
       return true;
+    } else {
+      if (task.is_complete) {
+        return false
+    }
+
     }
     if (filterDate === "today") {
       if (compareDates(task.scheduled_date, getToday())) {
