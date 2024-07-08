@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Task } from "src/models/Task";
 
-import { compareDates, getToday, getTomorrow, getYesterday } from "src/utils/dates";
+import {
+  compareDates,
+  getToday,
+  getTomorrow,
+  getYesterday,
+} from "src/utils/dates";
 import { saveExistingTask } from "src/api/tasks";
 
 interface TaskDateDisplayProps {
@@ -11,14 +16,21 @@ interface TaskDateDisplayProps {
   saveOnChange: boolean;
 }
 
-export function TaskDateDisplay({ task, setTask, setRefresh, saveOnChange }: TaskDateDisplayProps) {
+export function TaskDateDisplay({
+  task,
+  setTask,
+  setRefresh,
+  saveOnChange,
+}: TaskDateDisplayProps) {
   const [displayText, setDisplayText] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>(
-    task.scheduled_date ? task.scheduled_date.toISOString().substr(0, 10) : ""
+    task.scheduled_date ? task.scheduled_date.toISOString().substr(0, 10) : "",
   );
   const [displayDatePicker, setDisplayDatePicker] = useState<boolean>(false);
 
-  async function handleScheduledDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleScheduledDateChange(
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) {
     const newDate = new Date(e.target.value);
     const localTimezoneOffset = newDate.getTimezoneOffset();
     const utcDate = new Date(newDate.getTime() + localTimezoneOffset * 60000);
@@ -36,28 +48,27 @@ export function TaskDateDisplay({ task, setTask, setRefresh, saveOnChange }: Tas
     }
   }
 
-const getDisplayColor = () => {
-  switch (displayText) {
-    case "Today":
-      return "green";
-    case "Tomorrow":
-      return "green";
-    case "Yesterday":
-      return "red";
-    default:
-      return "black";
+  const getDisplayColor = () => {
+    switch (displayText) {
+      case "Today":
+        return "green";
+      case "Tomorrow":
+        return "green";
+      case "Yesterday":
+        return "red";
+      default:
+        return "black";
+    }
+  };
+
+  function handleTextClick() {
+    setDisplayDatePicker(!displayDatePicker);
   }
-};
-
-function handleTextClick() {
-  setDisplayDatePicker(!displayDatePicker)
-}
-
 
   function updateDisplayText() {
     if (task.scheduled_date === null) {
-      setDisplayText("No Date")
-      return
+      setDisplayText("No Date");
+      return;
     }
     let isToday = compareDates(task.scheduled_date, getToday());
     let isTomorrow = compareDates(task.scheduled_date, getTomorrow());
@@ -73,21 +84,22 @@ function handleTextClick() {
     }
   }
   useEffect(() => {
-    updateDisplayText()
+    updateDisplayText();
   }, [task]);
 
   return (
     <div>
-      <div onClick={handleTextClick} style={{color: getDisplayColor()}}>{displayText}</div>
+      <div onClick={handleTextClick} style={{ color: getDisplayColor() }}>
+        {displayText}
+      </div>
       <div>
         {displayDatePicker && (
-        <input
-          aria-label="Date"
-          type="date"
-          value={selectedDate}
-          onChange={handleScheduledDateChange}
-        />
-
+          <input
+            aria-label="Date"
+            type="date"
+            value={selectedDate}
+            onChange={handleScheduledDateChange}
+          />
         )}
       </div>
     </div>

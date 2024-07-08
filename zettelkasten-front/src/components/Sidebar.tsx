@@ -78,13 +78,16 @@ export function Sidebar({
         <div className="sidebar-upper">
           <ul>
             <li>
-              <Link className="sidebar-nav-link" to="/app/tasks">Tasks</Link>
+              <Link className="sidebar-nav-link" to="/app/tasks">
+                Tasks
+              </Link>
             </li>
             <li>
-              <Link className="sidebar-nav-link" to="/app/search">Search</Link>
+              <Link className="sidebar-nav-link" to="/app/search">
+                Search
+              </Link>
             </li>
           </ul>
-
         </div>
         <input
           type="text"

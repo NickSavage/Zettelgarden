@@ -17,12 +17,12 @@ export function CreateTaskWindow({ cards, setRefresh }: CreateTaskWindowProps) {
   async function handleSaveTask() {
     let response;
 
-    console.log(newTask)
+    console.log(newTask);
     response = await saveNewTask(newTask);
     if (!("error" in response)) {
       setRefresh(true);
-      let date = newTask.scheduled_date
-      setNewTask({ ...emptyTask, scheduled_date: date});
+      let date = newTask.scheduled_date;
+      setNewTask({ ...emptyTask, scheduled_date: date });
       setSelectedCard(null);
     }
   }
@@ -55,11 +55,11 @@ export function CreateTaskWindow({ cards, setRefresh }: CreateTaskWindowProps) {
               [{selectedCard?.card_id}]
             </span>
           )}
-          <TaskDateDisplay 
-          task={newTask} 
-          setTask={setNewTask}
-          setRefresh={setRefresh}
-          saveOnChange={false}
+          <TaskDateDisplay
+            task={newTask}
+            setTask={setNewTask}
+            setRefresh={setRefresh}
+            saveOnChange={false}
           />
         </div>
         <div className="create-task-window-bottom-right">

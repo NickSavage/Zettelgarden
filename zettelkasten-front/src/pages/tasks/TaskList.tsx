@@ -17,30 +17,30 @@ export function TaskList({ cards }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[] | null>([]);
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
-    setFilterDate(e.target.value)
+    setFilterDate(e.target.value);
   }
   function handleStatusChange(e: ChangeEvent<HTMLSelectElement>) {
-    setFilterStatus(e.target.value)
+    setFilterStatus(e.target.value);
   }
   function filterTasks(task: Task): boolean {
     if (filterStatus === "all") {
-      return true
+      return true;
     }
     if (filterDate === "today") {
       if (compareDates(task.scheduled_date, getToday())) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     }
     if (filterDate === "tomorrow") {
       if (compareDates(task.scheduled_date, getTomorrow())) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     }
-    return !task.is_complete
+    return !task.is_complete;
   }
   async function setAllTasks() {
     if (!refresh) {
@@ -66,11 +66,9 @@ export function TaskList({ cards }: TaskListProps) {
           <option value="open">Open</option>
           <option value="all">All</option>
         </select>
-
       </div>
       <div>
-      <CreateTaskWindow cards={cards} setRefresh={setRefresh} />
-
+        <CreateTaskWindow cards={cards} setRefresh={setRefresh} />
       </div>
       <ul>
         {tasks

@@ -64,14 +64,14 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
             </span>
           )}
         </div>
-            <div className="task-list-item-details">
-              <TaskDateDisplay 
-              task={task} 
-              setTask={(task: Task) => {}}
-              setRefresh={setRefresh}
-              saveOnChange={true}
-              />
-           </div>
+        <div className="task-list-item-details">
+          <TaskDateDisplay
+            task={task}
+            setTask={(task: Task) => {}}
+            setRefresh={setRefresh}
+            saveOnChange={true}
+          />
+        </div>
       </div>
       <div className="task-list-item-card">
         {task.card && task.card.id > 0 && (

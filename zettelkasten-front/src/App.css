@@ -40,14 +40,12 @@ option {
 .card-item {
   background-color: #c7f9cc;
   color: #22577a;
-
 }
 .card-item:hover {
   background-color: #57cc99;
 }
 
-.main-content 
-.main-content h2,
+.main-content .main-content h2,
 .main-content h3 {
   margin-bottom: 20px;
 }
@@ -126,7 +124,9 @@ option {
   color: #22577a;
   font-weight: 500;
   border-radius: 8px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* Hover and active states */
@@ -484,4 +484,3 @@ h1 {
   font-weight: bold;
   color: red;
 }
-

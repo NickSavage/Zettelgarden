@@ -1,5 +1,5 @@
 export function getToday(): Date {
-  let result = new Date()
+  let result = new Date();
   return result;
 }
 
