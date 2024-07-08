@@ -13,26 +13,28 @@ interface TaskDateDisplayProps {
 
 export function TaskDateDisplay({ task, setTask, setRefresh, saveOnChange }: TaskDateDisplayProps) {
   const [displayText, setDisplayText] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>(
+    task.scheduled_date ? task.scheduled_date.toISOString().substr(0, 10) : ""
+  );
 
-async function handleScheduledDateChange(e) {
-    console.log("set date", e.target.value)
-    let date = new Date(e.target.value)
-    console.log("date", date)
-    const localTimezoneOffset = date.getTimezoneOffset(); // Get the local timezone offset in minutes
+  async function handleScheduledDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const newDate = new Date(e.target.value);
+    const localTimezoneOffset = newDate.getTimezoneOffset();
+    const utcDate = new Date(newDate.getTime() + localTimezoneOffset * 60000);
 
-// Adjust the date to UTC
-    const utcDate = new Date(date.getTime() + localTimezoneOffset * 60000); // Convert offset to milliseconds
+    setSelectedDate(newDate.toISOString().substr(0, 10)); // Update selected date in the state
+
     let editedTask = { ...task, scheduled_date: utcDate };
-    console.log(editedTask)
     if (saveOnChange) {
       let response = await saveExistingTask(editedTask);
       if (!("error" in response)) {
         setRefresh(true);
       }
     } else {
-      setTask(editedTask)
+      setTask(editedTask);
     }
-}
+  }
+
 const getDisplayColor = () => {
   switch (displayText) {
     case "Today":
@@ -76,6 +78,7 @@ const getDisplayColor = () => {
         <input
           aria-label="Date"
           type="date"
+          value={selectedDate}
           onChange={handleScheduledDateChange}
         />
       </div>
