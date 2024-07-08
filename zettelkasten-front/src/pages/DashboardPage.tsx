@@ -6,6 +6,7 @@ import { PartialCard } from "../models/Card";
 import { Task } from "src/models/Task";
 import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
+import { compareDates, getToday } from "src/utils/dates";
 
 export function DashboardPage() {
   const [partialCards, setPartialCards] = React.useState<PartialCard[]>([]);
@@ -40,12 +41,13 @@ export function DashboardPage() {
   return (
     <div>
       <h1>Dashboard Page</h1>
-      <div style={{ display: "flex" }}>
-        <div style={{ flex: 1 }}>
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: "50%" }}>
           <h3>Tasks</h3>
           {tasks &&
             tasks
               .filter((task) => !task.is_complete)
+              .filter((task) => compareDates(task.scheduled_date, getToday()))
               .slice(0, 10)
               .map((task) => (
                 <TaskListItem
@@ -54,7 +56,7 @@ export function DashboardPage() {
                 />
               ))}
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: "50%" }}>
           <h3>Unsorted Cards</h3>
           {partialCards &&
             partialCards
@@ -66,7 +68,7 @@ export function DashboardPage() {
                 </div>
               ))}
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: "50%" }}>
           <h3>Recent Cards</h3>
           {partialCards &&
             partialCards.slice(0, 10).map((card) => (
@@ -75,7 +77,7 @@ export function DashboardPage() {
               </div>
             ))}
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: "50%" }}>
           <h3>Inactive Cards</h3>
           {inactiveCards &&
             inactiveCards.slice(0, 10).map((card) => (
