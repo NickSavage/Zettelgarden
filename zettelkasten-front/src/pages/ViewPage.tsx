@@ -5,12 +5,15 @@ import { CardList } from "../components/CardList";
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInput } from "../components/BacklinkInput";
 import { getCard, saveExistingCard } from "../api/cards";
+import { fetchTasks } from "src/api/tasks";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import { Card, PartialCard } from "../models/Card";
 import { File } from "../models/File";
+import { Task } from "src/models/Task";
 import { isErrorResponse } from "../models/common";
+import { TaskListItem } from "src/components/tasks/TaskListItem";
 
 interface ViewPageProps {
   cards: PartialCard[];
@@ -21,6 +24,7 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -76,9 +80,16 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
     }
   }
 
+  async function fetchTasksForCard(id: string) {
+    fetchTasks().then((data) => {
+      setTasks(data.filter((task: Task) => task.card_pk === parseInt(id, 10)))
+    })
+  }
+
   useEffect(() => {
     setError("");
     fetchCard(id!);
+    fetchTasksForCard(id!)
   }, [id]);
   return (
     <div>
@@ -131,6 +142,13 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
               />
             ))}
           </ul>
+          <h4>Tasks</h4>
+          {tasks.map((task, index) => (
+            <TaskListItem
+            task={task}
+            setRefresh={(refresh: boolean) => {}}
+            />
+          ))}
 
           <h4>References:</h4>
           <CardList cards={viewingCard.references} />

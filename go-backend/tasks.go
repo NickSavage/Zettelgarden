@@ -38,7 +38,7 @@ func (s *Server) QueryTask(userID int, id int) (models.Task, error) {
 		return models.Task{}, fmt.Errorf("unable to access task")
 	}
 	if task.CardPK > 0 {
-		card, err := s.QueryPartialCard(userID, strconv.Itoa(task.CardPK))
+		card, err := s.QueryPartialCardByID(userID, task.CardPK)
 		if err != nil {
 			task.Card = card
 		}
@@ -79,7 +79,7 @@ func (s *Server) QueryTasks(userID int) ([]models.Task, error) {
 			return []models.Task{}, fmt.Errorf("unable to access task")
 		}
 		if task.CardPK > 0 {
-			card, err := s.QueryPartialCardByID(userID, task.ID)
+			card, err := s.QueryPartialCardByID(userID, task.CardPK)
 			if err == nil {
 				task.Card = card
 			}
