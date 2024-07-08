@@ -94,9 +94,6 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   }
 
   useEffect(() => {
-    if (!refresh) {
-      return
-    }
     setError("");
     fetchCard(id!);
     fetchTasksForCard(id!)
