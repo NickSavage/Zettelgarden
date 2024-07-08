@@ -80,7 +80,7 @@ export function SearchPage({
       </select>
       <ul>
         {currentItems.map((card, index) => (
-          <li key={index} style={{ marginBottom: "10px" }}>
+          <li key={index}>
             <a
               href="#"
               onClick={(e) => {
