@@ -14,6 +14,7 @@ import { File } from "../models/File";
 import { Task } from "src/models/Task";
 import { isErrorResponse } from "../models/common";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
+import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 
 interface ViewPageProps {
   cards: PartialCard[];
@@ -25,6 +26,8 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [showCreateTaskWindow, setShowCreateTaskWindow] = useState<boolean>(false);
+  const [refresh, setRefresh] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -86,11 +89,19 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
     })
   }
 
+  function toggleCreateTaskWindow() {
+    setShowCreateTaskWindow(!showCreateTaskWindow)
+  }
+
   useEffect(() => {
+    if (!refresh) {
+      return
+    }
     setError("");
     fetchCard(id!);
     fetchTasksForCard(id!)
-  }, [id]);
+    setRefresh(false)
+  }, [id, refresh]);
   return (
     <div>
       {error && (
@@ -143,6 +154,9 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
             ))}
           </ul>
           <h4>Tasks</h4>
+          <span onClick={toggleCreateTaskWindow}>Add Task</span>
+          {showCreateTaskWindow && 
+          <CreateTaskWindow currentCard={viewingCard} cards={cards} setRefresh={setRefresh}/>}
           {tasks.map((task, index) => (
             <TaskListItem
             task={task}

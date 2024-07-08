@@ -2,16 +2,17 @@ import React, { useState, KeyboardEvent } from "react";
 import { saveNewTask } from "src/api/tasks";
 
 import { Task, emptyTask } from "src/models/Task";
-import { PartialCard } from "src/models/Card";
+import { Card, PartialCard } from "src/models/Card";
 import { BacklinkInput } from "../BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 
 interface CreateTaskWindowProps {
+  currentCard: Card | PartialCard | null;
   cards: PartialCard[];
   setRefresh: (refresh: boolean) => void;
 }
 
-export function CreateTaskWindow({ cards, setRefresh }: CreateTaskWindowProps) {
+export function CreateTaskWindow({ currentCard, cards, setRefresh }: CreateTaskWindowProps) {
   const [newTask, setNewTask] = useState<Task>(emptyTask);
   const [selectedCard, setSelectedCard] = useState<PartialCard | null>(null);
   async function handleSaveTask() {
@@ -23,6 +24,10 @@ export function CreateTaskWindow({ cards, setRefresh }: CreateTaskWindowProps) {
       setRefresh(true);
       let date = newTask.scheduled_date;
       setNewTask({ ...emptyTask, scheduled_date: date });
+      console.log("create card", currentCard)
+      if (currentCard) {
+        setNewTask({ ...newTask, card_pk: currentCard.id });
+      }
       setSelectedCard(null);
     }
   }
@@ -47,7 +52,9 @@ export function CreateTaskWindow({ cards, setRefresh }: CreateTaskWindowProps) {
       </div>
       <div className="create-task-window-bottom">
         <div className="create-task-window-bottom-left">
+          {!currentCard && (
           <BacklinkInput cards={cards} addBacklink={handleBacklink} />
+          )}
         </div>
         <div className="crate-task-window-bottom-middle">
           {selectedCard && (

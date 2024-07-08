@@ -73,7 +73,7 @@ export function TaskList({ cards }: TaskListProps) {
         </select>
       </div>
       <div>
-        <CreateTaskWindow cards={cards} setRefresh={setRefresh} />
+        <CreateTaskWindow currentCard={null} cards={cards} setRefresh={setRefresh} />
       </div>
       <ul>
         {tasks
