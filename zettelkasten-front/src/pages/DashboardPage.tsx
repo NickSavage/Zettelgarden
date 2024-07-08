@@ -12,6 +12,7 @@ export function DashboardPage() {
   const [partialCards, setPartialCards] = React.useState<PartialCard[]>([]);
   const [inactiveCards, setInactiveCards] = React.useState<PartialCard[]>([]);
   const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [refresh, setRefresh] = React.useState<boolean>(false);
 
   useEffect(() => {
     fetchTasks()
@@ -36,7 +37,8 @@ export function DashboardPage() {
       .catch((error) => {
         console.error("Error fetching partial cards:", error);
       });
-  }, []);
+      setRefresh(false);
+  }, [refresh]);
 
   return (
     <div>
@@ -52,7 +54,7 @@ export function DashboardPage() {
               .map((task) => (
                 <TaskListItem
                   task={task}
-                  setRefresh={(refresh: boolean) => {}}
+                  setRefresh={setRefresh}
                 />
               ))}
         </div>
