@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -124,17 +125,28 @@ func (s *Server) GetTasksRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
+
+	oldTask, _ := s.QueryTask(userID, id)
+
+	var completedAt time.Time
+	if task.IsComplete && !task.CompletedAt.Valid {
+		completedAt = time.Now()
+	} else if !task.IsComplete && task.CompletedAt.Valid {
+
+	} else {
+		completedAt = oldTask.CompletedAt.Time
+	}
+	log.Printf("time %v", completedAt)
 	_, err := s.db.Exec(`
 	UPDATE tasks SET
 		card_pk = $1,
 		scheduled_date = $2,
-		due_date = $3,
 		updated_at = NOW(),
-		completed_at = $4,
-		title = $5,
-		is_complete = $6
-	WHERE id = $7 AND user_id = $8 AND is_deleted = FALSE
-	`, task.CardPK, task.ScheduledDate, task.DueDate, task.CompletedAt, task.Title, task.IsComplete, id, userID)
+		completed_at = $3,
+		title = $4,
+		is_complete = $5
+	WHERE id = $6 AND user_id = $7 AND is_deleted = FALSE
+	`, task.CardPK, task.ScheduledDate, completedAt, task.Title, task.IsComplete, id, userID)
 
 	if err != nil {
 		log.Printf("err %v", err)

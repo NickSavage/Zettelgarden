@@ -261,6 +261,9 @@ func (s *Server) generateData() map[string]interface{} {
 			ScheduledDate: randomNullTime(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 			Title:         randomString(20),
 			IsComplete:    false,
+			CompletedAt: models.NullTime{NullTime: sql.NullTime{
+				Valid: false,
+			}},
 		}
 		if i == 2 {
 			task.IsComplete = true

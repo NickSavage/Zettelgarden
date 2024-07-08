@@ -157,6 +157,52 @@ func TestUpdateTaskSuccess(t *testing.T) {
 	}
 }
 
+func TestUpdateTaskCompleteTask(t *testing.T) {
+	setup()
+	defer teardown()
+
+	token, _ := generateTestJWT(1)
+
+	rr := makeCardRequestSuccess(t, 1)
+	var task models.Task
+	parseJsonResponse(t, rr.Body.Bytes(), &task)
+
+	if task.IsComplete {
+		t.Errorf("something is wrong, task already complete")
+	}
+	task.IsComplete = true
+	jsonData, _ := json.Marshal(task)
+
+	req, err := http.NewRequest("PUT", "/api/tasks/1", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr = httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute))
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	rr = makeTaskRequestSuccess(t, 1)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	if !task.IsComplete {
+		t.Errorf("task should be complete, is not")
+	}
+	if !task.CompletedAt.Valid {
+		t.Errorf("completed_at not set properly upon task completion")
+	}
+}
+
 func TestCreateTaskSuccess(t *testing.T) {
 	setup()
 	defer teardown()
