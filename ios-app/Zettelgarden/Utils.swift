@@ -25,6 +25,7 @@ func performRequest<T: Decodable>(
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
         if let error = error {
+            print(error)
             completion(.failure(error))
             return
         }
@@ -35,6 +36,7 @@ func performRequest<T: Decodable>(
                 code: (response as? HTTPURLResponse)?.statusCode ?? 500,
                 userInfo: [NSLocalizedDescriptionKey: "Unexpected response"]
             )
+            print(statusError)
             completion(.failure(statusError))
             return
         }
@@ -45,24 +47,22 @@ func performRequest<T: Decodable>(
         }
 
         // Print the raw data as a string
-        //  if let rawDataString = String(data: data, encoding: .utf8) {
-        //     print("Raw data: \(rawDataString)")
-        //} else {
-        //    print("Unable to convert data to string")
-        // }
+        if let rawDataString = String(data: data, encoding: .utf8) {
+            print("Raw data: \(rawDataString)")
+        }
+        else {
+            print("Unable to convert data to string")
+        }
 
         do {
             let decoder = JSONDecoder()
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-            decoder.dateDecodingStrategy = .formatted(dateFormatter)
+            decoder.dateDecodingStrategy = .iso8601  // Use ISO 8601 date decoding strategy
             let results = try decoder.decode(T.self, from: data)
+            print(data)
             completion(.success(results))
         }
         catch let decodeError {
+            print(decodeError)
             completion(.failure(NetworkError.decodingError(decodeError)))
         }
     }

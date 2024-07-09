@@ -10,10 +10,10 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("isLoggedIn") private var isLoggedIn = false
     @AppStorage("jwt") private var jwt: String?
-    
+
     var body: some View {
         Button(action: {
-            Task {
+            SwiftUI.Task {
                 doLogout()
             }
         }) {
@@ -26,12 +26,12 @@ struct SettingsView: View {
         }
         .padding(.horizontal)
     }
-    
+
     func doLogout() {
         jwt = ""
         isLoggedIn = false
     }
-    
+
 }
 
 #Preview {

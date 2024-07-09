@@ -10,31 +10,13 @@ import SwiftUI
 struct HomeView: View {
     @ObservedObject var cardViewModel: CardViewModel
     @StateObject private var recentModel = PartialCardViewModel()
+    @StateObject private var taskModel = TaskViewModel()
     var body: some View {
         VStack {
             Text("Recent Cards")
-
-            HStack {
-                Text("hi")
-                Spacer()
-
-            }
-            if recentModel.isLoading {
-                ProgressView("Loading")
-            }
-            else if let cards = recentModel.cards {
-                Text("hi")
-                List {
-                    ForEach(cards.prefix(10)) { card in
-                        CardListItem(card: card, cardViewModel: cardViewModel)
-                    }
-                }
-            }
-            Spacer()
         }
         .onAppear {
-            recentModel.sort = "date"
-            recentModel.loadCards()
+            taskModel.loadTasks()
         }
         //     NavigationStack {
         //         Text("recent Cards").bold()

@@ -36,6 +36,8 @@
 		01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888212BFB8FE400B3ACF1 /* FileListView.swift */; };
 		01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
 		01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */; };
+		01E604EE2C3CBC3700717D42 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E604ED2C3CBC3700717D42 /* TaskViewModel.swift */; };
+		01E604F02C3CBC4F00717D42 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E604EF2C3CBC4F00717D42 /* Task.swift */; };
 		01ECE50D2BF3747B00691C07 /* CardEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50C2BF3747B00691C07 /* CardEditView.swift */; };
 		01ECE50F2BF422D900691C07 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50E2BF422D900691C07 /* Api.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
@@ -92,6 +94,8 @@
 		01B888212BFB8FE400B3ACF1 /* FileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListView.swift; sourceTree = "<group>"; };
 		01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListViewModel.swift; sourceTree = "<group>"; };
 		01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardViewModel.swift; sourceTree = "<group>"; };
+		01E604ED2C3CBC3700717D42 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
+		01E604EF2C3CBC4F00717D42 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		01ECE50C2BF3747B00691C07 /* CardEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditView.swift; sourceTree = "<group>"; };
 		01ECE50E2BF422D900691C07 /* Api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -192,6 +196,7 @@
 				01B888192BFB5F7D00B3ACF1 /* File.swift */,
 				01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */,
 				010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */,
+				01E604EF2C3CBC4F00717D42 /* Task.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -204,6 +209,7 @@
 				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
 				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
+				01E604ED2C3CBC3700717D42 /* TaskViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -377,6 +383,7 @@
 				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
 				01B8881A2BFB5F7D00B3ACF1 /* File.swift in Sources */,
 				01201F892BF2BD3500DF973E /* PartialCard.swift in Sources */,
+				01E604EE2C3CBC3700717D42 /* TaskViewModel.swift in Sources */,
 				01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */,
 				01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */,
 				01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */,
@@ -388,6 +395,7 @@
 				01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */,
 				01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */,
 				01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */,
+				01E604F02C3CBC4F00717D42 /* Task.swift in Sources */,
 				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
 				01B888202BFB689000B3ACF1 /* IdentifiableURL.swift in Sources */,

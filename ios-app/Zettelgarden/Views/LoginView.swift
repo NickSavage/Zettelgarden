@@ -25,9 +25,10 @@ struct LoginView: View {
             if isLoading {
                 ProgressView()
                     .padding()
-            } else {
+            }
+            else {
                 Button(action: {
-                    Task {
+                    SwiftUI.Task {
                         await doLogin()
                     }
                 }) {
@@ -50,8 +51,6 @@ struct LoginView: View {
         .padding()
     }
 
-    
-
     func doLogin() async {
         // Ensure inputs are not empty
         guard !email.isEmpty, !password.isEmpty else {
@@ -70,7 +69,8 @@ struct LoginView: View {
             // Store the JWT
             jwt = token
             isLoggedIn = true
-        } catch {
+        }
+        catch {
             print("Request failed: \(error)")
             loginError = "Login failed: \(error.localizedDescription)"
         }

@@ -202,3 +202,18 @@ func fetchFiles(token: String, completion: @escaping (Result<[File], Error>) -> 
     performRequest(with: url, token: token, completion: completion)
 
 }
+
+func fetchTasks(
+    token: String,
+    searchTerm: String = "",
+    completion: @escaping (Result<[Task], Error>) -> Void
+) {
+
+    guard let url = URL(string: baseUrl + "/tasks") else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+    print("Request URL: \(url.absoluteString)")
+
+    performRequest(with: url, token: token, completion: completion)
+}
