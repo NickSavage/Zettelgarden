@@ -18,17 +18,21 @@ export function CreateTaskWindow({ currentCard, cards, setRefresh }: CreateTaskW
   async function handleSaveTask() {
     let response;
 
-    console.log(newTask);
-    response = await saveNewTask(newTask);
+    console.log("create card", currentCard)
+
+    let task = newTask
+    if (currentCard) {
+      task = { ...task, card_pk: currentCard.id }
+    }
+    response = await saveNewTask(task);
     if (!("error" in response)) {
       setRefresh(true);
+      setSelectedCard(null);
       let date = newTask.scheduled_date;
       setNewTask({ ...emptyTask, scheduled_date: date });
-      console.log("create card", currentCard)
       if (currentCard) {
-        setNewTask({ ...newTask, card_pk: currentCard.id });
+        setNewTask({...emptyTask, card_pk: currentCard.id });
       }
-      setSelectedCard(null);
     }
   }
   function handleBacklink(card: PartialCard) {
