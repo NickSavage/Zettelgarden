@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
@@ -125,31 +126,36 @@ func (s *Server) GetTasksRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
-
-	oldTask, _ := s.QueryTask(userID, id)
-
-	var completedAt time.Time
-	if task.IsComplete && !task.CompletedAt.Valid {
-		completedAt = time.Now()
-	} else if !task.IsComplete && task.CompletedAt.Valid {
-
-	} else {
-		completedAt = oldTask.CompletedAt.Time
+	oldTask, err := s.QueryTask(userID, id)
+	if err != nil {
+		return fmt.Errorf("unable to query task: %v", err)
 	}
-	log.Printf("time %v", completedAt)
-	_, err := s.db.Exec(`
-	UPDATE tasks SET
-		card_pk = $1,
-		scheduled_date = $2,
-		updated_at = NOW(),
-		completed_at = $3,
-		title = $4,
-		is_complete = $5
-	WHERE id = $6 AND user_id = $7 AND is_deleted = FALSE
+
+	var completedAt sql.NullTime
+	if task.IsComplete {
+		if !task.CompletedAt.Valid {
+			completedAt = sql.NullTime{Time: time.Now(), Valid: true}
+		} else {
+			completedAt = oldTask.CompletedAt.NullTime
+		}
+	} else {
+		completedAt = sql.NullTime{Valid: false}
+	}
+
+	log.Printf("completed_at: %v", completedAt)
+	_, err = s.db.Exec(`
+		UPDATE tasks SET
+			card_pk = $1,
+			scheduled_date = $2,
+			updated_at = NOW(),
+			completed_at = $3,
+			title = $4,
+			is_complete = $5
+		WHERE id = $6 AND user_id = $7 AND is_deleted = FALSE
 	`, task.CardPK, task.ScheduledDate, completedAt, task.Title, task.IsComplete, id, userID)
 
 	if err != nil {
-		log.Printf("err %v", err)
+		log.Printf("error: %v", err)
 		return fmt.Errorf("unable to update task")
 	}
 	return nil
