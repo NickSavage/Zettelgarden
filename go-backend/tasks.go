@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
@@ -131,15 +130,14 @@ func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
 		return fmt.Errorf("unable to query task: %v", err)
 	}
 
-	var completedAt sql.NullTime
+	var completedAt *time.Time
 	if task.IsComplete {
-		if !task.CompletedAt.Valid {
-			completedAt = sql.NullTime{Time: time.Now(), Valid: true}
-		} else {
-			completedAt = oldTask.CompletedAt.NullTime
-		}
+		now := time.Now()
+		completedAt = &now
+	} else if oldTask.IsComplete {
+		completedAt = oldTask.CompletedAt
 	} else {
-		completedAt = sql.NullTime{Valid: false}
+		completedAt = nil
 	}
 
 	log.Printf("completed_at: %v", completedAt)

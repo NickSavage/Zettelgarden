@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
@@ -257,17 +256,15 @@ func (s *Server) generateData() map[string]interface{} {
 			UserID:        1,
 			CreatedAt:     randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 			UpdatedAt:     randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			DueDate:       randomNullTime(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			ScheduledDate: randomNullTime(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			DueDate:       nil,
+			ScheduledDate: randomMaybeNullDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 			Title:         randomString(20),
 			IsComplete:    false,
-			CompletedAt: models.NullTime{NullTime: sql.NullTime{
-				Valid: false,
-			}},
+			CompletedAt:   nil,
 		}
 		if i == 2 {
 			task.IsComplete = true
-			task.CompletedAt = randomNullTime(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC))
+			task.CompletedAt = randomMaybeNullDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC))
 		}
 		tasks = append(tasks, task)
 	}
@@ -300,8 +297,9 @@ func randomDate(start, end time.Time) time.Time {
 	sec := rand.Int63n(delta) + start.Unix()
 	return time.Unix(sec, 0)
 }
-func randomNullTime(start, end time.Time) models.NullTime {
-	return models.NullTime{NullTime: sql.NullTime{Time: randomDate(start, end), Valid: true}}
+func randomMaybeNullDate(start, end time.Time) *time.Time {
+	date := randomDate(start, end)
+	return &date
 }
 
 func generateTestJWT(userID int) (string, error) {

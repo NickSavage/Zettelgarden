@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"go-backend/models"
 	"log"
@@ -198,7 +197,7 @@ func TestUpdateTaskCompleteTask(t *testing.T) {
 	if !task.IsComplete {
 		t.Errorf("task should be complete, is not")
 	}
-	if !task.CompletedAt.Valid {
+	if task.CompletedAt == nil || task.CompletedAt.IsZero() {
 		t.Errorf("completed_at not set properly upon task completion")
 	}
 }
@@ -212,18 +211,12 @@ func TestCreateTaskSuccess(t *testing.T) {
 	token, _ := generateTestJWT(1)
 
 	expectedTitle := "Test Task"
-	expectedScheduledDate := models.NullTime{NullTime: sql.NullTime{
-		Time:  time.Date(2024, 7, 5, 10, 0, 0, 0, time.UTC),
-		Valid: true,
-	}}
-	expectedDueDate := models.NullTime{NullTime: sql.NullTime{
-		Time:  time.Date(2024, 7, 10, 10, 0, 0, 0, time.UTC),
-		Valid: true,
-	}}
+	expectedScheduledDate := time.Date(2024, 7, 5, 10, 0, 0, 0, time.UTC)
+	expectedDueDate := time.Date(2024, 7, 10, 10, 0, 0, 0, time.UTC)
 	expected := models.Task{
 		CardPK:        1,
-		ScheduledDate: expectedScheduledDate,
-		DueDate:       expectedDueDate,
+		ScheduledDate: &expectedScheduledDate,
+		DueDate:       &expectedDueDate,
 		Title:         expectedTitle,
 		IsComplete:    false,
 	}
@@ -252,10 +245,10 @@ func TestCreateTaskSuccess(t *testing.T) {
 	if newTask.Title != expectedTitle {
 		t.Errorf("handler returned wrong task title: got %v want %v", newTask.Title, expectedTitle)
 	}
-	if newTask.ScheduledDate != expectedScheduledDate {
+	if newTask.ScheduledDate == nil || !newTask.ScheduledDate.Equal(expectedScheduledDate) {
 		t.Errorf("handler returned wrong task scheduled date: got %v want %v", newTask.ScheduledDate, expectedScheduledDate)
 	}
-	if newTask.DueDate != expectedDueDate {
+	if newTask.DueDate == nil || !newTask.DueDate.Equal(expectedDueDate) {
 		t.Errorf("handler returned wrong task due date: got %v want %v", newTask.DueDate, expectedDueDate)
 	}
 }

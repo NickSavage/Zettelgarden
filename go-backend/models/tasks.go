@@ -13,7 +13,7 @@ type NullTime struct {
 // UnmarshalJSON custom unmarshals a NullTime from a JSON string
 func (nt *NullTime) UnmarshalJSON(b []byte) error {
 	// Define the date format used in your JSON
-	const layout = "2006-01-02T15:04:05Z"
+	const layout = "2006-01-02T15:04:05.999999Z" // Include fractional seconds in layout
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
 		return err
@@ -39,18 +39,19 @@ func (nt NullTime) MarshalJSON() ([]byte, error) {
 	if !nt.Valid {
 		return json.Marshal(nil)
 	}
-	return json.Marshal(nt.Time.Format("2006-01-02T15:04:05Z"))
+	return json.Marshal(nt.Time.Format("2006-01-02T15:04:05.999999Z")) // Include fractional seconds in format
+
 }
 
 type Task struct {
 	ID            int         `json:"id"`
 	CardPK        int         `json:"card_pk"`
 	UserID        int         `json:"user_id"`
-	ScheduledDate NullTime    `json:"scheduled_date"`
-	DueDate       NullTime    `json:"due_date"`
+	ScheduledDate *time.Time  `json:"scheduled_date"`
+	DueDate       *time.Time  `json:"due_date"`
 	CreatedAt     time.Time   `json:"created_at"`
 	UpdatedAt     time.Time   `json:"updated_at"`
-	CompletedAt   NullTime    `json:"completed_at"`
+	CompletedAt   *time.Time  `json:"completed_at"`
 	Title         string      `json:"title"`
 	IsComplete    bool        `json:"is_complete"`
 	IsDeleted     bool        `json:"is_deleted"`
