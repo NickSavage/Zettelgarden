@@ -3,6 +3,7 @@ import { saveExistingTask } from "src/api/tasks";
 
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Task } from "src/models/Task";
+import { Link } from "react-router-dom";
 
 interface TaskListItemProps {
   task: Task;
@@ -75,7 +76,12 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
       </div>
       <div className="task-list-item-card">
         {task.card && task.card.id > 0 && (
-          <span className="card-id">[{task.card.card_id}]</span>
+          <Link 
+            to={`/app/card/${task.card.id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <span className="card-id">[{task.card.card_id}]</span>
+          </Link>
         )}
       </div>
     </div>
