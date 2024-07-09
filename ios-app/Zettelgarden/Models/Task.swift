@@ -13,7 +13,7 @@ struct Task: Identifiable, Decodable {
     var id: Int
     var card_pk: Int
     var user_id: Int
-    var scheduled_date: String?
+    var scheduled_date: Date?
     var created_at: Date
     var updated_at: Date
     var completed_at: String?
@@ -37,7 +37,8 @@ extension Task {
                 id: 1,
                 card_pk: 1,
                 user_id: 1,
-                scheduled_date: formatDate(date: Date()),
+                scheduled_date: Date(),
+                //                scheduled_date: formatDate(date: Date()),
                 created_at: Date(),
                 updated_at: Date(),
                 //created_at: formatDate(date: Date()),
@@ -57,7 +58,8 @@ extension Task {
                 id: 2,
                 card_pk: 1,
                 user_id: 1,
-                scheduled_date: formatDate(date:Date()),
+                scheduled_date: Date(),
+                //scheduled_date: formatDate(date:Date()),
                 created_at: Date(),
                 updated_at: Date(),
                 //created_at: formatDate(date: Date()),

@@ -15,13 +15,13 @@ struct TaskListItemView: View {
             Text("[ ]")
             VStack {
                 Text(task.title)
-                if let date = task.scheduled_date {
-                    //Text(formatDate(date: date))
-                    Text(date)
-                }
-                else {
-                    Text("No Date")  // Or any default text
-                }
+                // if let date = task.scheduled_date {
+                //     //Text(formatDate(date: date))
+                //     Text(date)
+                // }
+                // else {
+                //     Text("No Date")  // Or any default text
+                // }
             }
             Spacer()
             Text("asd")
