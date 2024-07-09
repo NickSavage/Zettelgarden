@@ -57,6 +57,7 @@ export function TaskList({ cards }: TaskListProps) {
     });
   }
   useEffect(() => {
+    document.title = "Zettelgarden - Tasks";
     setAllTasks();
   }, [refresh]);
   return (
