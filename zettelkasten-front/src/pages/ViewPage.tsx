@@ -26,7 +26,8 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [showCreateTaskWindow, setShowCreateTaskWindow] = useState<boolean>(false);
+  const [showCreateTaskWindow, setShowCreateTaskWindow] =
+    useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -85,19 +86,19 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
 
   async function fetchTasksForCard(id: string) {
     fetchTasks().then((data) => {
-      setTasks(data.filter((task: Task) => task.card_pk === parseInt(id, 10)))
-    })
+      setTasks(data.filter((task: Task) => task.card_pk === parseInt(id, 10)));
+    });
   }
 
   function toggleCreateTaskWindow() {
-    setShowCreateTaskWindow(!showCreateTaskWindow)
+    setShowCreateTaskWindow(!showCreateTaskWindow);
   }
 
   useEffect(() => {
     setError("");
     fetchCard(id!);
-    fetchTasksForCard(id!)
-    setRefresh(false)
+    fetchTasksForCard(id!);
+    setRefresh(false);
   }, [id, refresh]);
   return (
     <div>
@@ -152,13 +153,15 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
           </ul>
           <h4>Tasks</h4>
           <span onClick={toggleCreateTaskWindow}>Add Task</span>
-          {showCreateTaskWindow && 
-          <CreateTaskWindow currentCard={viewingCard} cards={cards} setRefresh={setRefresh}/>}
-          {tasks.map((task, index) => (
-            <TaskListItem
-            task={task}
-            setRefresh={(refresh: boolean) => {}}
+          {showCreateTaskWindow && (
+            <CreateTaskWindow
+              currentCard={viewingCard}
+              cards={cards}
+              setRefresh={setRefresh}
             />
+          )}
+          {tasks.map((task, index) => (
+            <TaskListItem cards={cards} task={task} setRefresh={(refresh: boolean) => {}} />
           ))}
 
           <h4>References:</h4>

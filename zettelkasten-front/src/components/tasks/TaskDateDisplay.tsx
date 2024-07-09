@@ -89,7 +89,11 @@ export function TaskDateDisplay({
 
   return (
     <div>
-      <div onClick={handleTextClick} className="task-date" style={{ color: getDisplayColor() }}>
+      <div
+        onClick={handleTextClick}
+        className="task-date"
+        style={{ color: getDisplayColor() }}
+      >
         {displayText}
       </div>
       <div>

@@ -12,17 +12,21 @@ interface CreateTaskWindowProps {
   setRefresh: (refresh: boolean) => void;
 }
 
-export function CreateTaskWindow({ currentCard, cards, setRefresh }: CreateTaskWindowProps) {
+export function CreateTaskWindow({
+  currentCard,
+  cards,
+  setRefresh,
+}: CreateTaskWindowProps) {
   const [newTask, setNewTask] = useState<Task>(emptyTask);
   const [selectedCard, setSelectedCard] = useState<PartialCard | null>(null);
   async function handleSaveTask() {
     let response;
 
-    console.log("create card", currentCard)
+    console.log("create card", currentCard);
 
-    let task = newTask
+    let task = newTask;
     if (currentCard) {
-      task = { ...task, card_pk: currentCard.id }
+      task = { ...task, card_pk: currentCard.id };
     }
     response = await saveNewTask(task);
     if (!("error" in response)) {
@@ -31,7 +35,7 @@ export function CreateTaskWindow({ currentCard, cards, setRefresh }: CreateTaskW
       let date = newTask.scheduled_date;
       setNewTask({ ...emptyTask, scheduled_date: date });
       if (currentCard) {
-        setNewTask({...emptyTask, card_pk: currentCard.id });
+        setNewTask({ ...emptyTask, card_pk: currentCard.id });
       }
     }
   }
@@ -57,7 +61,7 @@ export function CreateTaskWindow({ currentCard, cards, setRefresh }: CreateTaskW
       <div className="create-task-window-bottom">
         <div className="create-task-window-bottom-left">
           {!currentCard && (
-          <BacklinkInput cards={cards} addBacklink={handleBacklink} />
+            <BacklinkInput cards={cards} addBacklink={handleBacklink} />
           )}
         </div>
         <div className="crate-task-window-bottom-middle">

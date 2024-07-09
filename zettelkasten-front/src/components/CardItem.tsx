@@ -18,19 +18,15 @@ export function CardItem({ card }: CardItemProps) {
   };
 
   return (
-    <div
-      key={card.id}
-      className="card-item"
-    >
+    <div key={card.id} className="card-item">
       <Link
         to={`/app/card/${card.id}`}
         style={{ textDecoration: "none", color: "inherit" }}
       >
-        <span 
-        style={{ color: "blue", fontWeight: "bold" }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setShowHover(false)}
-        
+        <span
+          style={{ color: "blue", fontWeight: "bold" }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={() => setShowHover(false)}
         >
           - [{card.card_id}]
         </span>

@@ -27,9 +27,8 @@ export function TaskList({ cards }: TaskListProps) {
       return true;
     } else {
       if (task.is_complete) {
-        return false
-    }
-
+        return false;
+      }
     }
     if (filterDate === "today") {
       if (compareDates(task.scheduled_date, getToday())) {
@@ -74,7 +73,11 @@ export function TaskList({ cards }: TaskListProps) {
         </select>
       </div>
       <div>
-        <CreateTaskWindow currentCard={null} cards={cards} setRefresh={setRefresh} />
+        <CreateTaskWindow
+          currentCard={null}
+          cards={cards}
+          setRefresh={setRefresh}
+        />
       </div>
       <ul>
         {tasks
@@ -82,7 +85,7 @@ export function TaskList({ cards }: TaskListProps) {
           .sort((a, b) => a.id - b.id)
           .map((task, index) => (
             <li key={index}>
-              <TaskListItem task={task} setRefresh={setRefresh} />
+              <TaskListItem cards={cards} task={task} setRefresh={setRefresh} />
             </li>
           ))}
       </ul>

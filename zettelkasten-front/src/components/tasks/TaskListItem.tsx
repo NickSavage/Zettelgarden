@@ -4,19 +4,37 @@ import { saveExistingTask } from "src/api/tasks";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Task } from "src/models/Task";
 import { Link } from "react-router-dom";
+import { PartialCard } from "src/models/Card";
+import { BacklinkInput } from "../BacklinkInput";
 
 interface TaskListItemProps {
+  cards: PartialCard[]
   task: Task;
   setRefresh: (refresh: boolean) => void;
 }
 
-export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
+export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
+  const [showCardLink, setShowCardLink] = useState<boolean>(false);
 
   async function handleTitleClick() {
     setNewTitle(task.title);
     setEditTitle(true);
+  }
+
+  function toggleCardLink() {
+    setShowCardLink(!showCardLink);
+  }
+
+  async function handleBacklink(card: PartialCard) {
+    let editedTask = { ...task, card_pk: card.id}
+    let response = await saveExistingTask(editedTask);
+    if (!("error" in response)) {
+      setRefresh(true);
+      setShowCardLink(false);
+    }
+
   }
 
   async function handleTitleEdit() {
@@ -76,12 +94,20 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
       </div>
       <div className="task-list-item-card">
         {task.card && task.card.id > 0 && (
-          <Link 
+          <Link
             to={`/app/card/${task.card.id}`}
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <span className="card-id">[{task.card.card_id}]</span>
           </Link>
+        )}
+        {!task.card || (task.card.id == 0 && <div>
+         <span onClick={toggleCardLink}>Link Card</span>
+         {showCardLink && (
+            <BacklinkInput cards={cards} addBacklink={handleBacklink} />
+         )}
+          
+          </div>
         )}
       </div>
     </div>
