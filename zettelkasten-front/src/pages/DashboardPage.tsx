@@ -52,7 +52,11 @@ export function DashboardPage() {
               .filter((task) => compareDates(task.scheduled_date, getToday()))
               .slice(0, 10)
               .map((task) => (
-                <TaskListItem cards={partialCards} task={task} setRefresh={setRefresh} />
+                <TaskListItem
+                  cards={partialCards}
+                  task={task}
+                  setRefresh={setRefresh}
+                />
               ))}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>

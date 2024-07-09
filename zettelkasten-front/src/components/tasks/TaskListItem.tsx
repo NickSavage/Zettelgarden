@@ -8,7 +8,7 @@ import { PartialCard } from "src/models/Card";
 import { BacklinkInput } from "../BacklinkInput";
 
 interface TaskListItemProps {
-  cards: PartialCard[]
+  cards: PartialCard[];
   task: Task;
   setRefresh: (refresh: boolean) => void;
 }
@@ -28,13 +28,12 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
   }
 
   async function handleBacklink(card: PartialCard) {
-    let editedTask = { ...task, card_pk: card.id}
+    let editedTask = { ...task, card_pk: card.id };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
       setRefresh(true);
       setShowCardLink(false);
     }
-
   }
 
   async function handleTitleEdit() {
@@ -101,14 +100,15 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
             <span className="card-id">[{task.card.card_id}]</span>
           </Link>
         )}
-        {!task.card || (task.card.id == 0 && <div>
-         <span onClick={toggleCardLink}>Link Card</span>
-         {showCardLink && (
-            <BacklinkInput cards={cards} addBacklink={handleBacklink} />
-         )}
-          
-          </div>
-        )}
+        {!task.card ||
+          (task.card.id == 0 && (
+            <div>
+              <span onClick={toggleCardLink}>Link Card</span>
+              {showCardLink && (
+                <BacklinkInput cards={cards} addBacklink={handleBacklink} />
+              )}
+            </div>
+          ))}
       </div>
     </div>
   );

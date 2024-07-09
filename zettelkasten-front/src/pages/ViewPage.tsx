@@ -161,7 +161,11 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
             />
           )}
           {tasks.map((task, index) => (
-            <TaskListItem cards={cards} task={task} setRefresh={(refresh: boolean) => {}} />
+            <TaskListItem
+              cards={cards}
+              task={task}
+              setRefresh={(refresh: boolean) => {}}
+            />
           ))}
 
           <h4>References:</h4>
