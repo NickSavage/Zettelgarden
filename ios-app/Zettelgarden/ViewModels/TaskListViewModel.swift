@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-class TaskViewModel: ObservableObject {
+class TaskListViewModel: ObservableObject {
     @Published var tasks: [Task]?
     @Published var isLoading: Bool = true
 

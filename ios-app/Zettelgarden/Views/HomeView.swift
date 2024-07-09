@@ -10,13 +10,13 @@ import SwiftUI
 struct HomeView: View {
     @ObservedObject var cardViewModel: CardViewModel
     @StateObject private var recentModel = PartialCardViewModel()
-    @StateObject private var taskModel = TaskViewModel()
+    @StateObject private var taskListModel = TaskListViewModel()
     var body: some View {
         VStack {
             Text("Recent Cards")
         }
         .onAppear {
-            taskModel.loadTasks()
+            taskListModel.loadTasks()
         }
         //     NavigationStack {
         //         Text("recent Cards").bold()

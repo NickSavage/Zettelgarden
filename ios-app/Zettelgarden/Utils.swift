@@ -56,13 +56,21 @@ func performRequest<T: Decodable>(
 
         do {
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601  // Use ISO 8601 date decoding strategy
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+            decoder.dateDecodingStrategy = .formatted(dateFormatter)
+
             let results = try decoder.decode(T.self, from: data)
             print(data)
             completion(.success(results))
         }
         catch let decodeError {
-            print(decodeError)
+            // Print the exact error and raw data for troubleshooting
+            print("Decoding error: \(decodeError)")
+            if let rawDataString = String(data: data, encoding: .utf8) {
+                print("Raw JSON data causing error: \(rawDataString)")
+            }
             completion(.failure(NetworkError.decodingError(decodeError)))
         }
     }

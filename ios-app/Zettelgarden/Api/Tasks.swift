@@ -21,3 +21,19 @@ func fetchTasks(
 
     performRequest(with: url, token: token, completion: completion)
 }
+
+func fetchTasks(
+    token: String,
+    id: Int,
+    searchTerm: String = "",
+    completion: @escaping (Result<[Task], Error>) -> Void
+) {
+
+    guard let url = URL(string: baseUrl + "/tasks/" + String(id)) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+    print("Request URL: \(url.absoluteString)")
+
+    performRequest(with: url, token: token, completion: completion)
+}
