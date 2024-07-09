@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0100FCCD2C3D3764006FACAE /* TaskListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0100FCCC2C3D3764006FACAE /* TaskListItemView.swift */; };
 		010F155E2BFF459000AD2F66 /* ContentViewSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */; };
 		0111A7342BFD597300DDED68 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7332BFD597300DDED68 /* HomeView.swift */; };
 		0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7352BFD640400DDED68 /* FileViewModel.swift */; };
@@ -36,7 +37,7 @@
 		01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888212BFB8FE400B3ACF1 /* FileListView.swift */; };
 		01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
 		01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */; };
-		01E604EE2C3CBC3700717D42 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E604ED2C3CBC3700717D42 /* TaskViewModel.swift */; };
+		01E604EE2C3CBC3700717D42 /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E604ED2C3CBC3700717D42 /* TaskListViewModel.swift */; };
 		01E604F02C3CBC4F00717D42 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E604EF2C3CBC4F00717D42 /* Task.swift */; };
 		01ECE50D2BF3747B00691C07 /* CardEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50C2BF3747B00691C07 /* CardEditView.swift */; };
 		01ECE50F2BF422D900691C07 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50E2BF422D900691C07 /* Api.swift */; };
@@ -62,6 +63,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0100FCCC2C3D3764006FACAE /* TaskListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListItemView.swift; sourceTree = "<group>"; };
 		010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSelection.swift; sourceTree = "<group>"; };
 		0111A7332BFD597300DDED68 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0111A7352BFD640400DDED68 /* FileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewModel.swift; sourceTree = "<group>"; };
@@ -94,7 +96,7 @@
 		01B888212BFB8FE400B3ACF1 /* FileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListView.swift; sourceTree = "<group>"; };
 		01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListViewModel.swift; sourceTree = "<group>"; };
 		01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardViewModel.swift; sourceTree = "<group>"; };
-		01E604ED2C3CBC3700717D42 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
+		01E604ED2C3CBC3700717D42 /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
 		01E604EF2C3CBC4F00717D42 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		01ECE50C2BF3747B00691C07 /* CardEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditView.swift; sourceTree = "<group>"; };
 		01ECE50E2BF422D900691C07 /* Api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
@@ -127,6 +129,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0100FCCA2C3D373E006FACAE /* Tasks */ = {
+			isa = PBXGroup;
+			children = (
+				0100FCCB2C3D374D006FACAE /* Components */,
+			);
+			path = Tasks;
+			sourceTree = "<group>";
+		};
+		0100FCCB2C3D374D006FACAE /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0100FCCC2C3D3764006FACAE /* TaskListItemView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		01201F4F2BF2BB6200DF973E = {
 			isa = PBXGroup;
 			children = (
@@ -209,7 +227,7 @@
 				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
 				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
-				01E604ED2C3CBC3700717D42 /* TaskViewModel.swift */,
+				01E604ED2C3CBC3700717D42 /* TaskListViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -217,6 +235,7 @@
 		01B8880F2BF814DC00B3ACF1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0100FCCA2C3D373E006FACAE /* Tasks */,
 				01B888102BF8159300B3ACF1 /* Components */,
 				01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */,
 				01ECE50C2BF3747B00691C07 /* CardEditView.swift */,
@@ -379,11 +398,12 @@
 				01201F8D2BF2C9AB00DF973E /* CardListView.swift in Sources */,
 				01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */,
 				01201F872BF2BBCE00DF973E /* Card.swift in Sources */,
+				0100FCCD2C3D3764006FACAE /* TaskListItemView.swift in Sources */,
 				01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */,
 				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
 				01B8881A2BFB5F7D00B3ACF1 /* File.swift in Sources */,
 				01201F892BF2BD3500DF973E /* PartialCard.swift in Sources */,
-				01E604EE2C3CBC3700717D42 /* TaskViewModel.swift in Sources */,
+				01E604EE2C3CBC3700717D42 /* TaskListViewModel.swift in Sources */,
 				01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */,
 				01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */,
 				01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */,
