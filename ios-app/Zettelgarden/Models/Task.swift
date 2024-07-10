@@ -1,5 +1,9 @@
 import Foundation
 
+struct CreateTaskResponse: Decodable {
+    var id: Int
+}
+
 struct ZTask: Identifiable, Decodable, Encodable, Equatable {
     var id: Int
     var card_pk: Int

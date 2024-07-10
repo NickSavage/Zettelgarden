@@ -30,7 +30,7 @@ func performRequest<T: Decodable>(
             return
         }
 
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
             let statusError = NSError(
                 domain: "",
                 code: (response as? HTTPURLResponse)?.statusCode ?? 500,

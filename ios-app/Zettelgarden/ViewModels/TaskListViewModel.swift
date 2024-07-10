@@ -31,4 +31,22 @@ class TaskListViewModel: ObservableObject {
         }
         print("loading tasks")
     }
+
+    func createNewTask(newTask: ZTask) {
+        guard let token = token else {
+            print("Token is missing")
+            return
+        }
+        createTask(token: token, task: newTask) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(_):
+                    self.loadTasks()
+                case .failure(let error):
+                    print(error)
+                    print("Unable to create task: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
 }

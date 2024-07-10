@@ -250,3 +250,36 @@ func updateTask(
         completion(.failure(NetworkError.decodingError(error)))
     }
 }
+
+func createTask(
+    token: String,
+    task: ZTask,
+    completion: @escaping (Result<CreateTaskResponse, Error>) -> Void
+) {
+    var urlString = "\(baseUrl)/tasks"
+
+    guard let url = URL(string: urlString) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+
+    do {
+        let encoder = JSONEncoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+
+        let requestData = try encoder.encode(task)
+        performRequest(
+            with: url,
+            token: token,
+            httpMethod: "POST",
+            requestBody: requestData,
+            completion: completion
+        )
+    }
+    catch {
+        completion(.failure(NetworkError.decodingError(error)))
+    }
+}
