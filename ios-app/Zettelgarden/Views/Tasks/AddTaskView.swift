@@ -5,8 +5,11 @@ struct AddTaskView: View {
     @State private var title: String = ""
     @State private var scheduledDate: Date = Date()
 
+    @State private var message: String = ""
+
     var body: some View {
         VStack {
+            Text(message)
             Form {
                 Section(header: Text("Add Task")) {
                     TextField("Title", text: $title)
@@ -50,5 +53,6 @@ struct AddTaskView: View {
         taskListViewModel.loadTasks()  // Assuming this refreshes the tasks list
         title = ""
         scheduledDate = Date()
+        self.message = "Task created"
     }
 }

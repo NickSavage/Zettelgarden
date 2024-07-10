@@ -266,7 +266,7 @@ func createTask(
     do {
         let encoder = JSONEncoder()
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
 

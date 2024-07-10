@@ -8,11 +8,19 @@
 import Foundation
 
 func isToday(maybeDate: Date?) -> Bool {
-    if let date = maybeDate {
-        let calendar = Calendar.current
-        return calendar.isDateInToday(date)
-    }
-    else {
+    guard let date = maybeDate else {
+        print("nope")
         return false
     }
+
+    let calendar = Calendar.current
+    let today = Date()
+
+    let todayComponents = calendar.dateComponents([.year, .month, .day], from: today)
+    let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+
+    print(todayComponents, dateComponents)
+    return todayComponents.year == dateComponents.year
+        && todayComponents.month == dateComponents.month
+        && todayComponents.day == dateComponents.day
 }
