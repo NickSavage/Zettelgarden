@@ -38,13 +38,17 @@ struct ZTask: Identifiable, Decodable {
         is_deleted = try container.decode(Bool.self, forKey: .is_deleted)
 
         // Decode scheduled_date, handle null values
-        let scheduledDateString = try container.decodeIfPresent(String.self, forKey: .scheduled_date)
+        let scheduledDateString = try container.decodeIfPresent(
+            String.self,
+            forKey: .scheduled_date
+        )
         if let dateString = scheduledDateString {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
             dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
             scheduled_date = dateFormatter.date(from: dateString)
-        } else {
+        }
+        else {
             scheduled_date = nil
         }
     }
@@ -97,6 +101,6 @@ extension ZTask {
             title: "This is another task",
             is_complete: false,
             is_deleted: false
-        )
+        ),
     ]
 }

@@ -11,7 +11,7 @@ struct TaskListView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
 
     var body: some View {
-        if let tasks = taskListViewModel.openTasks {
+        if let tasks = taskListViewModel.todayTasks {
             List {
                 ForEach(tasks) { task in
                     TaskListItemView(task: task)

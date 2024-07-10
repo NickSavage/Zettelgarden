@@ -21,8 +21,7 @@ class TaskListViewModel: ObservableObject {
                 case .success(let fetchedTasks):
                     self.tasks = fetchedTasks
                     self.openTasks = fetchedTasks.filter { !$0.is_complete }
-                    let today = Calendar.current.startOfDay(for: Date())
-                    print(today)
+                    self.todayTasks = fetchedTasks.filter { isToday(maybeDate: $0.scheduled_date) }
                 case .failure(let error):
                     print(error)
                     print("Unable to load tasks: \(error.localizedDescription)")
