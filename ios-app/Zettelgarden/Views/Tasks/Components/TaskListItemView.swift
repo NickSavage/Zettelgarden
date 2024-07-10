@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaskListItemView: View {
-    let task: Task
+    let task: ZTask
 
     var body: some View {
         HStack {
@@ -35,7 +35,7 @@ struct TaskListItem_Previews: PreviewProvider {
     }
 
     struct TaskListItemWrapper: View {
-        var task = Task.sampleData[0]
+        var task = ZTask.sampleData[0]
 
         var body: some View {
             TaskListItemView(task: task).previewLayout(

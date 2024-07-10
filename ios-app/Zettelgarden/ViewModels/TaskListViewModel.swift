@@ -1,16 +1,11 @@
-//
-//  TaskViewModel.swift
-//  Zettelgarden
-//
-//  Created by Nicholas Savage on 2024-07-08.
-//
-
 import Combine
 import Foundation
 import SwiftUI
 
 class TaskListViewModel: ObservableObject {
-    @Published var tasks: [Task]?
+    @Published var tasks: [ZTask]?
+    @Published var openTasks: [ZTask]?
+    @Published var todayTasks: [ZTask]?
     @Published var isLoading: Bool = true
 
     @AppStorage("jwt") private var token: String?
@@ -25,6 +20,9 @@ class TaskListViewModel: ObservableObject {
                 switch result {
                 case .success(let fetchedTasks):
                     self.tasks = fetchedTasks
+                    self.openTasks = fetchedTasks.filter { !$0.is_complete }
+                    let today = Calendar.current.startOfDay(for: Date())
+                    print(today)
                 case .failure(let error):
                     print(error)
                     print("Unable to load tasks: \(error.localizedDescription)")
@@ -33,6 +31,5 @@ class TaskListViewModel: ObservableObject {
             }
         }
         print("loading tasks")
-
     }
 }

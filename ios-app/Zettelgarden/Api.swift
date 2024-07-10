@@ -206,7 +206,7 @@ func fetchFiles(token: String, completion: @escaping (Result<[File], Error>) -> 
 func fetchTasks(
     token: String,
     searchTerm: String = "",
-    completion: @escaping (Result<[Task], Error>) -> Void
+    completion: @escaping (Result<[ZTask], Error>) -> Void
 ) {
 
     guard let url = URL(string: baseUrl + "/tasks") else {
