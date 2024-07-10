@@ -217,3 +217,36 @@ func fetchTasks(
 
     performRequest(with: url, token: token, completion: completion)
 }
+
+func updateTask(
+    token: String,
+    task: ZTask,
+    completion: @escaping (Result<GenericResponse, Error>) -> Void
+) {
+    var urlString = "\(baseUrl)/tasks/\(task.id)"
+
+    guard let url = URL(string: urlString) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+
+    do {
+        let encoder = JSONEncoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+
+        let requestData = try encoder.encode(task)
+        performRequest(
+            with: url,
+            token: token,
+            httpMethod: "PUT",
+            requestBody: requestData,
+            completion: completion
+        )
+    }
+    catch {
+        completion(.failure(NetworkError.decodingError(error)))
+    }
+}

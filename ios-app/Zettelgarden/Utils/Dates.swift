@@ -8,11 +8,9 @@
 import Foundation
 
 func isToday(maybeDate: Date?) -> Bool {
-    print(maybeDate)
     if let date = maybeDate {
         let calendar = Calendar.current
         let result = calendar.isDateInToday(date)
-        print(result, date)
         return calendar.isDateInToday(date)
     }
     else {

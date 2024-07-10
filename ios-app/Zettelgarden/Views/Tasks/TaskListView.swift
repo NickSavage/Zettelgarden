@@ -14,7 +14,7 @@ struct TaskListView: View {
         if let tasks = taskListViewModel.todayTasks {
             List {
                 ForEach(tasks) { task in
-                    TaskListItemView(task: task)
+                    TaskListItemView(taskListViewModel: taskListViewModel,inputTask: task)
                 }
             }
         }
