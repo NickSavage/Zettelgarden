@@ -11,11 +11,15 @@ struct TaskListView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
 
     var body: some View {
-        if let tasks = taskListViewModel.todayTasks {
+        if let tasks = taskListViewModel.tasks {
             List {
-                ForEach(tasks) { task in
-                    TaskListItemView(taskListViewModel: taskListViewModel,inputTask: task)
+                ForEach(tasks.filter { !$0.is_complete && isToday(maybeDate: $0.scheduled_date) }) {
+                    task in
+                    TaskListItemView(taskListViewModel: taskListViewModel, inputTask: task)
                 }
+            }
+            .refreshable {
+                taskListViewModel.loadTasks()
             }
         }
     }

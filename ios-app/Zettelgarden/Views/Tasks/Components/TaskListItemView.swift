@@ -1,35 +1,25 @@
-//
-//  TaskListItemView.swift
-//  Zettelgarden
-//
-//  Created by Nicholas Savage on 2024-07-09.
-//
-
 import SwiftUI
 
 struct TaskListItemView: View {
     @AppStorage("jwt") private var token: String?
-    @ObservedObject private var taskViewModel = TaskViewModel()
     @ObservedObject var taskListViewModel: TaskListViewModel
+    @StateObject private var taskViewModel = TaskViewModel()
 
     let inputTask: ZTask
 
     var body: some View {
         VStack {
-
             if let task = taskViewModel.task {
-
                 HStack {
                     Button(action: {
                         taskViewModel.completeTask()
                     }) {
-                        Text("[ ]")
+                        Text(task.is_complete ? "[x]" : "[ ]")
                     }
                     VStack {
                         Text(task.title)
                         // if let date = task.scheduled_date {
-                        //     //Text(formatDate(date: date))
-                        //     Text(date)
+                        //     Text(formatDate(date: date))
                         // }
                         // else {
                         //     Text("No Date")  // Or any default text
@@ -39,10 +29,19 @@ struct TaskListItemView: View {
                     Text("asd")
                 }
             }
-        }.onAppear {
+        }
+        .onAppear {
             taskViewModel.setTask(task: inputTask)
             taskViewModel.setListViewModel(taskListViewModel: taskListViewModel)
         }
+        .onChange(of: inputTask) { newTask in
+            taskViewModel.setTask(task: newTask)
+        }
+    }
+
+    private func formatDate(date: String) -> String {
+        // Add your date formatting logic here
+        return date
     }
 }
 

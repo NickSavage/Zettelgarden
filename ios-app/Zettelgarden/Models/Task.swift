@@ -1,6 +1,6 @@
 import Foundation
 
-struct ZTask: Identifiable, Decodable, Encodable {
+struct ZTask: Identifiable, Decodable, Encodable, Equatable {
     var id: Int
     var card_pk: Int
     var user_id: Int

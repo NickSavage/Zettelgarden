@@ -49,7 +49,7 @@ func performRequest<T: Decodable>(
 
         // Print the raw data as a string
         if let rawDataString = String(data: data, encoding: .utf8) {
-            print("Raw data: \(rawDataString)")
+            //print("Raw data: \(rawDataString)")
         }
         else {
             print("Unable to convert data to string")
@@ -63,7 +63,7 @@ func performRequest<T: Decodable>(
             decoder.dateDecodingStrategy = .formatted(dateFormatter)
 
             let results = try decoder.decode(T.self, from: data)
-            print(data)
+            //print(data)
             completion(.success(results))
         }
         catch let decodeError {
