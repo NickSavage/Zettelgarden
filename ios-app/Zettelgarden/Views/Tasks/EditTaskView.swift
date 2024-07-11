@@ -8,37 +8,51 @@
 import SwiftUI
 
 struct EditTaskView: View {
-    @ObservedObject var taskViewModel: TaskViewModel
-    @State private var title: String = ""
-    @State private var scheduledDate: Date = Date()
+    @Binding var task: ZTask
+    @AppStorage("jwt") private var token: String?
+
+    var onSave: () -> Void
 
     var body: some View {
         VStack {
-            if let task = taskViewModel.task {
-                Form {
-                    Section(header: Text("Add Task")) {
-                        TextField("Title", text: $title)
-                        DatePicker(
-                            "Scheduled Date",
-                            selection: $scheduledDate,
-                            displayedComponents: [.date]
-                        )
-                    }
-
+            Form {
+                Section(header: Text("Add Task")) {
+                    TextField("Title", text: $task.title)
+                    DatePicker(
+                        "Scheduled Date",
+                        selection: Binding<Date>(
+                            get: { task.scheduled_date ?? Date() },  // Provide a default Date() or handle nil case
+                            set: { newValue in task.scheduled_date = newValue }
+                        ),
+                        displayedComponents: [.date]
+                    )
                 }
-                Button(action: {
-                    taskViewModel.saveTask()
-                }) {
-                    Text("Save")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
-                .padding()
 
             }
+            Button(action: {
+                guard let token = token else {
+                    print("Token is missing")
+                    return
+                }
+                updateTask(token: token, task: task) { result in
+                    switch result {
+                    case .success(_):
+                        print("success!")
+                        onSave()
+                    case .failure(let error):
+                        print("Failed to save new card: \(error)")
+                    }
+                }
+            }) {
+                Text("Save")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
+            .padding()
+
         }
     }
 

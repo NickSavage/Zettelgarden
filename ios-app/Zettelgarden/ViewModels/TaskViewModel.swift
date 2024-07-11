@@ -47,7 +47,7 @@ class TaskViewModel: ObservableObject {
         }
     }
 
-    func updateTask() {
+    func handleUpdateTask() {
         guard let token = token else {
             print("Token is missing")
             return

@@ -8,6 +8,10 @@ struct TaskListItemView: View {
     @State private var showingEditTaskView = false
     let inputTask: ZTask
 
+    func handleSaveTask() {
+        showingEditTaskView.toggle()
+    }
+
     var body: some View {
         VStack {
             if let task = taskViewModel.task {
@@ -54,7 +58,15 @@ struct TaskListItemView: View {
             taskViewModel.setTask(task: newTask)
         }
         .sheet(isPresented: $showingEditTaskView) {
-            EditTaskView(taskViewModel: taskViewModel)
+            if var task = taskViewModel.task {
+                EditTaskView(
+                    task: Binding(
+                        get: { task },
+                        set: { newValue in task = newValue }
+                    ),
+                    onSave: handleSaveTask
+                )
+            }
         }
     }
 
