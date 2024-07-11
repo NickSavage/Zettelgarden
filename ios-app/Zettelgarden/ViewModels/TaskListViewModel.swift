@@ -4,8 +4,6 @@ import SwiftUI
 
 class TaskListViewModel: ObservableObject {
     @Published var tasks: [ZTask]?
-    @Published var openTasks: [ZTask]?
-    @Published var todayOpenTasks: [ZTask]?
     @Published var isLoading: Bool = true
     @Published var dateFilter: TaskDisplayOptions = .today
 
@@ -15,8 +13,12 @@ class TaskListViewModel: ObservableObject {
         let tasks = self.tasks ?? []
         if self.dateFilter == .today {
             return tasks.filter { !$0.is_complete && isToday(maybeDate: $0.scheduled_date) }
-        } else if self.dateFilter == .all {
+        }
+        else if self.dateFilter == .all {
             return tasks.filter { !$0.is_complete }
+        }
+        else if self.dateFilter == .closedToday {
+            return tasks.filter { $0.is_complete && isToday(maybeDate: $0.completed_at) }
         }
         else {
             return tasks

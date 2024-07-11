@@ -43,6 +43,7 @@ struct TaskListView: View {
 enum TaskDisplayOptions: Int, CaseIterable, Identifiable {
     case today = 1
     case all = 2
+    case closedToday = 3
 
     var id: Int { self.rawValue }
     var title: String {
@@ -51,6 +52,8 @@ enum TaskDisplayOptions: Int, CaseIterable, Identifiable {
             return "Today"
         case .all:
             return "All"
+        case .closedToday:
+            return "Closed Today"
         }
     }
 }
