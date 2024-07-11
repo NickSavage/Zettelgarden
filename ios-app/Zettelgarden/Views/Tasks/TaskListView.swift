@@ -1,10 +1,3 @@
-//
-//  TaskListView.swift
-//  Zettelgarden
-//
-//  Created by Nicholas Savage on 2024-07-09.
-//
-
 import SwiftUI
 
 struct TaskListView: View {
@@ -13,12 +6,9 @@ struct TaskListView: View {
 
     var body: some View {
         VStack {
-            if let tasks = taskListViewModel.tasks {
+            if !taskListViewModel.filteredTasks.isEmpty {
                 List {
-                    ForEach(
-                        tasks.filter { !$0.is_complete && isToday(maybeDate: $0.scheduled_date) }
-                    ) {
-                        task in
+                    ForEach(taskListViewModel.filteredTasks) { task in
                         TaskListItemView(taskListViewModel: taskListViewModel, inputTask: task)
                     }
                 }
@@ -26,19 +16,41 @@ struct TaskListView: View {
                     taskListViewModel.loadTasks()
                 }
             }
+            else {
+                Text("No tasks available.")
+            }
         }
         .sheet(isPresented: $showingAddTaskView) {
             AddTaskView(taskListViewModel: taskListViewModel)
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItemGroup(placement: .navigationBarLeading) {
                 Button(action: {
                     showingAddTaskView.toggle()
                 }) {
                     Text("Add Task")
                 }
+                Picker("Filter", selection: $taskListViewModel.dateFilter) {
+                    ForEach(TaskDisplayOptions.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
             }
         }
+    }
+}
 
+enum TaskDisplayOptions: Int, CaseIterable, Identifiable {
+    case today = 1
+    case all = 2
+
+    var id: Int { self.rawValue }
+    var title: String {
+        switch self {
+        case .today:
+            return "Today"
+        case .all:
+            return "All"
+        }
     }
 }

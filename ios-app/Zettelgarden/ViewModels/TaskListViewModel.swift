@@ -7,9 +7,21 @@ class TaskListViewModel: ObservableObject {
     @Published var openTasks: [ZTask]?
     @Published var todayOpenTasks: [ZTask]?
     @Published var isLoading: Bool = true
+    @Published var dateFilter: TaskDisplayOptions = .today
 
     @AppStorage("jwt") private var token: String?
 
+    var filteredTasks: [ZTask] {
+        let tasks = self.tasks ?? []
+        if self.dateFilter == .today {
+            return tasks.filter { !$0.is_complete && isToday(maybeDate: $0.scheduled_date) }
+        } else if self.dateFilter == .all {
+            return tasks.filter { !$0.is_complete }
+        }
+        else {
+            return tasks
+        }
+    }
     func loadTasks() {
         guard let token = token else {
             print("Token is missing")
@@ -25,7 +37,7 @@ class TaskListViewModel: ObservableObject {
                         print("Task: \(task)")
                         print("Is Today: \(isToday(maybeDate: task.scheduled_date))")
                     }
-                    
+
                 case .failure(let error):
                     print(error)
                     print("Unable to load tasks: \(error.localizedDescription)")
