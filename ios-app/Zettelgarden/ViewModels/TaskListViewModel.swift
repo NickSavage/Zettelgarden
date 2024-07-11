@@ -12,7 +12,7 @@ class TaskListViewModel: ObservableObject {
     var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
         if self.dateFilter == .today {
-            return tasks.filter { !$0.is_complete && isToday(maybeDate: $0.scheduled_date) }
+            return tasks.filter { !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date) }
         }
         else if self.dateFilter == .all {
             return tasks.filter { !$0.is_complete }
