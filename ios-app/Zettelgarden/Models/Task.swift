@@ -11,7 +11,7 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
     var scheduled_date: Date?
     var created_at: Date
     var updated_at: Date
-    var completed_at: String?
+    var completed_at: Date?
     var title: String
     var is_complete: Bool
     var is_deleted: Bool
@@ -36,25 +36,21 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         user_id = try container.decode(Int.self, forKey: .user_id)
         created_at = try container.decode(Date.self, forKey: .created_at)
         updated_at = try container.decode(Date.self, forKey: .updated_at)
-        completed_at = try container.decodeIfPresent(String.self, forKey: .completed_at)
         title = try container.decode(String.self, forKey: .title)
         is_complete = try container.decode(Bool.self, forKey: .is_complete)
         is_deleted = try container.decode(Bool.self, forKey: .is_deleted)
 
-        // Decode scheduled_date, handle null values
         let scheduledDateString = try container.decodeIfPresent(
             String.self,
             forKey: .scheduled_date
         )
-        if let dateString = scheduledDateString {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-            scheduled_date = dateFormatter.date(from: dateString)
-        }
-        else {
-            scheduled_date = nil
-        }
+        scheduled_date = parseDate(input: scheduledDateString)
+        let completedAtString = try container.decodeIfPresent(
+            String.self,
+            forKey: .completed_at
+        )
+        completed_at = parseDate(input: completedAtString)
+        // Decode scheduled_date, handle null values
     }
 
     init(
@@ -64,7 +60,7 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         scheduled_date: Date?,
         created_at: Date,
         updated_at: Date,
-        completed_at: String? = nil,
+        completed_at: Date?,
         title: String,
         is_complete: Bool,
         is_deleted: Bool
@@ -91,6 +87,7 @@ extension ZTask {
             scheduled_date: Date(),
             created_at: Date(),
             updated_at: Date(),
+            completed_at: nil,
             title: "This is a task",
             is_complete: false,
             is_deleted: false
@@ -102,6 +99,7 @@ extension ZTask {
             scheduled_date: Date(),
             created_at: Date(),
             updated_at: Date(),
+            completed_at: nil,
             title: "This is another task",
             is_complete: false,
             is_deleted: false

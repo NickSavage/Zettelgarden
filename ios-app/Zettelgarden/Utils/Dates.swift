@@ -32,3 +32,25 @@ func isToday(maybeDate: Date?) -> Bool {
         && todayComponents.month == dateComponents.month
         && todayComponents.day == dateComponents.day
 }
+
+func parseDate(input: String?) -> Date? {
+    guard let dateString = input else { return nil }
+
+    let isoDateFormatter = DateFormatter()
+    isoDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    isoDateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+    let alternativeDateFormatter = DateFormatter()
+    alternativeDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+    alternativeDateFormatter.timeZone = TimeZone.current
+
+    if let date = isoDateFormatter.date(from: dateString) {
+        return date
+    }
+    else if let date = alternativeDateFormatter.date(from: dateString) {
+        return date
+    }
+    else {
+        return nil
+    }
+}
