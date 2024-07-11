@@ -5,6 +5,7 @@ struct TaskListItemView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
     @StateObject private var taskViewModel = TaskViewModel()
 
+    @State private var showingEditTaskView = false
     let inputTask: ZTask
 
     var body: some View {
@@ -16,14 +17,29 @@ struct TaskListItemView: View {
                     }) {
                         Text(task.is_complete ? "[x]" : "[ ]")
                     }
-                    VStack {
-                        Text(task.title)
-                        // if let date = task.scheduled_date {
-                        //     Text(formatDate(date: date))
-                        // }
-                        // else {
-                        //     Text("No Date")  // Or any default text
-                        // }
+                    VStack(alignment: .leading) {
+                        Button(action: {
+                            showingEditTaskView.toggle()
+
+                        }) {
+                            Text(task.title)
+                        }
+                        HStack {
+                            if let date = task.scheduled_date {
+                                if isToday(maybeDate: date) {
+                                    Text("Today")
+                                        .font(.caption)
+                                        .foregroundColor(.green)
+                                }
+                                else {
+                                    Text(date, style: .date).font(.caption)
+                                }
+                            }
+                            else {
+                                Text("No Date").font(.caption)
+                            }
+
+                        }
                     }
                     Spacer()
                     Text("asd")
@@ -37,12 +53,11 @@ struct TaskListItemView: View {
         .onChange(of: inputTask) { newTask in
             taskViewModel.setTask(task: newTask)
         }
+        .sheet(isPresented: $showingEditTaskView) {
+            EditTaskView(taskViewModel: taskViewModel)
+        }
     }
 
-    private func formatDate(date: String) -> String {
-        // Add your date formatting logic here
-        return date
-    }
 }
 
 struct TaskListItem_Previews: PreviewProvider {

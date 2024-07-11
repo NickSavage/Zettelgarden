@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @ObservedObject var cardViewModel: CardViewModel
-    @StateObject private var recentModel = PartialCardViewModel()
+    @StateObject private var partialCardViewModel = PartialCardViewModel()
     @StateObject private var taskListViewModel = TaskListViewModel()
     var body: some View {
         VStack {

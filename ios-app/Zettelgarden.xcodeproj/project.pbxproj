@@ -30,6 +30,7 @@
 		01759F1E2C3E958100918E10 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1D2C3E958100918E10 /* TaskViewModel.swift */; };
 		01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
+		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
 		01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888062BF6C72E00B3ACF1 /* SearchView.swift */; };
 		01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
 		01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
@@ -94,6 +95,7 @@
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
 		01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericResponse.swift; sourceTree = "<group>"; };
 		01759F212C3F38CF00918E10 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
+		01759F232C3F666C00918E10 /* EditTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTaskView.swift; sourceTree = "<group>"; };
 		01B888062BF6C72E00B3ACF1 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				0100FCCB2C3D374D006FACAE /* Components */,
 				01759F182C3E092D00918E10 /* TaskListView.swift */,
 				01759F212C3F38CF00918E10 /* AddTaskView.swift */,
+				01759F232C3F666C00918E10 /* EditTaskView.swift */,
 			);
 			path = Tasks;
 			sourceTree = "<group>";
@@ -434,6 +437,7 @@
 				0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */,
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
+				01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */,
 				01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */,
 				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,
 				01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */,

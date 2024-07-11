@@ -29,14 +29,11 @@ class TaskViewModel: ObservableObject {
             return
         }
         if var editedTask = task {
-            print(editedTask)
             editedTask.is_complete = true
-            print(editedTask)
             updateTask(token: token, task: editedTask) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let response):
-                        print(response)
                         if let viewModel = self.taskListViewModel {
                             viewModel.loadTasks()
                         }
@@ -48,5 +45,30 @@ class TaskViewModel: ObservableObject {
 
             }
         }
+    }
+
+    func updateTask() {
+        guard let token = token else {
+            print("Token is missing")
+            return
+        }
+        if var editedTask = task {
+            editedTask.is_complete = true
+            updateTask(token: token, task: editedTask) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let response):
+                        if let viewModel = self.taskListViewModel {
+                            viewModel.loadTasks()
+                        }
+                    case .failure(let error):
+                        print(error)
+                    }
+                    self.isLoading = false
+                }
+
+            }
+        }
+
     }
 }

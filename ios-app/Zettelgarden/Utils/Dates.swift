@@ -7,9 +7,18 @@
 
 import Foundation
 
+func formatDate(input: Date) -> String {
+    if isToday(maybeDate: input) {
+        return "Today"
+    }
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "YYYY-MM-dd"
+    let result = dateFormatter.string(from: input)
+    return result
+}
+
 func isToday(maybeDate: Date?) -> Bool {
     guard let date = maybeDate else {
-        print("nope")
         return false
     }
 
@@ -19,7 +28,6 @@ func isToday(maybeDate: Date?) -> Bool {
     let todayComponents = calendar.dateComponents([.year, .month, .day], from: today)
     let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
 
-    print(todayComponents, dateComponents)
     return todayComponents.year == dateComponents.year
         && todayComponents.month == dateComponents.month
         && todayComponents.day == dateComponents.day
