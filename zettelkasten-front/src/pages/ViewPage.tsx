@@ -94,12 +94,20 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
     setShowCreateTaskWindow(!showCreateTaskWindow);
   }
 
-  useEffect(() => {
-    setError("");
-    fetchCard(id!);
+  // For initial fetch and when id changes
+useEffect(() => {
+  setError("");
+  fetchCard(id!);
+  fetchTasksForCard(id!);
+}, [id]);
+
+// For refreshing tasks
+useEffect(() => {
+  if (refresh) {
     fetchTasksForCard(id!);
     setRefresh(false);
-  }, [id, refresh]);
+  }
+}, [refresh, id]);
   return (
     <div>
       {error && (
@@ -164,7 +172,7 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
             <TaskListItem
               cards={cards}
               task={task}
-              setRefresh={(refresh: boolean) => {}}
+              setRefresh={setRefresh}
             />
           ))}
 
