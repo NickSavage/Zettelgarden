@@ -57,3 +57,10 @@ type Task struct {
 	IsDeleted     bool        `json:"is_deleted"`
 	Card          PartialCard `json:"card"`
 }
+
+type RecurringTask struct {
+	TaskID    int
+	Frequency string
+	Interval  int
+	DayOfWeek int
+}

@@ -7,6 +7,7 @@ import {
   getTomorrow,
   getYesterday,
   isPast,
+  isRecurringTask,
 } from "src/utils/dates";
 import { saveExistingTask } from "src/api/tasks";
 
@@ -99,6 +100,10 @@ export function TaskDateDisplay({
         style={{ color: getDisplayColor() }}
       >
         {displayText}
+        {isRecurringTask(task) && <>
+          <span> - </span>
+          <span className="task-recurring">Recurring</span>
+        </>}
       </div>
       <div>
         {displayDatePicker && (
@@ -109,6 +114,8 @@ export function TaskDateDisplay({
             onChange={handleScheduledDateChange}
           />
         )}
+      </div>
+      <div>
       </div>
     </div>
   );

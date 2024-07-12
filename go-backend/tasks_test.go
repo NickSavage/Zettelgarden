@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strconv"
 	"testing"
 	"time"
@@ -286,5 +287,98 @@ func TestDeleteTaskSuccess(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestParseRecurringTasks(t *testing.T) {
+	setup()
+	defer teardown()
+
+	testCases := []struct {
+		name     string
+		input    string
+		expected models.RecurringTask
+		found    bool
+	}{
+		{
+			name:     "every day",
+			input:    "hello world every day",
+			expected: models.RecurringTask{Frequency: "daily", Interval: 1},
+			found:    true,
+		},
+		{
+			name:     "daily",
+			input:    "hello world daily",
+			expected: models.RecurringTask{Frequency: "daily", Interval: 1},
+			found:    true,
+		},
+		{
+			name:     "every 3 days",
+			input:    "hello world every 3 days",
+			expected: models.RecurringTask{Frequency: "daily", Interval: 3},
+			found:    true,
+		},
+		{
+			name:     "no recurring task",
+			input:    "hello world",
+			expected: models.RecurringTask{},
+			found:    false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output, found := parseRecurringTasks(tc.input)
+			if found != tc.found {
+				t.Errorf("expected found to be %v, but got %v", tc.found, found)
+			}
+			if !reflect.DeepEqual(output, tc.expected) {
+				t.Errorf("expected %+v, but got %+v", tc.expected, output)
+			}
+		})
+	}
+}
+func TestUpdateTaskCompleteRecurringTask(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var taskCount int
+	_ = s.db.QueryRow("SELECT count(*) FROM tasks").Scan(&taskCount)
+	if taskCount <= 0 {
+		t.Errorf("wrong task count, got %v", taskCount)
+	}
+
+	token, _ := generateTestJWT(1)
+
+	rr := makeCardRequestSuccess(t, 1)
+	var task models.Task
+	parseJsonResponse(t, rr.Body.Bytes(), &task)
+
+	if task.IsComplete {
+		t.Errorf("something is wrong, task already complete")
+	}
+	task.IsComplete = true
+	task.Title = task.Title + " every 2 days"
+	jsonData, _ := json.Marshal(task)
+
+	req, err := http.NewRequest("PUT", "/api/tasks/1", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr = httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute))
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var newTaskCount int
+	_ = s.db.QueryRow("SELECT count(*) FROM tasks").Scan(&newTaskCount)
+	if taskCount+1 != newTaskCount {
+		t.Errorf("wrong task count, got %v want %v", taskCount+1, newTaskCount)
 	}
 }

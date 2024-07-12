@@ -1,3 +1,5 @@
+import { Task } from "src/models/Task";
+
 export function getToday(): Date {
   let result = new Date();
   return result;
@@ -55,4 +57,20 @@ export function isPast(date: Date | null): boolean {
 
   return inputDate < today;
 
+}
+
+export function isRecurringTask(task: Task): boolean {
+  const recurringPatterns = [
+    /every day/i,
+    /daily/i,
+    /every \d+ days?/i,
+    /weekly/i,
+    /every (monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i,
+    /monthly/i,
+    /yearly/i,
+    /annually/i
+    // Add more patterns as needed
+  ];
+
+  return recurringPatterns.some(pattern => pattern.test(task.title));
 }

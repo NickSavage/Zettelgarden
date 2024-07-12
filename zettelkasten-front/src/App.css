@@ -489,3 +489,8 @@ h1 {
 .task-date {
   font-size: small;
 }
+
+.task-recurring {
+  font-size: small;
+  color: #007bff;
+}

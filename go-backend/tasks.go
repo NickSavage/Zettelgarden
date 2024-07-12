@@ -6,7 +6,9 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -131,9 +133,13 @@ func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
 	}
 
 	var completedAt *time.Time
-	if task.IsComplete {
+	if task.IsComplete && !oldTask.IsComplete {
 		now := time.Now()
 		completedAt = &now
+		err = checkRecurringTasks(task)
+		if err != nil {
+			log.Printf("err %v", err)
+		}
 	} else if oldTask.IsComplete {
 		completedAt = oldTask.CompletedAt
 	} else {
@@ -264,4 +270,66 @@ func (s *Server) DeleteTaskRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func parseRecurringTasks(title string) (models.RecurringTask, bool) {
+	patterns := []struct {
+		regex       *regexp.Regexp
+		frequency   string
+		getInterval func([]string) int
+	}{
+		{
+			regex:       regexp.MustCompile(`(?i)every day|daily`),
+			frequency:   "daily",
+			getInterval: func([]string) int { return 1 },
+		},
+		{
+			regex:     regexp.MustCompile(`(?i)every (\d+) days?`),
+			frequency: "daily",
+			getInterval: func(matches []string) int {
+				interval, _ := strconv.Atoi(matches[1])
+				return interval
+			},
+		},
+	}
+
+	lowercaseTitle := strings.ToLower(title)
+
+	for _, pattern := range patterns {
+		matches := pattern.regex.FindStringSubmatch(lowercaseTitle)
+		if matches != nil {
+			return models.RecurringTask{
+				Frequency: pattern.frequency,
+				Interval:  pattern.getInterval(matches),
+			}, true
+		}
+	}
+
+	return models.RecurringTask{}, false
+}
+
+func checkRecurringTasks(task models.Task) error {
+	recurringTask, found := parseRecurringTasks(task.Title)
+	if !found {
+		return nil
+	}
+	var scheduledDate time.Time
+	now := time.Now()
+	scheduledDate = now.AddDate(0, 0, recurringTask.Interval)
+
+	newTask := models.Task{
+		CardPK:        task.CardPK,
+		UserID:        task.UserID,
+		ScheduledDate: &scheduledDate,
+		DueDate:       &scheduledDate,
+		CompletedAt:   nil,
+		Title:         task.Title,
+		IsComplete:    false,
+	}
+	_, err := s.CreateTask(newTask)
+	if err != nil {
+		return err
+	}
+	return nil
+
 }
