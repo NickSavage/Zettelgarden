@@ -12,8 +12,8 @@ struct PartialCard: Identifiable, Codable, Equatable {
     var card_id: String
     var user_id: Int
     var title: String
-    var created_at: Date?
-    var updated_at: Date?
+    var created_at: Date
+    var updated_at: Date
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -35,12 +35,12 @@ struct PartialCard: Identifiable, Codable, Equatable {
             String.self,
             forKey: .created_at
         )
-        created_at = parseDate(input: createdAtString)
+        created_at = parseDate(input: createdAtString) ?? Date()
         let updatedAtString = try container.decodeIfPresent(
             String.self,
             forKey: .updated_at
         )
-        updated_at = parseDate(input: updatedAtString)
+        updated_at = parseDate(input: updatedAtString) ?? Date()
     }
 
     init(

@@ -35,17 +35,12 @@ class TaskListViewModel: ObservableObject {
                 switch result {
                 case .success(let fetchedTasks):
                     self.tasks = fetchedTasks
-                    for task in fetchedTasks {
-                        print("Task: \(task)")
-                        print("Is Today: \(isToday(maybeDate: task.scheduled_date))")
-                    }
 
                 case .failure(let error):
                     print(error)
                     print("Unable to load tasks: \(error.localizedDescription)")
                 }
                 self.isLoading = false
-                print("done")
             }
         }
         print("loading tasks")
