@@ -68,6 +68,7 @@ func parseDate(input: String?) -> Date? {
         return date
     }
     else {
+        print("error")
         return nil
     }
 }

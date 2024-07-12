@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct PartialCard: Identifiable, Codable {
+struct PartialCard: Identifiable, Codable, Equatable {
     var id: Int
     var card_id: String
     var user_id: Int
     var title: String
     var created_at: Date?
     var updated_at: Date?
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case card_id
@@ -31,8 +31,6 @@ struct PartialCard: Identifiable, Codable {
         card_id = try container.decode(String.self, forKey: .card_id)
         user_id = try container.decode(Int.self, forKey: .user_id)
         title = try container.decode(String.self, forKey: .title)
-        created_at = try container.decode(Date.self, forKey: .created_at)
-        updated_at = try container.decode(Date.self, forKey: .updated_at)
         let createdAtString = try container.decodeIfPresent(
             String.self,
             forKey: .created_at
