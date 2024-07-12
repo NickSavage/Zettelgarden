@@ -27,3 +27,32 @@ export function compareDates(date1: Date | null, date2: Date | null): boolean {
     date1.getFullYear() === date2.getFullYear()
   );
 }
+
+export function isTodayOrPast(date: Date | null): boolean {
+  if (date === null) {
+    return false;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to the start of the day
+
+  const inputDate = new Date(date);
+  inputDate.setHours(0, 0, 0, 0); // Set to the start of the day
+
+  return inputDate <= today;
+}
+
+export function isPast(date: Date | null): boolean {
+  if (date === null) {
+    return false;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to the start of the day
+
+  const inputDate = new Date(date);
+  inputDate.setHours(0, 0, 0, 0); // Set to the start of the day
+
+  return inputDate < today;
+
+}

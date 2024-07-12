@@ -4,7 +4,7 @@ import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { PartialCard } from "src/models/Card";
-import { compareDates, getToday, getTomorrow } from "src/utils/dates";
+import { compareDates, getTomorrow, isTodayOrPast } from "src/utils/dates";
 
 interface TaskListProps {
   cards: PartialCard[];
@@ -31,7 +31,7 @@ export function TaskList({ cards }: TaskListProps) {
       }
     }
     if (filterDate === "today") {
-      if (compareDates(task.scheduled_date, getToday())) {
+      if (isTodayOrPast(task.scheduled_date)) {
         return true;
       } else {
         return false;

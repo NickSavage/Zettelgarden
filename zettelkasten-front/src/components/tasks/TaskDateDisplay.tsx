@@ -6,6 +6,7 @@ import {
   getToday,
   getTomorrow,
   getYesterday,
+  isPast,
 } from "src/utils/dates";
 import { saveExistingTask } from "src/api/tasks";
 
@@ -49,6 +50,9 @@ export function TaskDateDisplay({
   }
 
   const getDisplayColor = () => {
+    if (isPast(task.scheduled_date)) {
+      return "red"
+    }
     switch (displayText) {
       case "Today":
         return "green";
