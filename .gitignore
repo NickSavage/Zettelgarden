@@ -31,3 +31,5 @@ __pycache__/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+ios-app/Zettelgarden.xcodeproj/project.xcworkspace/xcuserdata/nick.xcuserdatad/UserInterfaceState.xcuserstate

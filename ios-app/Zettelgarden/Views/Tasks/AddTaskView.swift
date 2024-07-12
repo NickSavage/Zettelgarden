@@ -47,7 +47,8 @@ struct AddTaskView: View {
             completed_at: nil,
             title: title,
             is_complete: false,
-            is_deleted: false
+            is_deleted: false,
+            card: nil
         )
         taskListViewModel.createNewTask(newTask: newTask)
         taskListViewModel.loadTasks()  // Assuming this refreshes the tasks list

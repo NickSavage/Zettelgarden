@@ -60,6 +60,7 @@ class PartialCardViewModel: ObservableObject {
                 switch result {
                 case .success(let fetchedCards):
                     self.cards = fetchedCards
+                    print("loaded")
                 case .failure(let error):
                     print("Unable to load card: \(error.localizedDescription)")
                 }

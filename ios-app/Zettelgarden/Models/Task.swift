@@ -15,6 +15,7 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
     var title: String
     var is_complete: Bool
     var is_deleted: Bool
+    var card: PartialCard?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -27,6 +28,7 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         case title
         case is_complete
         case is_deleted
+        case card
     }
 
     init(from decoder: Decoder) throws {
@@ -50,7 +52,7 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
             forKey: .completed_at
         )
         completed_at = parseDate(input: completedAtString)
-        // Decode scheduled_date, handle null values
+        card = try container.decodeIfPresent(PartialCard.self, forKey: .card)
     }
 
     init(
@@ -63,7 +65,8 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         completed_at: Date?,
         title: String,
         is_complete: Bool,
-        is_deleted: Bool
+        is_deleted: Bool,
+        card: PartialCard?
     ) {
         self.id = id
         self.card_pk = card_pk
@@ -75,6 +78,7 @@ struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         self.title = title
         self.is_complete = is_complete
         self.is_deleted = is_deleted
+        self.card = card
     }
 }
 
@@ -90,7 +94,15 @@ extension ZTask {
             completed_at: nil,
             title: "This is a task",
             is_complete: false,
-            is_deleted: false
+            is_deleted: false,
+            card: PartialCard(
+                id: 1,
+                card_id: "1",
+                user_id: 1,
+                title: "this is a card",
+                created_at: Date(),
+                updated_at: Date()
+            )
         ),
         ZTask(
             id: 2,
@@ -102,7 +114,15 @@ extension ZTask {
             completed_at: nil,
             title: "This is another task",
             is_complete: false,
-            is_deleted: false
+            is_deleted: false,
+            card: PartialCard(
+                id: 1,
+                card_id: "1",
+                user_id: 1,
+                title: "this is a card",
+                created_at: Date(),
+                updated_at: Date()
+            )
         ),
     ]
 }

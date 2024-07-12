@@ -12,7 +12,7 @@ class TaskListViewModel: ObservableObject {
     var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
         if self.dateFilter == .today {
-            return tasks.filter { !$0.is_complete && isToday(maybeDate: $0.scheduled_date) }
+            return tasks.filter { !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date) }
         }
         else if self.dateFilter == .all {
             return tasks.filter { !$0.is_complete }
@@ -35,17 +35,12 @@ class TaskListViewModel: ObservableObject {
                 switch result {
                 case .success(let fetchedTasks):
                     self.tasks = fetchedTasks
-                    for task in fetchedTasks {
-                        print("Task: \(task)")
-                        print("Is Today: \(isToday(maybeDate: task.scheduled_date))")
-                    }
 
                 case .failure(let error):
                     print(error)
                     print("Unable to load tasks: \(error.localizedDescription)")
                 }
                 self.isLoading = false
-                print("done")
             }
         }
         print("loading tasks")
