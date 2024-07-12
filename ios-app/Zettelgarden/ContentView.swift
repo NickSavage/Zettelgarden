@@ -59,7 +59,7 @@ struct ContentView: View {
         }
         .onAppear {
             partialViewModel.displayOnlyTopLevel = true
-            //     partialViewModel.loadCards()
+            partialViewModel.loadCards()
 
         }
     }

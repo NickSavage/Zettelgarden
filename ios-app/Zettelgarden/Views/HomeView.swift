@@ -18,7 +18,6 @@ struct HomeView: View {
         }
         .onAppear {
             taskListViewModel.loadTasks()
-            partialCardViewModel.loadCards()
         }
         //     NavigationStack {
         //         Text("recent Cards").bold()
