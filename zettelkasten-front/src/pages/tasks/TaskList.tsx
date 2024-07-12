@@ -4,7 +4,7 @@ import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { PartialCard } from "src/models/Card";
-import { compareDates, getTomorrow, isTodayOrPast } from "src/utils/dates";
+import { compareDates, getToday, getTomorrow, isTodayOrPast } from "src/utils/dates";
 
 interface TaskListProps {
   cards: PartialCard[];
@@ -23,6 +23,21 @@ export function TaskList({ cards }: TaskListProps) {
     setFilterStatus(e.target.value);
   }
   function filterTasks(task: Task): boolean {
+    if (filterDate === "closedToday") {
+      console.log("?")
+      if (compareDates(task.completed_at, getToday()) && task.is_complete) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    if (filterDate === "allClosed") {
+      if (task.is_complete) {
+        return true
+      } else {
+        return false
+      }
+    }
     if (filterStatus === "all") {
       return true;
     } else {
@@ -44,6 +59,7 @@ export function TaskList({ cards }: TaskListProps) {
         return false;
       }
     }
+
     return !task.is_complete;
   }
   async function setAllTasks() {
@@ -65,11 +81,9 @@ export function TaskList({ cards }: TaskListProps) {
         <select value={filterDate} onChange={handleDateChange}>
           <option value="today">Today</option>
           <option value="tomorrow">Tomorrow</option>
+          <option value="closedToday">Closed Today</option>
           <option value="all">All</option>
-        </select>
-        <select value={filterStatus} onChange={handleStatusChange}>
-          <option value="open">Open</option>
-          <option value="all">All</option>
+          <option value="allClosed">All Closed</option>
         </select>
       </div>
       <div>
