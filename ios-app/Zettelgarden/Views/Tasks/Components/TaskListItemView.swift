@@ -46,7 +46,18 @@ struct TaskListItemView: View {
                         }
                     }
                     Spacer()
-                    Text("asd")
+                    if let card = task.card {
+                        if card.id == 0 {
+                            Text("")
+                        }
+                        else {
+                            Text("[\(card.card_id)]")
+                                .bold()
+                                .foregroundColor(.blue)
+
+                        }
+
+                    }
                 }
             }
         }
