@@ -48,6 +48,8 @@ export function TaskDateDisplay({
     } else {
       setTask(editedTask);
     }
+    setDisplayDatePicker(false);
+    setSelectedDate("");
   }
 
   const getDisplayColor = () => {
