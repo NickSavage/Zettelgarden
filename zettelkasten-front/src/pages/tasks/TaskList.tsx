@@ -40,13 +40,13 @@ export function TaskList({ cards }: TaskListProps) {
       }
     }
     if (filterDate === "all") {
-      return true;
-    } else {
       if (task.is_complete) {
-        return false;
+        return false
+      } else {
+        return true;
       }
-    }
-    if (filterDate === "today") {
+    }  
+       if (filterDate === "today") {
       if (isTodayOrPast(task.scheduled_date)) {
         return true;
       } else {
