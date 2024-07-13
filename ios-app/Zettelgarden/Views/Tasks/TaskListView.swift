@@ -42,18 +42,24 @@ struct TaskListView: View {
 
 enum TaskDisplayOptions: Int, CaseIterable, Identifiable {
     case today = 1
-    case all = 2
+    case tomorrow = 2
     case closedToday = 3
+    case all = 4
+    case closedAll = 5
 
     var id: Int { self.rawValue }
     var title: String {
         switch self {
         case .today:
             return "Today"
-        case .all:
-            return "All"
+        case .tomorrow:
+            return "Tomorrow"
         case .closedToday:
             return "Closed Today"
+        case .all:
+            return "All"
+        case .closedAll:
+            return "Closed All"
         }
     }
 }

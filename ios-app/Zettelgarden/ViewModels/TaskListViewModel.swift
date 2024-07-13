@@ -14,11 +14,17 @@ class TaskListViewModel: ObservableObject {
         if self.dateFilter == .today {
             return tasks.filter { !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date) }
         }
+        else if self.dateFilter == .tomorrow {
+            return tasks.filter { !$0.is_complete && isTomorrow(maybeDate: $0.scheduled_date) }
+        }
         else if self.dateFilter == .all {
             return tasks.filter { !$0.is_complete }
         }
         else if self.dateFilter == .closedToday {
             return tasks.filter { $0.is_complete && isToday(maybeDate: $0.completed_at) }
+        }
+        else if self.dateFilter == .closedAll {
+            return tasks.filter { $0.is_complete }
         }
         else {
             return tasks

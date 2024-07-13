@@ -50,6 +50,15 @@ func isToday(maybeDate: Date?) -> Bool {
         && todayComponents.day == dateComponents.day
 }
 
+func isTomorrow(maybeDate: Date?) -> Bool {
+    guard let date = maybeDate else {
+        return false
+    }
+    let calendar = Calendar.current
+    let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date())!
+    return calendar.isDate(date, inSameDayAs: tomorrow)
+}
+
 func parseDate(input: String?) -> Date? {
     guard let dateString = input else { return nil }
 
@@ -70,5 +79,23 @@ func parseDate(input: String?) -> Date? {
     else {
         print("error")
         return nil
+    }
+}
+
+func isRecurringTask(task: ZTask) -> Bool {
+    let recurringPatterns = [
+        "every day",
+        "daily",
+        "every \\d+ days?",
+        "weekly",
+        "every (monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
+        "monthly",
+        "yearly",
+        "annually",
+        // Add more patterns as needed
+    ]
+
+    return recurringPatterns.contains { pattern in
+        task.title.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil
     }
 }

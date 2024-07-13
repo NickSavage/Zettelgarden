@@ -42,6 +42,11 @@ struct TaskListItemView: View {
                             else {
                                 Text("No Date").font(.caption)
                             }
+                            if isRecurringTask(task: task) {
+                                Text("Recurring")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                            }
 
                         }
                     }
