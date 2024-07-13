@@ -8,7 +8,7 @@
 import Foundation
 
 enum ContentViewSelection {
-    case home
+    case tasks
     case card
     case files
     case search

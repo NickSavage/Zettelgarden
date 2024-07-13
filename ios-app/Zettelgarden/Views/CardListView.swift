@@ -77,7 +77,7 @@ struct CardList_Previews: PreviewProvider {
     struct CardListViewWrapper: View {
         @State private var isMenuOpen = true
         @State private var selectedCard: Int? = 1
-        @State private var selection: ContentViewSelection = .home
+        @State private var selection: ContentViewSelection = .tasks
         @ObservedObject var cardViewModel = CardViewModel()
         @StateObject var viewModel = PartialCardViewModel()
 

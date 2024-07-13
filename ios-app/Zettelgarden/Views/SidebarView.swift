@@ -28,6 +28,15 @@ struct SidebarView: View {
                     HStack {
                         Spacer()
                         Button(action: {
+                            selection = .tasks
+                            withAnimation {
+                                isMenuOpen = false
+                            }
+                        }) {
+                            Image(systemName: "list.bullet.clipboard")
+                        }
+                        Spacer()
+                        Button(action: {
                             selection = .files
                             withAnimation {
                                 isMenuOpen = false
@@ -82,7 +91,7 @@ struct SidebarView_Previews: PreviewProvider {
 
     struct SidebarViewWrapper: View {
         @State private var isMenuOpen = true
-        @State private var selection: ContentViewSelection = .home
+        @State private var selection: ContentViewSelection = .tasks
         @ObservedObject var cardViewModel = CardViewModel()
         @ObservedObject var partialViewModel = PartialCardViewModel()
 

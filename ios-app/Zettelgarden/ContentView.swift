@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var isMenuOpen: Bool = false
-    @State var selection: ContentViewSelection = .home
+    @State var selection: ContentViewSelection = .tasks
     @StateObject var cardViewModel = CardViewModel()
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var partialViewModel = PartialCardViewModel()
@@ -17,7 +17,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                if selection == .home {
+                if selection == .tasks {
                     HomeView(cardViewModel: cardViewModel)
                 }
                 else if selection == .card {
