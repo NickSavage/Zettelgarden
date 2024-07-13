@@ -47,14 +47,14 @@ export function TaskList({ cards }: TaskListProps) {
       }
     }  
        if (filterDate === "today") {
-      if (isTodayOrPast(task.scheduled_date)) {
+      if (!task.is_complete && isTodayOrPast(task.scheduled_date)) {
         return true;
       } else {
         return false;
       }
     }
     if (filterDate === "tomorrow") {
-      if (compareDates(task.scheduled_date, getTomorrow())) {
+      if (!task.is_complete && compareDates(task.scheduled_date, getTomorrow())) {
         return true;
       } else {
         return false;
