@@ -17,15 +17,11 @@ interface TaskListProps {
 
 export function TaskList({ cards }: TaskListProps) {
   const [filterDate, setFilterDate] = useState<string>("today");
-  const [filterStatus, setFilterStatus] = useState<string>("open");
   const [refresh, setRefresh] = useState<boolean>(true);
   const [tasks, setTasks] = useState<Task[] | null>([]);
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
     setFilterDate(e.target.value);
-  }
-  function handleStatusChange(e: ChangeEvent<HTMLSelectElement>) {
-    setFilterStatus(e.target.value);
   }
   function filterTasks(task: Task): boolean {
     if (filterDate === "closedToday") {
@@ -43,7 +39,7 @@ export function TaskList({ cards }: TaskListProps) {
         return false;
       }
     }
-    if (filterStatus === "all") {
+    if (filterDate === "all") {
       return true;
     } else {
       if (task.is_complete) {
