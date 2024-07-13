@@ -1,5 +1,5 @@
 import React, { useState, KeyboardEvent } from "react";
-import { saveExistingTask } from "src/api/tasks";
+import { deleteTask, saveExistingTask } from "src/api/tasks";
 
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Task } from "src/models/Task";
@@ -17,6 +17,7 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
+  const [showMenu, setShowMenu] = useState<boolean>(false);
 
   async function handleTitleClick() {
     setNewTitle(task.title);
@@ -52,6 +53,14 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
     if (!("error" in response)) {
       setRefresh(true);
     }
+  }
+  function toggleMenu() {
+    setShowMenu(!showMenu);
+  }
+  async function handleDelete() {
+    let _ = await deleteTask(task.id);
+    setRefresh(true);
+    setShowMenu(false);
   }
   return (
     <div className="task-list-item">
@@ -109,6 +118,17 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
               )}
             </div>
           ))}
+      </div>
+      <div className="task-list-item-menu">
+        <button onClick={toggleMenu} className="menu-button">
+          ⋮
+        </button>
+        {showMenu && (
+          <div className="popup-menu">
+            <button onClick={() => handleDelete()}>Delete</button>
+            {/* Add more menu options here */}
+          </div>
+        )}
       </div>
     </div>
   );

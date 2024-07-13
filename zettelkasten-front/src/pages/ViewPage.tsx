@@ -95,19 +95,19 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   }
 
   // For initial fetch and when id changes
-useEffect(() => {
-  setError("");
-  fetchCard(id!);
-  fetchTasksForCard(id!);
-}, [id]);
-
-// For refreshing tasks
-useEffect(() => {
-  if (refresh) {
+  useEffect(() => {
+    setError("");
+    fetchCard(id!);
     fetchTasksForCard(id!);
-    setRefresh(false);
-  }
-}, [refresh, id]);
+  }, [id]);
+
+  // For refreshing tasks
+  useEffect(() => {
+    if (refresh) {
+      fetchTasksForCard(id!);
+      setRefresh(false);
+    }
+  }, [refresh, id]);
   return (
     <div>
       {error && (
@@ -169,11 +169,7 @@ useEffect(() => {
             />
           )}
           {tasks.map((task, index) => (
-            <TaskListItem
-              cards={cards}
-              task={task}
-              setRefresh={setRefresh}
-            />
+            <TaskListItem cards={cards} task={task} setRefresh={setRefresh} />
           ))}
 
           <h4>References:</h4>

@@ -4,7 +4,12 @@ import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { PartialCard } from "src/models/Card";
-import { compareDates, getToday, getTomorrow, isTodayOrPast } from "src/utils/dates";
+import {
+  compareDates,
+  getToday,
+  getTomorrow,
+  isTodayOrPast,
+} from "src/utils/dates";
 
 interface TaskListProps {
   cards: PartialCard[];
@@ -24,7 +29,7 @@ export function TaskList({ cards }: TaskListProps) {
   }
   function filterTasks(task: Task): boolean {
     if (filterDate === "closedToday") {
-      console.log("?")
+      console.log("?");
       if (compareDates(task.completed_at, getToday()) && task.is_complete) {
         return true;
       } else {
@@ -33,9 +38,9 @@ export function TaskList({ cards }: TaskListProps) {
     }
     if (filterDate === "allClosed") {
       if (task.is_complete) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     }
     if (filterStatus === "all") {

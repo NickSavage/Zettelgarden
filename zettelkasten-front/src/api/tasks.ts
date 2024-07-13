@@ -85,7 +85,7 @@ export function saveTask(
 
 export function deleteTask(id: number): Promise<Task | null> {
   let encodedId = encodeURIComponent(id);
-  const url = `${base_url}/cards/${encodedId}`;
+  const url = `${base_url}/tasks/${encodedId}`;
 
   let token = localStorage.getItem("token");
 

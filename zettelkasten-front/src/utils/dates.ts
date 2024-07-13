@@ -56,7 +56,6 @@ export function isPast(date: Date | null): boolean {
   inputDate.setHours(0, 0, 0, 0); // Set to the start of the day
 
   return inputDate < today;
-
 }
 
 export function isRecurringTask(task: Task): boolean {
@@ -68,9 +67,9 @@ export function isRecurringTask(task: Task): boolean {
     /every (monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i,
     /monthly/i,
     /yearly/i,
-    /annually/i
+    /annually/i,
     // Add more patterns as needed
   ];
 
-  return recurringPatterns.some(pattern => pattern.test(task.title));
+  return recurringPatterns.some((pattern) => pattern.test(task.title));
 }

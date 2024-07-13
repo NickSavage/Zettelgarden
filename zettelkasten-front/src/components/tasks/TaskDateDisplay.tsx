@@ -52,7 +52,7 @@ export function TaskDateDisplay({
 
   const getDisplayColor = () => {
     if (isPast(task.scheduled_date)) {
-      return "red"
+      return "red";
     }
     switch (displayText) {
       case "Today":
@@ -100,10 +100,12 @@ export function TaskDateDisplay({
         style={{ color: getDisplayColor() }}
       >
         {displayText}
-        {isRecurringTask(task) && <>
-          <span> - </span>
-          <span className="task-recurring">Recurring</span>
-        </>}
+        {isRecurringTask(task) && (
+          <>
+            <span> - </span>
+            <span className="task-recurring">Recurring</span>
+          </>
+        )}
       </div>
       <div>
         {displayDatePicker && (
@@ -115,8 +117,7 @@ export function TaskDateDisplay({
           />
         )}
       </div>
-      <div>
-      </div>
+      <div></div>
     </div>
   );
 }
