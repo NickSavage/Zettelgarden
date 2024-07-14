@@ -1,6 +1,7 @@
 import Foundation
 
-var baseUrl = "https://zettelgarden.com/api"
+//var baseUrl = "https://zettelgarden.com/api"
+var baseUrl = "https://nicksavage.ca/zettel-dev/api"
 //vvar baseUrl = "http://192.168.0.72:5000/api"
 
 struct Wrapper: Codable {

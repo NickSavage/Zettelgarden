@@ -36,7 +36,6 @@ struct TaskListItemView: View {
                                     Text(date, style: .date)
                                         .font(.caption)
                                         .foregroundColor(.red)
-
                                 }
                                 else {
                                     Text(date, style: .date).font(.caption)
@@ -53,6 +52,8 @@ struct TaskListItemView: View {
 
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.001))  // Nearly transparent background
                     .onLongPressGesture(minimumDuration: 0.5) {
                         let impactMed = UIImpactFeedbackGenerator(style: .medium)
                         impactMed.impactOccurred()
