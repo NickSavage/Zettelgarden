@@ -22,12 +22,7 @@ struct TaskListItemView: View {
                         Text(task.is_complete ? "[x]" : "[ ]")
                     }
                     VStack(alignment: .leading) {
-                        Button(action: {
-                            showingEditTaskView.toggle()
-
-                        }) {
-                            Text(task.title)
-                        }
+                        Text(task.title)
                         HStack {
                             if let date = task.scheduled_date {
                                 if isToday(maybeDate: date) {
@@ -63,6 +58,12 @@ struct TaskListItemView: View {
                         }
 
                     }
+                }
+                .contentShape(Rectangle())
+                .onLongPressGesture(minimumDuration: 0.5) {
+                    let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                    impactMed.impactOccurred()
+                    showingEditTaskView.toggle()
                 }
             }
         }
