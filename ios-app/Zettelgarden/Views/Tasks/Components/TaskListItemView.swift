@@ -59,7 +59,6 @@ struct TaskListItemView: View {
 
                     }
                 }
-                .contentShape(Rectangle())
                 .onLongPressGesture(minimumDuration: 0.5) {
                     let impactMed = UIImpactFeedbackGenerator(style: .medium)
                     impactMed.impactOccurred()
