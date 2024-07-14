@@ -33,7 +33,7 @@ class TaskViewModel: ObservableObject {
             updateTask(token: token, task: editedTask) { result in
                 DispatchQueue.main.async {
                     switch result {
-                    case .success(let response):
+                    case .success(_):
                         if let viewModel = self.taskListViewModel {
                             viewModel.loadTasks()
                         }
@@ -57,7 +57,7 @@ class TaskViewModel: ObservableObject {
             updateTask(token: token, task: editedTask) { result in
                 DispatchQueue.main.async {
                     switch result {
-                    case .success(let response):
+                    case .success(_):
                         if let viewModel = self.taskListViewModel {
                             viewModel.loadTasks()
                         }

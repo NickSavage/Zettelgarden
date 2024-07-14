@@ -39,7 +39,7 @@ func performRequest<T: Decodable>(
                 userInfo: [NSLocalizedDescriptionKey: "Unexpected response"]
             )
             print(statusError)
-            print(response)
+            //print(response)
             completion(.failure(statusError))
             return
         }

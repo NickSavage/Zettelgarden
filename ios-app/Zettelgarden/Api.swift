@@ -223,7 +223,7 @@ func updateTask(
     task: ZTask,
     completion: @escaping (Result<GenericResponse, Error>) -> Void
 ) {
-    var urlString = "\(baseUrl)/tasks/\(task.id)"
+    let urlString = "\(baseUrl)/tasks/\(task.id)"
 
     guard let url = URL(string: urlString) else {
         completion(.failure(NetworkError.invalidURL))
@@ -256,7 +256,7 @@ func createTask(
     task: ZTask,
     completion: @escaping (Result<CreateTaskResponse, Error>) -> Void
 ) {
-    var urlString = "\(baseUrl)/tasks"
+    let urlString = "\(baseUrl)/tasks"
 
     guard let url = URL(string: urlString) else {
         completion(.failure(NetworkError.invalidURL))
