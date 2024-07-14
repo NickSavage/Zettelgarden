@@ -12,6 +12,11 @@ struct SettingsView: View {
     @AppStorage("jwt") private var jwt: String?
 
     var body: some View {
+        Form {
+            Section(header: Text("Environment")) {
+                EnvironmentSelectorView()
+            }
+        }
         Button(action: {
             SwiftUI.Task {
                 doLogout()
