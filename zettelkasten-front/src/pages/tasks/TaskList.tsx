@@ -1,9 +1,9 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { Task } from "src/models/Task";
-import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { PartialCard } from "src/models/Card";
+import { useTaskContext } from "src/TaskContext";
 import {
   compareDates,
   getToday,
@@ -16,9 +16,9 @@ interface TaskListProps {
 }
 
 export function TaskList({ cards }: TaskListProps) {
+  const { tasks, setRefreshTasks } = useTaskContext();
   const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
-  const [tasks, setTasks] = useState<Task[] | null>([]);
   const [showTaskWindow, setShowTaskWindow] = useState<boolean>(false);
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
@@ -64,21 +64,12 @@ export function TaskList({ cards }: TaskListProps) {
 
     return !task.is_complete;
   }
-  async function setAllTasks() {
-    if (!refresh) {
-      return;
-    }
-    await fetchTasks().then((data) => {
-      setTasks(data);
-      setRefresh(false);
-    });
-  }
   function toggleShowTaskWindow() {
     setShowTaskWindow(!showTaskWindow)
   }
   useEffect(() => {
     document.title = "Zettelgarden - Tasks";
-    setAllTasks();
+ //   setAllTasks();
   }, [refresh]);
   return (
     <div>
@@ -97,7 +88,7 @@ export function TaskList({ cards }: TaskListProps) {
         <CreateTaskWindow
           currentCard={null}
           cards={cards}
-          setRefresh={setRefresh}
+          setRefresh={setRefreshTasks}
           setShowTaskWindow={setShowTaskWindow}
         />)}
       </div>
@@ -107,7 +98,7 @@ export function TaskList({ cards }: TaskListProps) {
           .sort((a, b) => a.id - b.id)
           .map((task, index) => (
             <li key={index}>
-              <TaskListItem cards={cards} task={task} setRefresh={setRefresh} />
+              <TaskListItem cards={cards} task={task} setRefresh={setRefreshTasks} />
             </li>
           ))}
       </ul>

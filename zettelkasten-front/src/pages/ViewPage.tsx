@@ -5,16 +5,15 @@ import { CardList } from "../components/CardList";
 import { FileListItem } from "../components/FileListItem";
 import { BacklinkInput } from "../components/BacklinkInput";
 import { getCard, saveExistingCard } from "../api/cards";
-import { fetchTasks } from "src/api/tasks";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import { Card, PartialCard } from "../models/Card";
 import { File } from "../models/File";
-import { Task } from "src/models/Task";
 import { isErrorResponse } from "../models/common";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
+import { useTaskContext } from "src/TaskContext";
 
 interface ViewPageProps {
   cards: PartialCard[];
@@ -25,11 +24,15 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, setRefreshTasks } = useTaskContext();
   const [showCreateTaskWindow, setShowCreateTaskWindow] =
     useState<boolean>(false);
-  const [refresh, setRefresh] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
+  const cardId = id ? parseInt(id, 10) : null;
+  const cardTasks = cardId 
+    ? tasks.filter((task) => task.card_pk === cardId)
+    : [];
+
   const navigate = useNavigate();
 
   function onFileDelete(file_id: number) {}
@@ -84,12 +87,6 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
     }
   }
 
-  async function fetchTasksForCard(id: string) {
-    fetchTasks().then((data) => {
-      setTasks(data.filter((task: Task) => task.card_pk === parseInt(id, 10)));
-    });
-  }
-
   function toggleCreateTaskWindow() {
     setShowCreateTaskWindow(!showCreateTaskWindow);
   }
@@ -98,16 +95,9 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
   useEffect(() => {
     setError("");
     fetchCard(id!);
-    fetchTasksForCard(id!);
-  }, [id]);
+    setRefreshTasks(true);
+  }, [id, setRefreshTasks]);
 
-  // For refreshing tasks
-  useEffect(() => {
-    if (refresh) {
-      fetchTasksForCard(id!);
-      setRefresh(false);
-    }
-  }, [refresh, id]);
   return (
     <div>
       {error && (
@@ -165,12 +155,12 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
             <CreateTaskWindow
               currentCard={viewingCard}
               cards={cards}
-              setRefresh={setRefresh}
+              setRefresh={setRefreshTasks}
               setShowTaskWindow={setShowCreateTaskWindow}
             />
           )}
-          {tasks.map((task, index) => (
-            <TaskListItem cards={cards} task={task} setRefresh={setRefresh} />
+          {cardTasks.map((task, index) => (
+            <TaskListItem cards={cards} task={task} setRefresh={setRefreshTasks} />
           ))}
 
           <h4>References:</h4>

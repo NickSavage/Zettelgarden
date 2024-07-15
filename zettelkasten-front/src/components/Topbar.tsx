@@ -66,7 +66,7 @@ export function Topbar({
     <div className="top-bar">
       <div className="top-bar-left">
         <a href="#" onClick={handleIndexClick} className="top-bar-index">
-          <h1>Zettelkasten</h1>
+          <h1>Zettelgarden</h1>
         </a>
       </div>
       <div className="top-bar-right">

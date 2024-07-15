@@ -20,8 +20,9 @@ import { DashboardPage } from "./DashboardPage";
 import { User } from "../models/User";
 import { Card, PartialCard } from "../models/Card";
 import { TaskList } from "./tasks/TaskList";
+import { TaskProvider, useTaskContext } from "src/TaskContext";
 
-function MainApp() {
+function MainAppContent() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [cards, setCards] = useState<PartialCard[]>([]);
@@ -32,6 +33,7 @@ function MainApp() {
   const [searchCards, setSearchCards] = useState<Card[]>([]);
   const { isAuthenticated, isLoading, logoutUser } = useAuth();
   const [isActive, setIsActive] = useState(false);
+  const { setRefreshTasks } = useTaskContext();
 
   // changing pages
 
@@ -61,12 +63,18 @@ function MainApp() {
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
+  useEffect(() => {
+    setRefreshTasks(true);
+
+  },[])
+
   console.log([isLoading, isActive]);
   if (!isLoading && !isActive) {
     return <SubscriptionPage />;
   }
   return (
     <div>
+
       <Topbar
       cards={cards}
         handleNewCard={handleNewCard}
@@ -144,6 +152,15 @@ function MainApp() {
       </div>
     </div>
   );
+}
+
+function MainApp() {
+  return (
+    <TaskProvider>
+      <MainAppContent />
+    </TaskProvider>
+  );
+
 }
 
 export default MainApp;
