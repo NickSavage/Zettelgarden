@@ -68,6 +68,7 @@ function MainApp() {
   return (
     <div>
       <Topbar
+      cards={cards}
         handleNewCard={handleNewCard}
         handleViewFileVault={handleViewFileVault}
         handleViewSettings={handleViewSettings}

@@ -3,14 +3,18 @@ import { useAuth } from "../AuthContext";
 import { Link } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
+import { PartialCard } from "src/models/Card";
+import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
 
 interface TopbarProps {
+  cards: PartialCard[]
   handleNewCard: (cardType: string) => void;
   handleViewFileVault: () => void;
   handleViewSettings: () => void;
 }
 
 export function Topbar({
+  cards,
   handleNewCard,
   handleViewFileVault,
   handleViewSettings,
@@ -19,6 +23,7 @@ export function Topbar({
   const { isAdmin } = useAuth();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
+  const [showCreateTaskWindow, setShowCreateTaskWindow] = useState<boolean>(false);
   const username = localStorage.getItem("username");
 
   const navigate = useNavigate();
@@ -35,6 +40,9 @@ export function Topbar({
   }
   function handleNewReferenceCard() {
     handleNewCard("reference");
+  }
+ function handleNewTask() {
+  setShowCreateTaskWindow(true)
   }
 
   function handleOpenSearch() {
@@ -77,6 +85,9 @@ export function Topbar({
               <a href="#settings" onClick={handleNewMeetingCard}>
                 New Meeting
               </a>
+              <a href="#task" onClick={handleNewTask}>
+                New Task
+              </a>
             </div>
           )}
         </div>
@@ -102,6 +113,14 @@ export function Topbar({
           )}
         </div>
       </div>
+          {showCreateTaskWindow && (
+            <CreateTaskWindow
+              currentCard={null}
+              cards={cards}
+              setRefresh={(refresh: boolean) => {}}
+              setShowTaskWindow={setShowCreateTaskWindow}
+            />
+          )}
     </div>
   );
 }
