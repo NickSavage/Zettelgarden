@@ -6,7 +6,7 @@ import { PartialCard } from "../models/Card";
 import { Task } from "src/models/Task";
 import { fetchTasks } from "src/api/tasks";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
-import { compareDates, getToday } from "src/utils/dates";
+import { isTodayOrPast } from "src/utils/dates";
 
 export function DashboardPage() {
   const [partialCards, setPartialCards] = React.useState<PartialCard[]>([]);
@@ -49,7 +49,7 @@ export function DashboardPage() {
           {tasks &&
             tasks
               .filter((task) => !task.is_complete)
-              .filter((task) => compareDates(task.scheduled_date, getToday()))
+              .filter((task) => isTodayOrPast(task.scheduled_date))
               .slice(0, 10)
               .map((task) => (
                 <TaskListItem
