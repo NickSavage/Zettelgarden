@@ -10,12 +10,14 @@ interface CreateTaskWindowProps {
   currentCard: Card | PartialCard | null;
   cards: PartialCard[];
   setRefresh: (refresh: boolean) => void;
+  setShowTaskWindow: (showTaskWindow: boolean) => void;
 }
 
 export function CreateTaskWindow({
   currentCard,
   cards,
   setRefresh,
+  setShowTaskWindow,
 }: CreateTaskWindowProps) {
   const [newTask, setNewTask] = useState<Task>(emptyTask);
   const [selectedCard, setSelectedCard] = useState<PartialCard | null>(null);
@@ -31,6 +33,7 @@ export function CreateTaskWindow({
     response = await saveNewTask(task);
     if (!("error" in response)) {
       setRefresh(true);
+      setShowTaskWindow(false);
       setSelectedCard(null);
       let date = newTask.scheduled_date;
       setNewTask({ ...emptyTask, scheduled_date: date });
@@ -45,6 +48,8 @@ export function CreateTaskWindow({
   }
 
   return (
+    <div className="create-task-popup-overlay" onClick={() => setShowTaskWindow(false)}>
+      <div className="create-task-popup-content" onClick={e => e.stopPropagation()}>
     <div className="create-task-window">
       <div className="create-task-window-top">
         <input
@@ -81,6 +86,8 @@ export function CreateTaskWindow({
           <button onClick={handleSaveTask}>Save</button>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

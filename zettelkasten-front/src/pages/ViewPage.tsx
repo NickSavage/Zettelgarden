@@ -166,6 +166,7 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
               currentCard={viewingCard}
               cards={cards}
               setRefresh={setRefresh}
+              setShowTaskWindow={setShowCreateTaskWindow}
             />
           )}
           {tasks.map((task, index) => (

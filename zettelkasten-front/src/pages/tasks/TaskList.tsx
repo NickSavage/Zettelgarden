@@ -19,6 +19,7 @@ export function TaskList({ cards }: TaskListProps) {
   const [filterDate, setFilterDate] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
   const [tasks, setTasks] = useState<Task[] | null>([]);
+  const [showTaskWindow, setShowTaskWindow] = useState<boolean>(false);
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
     setFilterDate(e.target.value);
@@ -72,6 +73,9 @@ export function TaskList({ cards }: TaskListProps) {
       setRefresh(false);
     });
   }
+  function toggleShowTaskWindow() {
+    setShowTaskWindow(!showTaskWindow)
+  }
   useEffect(() => {
     document.title = "Zettelgarden - Tasks";
     setAllTasks();
@@ -87,12 +91,15 @@ export function TaskList({ cards }: TaskListProps) {
           <option value="allClosed">All Closed</option>
         </select>
       </div>
+      <span onClick={toggleShowTaskWindow}>Add Task</span>
       <div>
+        {showTaskWindow && (
         <CreateTaskWindow
           currentCard={null}
           cards={cards}
           setRefresh={setRefresh}
-        />
+          setShowTaskWindow={setShowTaskWindow}
+        />)}
       </div>
       <ul>
         {tasks
