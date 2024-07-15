@@ -112,7 +112,6 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
         {!task.card ||
           (task.card.id == 0 && (
             <div>
-              <span onClick={toggleCardLink}>Link Card</span>
               {showCardLink && (
                 <BacklinkInput cards={cards} addBacklink={handleBacklink} />
               )}
@@ -126,6 +125,7 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
         {showMenu && (
           <div className="popup-menu">
             <button onClick={() => handleDelete()}>Delete</button>
+            <button onClick={() => toggleCardLink()}>Link Card</button>
             {/* Add more menu options here */}
           </div>
         )}
