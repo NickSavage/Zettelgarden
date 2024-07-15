@@ -1,12 +1,14 @@
 import Foundation
 
-var baseUrl = "https://zettelgarden.com/api"
+//var baseUrl = "https://zettelgarden.com/api"
+//var baseUrl = "https://nicksavage.ca/zettel-dev/api"
 //vvar baseUrl = "http://192.168.0.72:5000/api"
 
 struct Wrapper: Codable {
     var access_token: String
 }
 func login(email: String, password: String) async throws -> String {
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
     let url = URL(string: baseUrl + "/login")!
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
@@ -27,6 +29,7 @@ func login(email: String, password: String) async throws -> String {
 }
 
 func fetchCard(token: String, id: Int, completion: @escaping (Result<Card, Error>) -> Void) {
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
     guard let url = URL(string: baseUrl + "/cards/" + String(id)) else {
         completion(.failure(NetworkError.invalidURL))
         return
@@ -39,6 +42,7 @@ func fetchCards(
     searchTerm: String = "",
     completion: @escaping (Result<[Card], Error>) -> Void
 ) {
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
     var urlComponents = URLComponents(string: baseUrl + "/cards?partial=true")!
 
     if !searchTerm.isEmpty {
@@ -62,6 +66,7 @@ func fetchPartialCards(
     completion: @escaping (Result<[PartialCard], Error>) -> Void
 ) {
 
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
     var urlComponents = URLComponents(string: baseUrl + "/cards")!
     var queryItems = [URLQueryItem(name: "partial", value: "true")]
 
@@ -94,6 +99,7 @@ func saveCard(
     completion: @escaping (Result<Card, Error>) -> Void
 ) {
     print("saveCard")
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
 
     var urlString: String
 
@@ -150,6 +156,7 @@ func getNextCardID(
     cardType: String,
     completion: @escaping (Result<String, Error>) -> Void
 ) {
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
     guard let url = URL(string: baseUrl + "/cards/next") else {
         completion(.failure(NetworkError.invalidURL))
         return
@@ -179,6 +186,7 @@ func fetchFile(
     originalFileName: String,
     completion: @escaping (Result<URL, Error>) -> Void
 ) {
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
     guard let url = URL(string: baseUrl + "/files/download/" + String(fileId)) else {
         completion(.failure(NetworkError.invalidURL))
         return
@@ -194,6 +202,7 @@ func fetchFile(
 
 func fetchFiles(token: String, completion: @escaping (Result<[File], Error>) -> Void) {
 
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
     guard let url = URL(string: baseUrl + "/files") else {
         completion(.failure(NetworkError.invalidURL))
         return
@@ -208,6 +217,7 @@ func fetchTasks(
     searchTerm: String = "",
     completion: @escaping (Result<[ZTask], Error>) -> Void
 ) {
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
 
     guard let url = URL(string: baseUrl + "/tasks") else {
         completion(.failure(NetworkError.invalidURL))
@@ -223,7 +233,8 @@ func updateTask(
     task: ZTask,
     completion: @escaping (Result<GenericResponse, Error>) -> Void
 ) {
-    var urlString = "\(baseUrl)/tasks/\(task.id)"
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
+    let urlString = "\(baseUrl)/tasks/\(task.id)"
 
     guard let url = URL(string: urlString) else {
         completion(.failure(NetworkError.invalidURL))
@@ -256,7 +267,8 @@ func createTask(
     task: ZTask,
     completion: @escaping (Result<CreateTaskResponse, Error>) -> Void
 ) {
-    var urlString = "\(baseUrl)/tasks"
+    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
+    let urlString = "\(baseUrl)/tasks"
 
     guard let url = URL(string: urlString) else {
         completion(.failure(NetworkError.invalidURL))

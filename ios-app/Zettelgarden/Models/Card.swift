@@ -14,14 +14,13 @@ struct Card: Identifiable, Codable {
     var user_id: Int
     var title: String
     var body: String
-    var link: String?
+    var link: String
     var created_at: Date
     var updated_at: Date
     var parent: PartialCard?
     //var card_links: [PartialCard]
     var children: [PartialCard]
     var references: [PartialCard]
-    var backlinks: [PartialCard]
     var files: [File]
 
     enum CodingKeys: String, CodingKey {
@@ -36,7 +35,6 @@ struct Card: Identifiable, Codable {
         case parent
         case children
         case references
-        case backlinks
         case files
     }
     init(from decoder: Decoder) throws {
@@ -59,10 +57,9 @@ struct Card: Identifiable, Codable {
             forKey: .updated_at
         )
         updated_at = parseDate(input: updatedAtString) ?? Date()
-        parent = try container.decodeIfPresent(PartialCard.self, forKey: .link)
+        parent = try container.decodeIfPresent(PartialCard.self, forKey: .parent)
         children = try container.decode([PartialCard].self, forKey: .children)
         references = try container.decode([PartialCard].self, forKey: .references)
-        backlinks = try container.decode([PartialCard].self, forKey: .backlinks)
         files = try container.decode([File].self, forKey: .files)
     }
     init(
@@ -71,13 +68,12 @@ struct Card: Identifiable, Codable {
         user_id: Int,
         title: String,
         body: String,
-        link: String?,
+        link: String,
         created_at: Date,
         updated_at: Date,
         parent: PartialCard?,
         children: [PartialCard],
         references: [PartialCard],
-        backlinks: [PartialCard],
         files: [File]
     ) {
         self.id = id
@@ -91,9 +87,7 @@ struct Card: Identifiable, Codable {
         self.parent = parent
         self.children = children
         self.references = references
-        self.backlinks = backlinks
         self.files = files
-
     }
 }
 
@@ -112,7 +106,6 @@ extension Card {
                 parent: nil,
                 children: [],
                 references: [],
-                backlinks: [],
                 files: []
             ),
             Card(
@@ -127,7 +120,6 @@ extension Card {
                 parent: nil,
                 children: [],
                 references: [],
-                backlinks: [],
                 files: []
             ),
         ]
@@ -145,7 +137,6 @@ extension Card {
             parent: nil,
             children: [],
             references: [],
-            backlinks: [],
             files: []
         )
     }

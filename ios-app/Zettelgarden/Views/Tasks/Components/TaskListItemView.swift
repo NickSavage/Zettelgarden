@@ -21,19 +21,21 @@ struct TaskListItemView: View {
                     }) {
                         Text(task.is_complete ? "[x]" : "[ ]")
                     }
+                    .frame(width: 40, height: 30)  // Fixed size for the button
+                    .contentShape(Rectangle())
                     VStack(alignment: .leading) {
-                        Button(action: {
-                            showingEditTaskView.toggle()
-
-                        }) {
-                            Text(task.title)
-                        }
+                        Text(task.title)
                         HStack {
                             if let date = task.scheduled_date {
                                 if isToday(maybeDate: date) {
                                     Text("Today")
                                         .font(.caption)
                                         .foregroundColor(.green)
+                                }
+                                else if !task.is_complete && isPast(maybeDate: date) {
+                                    Text(date, style: .date)
+                                        .font(.caption)
+                                        .foregroundColor(.red)
                                 }
                                 else {
                                     Text(date, style: .date).font(.caption)
@@ -49,6 +51,13 @@ struct TaskListItemView: View {
                             }
 
                         }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.001))  // Nearly transparent background
+                    .onLongPressGesture(minimumDuration: 0.5) {
+                        let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                        impactMed.impactOccurred()
+                        showingEditTaskView.toggle()
                     }
                     Spacer()
                     if let card = task.card {

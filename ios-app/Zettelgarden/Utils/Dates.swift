@@ -32,6 +32,24 @@ func isTodayOrPast(maybeDate: Date?) -> Bool {
     let targetDate = calendar.date(from: dateComponents)!
 
     return targetDate <= todayDate
+
+}
+
+func isPast(maybeDate: Date?) -> Bool {
+    guard let date = maybeDate else {
+        return false
+    }
+
+    let calendar = Calendar.current
+    let today = Date()
+
+    let todayComponents = calendar.dateComponents([.year, .month, .day], from: today)
+    let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+
+    let todayDate = calendar.date(from: todayComponents)!
+    let targetDate = calendar.date(from: dateComponents)!
+
+    return targetDate < todayDate
 }
 
 func isToday(maybeDate: Date?) -> Bool {

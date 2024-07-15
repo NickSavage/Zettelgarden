@@ -12,6 +12,8 @@
 		0111A7342BFD597300DDED68 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7332BFD597300DDED68 /* HomeView.swift */; };
 		0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7352BFD640400DDED68 /* FileViewModel.swift */; };
 		0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7372BFDF4A900DDED68 /* SidebarView.swift */; };
+		011AAA4F2C4468C000ED7BE2 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011AAA4E2C4468C000ED7BE2 /* SettingsManager.swift */; };
+		011AAA512C44691900ED7BE2 /* EnvironmentSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011AAA502C44691900ED7BE2 /* EnvironmentSelector.swift */; };
 		01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */; };
 		01201F5E2BF2BB6200DF973E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F5D2BF2BB6200DF973E /* ContentView.swift */; };
 		01201F602BF2BB6300DF973E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 01201F5F2BF2BB6300DF973E /* Assets.xcassets */; };
@@ -74,6 +76,8 @@
 		0111A7332BFD597300DDED68 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0111A7352BFD640400DDED68 /* FileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewModel.swift; sourceTree = "<group>"; };
 		0111A7372BFDF4A900DDED68 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		011AAA4E2C4468C000ED7BE2 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		011AAA502C44691900ED7BE2 /* EnvironmentSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSelector.swift; sourceTree = "<group>"; };
 		01201F582BF2BB6200DF973E /* Zettelgarden.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zettelgarden.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZettelgardenApp.swift; sourceTree = "<group>"; };
 		01201F5D2BF2BB6200DF973E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -193,6 +197,7 @@
 				01201F612BF2BB6400DF973E /* Preview Content */,
 				01ECE50E2BF422D900691C07 /* Api.swift */,
 				0144E9D62BF55DCA007D4EAD /* Utils.swift */,
+				011AAA4E2C4468C000ED7BE2 /* SettingsManager.swift */,
 			);
 			path = Zettelgarden;
 			sourceTree = "<group>";
@@ -273,6 +278,7 @@
 				01B888212BFB8FE400B3ACF1 /* FileListView.swift */,
 				0111A7332BFD597300DDED68 /* HomeView.swift */,
 				0111A7372BFDF4A900DDED68 /* SidebarView.swift */,
+				011AAA502C44691900ED7BE2 /* EnvironmentSelector.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -426,6 +432,7 @@
 				01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */,
 				01201F872BF2BBCE00DF973E /* Card.swift in Sources */,
 				0100FCCD2C3D3764006FACAE /* TaskListItemView.swift in Sources */,
+				011AAA4F2C4468C000ED7BE2 /* SettingsManager.swift in Sources */,
 				01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */,
 				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
 				01B8881A2BFB5F7D00B3ACF1 /* File.swift in Sources */,
@@ -446,6 +453,7 @@
 				01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */,
 				01759F192C3E092D00918E10 /* TaskListView.swift in Sources */,
 				01759F1C2C3E915800918E10 /* Dates.swift in Sources */,
+				011AAA512C44691900ED7BE2 /* EnvironmentSelector.swift in Sources */,
 				01E604F02C3CBC4F00717D42 /* Task.swift in Sources */,
 				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
