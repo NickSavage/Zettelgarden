@@ -16,16 +16,16 @@ interface TaskListProps {
 }
 
 export function TaskList({ cards }: TaskListProps) {
-  const [filterDate, setFilterDate] = useState<string>("today");
+  const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
   const [tasks, setTasks] = useState<Task[] | null>([]);
   const [showTaskWindow, setShowTaskWindow] = useState<boolean>(false);
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
-    setFilterDate(e.target.value);
+    setDateView(e.target.value);
   }
-  function filterTasks(task: Task): boolean {
-    if (filterDate === "closedToday") {
+  function changeDateView(task: Task): boolean {
+    if (dateView === "closedToday") {
       console.log("?");
       if (compareDates(task.completed_at, getToday()) && task.is_complete) {
         return true;
@@ -33,28 +33,28 @@ export function TaskList({ cards }: TaskListProps) {
         return false;
       }
     }
-    if (filterDate === "allClosed") {
+    if (dateView === "allClosed") {
       if (task.is_complete) {
         return true;
       } else {
         return false;
       }
     }
-    if (filterDate === "all") {
+    if (dateView === "all") {
       if (task.is_complete) {
         return false
       } else {
         return true;
       }
     }  
-       if (filterDate === "today") {
+       if (dateView === "today") {
       if (!task.is_complete && isTodayOrPast(task.scheduled_date)) {
         return true;
       } else {
         return false;
       }
     }
-    if (filterDate === "tomorrow") {
+    if (dateView === "tomorrow") {
       if (!task.is_complete && compareDates(task.scheduled_date, getTomorrow())) {
         return true;
       } else {
@@ -83,7 +83,7 @@ export function TaskList({ cards }: TaskListProps) {
   return (
     <div>
       <div>
-        <select value={filterDate} onChange={handleDateChange}>
+        <select value={dateView} onChange={handleDateChange}>
           <option value="today">Today</option>
           <option value="tomorrow">Tomorrow</option>
           <option value="closedToday">Closed Today</option>
@@ -103,7 +103,7 @@ export function TaskList({ cards }: TaskListProps) {
       </div>
       <ul>
         {tasks
-          ?.filter(filterTasks)
+          ?.filter(changeDateView)
           .sort((a, b) => a.id - b.id)
           .map((task, index) => (
             <li key={index}>
