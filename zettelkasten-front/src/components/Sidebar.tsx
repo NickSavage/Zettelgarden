@@ -4,6 +4,9 @@ import { CardItem } from "./CardItem";
 import { PartialCard } from "../models/Card";
 
 import { Link } from "react-router-dom";
+import { useTaskContext } from "src/TaskContext";
+
+import { isTodayOrPast } from "src/utils/dates";
 
 interface SidebarProps {
   cards: PartialCard[];
@@ -23,6 +26,8 @@ export function Sidebar({
   const [mainCards, setMainCards] = useState<PartialCard[]>([]);
   const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
   const [sidebarView] = useState("all");
+  const { tasks } = useTaskContext();
+  const todayTasks = tasks.filter((task) => !task.is_complete && isTodayOrPast(task.scheduled_date))
 
   function handleFilter(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -77,12 +82,13 @@ export function Sidebar({
       <div>
         <div className="sidebar-upper">
           <ul>
-            <li>
+            <li className="sidebar-nav-item">
               <Link className="sidebar-nav-link" to="/app/tasks">
                 Tasks
+                <span className="sidebar-nav-badge">{todayTasks.length}</span>
               </Link>
             </li>
-            <li>
+            <li className="sidebar-nav-item">
               <Link className="sidebar-nav-link" to="/app/search">
                 Search
               </Link>

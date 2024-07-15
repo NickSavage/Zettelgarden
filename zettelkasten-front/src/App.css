@@ -135,6 +135,31 @@ option {
   background-color: #57cc99;
 }
 
+.sidebar-nav-item {
+  position: relative;
+  list-style-type: none;
+}
+
+.sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333; /* Adjust color as needed */
+}
+
+.sidebar-nav-badge {
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.8em;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
 .content {
   flex-grow: 1; /* takes the remaining space */
   height: calc(100vh - 50px);
