@@ -1,52 +1,31 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { fetchPartialCards } from "../api/cards";
+import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
 import { CardItem } from "./CardItem";
 import { PartialCard } from "../models/Card";
-
 import { Link } from "react-router-dom";
 import { useTaskContext } from "src/contexts/TaskContext";
-
 import { isTodayOrPast } from "src/utils/dates";
+import { usePartialCardContext } from "src/contexts/CardContext";
 
-interface SidebarProps {
-  cards: PartialCard[];
-  setCards: (cards: PartialCard[]) => void;
-  refreshSidebar: boolean;
-  setRefreshSidebar: (set: boolean) => void;
-}
-
-export function Sidebar({
-  cards,
-  setCards,
-  refreshSidebar,
-  setRefreshSidebar,
-}: SidebarProps) {
+export function Sidebar() {
   const [filter, setFilter] = useState("");
-  const [isSidebarHidden] = useState(false);
-  const [mainCards, setMainCards] = useState<PartialCard[]>([]);
-  const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
-  const [sidebarView] = useState("all");
+  const { partialCards } = usePartialCardContext();
   const { tasks } = useTaskContext();
-  const todayTasks = tasks.filter((task) => !task.is_complete && isTodayOrPast(task.scheduled_date))
 
-  function handleFilter(
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) {
-    let filter = e.target.value;
-    let isIdSearch = filter.startsWith("!");
-    setFilter(filter);
+  const mainCards = useMemo(() => 
+    partialCards.filter((card) => !card.card_id.includes("/")),
+    [partialCards]
+  );
 
-    const filtered = mainCards.filter((card) => {
-      let cardId = card.card_id.toString().toLowerCase(); // Ensure card_id is treated as a string
-      let title = card.title.toLowerCase();
-
+  const filteredCards = useMemo(() => {
+    const isIdSearch = filter.startsWith("!");
+    return mainCards.filter((card) => {
+      const cardId = card.card_id.toString().toLowerCase();
+      const title = card.title.toLowerCase();
       if (isIdSearch) {
-        // Search only by card_id, remove the leading '!' and trim whitespace
         return cardId.startsWith(filter.slice(1).trim().toLowerCase());
       } else {
-        // Split filter into keywords and check each keyword in title or card_id
         return filter.split(" ").every((keyword: string) => {
-          let cleanKeyword = keyword.trim().toLowerCase();
+          const cleanKeyword = keyword.trim().toLowerCase();
           return (
             cleanKeyword === "" ||
             title.includes(cleanKeyword) ||
@@ -55,30 +34,21 @@ export function Sidebar({
         });
       }
     });
+  }, [mainCards, filter]);
 
-    setFilteredCards(filtered);
+  const todayTasks = useMemo(() => 
+    tasks.filter((task) => !task.is_complete && isTodayOrPast(task.scheduled_date)),
+    [tasks]
+  );
+
+  function handleFilter(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
+    setFilter(e.target.value);
   }
-
-  async function setAllCards() {
-    await fetchPartialCards("", "date").then((data) => {
-      setCards(data);
-      let filtered = data.filter((card) => !card.card_id.includes("/"));
-      setMainCards(filtered);
-      setFilteredCards(filtered);
-      return filtered;
-    });
-  }
-
-  useEffect(() => {
-    setAllCards();
-  }, [refreshSidebar]);
-
-  useEffect(() => {
-    setRefreshSidebar(false);
-  }, [cards, sidebarView]);
 
   return (
-    <div className={`sidebar`}>
+    <div className="sidebar">
       <div>
         <div className="sidebar-upper">
           <ul>

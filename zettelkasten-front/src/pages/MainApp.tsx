@@ -21,6 +21,7 @@ import { User } from "../models/User";
 import { Card, PartialCard } from "../models/Card";
 import { TaskList } from "./tasks/TaskList";
 import { TaskProvider, useTaskContext } from "src/contexts/TaskContext";
+import { PartialCardProvider, usePartialCardContext } from "src/contexts/CardContext";
 
 function MainAppContent() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ function MainAppContent() {
   const { isAuthenticated, isLoading, logoutUser } = useAuth();
   const [isActive, setIsActive] = useState(false);
   const { setRefreshTasks } = useTaskContext();
+  const { setRefreshPartialCards } = usePartialCardContext();
 
   // changing pages
 
@@ -65,6 +67,7 @@ function MainAppContent() {
 
   useEffect(() => {
     setRefreshTasks(true);
+    setRefreshPartialCards(true);
 
   },[])
 
@@ -83,10 +86,6 @@ function MainAppContent() {
       />
       <div className="main-content">
         <Sidebar
-          cards={cards}
-          setCards={setCards}
-          refreshSidebar={refreshSidebar}
-          setRefreshSidebar={setRefreshSidebar}
         />
         <div className="content">
           {error && (
@@ -156,11 +155,12 @@ function MainAppContent() {
 
 function MainApp() {
   return (
-    <TaskProvider>
-      <MainAppContent />
-    </TaskProvider>
+    <PartialCardProvider>
+      <TaskProvider>
+       <MainAppContent />
+      </TaskProvider>
+    </PartialCardProvider>
   );
-
 }
 
 export default MainApp;
