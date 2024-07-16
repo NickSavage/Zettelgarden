@@ -6,22 +6,16 @@ import { PartialCard } from "../models/Card";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { isTodayOrPast } from "src/utils/dates";
 import { useTaskContext } from "src/contexts/TaskContext";
+import { usePartialCardContext } from "src/contexts/CardContext";
 
 export function DashboardPage() {
-  const [partialCards, setPartialCards] = React.useState<PartialCard[]>([]);
+  const { partialCards } = usePartialCardContext();
   const [inactiveCards, setInactiveCards] = React.useState<PartialCard[]>([]);
 //  const [tasks, setTasks] = React.useState<Task[]>([]);
   const [refresh, setRefresh] = React.useState<boolean>(false);
   const { tasks, setRefreshTasks } = useTaskContext();
 
   useEffect(() => {
-    fetchPartialCards("", "date")
-      .then((response) => {
-        setPartialCards(response);
-      })
-      .catch((error) => {
-        console.error("Error fetching partial cards:", error);
-      });
     fetchPartialCards("", "", true)
       .then((response) => {
         setInactiveCards(response);
