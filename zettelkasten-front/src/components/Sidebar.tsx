@@ -4,7 +4,7 @@ import { CardItem } from "./CardItem";
 import { PartialCard } from "../models/Card";
 
 import { Link } from "react-router-dom";
-import { useTaskContext } from "src/TaskContext";
+import { useTaskContext } from "src/contexts/TaskContext";
 
 import { isTodayOrPast } from "src/utils/dates";
 

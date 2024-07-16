@@ -3,7 +3,7 @@ import { Task } from "src/models/Task";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { PartialCard } from "src/models/Card";
-import { useTaskContext } from "src/TaskContext";
+import { useTaskContext } from "src/contexts/TaskContext";
 import {
   compareDates,
   getToday,

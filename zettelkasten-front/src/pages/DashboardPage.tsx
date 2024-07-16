@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { PartialCard } from "../models/Card";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { isTodayOrPast } from "src/utils/dates";
-import { useTaskContext } from "src/TaskContext";
+import { useTaskContext } from "src/contexts/TaskContext";
 
 export function DashboardPage() {
   const [partialCards, setPartialCards] = React.useState<PartialCard[]>([]);

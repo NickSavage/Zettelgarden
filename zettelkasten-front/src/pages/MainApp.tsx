@@ -7,7 +7,7 @@ import { ViewPage } from "./ViewPage";
 import { EditPage } from "./EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import { getCurrentUser } from "../api/users";
@@ -20,7 +20,7 @@ import { DashboardPage } from "./DashboardPage";
 import { User } from "../models/User";
 import { Card, PartialCard } from "../models/Card";
 import { TaskList } from "./tasks/TaskList";
-import { TaskProvider, useTaskContext } from "src/TaskContext";
+import { TaskProvider, useTaskContext } from "src/contexts/TaskContext";
 
 function MainAppContent() {
   const navigate = useNavigate();

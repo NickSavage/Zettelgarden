@@ -1,6 +1,6 @@
 import React from "react";
 import { createCheckoutSession } from "../api/billing";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
 import { Link } from "react-router-dom";
 

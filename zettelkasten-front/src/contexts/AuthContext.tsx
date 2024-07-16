@@ -5,9 +5,9 @@ import React, {
   useContext,
   ReactNode,
 } from "react";
-import { checkAdmin } from "./api/users";
-import { getCurrentUser } from "./api/users";
-import { LoginResponse } from "./models/Auth";
+import { checkAdmin } from "../api/users";
+import { getCurrentUser } from "../api/users";
+import { LoginResponse } from "../models/Auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;

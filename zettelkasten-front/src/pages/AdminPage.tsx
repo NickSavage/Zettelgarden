@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import AdminTopBar from "../components/AdminTopBar";
 

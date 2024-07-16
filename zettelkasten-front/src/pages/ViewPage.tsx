@@ -13,7 +13,7 @@ import { File } from "../models/File";
 import { isErrorResponse } from "../models/common";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
-import { useTaskContext } from "src/TaskContext";
+import { useTaskContext } from "src/contexts/TaskContext";
 
 interface ViewPageProps {
   cards: PartialCard[];

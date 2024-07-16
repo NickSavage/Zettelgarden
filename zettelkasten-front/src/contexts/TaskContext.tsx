@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import { Task } from "./models/Task";
+import { Task } from "../models/Task";
 
-import { fetchTasks } from "./api/tasks";
+import { fetchTasks } from "../api/tasks";
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
