@@ -113,7 +113,7 @@ export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
           (task.card.id == 0 && (
             <div>
               {showCardLink && (
-                <BacklinkInput cards={cards} addBacklink={handleBacklink} />
+                <BacklinkInput addBacklink={handleBacklink} />
               )}
             </div>
           ))}

@@ -66,7 +66,7 @@ export function CreateTaskWindow({
       <div className="create-task-window-bottom">
         <div className="create-task-window-bottom-left">
           {!currentCard && (
-            <BacklinkInput cards={cards} addBacklink={handleBacklink} />
+            <BacklinkInput addBacklink={handleBacklink} />
           )}
         </div>
         <div className="crate-task-window-bottom-middle">

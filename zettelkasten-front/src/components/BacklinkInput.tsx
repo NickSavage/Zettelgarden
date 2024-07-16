@@ -3,24 +3,25 @@ import React, { useState } from "react";
 import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
 
 import { PartialCard, Card } from "../models/Card";
+import { usePartialCardContext } from "src/contexts/CardContext";
 
 interface BacklinkInputProps {
-  cards: PartialCard[];
   addBacklink: (selectedCard: PartialCard) => void;
 }
 
-export function BacklinkInput({ cards, addBacklink }: BacklinkInputProps) {
+export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
   const [topResults, setTopResults] = useState<PartialCard[]>([]);
   const [link, setLink] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const { partialCards } = usePartialCardContext();
 
   function handleLinkInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     setLink(e.target.value);
     const search = e.target.value; // assuming you want case-insensitive matching
     setSearchTerm(search);
     if (search !== "") {
-      const exactMatchCard = cards.find((card) => card.card_id === search);
-      const matchingCards = cards.filter(
+      const exactMatchCard = partialCards.find((card) => card.card_id === search);
+      const matchingCards = partialCards.filter(
         (card) =>
           card.card_id.toLowerCase().startsWith(search.toLowerCase()) ||
           card.title.toLowerCase().includes(search.toLowerCase()),

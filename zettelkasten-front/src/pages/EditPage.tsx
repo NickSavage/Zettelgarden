@@ -273,7 +273,7 @@ export function EditPage({
             placeholder="Body"
           />
           <div>
-            <BacklinkInput cards={cards} addBacklink={addBacklink} />
+            <BacklinkInput addBacklink={addBacklink} />
           </div>
 
           <label htmlFor="title">Source/URL:</label>

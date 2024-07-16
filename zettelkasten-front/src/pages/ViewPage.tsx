@@ -166,7 +166,7 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
           <h4>References:</h4>
           <CardList cards={viewingCard.references} />
           <div>
-            <BacklinkInput cards={cards} addBacklink={handleAddBacklink} />
+            <BacklinkInput addBacklink={handleAddBacklink} />
           </div>
           <button onClick={handleEditCard}>Edit</button>
           <h4>Children:</h4>
