@@ -2,9 +2,7 @@ import React, { useState, useEffect, ChangeEvent } from "react";
 import { Task } from "src/models/Task";
 import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
-import { PartialCard } from "src/models/Card";
 import { useTaskContext } from "src/contexts/TaskContext";
-import { usePartialCardContext } from "src/contexts/CardContext";
 import {
   compareDates,
   getToday,
@@ -17,7 +15,6 @@ interface TaskListProps {
 
 export function TaskList({}: TaskListProps) {
   const { tasks, setRefreshTasks } = useTaskContext();
-  const { partialCards} = usePartialCardContext();
   const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
   const [showTaskWindow, setShowTaskWindow] = useState<boolean>(false);

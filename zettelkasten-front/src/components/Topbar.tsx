@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
 import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
-import { usePartialCardContext } from "src/contexts/CardContext";
 
 interface TopbarProps {
   handleNewCard: (cardType: string) => void;
@@ -23,7 +22,6 @@ export function Topbar({
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const [showCreateTaskWindow, setShowCreateTaskWindow] = useState<boolean>(false);
   const username = localStorage.getItem("username");
-  const { partialCards} = usePartialCardContext();
 
   const navigate = useNavigate();
 
