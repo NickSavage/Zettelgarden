@@ -8,14 +8,12 @@ import { TaskDateDisplay } from "./TaskDateDisplay";
 
 interface CreateTaskWindowProps {
   currentCard: Card | PartialCard | null;
-  cards: PartialCard[];
   setRefresh: (refresh: boolean) => void;
   setShowTaskWindow: (showTaskWindow: boolean) => void;
 }
 
 export function CreateTaskWindow({
   currentCard,
-  cards,
   setRefresh,
   setShowTaskWindow,
 }: CreateTaskWindowProps) {

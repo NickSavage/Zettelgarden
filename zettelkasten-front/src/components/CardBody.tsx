@@ -15,7 +15,6 @@ interface CustomImageRendererProps {
 
 interface CardBodyProps {
   viewingCard: Card;
-  cards: PartialCard[];
 }
 
 function preprocessCardLinks(body: string): string {
@@ -60,7 +59,6 @@ const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
 
 function renderCardText(
   card: Card,
-  cards: PartialCard[],
   handleViewBacklink: (card_id: number) => void,
 ) {
   let body = card.body;
@@ -93,12 +91,12 @@ function renderCardText(
   );
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({ viewingCard, cards }) => {
+export const CardBody: React.FC<CardBodyProps> = ({ viewingCard }) => {
   const navigate = useNavigate();
 
   function handleCardClick(card_id: number) {
     navigate(`/app/card/${card_id}`);
   }
 
-  return <div>{renderCardText(viewingCard, cards, handleCardClick)}</div>;
+  return <div>{renderCardText(viewingCard, handleCardClick)}</div>;
 };

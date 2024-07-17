@@ -3,18 +3,16 @@ import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
-import { PartialCard } from "src/models/Card";
 import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
+import { usePartialCardContext } from "src/contexts/CardContext";
 
 interface TopbarProps {
-  cards: PartialCard[]
   handleNewCard: (cardType: string) => void;
   handleViewFileVault: () => void;
   handleViewSettings: () => void;
 }
 
 export function Topbar({
-  cards,
   handleNewCard,
   handleViewFileVault,
   handleViewSettings,
@@ -25,6 +23,7 @@ export function Topbar({
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const [showCreateTaskWindow, setShowCreateTaskWindow] = useState<boolean>(false);
   const username = localStorage.getItem("username");
+  const { partialCards} = usePartialCardContext();
 
   const navigate = useNavigate();
 
@@ -45,9 +44,6 @@ export function Topbar({
   setShowCreateTaskWindow(true)
   }
 
-  function handleOpenSearch() {
-    navigate("/app/search");
-  }
   // Function to toggle the dropdown
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
@@ -116,7 +112,6 @@ export function Topbar({
           {showCreateTaskWindow && (
             <CreateTaskWindow
               currentCard={null}
-              cards={cards}
               setRefresh={(refresh: boolean) => {}}
               setShowTaskWindow={setShowCreateTaskWindow}
             />

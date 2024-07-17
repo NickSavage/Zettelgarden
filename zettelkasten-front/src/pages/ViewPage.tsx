@@ -16,11 +16,10 @@ import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { useTaskContext } from "src/contexts/TaskContext";
 
 interface ViewPageProps {
-  cards: PartialCard[];
   setLastCardId: (cardId: string) => void;
 }
 
-export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
+export function ViewPage({ setLastCardId }: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
@@ -116,7 +115,7 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
           </h3>
           <hr />
           <div>
-            <CardBody viewingCard={viewingCard} cards={cards} />
+            <CardBody viewingCard={viewingCard} />
           </div>
           <div>
             {viewingCard.link && (
@@ -154,13 +153,12 @@ export function ViewPage({ cards, setLastCardId }: ViewPageProps) {
           {showCreateTaskWindow && (
             <CreateTaskWindow
               currentCard={viewingCard}
-              cards={cards}
               setRefresh={setRefreshTasks}
               setShowTaskWindow={setShowCreateTaskWindow}
             />
           )}
           {cardTasks.map((task, index) => (
-            <TaskListItem cards={cards} task={task} setRefresh={setRefreshTasks} />
+            <TaskListItem task={task} setRefresh={setRefreshTasks} />
           ))}
 
           <h4>References:</h4>

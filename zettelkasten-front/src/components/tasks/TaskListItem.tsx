@@ -8,12 +8,11 @@ import { PartialCard } from "src/models/Card";
 import { BacklinkInput } from "../BacklinkInput";
 
 interface TaskListItemProps {
-  cards: PartialCard[];
   task: Task;
   setRefresh: (refresh: boolean) => void;
 }
 
-export function TaskListItem({ cards, task, setRefresh }: TaskListItemProps) {
+export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);

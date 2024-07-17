@@ -4,6 +4,7 @@ import { TaskListItem } from "src/components/tasks/TaskListItem";
 import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
 import { PartialCard } from "src/models/Card";
 import { useTaskContext } from "src/contexts/TaskContext";
+import { usePartialCardContext } from "src/contexts/CardContext";
 import {
   compareDates,
   getToday,
@@ -12,11 +13,11 @@ import {
 } from "src/utils/dates";
 
 interface TaskListProps {
-  cards: PartialCard[];
 }
 
-export function TaskList({ cards }: TaskListProps) {
+export function TaskList({}: TaskListProps) {
   const { tasks, setRefreshTasks } = useTaskContext();
+  const { partialCards} = usePartialCardContext();
   const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
   const [showTaskWindow, setShowTaskWindow] = useState<boolean>(false);
@@ -87,7 +88,6 @@ export function TaskList({ cards }: TaskListProps) {
         {showTaskWindow && (
         <CreateTaskWindow
           currentCard={null}
-          cards={cards}
           setRefresh={setRefreshTasks}
           setShowTaskWindow={setShowTaskWindow}
         />)}
@@ -98,7 +98,7 @@ export function TaskList({ cards }: TaskListProps) {
           .sort((a, b) => a.id - b.id)
           .map((task, index) => (
             <li key={index}>
-              <TaskListItem cards={cards} task={task} setRefresh={setRefreshTasks} />
+              <TaskListItem task={task} setRefresh={setRefreshTasks} />
             </li>
           ))}
       </ul>

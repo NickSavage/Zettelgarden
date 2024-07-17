@@ -26,7 +26,6 @@ import { PartialCardProvider, usePartialCardContext } from "src/contexts/CardCon
 function MainAppContent() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [cards, setCards] = useState<PartialCard[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [lastCardId, setLastCardId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,7 +77,6 @@ function MainAppContent() {
     <div>
 
       <Topbar
-      cards={cards}
         handleNewCard={handleNewCard}
         handleViewFileVault={handleViewFileVault}
         handleViewSettings={handleViewSettings}
@@ -108,7 +106,7 @@ function MainAppContent() {
             />
             <Route
               path="card/:id"
-              element={<ViewPage cards={cards} setLastCardId={setLastCardId} />}
+              element={<ViewPage setLastCardId={setLastCardId} />}
             />
             <Route
               path="card/:id/edit"
@@ -139,7 +137,7 @@ function MainAppContent() {
               element={<BillingCancelled />}
             />
             <Route path="files" element={<FileVault />} />
-            <Route path="tasks" element={<TaskList cards={cards} />} />
+            <Route path="tasks" element={<TaskList />} />
             <Route path="*" element={<DashboardPage />} />
           </Routes>
         </div>

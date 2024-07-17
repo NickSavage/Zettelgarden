@@ -56,7 +56,7 @@ export function CardPreviewWindow({
             <span>: {card.title}</span>
           </h3>
           <div>
-            <CardBody viewingCard={viewingCard} cards={[]} />
+            <CardBody viewingCard={viewingCard} />
           </div>
         </div>
       )}

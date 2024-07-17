@@ -39,7 +39,6 @@ export function DashboardPage() {
               .slice(0, 10)
               .map((task) => (
                 <TaskListItem
-                  cards={partialCards}
                   task={task}
                   setRefresh={setRefreshTasks}
                 />
