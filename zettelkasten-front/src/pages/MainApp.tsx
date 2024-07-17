@@ -29,7 +29,6 @@ function MainAppContent() {
   const [cards, setCards] = useState<PartialCard[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [lastCardId, setLastCardId] = useState("");
-  const [refreshSidebar, setRefreshSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
   const { isAuthenticated, isLoading, logoutUser } = useAuth();
@@ -115,9 +114,7 @@ function MainAppContent() {
               path="card/:id/edit"
               element={
                 <EditPage
-                  cards={cards}
                   newCard={false}
-                  setRefreshSidebar={setRefreshSidebar}
                   lastCardId={lastCardId}
                 />
               }
@@ -127,9 +124,7 @@ function MainAppContent() {
               path="card/new"
               element={
                 <EditPage
-                  cards={cards}
                   newCard={true}
-                  setRefreshSidebar={setRefreshSidebar}
                   lastCardId={lastCardId}
                 />
               }

@@ -13,11 +13,10 @@ import { BacklinkInput } from "../components/BacklinkInput";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Card, PartialCard, defaultCard } from "../models/Card";
 import { File } from "../models/File";
+import { usePartialCardContext } from "src/contexts/CardContext";
 
 interface EditPageProps {
-  cards: PartialCard[];
   newCard: boolean;
-  setRefreshSidebar: (refreshSidebar: boolean) => void;
   lastCardId: string;
 }
 
@@ -34,15 +33,14 @@ function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
 }
 
 export function EditPage({
-  cards,
   newCard,
-  setRefreshSidebar,
   lastCardId,
 }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
   const [fileIds, setFileIds] = useState<string[]>([]);
+  const { partialCards, setRefreshPartialCards} = usePartialCardContext();
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -77,7 +75,7 @@ export function EditPage({
     } else {
       setError("Unable to save card, something has gone wrong.");
     }
-    setRefreshSidebar(true);
+    setRefreshPartialCards(true);
   }
 
   async function prefillNextId(): Promise<string> {
@@ -128,7 +126,7 @@ export function EditPage({
       )
     ) {
       deleteCard(editingCard.id)
-        .then(() => setRefreshSidebar(true))
+        .then(() => setRefreshPartialCards(true))
         .catch((error) =>
           setMessage(
             "Unable to delete card. Does it have backlinks, children or files?",
@@ -247,7 +245,7 @@ export function EditPage({
               placeholder="ID"
               style={{ display: "block", marginBottom: "10px" }}
             />
-            {newCard && renderWarningLabel(cards, editingCard)}
+            {newCard && renderWarningLabel(partialCards, editingCard)}
           </div>
           <label htmlFor="title">Title:</label>
           <input
