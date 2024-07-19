@@ -53,7 +53,7 @@ export function TaskDateDisplay({
   }
 
   const getDisplayColor = () => {
-    if (isPast(task.scheduled_date)) {
+    if (!task.is_complete && isPast(task.scheduled_date)) {
       return "red";
     }
     switch (displayText) {
