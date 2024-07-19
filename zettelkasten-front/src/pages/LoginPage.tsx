@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { login } from "../api/auth";
 
@@ -24,9 +24,16 @@ function LoginForm() {
     }
   };
 
+  useEffect(() => {
+
+    console.log("Asdas")
+  console.log(import.meta.env.VITE_URL)
+
+  }, [])
+
   return (
     <div className="login-container">
-      <h2>Zettelkasten</h2>
+      <h2>Zettelkastsdasdsaen</h2>
 
       <div className="login-error">{error && <span>{error}</span>}</div>
       <div className="login-error">{message && <span>{message}</span>}</div>

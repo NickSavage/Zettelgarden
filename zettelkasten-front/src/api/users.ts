@@ -8,7 +8,7 @@ import {
 import { GenericResponse } from "../models/common";
 import { checkStatus } from "./common";
 
-const base_url = process.env.REACT_APP_URL;
+const base_url = import.meta.env.VITE_URL;
 
 export function createUser(
   userData: CreateUserParams,

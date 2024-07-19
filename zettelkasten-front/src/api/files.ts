@@ -6,7 +6,7 @@ import {
 } from "../models/File";
 import { GenericResponse } from "../models/common";
 
-const base_url = process.env.REACT_APP_URL;
+const base_url = import.meta.env.VITE_URL;
 
 export function uploadFile(
   file: Blob,

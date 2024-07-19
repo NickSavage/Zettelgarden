@@ -1,9 +1,9 @@
 import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
 import { CardItem } from "./cards/CardItem";
 import { Link } from "react-router-dom";
-import { useTaskContext } from "src/contexts/TaskContext";
-import { isTodayOrPast } from "src/utils/dates";
-import { usePartialCardContext } from "src/contexts/CardContext";
+import { useTaskContext } from "../contexts/TaskContext";
+import { isTodayOrPast } from "../utils/dates";
+import { usePartialCardContext } from "../contexts/CardContext";
 
 export function Sidebar() {
   const [filter, setFilter] = useState("");

@@ -1,5 +1,5 @@
 // API
-const base_url = process.env.REACT_APP_URL;
+const base_url = import.meta.env.VITE_URL;
 
 export async function createCheckoutSession(interval: string) {
   let token = localStorage.getItem("token"); // Retrieve the JWT token from local storage

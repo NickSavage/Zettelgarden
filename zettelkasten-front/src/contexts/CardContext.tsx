@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { fetchPartialCards } from "src/api/cards";
-import { PartialCard } from "src/models/Card";
+import { fetchPartialCards } from "../api/cards";
+import { PartialCard } from "../models/Card";
 
 
 interface PartialCardContextType {

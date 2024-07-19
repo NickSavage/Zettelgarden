@@ -1,8 +1,7 @@
 import Markdown from "react-markdown";
 import React, { useState, useEffect } from "react";
-import { getIdByCardId } from "../../utils";
 import { downloadFile } from "../../api/files";
-import { Card, PartialCard } from "../../models/Card";
+import { Card } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
 
 import { CardLink } from "./CardLink";

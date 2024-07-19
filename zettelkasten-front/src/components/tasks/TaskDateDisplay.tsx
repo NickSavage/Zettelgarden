@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Task } from "src/models/Task";
+import { Task } from "../../models/Task";
 
 import {
   compareDates,
@@ -8,8 +8,8 @@ import {
   getYesterday,
   isPast,
   isRecurringTask,
-} from "src/utils/dates";
-import { saveExistingTask } from "src/api/tasks";
+} from "../../utils/dates";
+import { saveExistingTask } from "../../api/tasks";
 
 interface TaskDateDisplayProps {
   task: Task;

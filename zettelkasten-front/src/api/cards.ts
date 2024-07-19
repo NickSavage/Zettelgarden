@@ -1,7 +1,7 @@
 import { Card, PartialCard, NextIdResponse } from "../models/Card";
 import { checkStatus } from "./common";
 
-const base_url = process.env.REACT_APP_URL;
+const base_url = import.meta.env.VITE_URL;
 
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
   let token = localStorage.getItem("token");

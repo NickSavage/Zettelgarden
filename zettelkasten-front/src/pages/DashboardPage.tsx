@@ -3,10 +3,10 @@ import { fetchPartialCards } from "../api/cards";
 import { CardItem } from "../components/cards/CardItem";
 import { useEffect } from "react";
 import { PartialCard } from "../models/Card";
-import { TaskListItem } from "src/components/tasks/TaskListItem";
-import { isTodayOrPast } from "src/utils/dates";
-import { useTaskContext } from "src/contexts/TaskContext";
-import { usePartialCardContext } from "src/contexts/CardContext";
+import { TaskListItem } from "../components/tasks/TaskListItem";
+import { isTodayOrPast } from "../utils/dates";
+import { useTaskContext } from "../contexts/TaskContext";
+import { usePartialCardContext } from "../contexts/CardContext";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();

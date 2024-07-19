@@ -1,8 +1,8 @@
 import React, { useState, KeyboardEvent } from "react";
-import { saveNewTask } from "src/api/tasks";
+import { saveNewTask } from "../..//api/tasks";
 
-import { Task, emptyTask } from "src/models/Task";
-import { Card, PartialCard } from "src/models/Card";
+import { Task, emptyTask } from "../../models/Task";
+import { Card, PartialCard } from "../..//models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 

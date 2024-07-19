@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 
 import { PartialCard, Card } from "../../models/Card";
-import { usePartialCardContext } from "src/contexts/CardContext";
+import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface BacklinkInputProps {
   addBacklink: (selectedCard: PartialCard) => void;

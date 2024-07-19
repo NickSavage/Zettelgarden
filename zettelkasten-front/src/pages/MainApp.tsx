@@ -20,8 +20,8 @@ import { DashboardPage } from "./DashboardPage";
 import { User } from "../models/User";
 import { Card, PartialCard } from "../models/Card";
 import { TaskList } from "./tasks/TaskList";
-import { TaskProvider, useTaskContext } from "src/contexts/TaskContext";
-import { PartialCardProvider, usePartialCardContext } from "src/contexts/CardContext";
+import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
+import { PartialCardProvider, usePartialCardContext } from "../contexts/CardContext";
 
 function MainAppContent() {
   const navigate = useNavigate();

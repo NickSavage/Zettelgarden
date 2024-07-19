@@ -1,14 +1,14 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
-import { Task } from "src/models/Task";
-import { TaskListItem } from "src/components/tasks/TaskListItem";
-import { CreateTaskWindow } from "src/components/tasks/CreateTaskWindow";
-import { useTaskContext } from "src/contexts/TaskContext";
+import { Task } from "../../models/Task";
+import { TaskListItem } from "../../components/tasks/TaskListItem";
+import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
+import { useTaskContext } from "../../contexts/TaskContext";
 import {
   compareDates,
   getToday,
   getTomorrow,
   isTodayOrPast,
-} from "src/utils/dates";
+} from "../../utils/dates";
 
 interface TaskListProps {
 }

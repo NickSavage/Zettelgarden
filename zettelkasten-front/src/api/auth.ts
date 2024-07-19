@@ -2,7 +2,7 @@ import { ResetPasswordResponse } from "../models/Auth";
 import { GenericResponse } from "../models/common";
 import { LoginResponse } from "../models/Auth";
 import { checkStatus } from "./common";
-const base_url = process.env.REACT_APP_URL;
+const base_url = import.meta.env.VITE_URL;
 
 export function login(email: string, password: string): Promise<LoginResponse> {
   return fetch(base_url + "/login", {

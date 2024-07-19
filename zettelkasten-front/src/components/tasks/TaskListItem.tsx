@@ -1,10 +1,10 @@
 import React, { useState, KeyboardEvent } from "react";
-import { deleteTask, saveExistingTask } from "src/api/tasks";
+import { deleteTask, saveExistingTask } from "../../api/tasks";
 
 import { TaskDateDisplay } from "./TaskDateDisplay";
-import { Task } from "src/models/Task";
+import { Task } from "../../models/Task";
 import { Link } from "react-router-dom";
-import { PartialCard } from "src/models/Card";
+import { PartialCard } from "../../models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 
 interface TaskListItemProps {
