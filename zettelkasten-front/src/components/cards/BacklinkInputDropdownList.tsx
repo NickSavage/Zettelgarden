@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Card, PartialCard } from "../models/Card";
+import { Card, PartialCard } from "../../models/Card";
 
 interface BacklinkInputDropdownListProps {
   addBacklink: (card: PartialCard) => void;
