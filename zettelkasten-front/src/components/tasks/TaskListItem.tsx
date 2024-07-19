@@ -5,7 +5,7 @@ import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Task } from "src/models/Task";
 import { Link } from "react-router-dom";
 import { PartialCard } from "src/models/Card";
-import { BacklinkInput } from "../BacklinkInput";
+import { BacklinkInput } from "../cards/BacklinkInput";
 
 interface TaskListItemProps {
   task: Task;

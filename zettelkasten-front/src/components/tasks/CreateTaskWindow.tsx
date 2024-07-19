@@ -3,7 +3,7 @@ import { saveNewTask } from "src/api/tasks";
 
 import { Task, emptyTask } from "src/models/Task";
 import { Card, PartialCard } from "src/models/Card";
-import { BacklinkInput } from "../BacklinkInput";
+import { BacklinkInput } from "../cards/BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 
 interface CreateTaskWindowProps {

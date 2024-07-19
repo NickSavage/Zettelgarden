@@ -1,6 +1,5 @@
 import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
-import { CardItem } from "./CardItem";
-import { PartialCard } from "../models/Card";
+import { CardItem } from "./cards/CardItem";
 import { Link } from "react-router-dom";
 import { useTaskContext } from "src/contexts/TaskContext";
 import { isTodayOrPast } from "src/utils/dates";

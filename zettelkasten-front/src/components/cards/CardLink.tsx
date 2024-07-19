@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Card } from "../models/Card";
+import { Card } from "../../models/Card";
 import { CardPreviewWindow } from "./CardPreviewWindow";
 
 interface CardLinkProps {

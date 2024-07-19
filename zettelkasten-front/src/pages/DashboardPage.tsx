@@ -1,6 +1,6 @@
 import React from "react";
 import { fetchPartialCards } from "../api/cards";
-import { CardItem } from "../components/CardItem";
+import { CardItem } from "../components/cards/CardItem";
 import { useEffect } from "react";
 import { PartialCard } from "../models/Card";
 import { TaskListItem } from "src/components/tasks/TaskListItem";

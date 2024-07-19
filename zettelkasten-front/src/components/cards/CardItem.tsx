@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { PartialCard } from "../models/Card";
+import { PartialCard } from "../../models/Card";
 
 import { CardPreviewWindow } from "./CardPreviewWindow";
 

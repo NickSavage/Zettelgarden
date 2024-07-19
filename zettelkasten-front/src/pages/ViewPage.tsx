@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { CardBody } from "../components/CardBody";
-import { CardItem } from "../components/CardItem";
-import { CardList } from "../components/CardList";
+import { CardBody } from "../components/cards/CardBody";
+import { CardItem } from "../components/cards/CardItem";
+import { CardList } from "../components/cards/CardList";
 import { FileListItem } from "../components/FileListItem";
-import { BacklinkInput } from "../components/BacklinkInput";
+import { BacklinkInput } from "../components/cards/BacklinkInput";
 import { getCard, saveExistingCard } from "../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";

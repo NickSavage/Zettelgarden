@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import { BacklinkInputDropdownList } from "../components/BacklinkInputDropdownList";
+import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 
-import { PartialCard, Card } from "../models/Card";
+import { PartialCard, Card } from "../../models/Card";
 import { usePartialCardContext } from "src/contexts/CardContext";
 
 interface BacklinkInputProps {

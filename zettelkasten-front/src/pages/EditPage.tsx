@@ -9,7 +9,7 @@ import {
   getCard,
 } from "../api/cards";
 import { FileListItem } from "../components/FileListItem";
-import { BacklinkInput } from "../components/BacklinkInput";
+import { BacklinkInput } from "../components/cards/BacklinkInput";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Card, PartialCard, defaultCard } from "../models/Card";
 import { File } from "../models/File";

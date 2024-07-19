@@ -1,7 +1,7 @@
 import React from "react";
 
 import { CardItem } from "./CardItem";
-import { PartialCard } from "../models/Card";
+import { PartialCard } from "../../models/Card";
 
 interface CardListProps {
   cards: PartialCard[];

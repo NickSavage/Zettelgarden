@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-import { getCard } from "../api/cards";
-import { PartialCard, Card } from "../models/Card";
+import { getCard } from "../../api/cards";
+import { PartialCard, Card } from "../../models/Card";
 import { CardBody } from "./CardBody";
-import { isErrorResponse } from "../models/common";
+import { isErrorResponse } from "../../models/common";
 
 interface CardPreviewWindowProps {
   card: PartialCard;
