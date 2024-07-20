@@ -7,6 +7,7 @@ import { usePartialCardContext } from "../contexts/CardContext";
 import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { FilterInput } from "./FilterInput";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -64,10 +65,8 @@ export function Sidebar() {
     [tasks]
   );
 
-  function handleFilter(
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) {
-    setFilter(e.target.value);
+  function handleFilter(text: string) {
+    setFilter(text);
   }
 
   return (
@@ -116,12 +115,7 @@ export function Sidebar() {
             </li>
           </ul>
         </div>
-        <input
-          type="text"
-          value={filter}
-          onChange={handleFilter}
-          placeholder="Filter"
-        />
+        <FilterInput handleFilterHook={handleFilter} />
       </div>
       <div className="scroll-cards">
         <div>
