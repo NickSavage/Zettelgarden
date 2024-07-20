@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 
-import { useNavigate } from "react-router-dom";
 import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
 
 interface TopbarProps {
@@ -22,12 +21,6 @@ export function Topbar({
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const [showCreateTaskWindow, setShowCreateTaskWindow] = useState<boolean>(false);
   const username = localStorage.getItem("username");
-
-  const navigate = useNavigate();
-
-  function handleIndexClick() {
-    navigate("/app");
-  }
 
   function handleNewStandardCard() {
     handleNewCard("standard");
@@ -59,9 +52,6 @@ export function Topbar({
   return (
     <div className="top-bar">
       <div className="top-bar-left">
-        <a href="#" onClick={handleIndexClick} className="top-bar-index">
-          <h1>Zettelgarden</h1>
-        </a>
       </div>
       <div className="top-bar-right">
         <div className="dropdown">

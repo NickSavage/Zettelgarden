@@ -45,6 +45,10 @@ option {
   background-color: #57cc99;
 }
 
+.main-content {
+  display: flex;
+  padding-top: 10;
+}
 .main-content .main-content h2,
 .main-content h3 {
   margin-bottom: 20px;
@@ -88,18 +92,14 @@ option {
   padding: 10px;
 }
 
-.main-content {
-  display: flex;
-  padding-top: 10;
-}
 /* Sidebar Styles */
 .sidebar {
   flex-shrink: 0;
   width: 20%;
   overflow-y: auto;
-  height: calc(100vh - 50px);
+  height: 100%;
   border-right: 1px solid #ccc;
-  background-color: white;
+  background-color: #22577a;
 }
 
 .sidebar input {
@@ -112,16 +112,28 @@ option {
   padding: 5px;
 }
 
-.sidebar-upper li {
-  background-color: #c7f9cc;
+.sidebar-upper {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+}
+.sidebar-upper-username {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  padding-left: 10px;
 }
 
-.sidebar-upper a {
+.sidebar-links li {
+  background-color: #22577a;
+}
+
+.sidebar-links a {
   display: flex;
   align-items: center;
   padding: 10px 10px;
   text-decoration: none;
-  color: #22577a;
+  color: #c7f9cc;
   font-weight: 500;
   border-radius: 8px;
   transition:
@@ -130,8 +142,8 @@ option {
 }
 
 /* Hover and active states */
-.sidebar-upper a:hover,
-.sidebar-upper a.active {
+.sidebar-links a:hover,
+.sidebar-links a.active {
   background-color: #57cc99;
 }
 
@@ -159,16 +171,23 @@ option {
   transform: translateY(-50%);
 }
 
+.logo {
+  width: 50px;
+  height: auto;
+}
+
 
 .content {
   flex-grow: 1; /* takes the remaining space */
   height: calc(100vh - 50px);
   overflow-y: auto; /* enables scrolling */
+}
+.content-display {
   padding: 10px;
 }
 .top-bar {
   display: flex;
-  background-color: grey; /* A nice blue shade */
+  background-color: white; /* A nice blue shade */
   color: white;
   width: 100%;
   height: 50px;

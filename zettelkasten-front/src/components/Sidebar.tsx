@@ -4,14 +4,23 @@ import { Link } from "react-router-dom";
 import { useTaskContext } from "../contexts/TaskContext";
 import { isTodayOrPast } from "../utils/dates";
 import { usePartialCardContext } from "../contexts/CardContext";
+import logo from "../assets/logo.png";
 
-export function Sidebar() {
+interface SidebarProps {
+  handleNewCard: (cardType: string) => void;
+}
+
+export function Sidebar({ handleNewCard }) {
   const [filter, setFilter] = useState("");
   const { partialCards } = usePartialCardContext();
   const { tasks } = useTaskContext();
+  const username = localStorage.getItem("username");
+  const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
+  const [showCreateTaskWindow, setShowCreateTaskWindow] =
+    useState<boolean>(false);
 
-  const mainCards = useMemo(() => 
-    partialCards.filter((card) => !card.card_id.includes("/")),
+  const mainCards = useMemo(
+    () => partialCards.filter((card) => !card.card_id.includes("/")),
     [partialCards]
   );
 
@@ -35,8 +44,30 @@ export function Sidebar() {
     });
   }, [mainCards, filter]);
 
-  const todayTasks = useMemo(() => 
-    tasks.filter((task) => !task.is_complete && isTodayOrPast(task.scheduled_date)),
+  function handleNewStandardCard() {
+    handleNewCard("standard");
+  }
+  function handleNewMeetingCard() {
+    handleNewCard("meeting");
+  }
+  function handleNewReferenceCard() {
+    handleNewCard("reference");
+  }
+  function handleNewTask() {
+    setShowCreateTaskWindow(true);
+  }
+
+  const toggleNewDropdown = () => {
+    console.log("?");
+    setIsNewDropdownOpen(!isNewDropdownOpen);
+    console.log(isNewDropdownOpen);
+  };
+
+  const todayTasks = useMemo(
+    () =>
+      tasks.filter(
+        (task) => !task.is_complete && isTodayOrPast(task.scheduled_date)
+      ),
     [tasks]
   );
 
@@ -48,8 +79,37 @@ export function Sidebar() {
 
   return (
     <div className="sidebar">
+      <div className="sidebar-upper">
+        <Link to="/">
+          <img src={logo} alt="Company Logo" className="logo" />
+        </Link>
+        <Link to="/app/settings">
+          <span className="sidebar-upper-username">{username}</span>
+        </Link>
+        <div className="dropdown">
+          <button className="btn" onClick={toggleNewDropdown}>
+            +
+          </button>
+          {isNewDropdownOpen && (
+            <div className="dropdown-content">
+              <a href="#settings" onClick={handleNewStandardCard}>
+                New Card
+              </a>
+              <a href="#settings" onClick={handleNewReferenceCard}>
+                New Reference
+              </a>
+              <a href="#settings" onClick={handleNewMeetingCard}>
+                New Meeting
+              </a>
+              <a href="#task" onClick={handleNewTask}>
+                New Task
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
       <div>
-        <div className="sidebar-upper">
+        <div className="sidebar-links">
           <ul>
             <li className="sidebar-nav-item">
               <Link className="sidebar-nav-link" to="/app/tasks">
@@ -60,6 +120,11 @@ export function Sidebar() {
             <li className="sidebar-nav-item">
               <Link className="sidebar-nav-link" to="/app/search">
                 Search
+              </Link>
+            </li>
+            <li className="sidebar-nav-item">
+              <Link className="sidebar-nav-link" to="/app/files">
+                Files
               </Link>
             </li>
           </ul>

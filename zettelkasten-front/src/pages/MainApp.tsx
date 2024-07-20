@@ -21,7 +21,10 @@ import { User } from "../models/User";
 import { Card, PartialCard } from "../models/Card";
 import { TaskList } from "./tasks/TaskList";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
-import { PartialCardProvider, usePartialCardContext } from "../contexts/CardContext";
+import {
+  PartialCardProvider,
+  usePartialCardContext,
+} from "../contexts/CardContext";
 
 function MainAppContent() {
   const navigate = useNavigate();
@@ -66,25 +69,17 @@ function MainAppContent() {
   useEffect(() => {
     setRefreshTasks(true);
     setRefreshPartialCards(true);
-
-  },[])
+  }, []);
 
   console.log([isLoading, isActive]);
   if (!isLoading && !isActive) {
     return <SubscriptionPage />;
   }
   return (
-    <div>
-
-      <Topbar
-        handleNewCard={handleNewCard}
-        handleViewFileVault={handleViewFileVault}
-        handleViewSettings={handleViewSettings}
-      />
-      <div className="main-content">
-        <Sidebar
-        />
-        <div className="content">
+    <div className="main-content">
+      <Sidebar handleNewCard={handleNewCard} />
+      <div className="content">
+        <div className="content-display">
           {error && (
             <div>
               <p>Error: {error}</p>
@@ -110,22 +105,12 @@ function MainAppContent() {
             />
             <Route
               path="card/:id/edit"
-              element={
-                <EditPage
-                  newCard={false}
-                  lastCardId={lastCardId}
-                />
-              }
+              element={<EditPage newCard={false} lastCardId={lastCardId} />}
             />
 
             <Route
               path="card/new"
-              element={
-                <EditPage
-                  newCard={true}
-                  lastCardId={lastCardId}
-                />
-              }
+              element={<EditPage newCard={true} lastCardId={lastCardId} />}
             />
             <Route path="settings" element={<UserSettingsPage />} />
             <Route
@@ -150,7 +135,7 @@ function MainApp() {
   return (
     <PartialCardProvider>
       <TaskProvider>
-       <MainAppContent />
+        <MainAppContent />
       </TaskProvider>
     </PartialCardProvider>
   );

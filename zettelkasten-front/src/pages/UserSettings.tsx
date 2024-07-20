@@ -4,13 +4,15 @@ import { getUserSubscription } from "../api/users";
 import { getCurrentUser } from "../api/users";
 import { editUser } from "../api/users";
 import { User, EditUserParams, UserSubscription } from "../models/User";
+import { useAuth } from "../contexts/AuthContext";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<UserSubscription | null>(
-    null,
+    null
   );
   const [error, setError] = useState<string | null>(null);
+  const { logoutUser } = useAuth();
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault(); // Prevent the default form submit action
@@ -44,6 +46,9 @@ export function UserSettingsPage() {
       setError(error.message);
     }
   }
+  function handleLogout() {
+    logoutUser();
+  }
 
   useEffect(() => {
     async function fetchUserAndSubscription() {
@@ -54,7 +59,7 @@ export function UserSettingsPage() {
       // Now that we have the user, fetch their subscription using the user ID
       if (userResponse && userResponse["id"]) {
         let subscriptionResponse = await getUserSubscription(
-          userResponse["id"],
+          userResponse["id"]
         );
         console.log(subscriptionResponse);
         setSubscription(subscriptionResponse);
@@ -110,6 +115,7 @@ export function UserSettingsPage() {
               </p>
             </div>
           )}
+          <span onClick={handleLogout}>Logout</span>
         </div>
       )}
     </div>
