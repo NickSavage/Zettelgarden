@@ -28,7 +28,7 @@ function MainAppContent() {
   const [lastCardId, setLastCardId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
-  const { isAuthenticated, isLoading, logoutUser, currentUser } = useAuth();
+  const { isAuthenticated, isLoading, logoutUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
   const { setRefreshPartialCards } = usePartialCardContext();
 
@@ -55,10 +55,10 @@ function MainAppContent() {
   }
   return (
     <div className="main-content">
-      <Sidebar handleNewCard={handleNewCard} />
+      <Sidebar />
       <div className="content">
         <div className="content-display">
-          <EmailValidationBanner user={currentUser} />
+          <EmailValidationBanner />
           <Routes>
             <Route
               path="search"

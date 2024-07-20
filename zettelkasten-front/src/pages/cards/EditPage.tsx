@@ -32,20 +32,16 @@ function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
   return null;
 }
 
-export function EditPage({
-  newCard,
-  lastCardId,
-}: EditPageProps) {
+export function EditPage({ newCard, lastCardId }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
   const [fileIds, setFileIds] = useState<string[]>([]);
-  const { partialCards, setRefreshPartialCards} = usePartialCardContext();
+  const { partialCards, setRefreshPartialCards } = usePartialCardContext();
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const cardType = location.state?.cardType;
 
   const addFileId = (fileId: string) => {
     setFileIds((prevFileIds) => [...prevFileIds, fileId]);
@@ -78,36 +74,11 @@ export function EditPage({
     setRefreshPartialCards(true);
   }
 
-  async function prefillNextId(): Promise<string> {
-    let nextId = lastCardId;
-    if (cardType === "reference" || cardType === "meeting") {
-      let response = await getNextId(cardType);
-      if (response === null) {
-        return "";
-      }
-      nextId = response["new_id"];
-    } else {
-      nextId = lastCardId;
-    }
-    return nextId;
-  }
-
   useEffect(() => {
     if (!newCard) {
       fetchCard(id!);
     } else {
-      document.title = "Zettelgarden - New Card";
-      prefillNextId().then((nextId) => {
-        let title = "";
-        if (cardType === "meeting") {
-          const today = new Date();
-          const year = today.getFullYear();
-          const month = String(today.getMonth() + 1).padStart(2, "0");
-          const day = String(today.getDate()).padStart(2, "0");
-          title = `${year}-${month}-${day} - `;
-        }
-        setEditingCard({ ...defaultCard, card_id: nextId, title, body: "" });
-      });
+      setEditingCard({ ...defaultCard, card_id: lastCardId });
     }
   }, [id]);
 
@@ -122,15 +93,15 @@ export function EditPage({
   function handleDeleteButtonClick() {
     if (
       window.confirm(
-        "Are you sure you want to delete this card? This cannot be reversed",
+        "Are you sure you want to delete this card? This cannot be reversed"
       )
     ) {
       deleteCard(editingCard.id)
         .then(() => setRefreshPartialCards(true))
         .catch((error) =>
           setMessage(
-            "Unable to delete card. Does it have backlinks, children or files?",
-          ),
+            "Unable to delete card. Does it have backlinks, children or files?"
+          )
         );
     }
   }
@@ -153,7 +124,7 @@ export function EditPage({
             setMessage("Error uploading file: " + response["message"]);
           } else {
             setMessage(
-              "File uploaded successfully: " + response["file"]["name"],
+              "File uploaded successfully: " + response["file"]["name"]
             );
             addFileId(response["file"]["id"].toString());
           }
@@ -165,7 +136,7 @@ export function EditPage({
   };
 
   const handlePaste = async (
-    event: React.ClipboardEvent<HTMLTextAreaElement>,
+    event: React.ClipboardEvent<HTMLTextAreaElement>
   ) => {
     event.preventDefault();
 
@@ -177,7 +148,7 @@ export function EditPage({
 
           if (newCard) {
             setMessage(
-              "Error: Cannot upload images for new cards, please save the card first",
+              "Error: Cannot upload images for new cards, please save the card first"
             );
             return;
           }
@@ -190,7 +161,7 @@ export function EditPage({
             } else {
               let append_text = "\n\n![](" + response["file"]["id"] + ")";
               setMessage(
-                `File uploaded successfully: ${response["file"]["name"]}`,
+                `File uploaded successfully: ${response["file"]["name"]}`
               );
 
               setEditingCard((prevEditingCard) => ({

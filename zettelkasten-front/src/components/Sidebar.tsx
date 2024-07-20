@@ -6,12 +6,10 @@ import { isTodayOrPast } from "../utils/dates";
 import { usePartialCardContext } from "../contexts/CardContext";
 import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
 import logo from "../assets/logo.png";
+import { useNavigate } from "react-router-dom";
 
-interface SidebarProps {
-  handleNewCard: (cardType: string) => void;
-}
-
-export function Sidebar({ handleNewCard }: SidebarProps) {
+export function Sidebar() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const { partialCards } = usePartialCardContext();
   const { tasks } = useTaskContext();
@@ -46,13 +44,7 @@ export function Sidebar({ handleNewCard }: SidebarProps) {
   }, [mainCards, filter]);
 
   function handleNewStandardCard() {
-    handleNewCard("standard");
-  }
-  function handleNewMeetingCard() {
-    handleNewCard("meeting");
-  }
-  function handleNewReferenceCard() {
-    handleNewCard("reference");
+    navigate("/app/card/new", { state: { cardType: "standard" } });
   }
   function handleNewTask() {
     setShowCreateTaskWindow(true);
@@ -95,12 +87,6 @@ export function Sidebar({ handleNewCard }: SidebarProps) {
             <div className="dropdown-content">
               <a href="#settings" onClick={handleNewStandardCard}>
                 New Card
-              </a>
-              <a href="#settings" onClick={handleNewReferenceCard}>
-                New Reference
-              </a>
-              <a href="#settings" onClick={handleNewMeetingCard}>
-                New Meeting
               </a>
               <a href="#task" onClick={handleNewTask}>
                 New Task
