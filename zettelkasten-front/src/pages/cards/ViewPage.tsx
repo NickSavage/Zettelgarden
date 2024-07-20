@@ -14,6 +14,7 @@ import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
+import { HeaderSection } from "../../components/Header";
 
 interface ViewPageProps {
   setLastCardId: (cardId: string) => void;
@@ -28,7 +29,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
     useState<boolean>(false);
   const { id } = useParams<{ id: string }>();
   const cardId = id ? parseInt(id, 10) : null;
-  const cardTasks = cardId 
+  const cardTasks = cardId
     ? tasks.filter((task) => task.card_pk === cardId)
     : [];
 
@@ -111,7 +112,8 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
             <span style={{ fontWeight: "bold", color: "blue" }}>
               {viewingCard.card_id}
             </span>
-            <span>: {viewingCard.title}</span>
+            <HeaderSection text=": " />
+            <HeaderSection text={viewingCard.title} />
           </h3>
           <hr />
           <div>

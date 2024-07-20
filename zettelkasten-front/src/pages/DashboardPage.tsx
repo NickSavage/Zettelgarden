@@ -30,7 +30,7 @@ export function DashboardPage() {
   return (
     <div>
       <HeaderTop text="Dashboard" />
-      <div className="mt-5" style={{ display: "flex", flexWrap: "wrap" }}>
+      <div className="mt-5 flex flex-wrap">
         <div style={{ flex: 1, minWidth: "50%" }}>
           <HeaderSection text="Tasks" />
           {tasks && (

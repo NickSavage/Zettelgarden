@@ -233,6 +233,7 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
           <label htmlFor="body">Body:</label>
           <textarea
             style={{ display: "block", width: "100%", height: "200px" }}
+            className="border-2 p-2"
             id="body"
             value={editingCard.body}
             onChange={handleBodyChange}
