@@ -3,12 +3,15 @@ import { resendValidateEmail } from "../api/users";
 import { User } from "../models/User";
 
 interface EmailValidationBannerProps {
-  user: User;
+  user: User | null;
 }
 
 export function EmailValidationBanner({ user }: EmailValidationBannerProps) {
   function resendEmail() {
     resendValidateEmail();
+  }
+  if (!user) {
+    return <div></div>;
   }
   if (user["email_validated"]) {
     return <div></div>;

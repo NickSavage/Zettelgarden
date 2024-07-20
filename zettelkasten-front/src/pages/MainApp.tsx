@@ -9,15 +9,13 @@ import { Sidebar } from "../components/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
-import { getCurrentUser } from "../api/users";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
 import { BillingSuccess } from "./BillingSuccess";
 import { BillingCancelled } from "./BillingCancelled";
 import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
 
-import { User } from "../models/User";
-import { Card, PartialCard } from "../models/Card";
+import { Card } from "../models/Card";
 import { TaskList } from "./tasks/TaskList";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
 import {
@@ -27,7 +25,6 @@ import {
 
 function MainAppContent() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
   const [lastCardId, setLastCardId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
@@ -42,12 +39,11 @@ function MainAppContent() {
   }
 
   useEffect(() => {
-    // Check if token does not exist or user is not authenticated
     if (!localStorage.getItem("token")) {
-      logoutUser(); // Call your logout function
-      navigate("/login"); // Redirect to the login page
+      logoutUser();
+      navigate("/login");
     }
-  }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
+  }, [isAuthenticated]);
 
   useEffect(() => {
     setRefreshTasks(true);
@@ -62,13 +58,7 @@ function MainAppContent() {
       <Sidebar handleNewCard={handleNewCard} />
       <div className="content">
         <div className="content-display">
-          {error && (
-            <div>
-              <p>Error: {error}</p>
-            </div>
-          )}
-          {currentUser && <EmailValidationBanner user={currentUser} />}
-
+          <EmailValidationBanner user={currentUser} />
           <Routes>
             <Route
               path="search"
