@@ -75,9 +75,11 @@ export function Sidebar() {
         <Link to="/">
           <img src={logo} alt="Company Logo" className="logo" />
         </Link>
-        <Link to="/app/settings">
-          <span className="sidebar-upper-username">{username}</span>
-        </Link>
+        <div className="grow">
+          <Link to="/app/settings">
+            <span className="sidebar-upper-username">{username}</span>
+          </Link>
+        </div>
         <div className="dropdown">
           <button className="btn" onClick={toggleNewDropdown}>
             +
@@ -115,9 +117,9 @@ export function Sidebar() {
             </li>
           </ul>
         </div>
-        <FilterInput handleFilterHook={handleFilter} />
       </div>
       <div className="scroll-cards">
+        <FilterInput handleFilterHook={handleFilter} />
         <div>
           {filteredCards.map((card) => (
             <CardItem key={card.id} card={card} />

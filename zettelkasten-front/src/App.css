@@ -33,16 +33,17 @@ option {
 }
 
 .scroll-cards {
+
+  background-color: #57cc99;
   overflow-y: auto;
   height: 75vh;
 }
 
 .card-item {
-  background-color: #c7f9cc;
   color: #22577a;
 }
 .card-item:hover {
-  background-color: #57cc99;
+  background-color: #c7f9cc;
 }
 
 .main-content {
@@ -99,7 +100,7 @@ option {
   overflow-y: auto;
   height: 100%;
   border-right: 1px solid #ccc;
-  background-color: #22577a;
+  background-color: #57cc99;
 }
 
 .sidebar input {
@@ -116,6 +117,7 @@ option {
   display: flex;
   align-items: center;
   padding: 10px 20px;
+  background-color: #22577a;
 }
 .sidebar-upper-username {
   color: white;
@@ -124,18 +126,20 @@ option {
   padding-left: 10px;
 }
 
+.sidebar-links {
+}
+
 .sidebar-links li {
-  background-color: #22577a;
 }
 
 .sidebar-links a {
   display: flex;
   align-items: center;
-  padding: 10px 10px;
+  padding: 5px 5px;
   text-decoration: none;
-  color: #c7f9cc;
   font-weight: 500;
   border-radius: 8px;
+  color: #22577A;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
@@ -144,7 +148,7 @@ option {
 /* Hover and active states */
 .sidebar-links a:hover,
 .sidebar-links a.active {
-  background-color: #57cc99;
+  background-color: #c7f9cc;
 }
 
 .sidebar-nav-item {
