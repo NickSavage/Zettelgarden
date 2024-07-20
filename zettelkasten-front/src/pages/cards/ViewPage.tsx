@@ -128,18 +128,26 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
             )}
           </div>
           <hr />
-          <p>Created At: {viewingCard.created_at}</p>
-          <p>Updated At: {viewingCard.updated_at}</p>
+          <button onClick={handleEditCard}>Edit</button>
+          <div>
+            <span className="text-xs">
+              Created At: {viewingCard.created_at}
+            </span>
+            <br />
+            <span className="text-xs">
+              Updated At: {viewingCard.updated_at}
+            </span>
+          </div>
           <hr />
           {parentCard && (
             <div>
-              <h4>Parent:</h4>
+              <h4 className="font-bold">Parent:</h4>
               <ul>
                 <CardItem card={parentCard} />
               </ul>
             </div>
           )}
-          <h4>Files:</h4>
+          <h4 className="font-bold">Files:</h4>
           <ul>
             {viewingCard.files.map((file, index) => (
               <FileListItem
@@ -150,7 +158,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
               />
             ))}
           </ul>
-          <h4>Tasks</h4>
+          <h4 className="font-bold">Tasks</h4>
           <span onClick={toggleCreateTaskWindow}>Add Task</span>
           {showCreateTaskWindow && (
             <CreateTaskWindow
@@ -163,13 +171,12 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
             <TaskListItem task={task} setRefresh={setRefreshTasks} />
           ))}
 
-          <h4>References:</h4>
+          <h4 className="font-bold">References:</h4>
           <CardList cards={viewingCard.references} />
           <div>
             <BacklinkInput addBacklink={handleAddBacklink} />
           </div>
-          <button onClick={handleEditCard}>Edit</button>
-          <h4>Children:</h4>
+          <h4 className="font-bold">Children:</h4>
           <CardList cards={viewingCard.children} />
         </div>
       )}
