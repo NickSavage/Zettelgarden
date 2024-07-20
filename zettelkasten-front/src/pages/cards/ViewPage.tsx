@@ -14,7 +14,7 @@ import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
-import { HeaderSection } from "../../components/Header";
+import { HeaderSection, HeaderSubSection } from "../../components/Header";
 
 interface ViewPageProps {
   setLastCardId: (cardId: string) => void;
@@ -141,13 +141,13 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
           <hr />
           {parentCard && (
             <div>
-              <h4 className="font-bold">Parent:</h4>
+              <HeaderSubSection text="Parent" />
               <ul>
                 <CardItem card={parentCard} />
               </ul>
             </div>
           )}
-          <h4 className="font-bold">Files:</h4>
+          <HeaderSubSection text="Files" />
           <ul>
             {viewingCard.files.map((file, index) => (
               <FileListItem
@@ -158,7 +158,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
               />
             ))}
           </ul>
-          <h4 className="font-bold">Tasks</h4>
+          <HeaderSubSection text="Tasks" />
           <span onClick={toggleCreateTaskWindow}>Add Task</span>
           {showCreateTaskWindow && (
             <CreateTaskWindow
@@ -171,12 +171,12 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
             <TaskListItem task={task} setRefresh={setRefreshTasks} />
           ))}
 
-          <h4 className="font-bold">References:</h4>
+          <HeaderSubSection text="References" />
           <CardList cards={viewingCard.references} />
           <div>
             <BacklinkInput addBacklink={handleAddBacklink} />
           </div>
-          <h4 className="font-bold">Children:</h4>
+          <HeaderSubSection text="Children" />
           <CardList cards={viewingCard.children} />
         </div>
       )}

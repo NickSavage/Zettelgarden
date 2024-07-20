@@ -11,3 +11,12 @@ export function HeaderTop({ text }: HeaderProps) {
 export function HeaderSection({ text }: HeaderProps) {
   return <span className="font-bold text-l">{text}</span>;
 }
+
+export function HeaderSubSection({ text }: HeaderProps) {
+  return (
+    <div>
+      <span className="font-bold">{text}</span>
+      <br />
+    </div>
+  );
+}
