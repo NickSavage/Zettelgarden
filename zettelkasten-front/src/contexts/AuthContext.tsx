@@ -8,6 +8,7 @@ import React, {
 import { checkAdmin } from "../api/users";
 import { getCurrentUser } from "../api/users";
 import { LoginResponse } from "../models/Auth";
+import { User } from "../models/User";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -15,6 +16,7 @@ interface AuthContextType {
   isAdmin: boolean;
   loginUser: (data: LoginResponse) => void;
   logoutUser: () => void;
+  currentUser: User | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,7 +29,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Added loading state
-  const [isActive, setIsActive] = useState("inactive");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -39,6 +41,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const adminStatus = await checkAdmin();
         setIsAdmin(adminStatus);
         const currentUser = await getCurrentUser();
+        setCurrentUser(currentUser);
       }
       setIsLoading(false);
     };
@@ -60,7 +63,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, isAdmin, loginUser, logoutUser }}
+      value={{
+        isAuthenticated,
+        isLoading,
+        isAdmin,
+        loginUser,
+        logoutUser,
+        currentUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

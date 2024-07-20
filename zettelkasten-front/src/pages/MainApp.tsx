@@ -6,7 +6,6 @@ import { FileVault } from "./FileVault";
 import { ViewPage } from "./cards/ViewPage";
 import { EditPage } from "./cards/EditPage";
 import { Sidebar } from "../components/Sidebar";
-import { Topbar } from "../components/Topbar";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
@@ -29,12 +28,10 @@ import {
 function MainAppContent() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [lastCardId, setLastCardId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
-  const { isAuthenticated, isLoading, logoutUser } = useAuth();
-  const [isActive, setIsActive] = useState(false);
+  const { isAuthenticated, isLoading, logoutUser, currentUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
   const { setRefreshPartialCards } = usePartialCardContext();
 
@@ -43,26 +40,12 @@ function MainAppContent() {
   async function handleNewCard(cardType: string) {
     navigate("/app/card/new", { state: { cardType: cardType } });
   }
-  function handleViewFileVault() {
-    navigate("/app/files");
-  }
-  function handleViewSettings() {
-    navigate("/app/settings");
-  }
-
-  async function fetchCurrentUser() {
-    let response = await getCurrentUser();
-    setCurrentUser(response);
-    setIsActive(response["is_active"]);
-  }
 
   useEffect(() => {
     // Check if token does not exist or user is not authenticated
     if (!localStorage.getItem("token")) {
       logoutUser(); // Call your logout function
       navigate("/login"); // Redirect to the login page
-    } else {
-      fetchCurrentUser();
     }
   }, [isAuthenticated]); // Dependency array, rerun effect if isAuthenticated changes
 
@@ -71,8 +54,7 @@ function MainAppContent() {
     setRefreshPartialCards(true);
   }, []);
 
-  console.log([isLoading, isActive]);
-  if (!isLoading && !isActive) {
+  if (!isLoading && !isAuthenticated) {
     return <SubscriptionPage />;
   }
   return (
