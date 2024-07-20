@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import AdminTopBar from "../components/AdminTopBar";
+import AdminTopBar from "../../components/AdminTopBar";
 
 import { AdminUserIndex } from "./AdminUserIndex";
 

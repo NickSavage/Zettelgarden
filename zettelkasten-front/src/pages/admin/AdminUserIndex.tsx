@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { getUsers } from "../api/users";
+import { getUsers } from "../../api/users";
 import { Link } from "react-router-dom";
-import { User } from "../models/User";
+import { User } from "../../models/User";
 
 export function AdminUserIndex() {
   const [users, setUsers] = useState<User[]>([]);

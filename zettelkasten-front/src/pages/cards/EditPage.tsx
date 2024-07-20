@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { isCardIdUnique } from "../utils";
-import { uploadFile, editFile } from "../api/files";
+import { isCardIdUnique } from "../../utils";
+import { uploadFile, editFile } from "../../api/files";
 import {
   deleteCard,
   getNextId,
   saveNewCard,
   saveExistingCard,
   getCard,
-} from "../api/cards";
-import { FileListItem } from "../components/FileListItem";
-import { BacklinkInput } from "../components/cards/BacklinkInput";
+} from "../../api/cards";
+import { FileListItem } from "../../components/FileListItem";
+import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { Card, PartialCard, defaultCard } from "../models/Card";
-import { File } from "../models/File";
-import { usePartialCardContext } from "../contexts/CardContext";
+import { Card, PartialCard, defaultCard } from "../../models/Card";
+import { File } from "../../models/File";
+import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface EditPageProps {
   newCard: boolean;

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { requestPasswordReset } from "../api/auth";
-import { getUser } from "../api/users";
+import { requestPasswordReset } from "../../api/auth";
+import { getUser } from "../../api/users";
 import { Link, useParams } from "react-router-dom";
 
-import { User } from "../models/User";
+import { User } from "../../models/User";
 
 export function AdminUserDetailPage() {
   const [user, setUser] = useState<User | null>(null);

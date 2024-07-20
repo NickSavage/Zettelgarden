@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
-import { SearchPage } from "./SearchPage";
+import { SearchPage } from "./cards/SearchPage";
 import { UserSettingsPage } from "./UserSettings";
 import { FileVault } from "./FileVault";
-import { ViewPage } from "./ViewPage";
-import { EditPage } from "./EditPage";
+import { ViewPage } from "./cards/ViewPage";
+import { EditPage } from "./cards/EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { Topbar } from "../components/Topbar";
 import { useAuth } from "../contexts/AuthContext";

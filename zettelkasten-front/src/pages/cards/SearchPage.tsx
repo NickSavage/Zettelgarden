@@ -1,8 +1,8 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
-import { fetchCards } from "../api/cards";
-import { Card } from "../models/Card";
+import { fetchCards } from "../../api/cards";
+import { Card } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
-import { sortCards } from "../utils";
+import { sortCards } from "../../utils";
 
 interface SearchPageProps {
   searchTerm: string;

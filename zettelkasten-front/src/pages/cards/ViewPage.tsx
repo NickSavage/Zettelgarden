@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { CardBody } from "../components/cards/CardBody";
-import { CardItem } from "../components/cards/CardItem";
-import { CardList } from "../components/cards/CardList";
-import { FileListItem } from "../components/FileListItem";
-import { BacklinkInput } from "../components/cards/BacklinkInput";
-import { getCard, saveExistingCard } from "../api/cards";
+import { CardBody } from "../../components/cards/CardBody";
+import { CardItem } from "../../components/cards/CardItem";
+import { CardList } from "../../components/cards/CardList";
+import { FileListItem } from "../../components/FileListItem";
+import { BacklinkInput } from "../../components/cards/BacklinkInput";
+import { getCard, saveExistingCard } from "../../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-import { Card, PartialCard } from "../models/Card";
-import { File } from "../models/File";
-import { isErrorResponse } from "../models/common";
-import { TaskListItem } from "../components/tasks/TaskListItem";
-import { CreateTaskWindow } from "../components/tasks/CreateTaskWindow";
-import { useTaskContext } from "../contexts/TaskContext";
+import { Card, PartialCard } from "../../models/Card";
+import { File } from "../../models/File";
+import { isErrorResponse } from "../../models/common";
+import { TaskListItem } from "../../components/tasks/TaskListItem";
+import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
+import { useTaskContext } from "../../contexts/TaskContext";
 
 interface ViewPageProps {
   setLastCardId: (cardId: string) => void;
