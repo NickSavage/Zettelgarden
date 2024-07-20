@@ -4,13 +4,14 @@ import { Link } from "react-router-dom";
 import { useTaskContext } from "../contexts/TaskContext";
 import { isTodayOrPast } from "../utils/dates";
 import { usePartialCardContext } from "../contexts/CardContext";
+import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
 import logo from "../assets/logo.png";
 
 interface SidebarProps {
   handleNewCard: (cardType: string) => void;
 }
 
-export function Sidebar({ handleNewCard }) {
+export function Sidebar({ handleNewCard }: SidebarProps) {
   const [filter, setFilter] = useState("");
   const { partialCards } = usePartialCardContext();
   const { tasks } = useTaskContext();
@@ -142,6 +143,15 @@ export function Sidebar({ handleNewCard }) {
             <CardItem key={card.id} card={card} />
           ))}
         </div>
+      </div>
+      <div>
+        {showCreateTaskWindow && (
+          <CreateTaskWindow
+            currentCard={null}
+            setRefresh={(refresh: boolean) => {}}
+            setShowTaskWindow={setShowCreateTaskWindow}
+          />
+        )}
       </div>
     </div>
   );
