@@ -16,7 +16,7 @@ import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
 
 import { Card } from "../models/Card";
-import { TaskList } from "./tasks/TaskList";
+import { TaskPage } from "./tasks/TaskPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
 import {
   PartialCardProvider,
@@ -94,7 +94,7 @@ function MainAppContent() {
               element={<BillingCancelled />}
             />
             <Route path="files" element={<FileVault />} />
-            <Route path="tasks" element={<TaskList />} />
+            <Route path="tasks" element={<TaskPage />} />
             <Route path="*" element={<DashboardPage />} />
           </Routes>
         </div>

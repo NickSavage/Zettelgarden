@@ -13,7 +13,7 @@ export function CardList({ cards }: CardListProps) {
       {cards
         .sort((a, b) => a.card_id.localeCompare(b.card_id))
         .map((backlink, index) => (
-          <li style={{ paddingTop: "5px", paddingBottom: "5px" }}>
+          <li className="p-2">
             <CardItem card={backlink} />
           </li>
         ))}

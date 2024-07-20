@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { Task } from "../../models/Task";
-import { TaskListItem } from "../../components/tasks/TaskListItem";
+import { TaskList } from "../../components/tasks/TaskList";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
 import {
@@ -10,10 +10,9 @@ import {
   isTodayOrPast,
 } from "../../utils/dates";
 
-interface TaskListProps {
-}
+interface TaskListProps {}
 
-export function TaskList({}: TaskListProps) {
+export function TaskPage({}: TaskListProps) {
   const { tasks, setRefreshTasks } = useTaskContext();
   const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
@@ -40,12 +39,12 @@ export function TaskList({}: TaskListProps) {
     }
     if (dateView === "all") {
       if (task.is_complete) {
-        return false
+        return false;
       } else {
         return true;
       }
-    }  
-       if (dateView === "today") {
+    }
+    if (dateView === "today") {
       if (!task.is_complete && isTodayOrPast(task.scheduled_date)) {
         return true;
       } else {
@@ -53,7 +52,10 @@ export function TaskList({}: TaskListProps) {
       }
     }
     if (dateView === "tomorrow") {
-      if (!task.is_complete && compareDates(task.scheduled_date, getTomorrow())) {
+      if (
+        !task.is_complete &&
+        compareDates(task.scheduled_date, getTomorrow())
+      ) {
         return true;
       } else {
         return false;
@@ -63,11 +65,11 @@ export function TaskList({}: TaskListProps) {
     return !task.is_complete;
   }
   function toggleShowTaskWindow() {
-    setShowTaskWindow(!showTaskWindow)
+    setShowTaskWindow(!showTaskWindow);
   }
   useEffect(() => {
     document.title = "Zettelgarden - Tasks";
- //   setAllTasks();
+    //   setAllTasks();
   }, [refresh]);
   return (
     <div>
@@ -83,21 +85,19 @@ export function TaskList({}: TaskListProps) {
       <span onClick={toggleShowTaskWindow}>Add Task</span>
       <div>
         {showTaskWindow && (
-        <CreateTaskWindow
-          currentCard={null}
-          setRefresh={setRefreshTasks}
-          setShowTaskWindow={setShowTaskWindow}
-        />)}
+          <CreateTaskWindow
+            currentCard={null}
+            setRefresh={setRefreshTasks}
+            setShowTaskWindow={setShowTaskWindow}
+          />
+        )}
       </div>
       <ul>
-        {tasks
-          ?.filter(changeDateView)
-          .sort((a, b) => a.id - b.id)
-          .map((task, index) => (
-            <li key={index}>
-              <TaskListItem task={task} setRefresh={setRefreshTasks} />
-            </li>
-          ))}
+        {tasks && (
+          <TaskList
+            tasks={tasks?.filter(changeDateView).sort((a, b) => a.id - b.id)}
+          />
+        )}
       </ul>
     </div>
   );

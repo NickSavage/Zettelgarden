@@ -1,13 +1,13 @@
 import React from "react";
 import { fetchPartialCards } from "../api/cards";
-import { CardItem } from "../components/cards/CardItem";
 import { useEffect } from "react";
 import { PartialCard } from "../models/Card";
-import { TaskListItem } from "../components/tasks/TaskListItem";
 import { isTodayOrPast } from "../utils/dates";
 import { useTaskContext } from "../contexts/TaskContext";
 import { usePartialCardContext } from "../contexts/CardContext";
 import { HeaderSection, HeaderTop } from "../components/Header";
+import { CardList } from "../components/cards/CardList";
+import { TaskList } from "../components/tasks/TaskList";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
@@ -33,44 +33,32 @@ export function DashboardPage() {
       <div className="mt-5" style={{ display: "flex", flexWrap: "wrap" }}>
         <div style={{ flex: 1, minWidth: "50%" }}>
           <HeaderSection text="Tasks" />
-          {tasks &&
-            tasks
-              .filter((task) => !task.is_complete)
-              .filter((task) => isTodayOrPast(task.scheduled_date))
-              .slice(0, 10)
-              .map((task) => (
-                <TaskListItem task={task} setRefresh={setRefreshTasks} />
-              ))}
+          {tasks && (
+            <TaskList
+              tasks={tasks
+                .filter((task) => !task.is_complete)
+                .filter((task) => isTodayOrPast(task.scheduled_date))
+                .slice(0, 10)}
+            />
+          )}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
           <HeaderSection text="Unsorted Cards" />
-          {partialCards &&
-            partialCards
-              .filter((card) => card.card_id === "")
-              .slice(0, 10)
-              .map((card) => (
-                <div key={card.id} style={{ marginBottom: "10px" }}>
-                  <CardItem card={card} />
-                </div>
-              ))}
+          {partialCards && (
+            <CardList
+              cards={partialCards
+                .filter((card) => card.card_id === "")
+                .slice(0, 10)}
+            />
+          )}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
           <HeaderSection text="Recent Cards" />
-          {partialCards &&
-            partialCards.slice(0, 10).map((card) => (
-              <div key={card.id} style={{ marginBottom: "10px" }}>
-                <CardItem card={card} />
-              </div>
-            ))}
+          {partialCards && <CardList cards={partialCards.slice(0, 10)} />}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
           <HeaderSection text="Inactive Cards" />
-          {inactiveCards &&
-            inactiveCards.slice(0, 10).map((card) => (
-              <div key={card.id} style={{ marginBottom: "10px" }}>
-                <CardItem card={card} />
-              </div>
-            ))}
+          {inactiveCards && <CardList cards={inactiveCards.slice(0, 10)} />}
         </div>
       </div>
     </div>
