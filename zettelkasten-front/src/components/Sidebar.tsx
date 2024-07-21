@@ -8,6 +8,10 @@ import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { FilterInput } from "./FilterInput";
+import { SidebarLink } from "./SidebarLink";
+import { SearchIcon } from "../assets/icons/SearchIcon";
+import { TasksIcon } from "../assets/icons/TasksIcon";
+import { FileIcon } from "../assets/icons/FileIcon";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -99,22 +103,34 @@ export function Sidebar() {
       <div>
         <div className="sidebar-links">
           <ul>
-            <li className="sidebar-nav-item">
-              <Link className="sidebar-nav-link" to="/app/tasks">
-                Tasks
-                <span className="sidebar-nav-badge">{todayTasks.length}</span>
-              </Link>
-            </li>
-            <li className="sidebar-nav-item">
-              <Link className="sidebar-nav-link" to="/app/search">
-                Search
-              </Link>
-            </li>
-            <li className="sidebar-nav-item">
-              <Link className="sidebar-nav-link" to="/app/files">
-                Files
-              </Link>
-            </li>
+            <SidebarLink
+              to="/app/tasks"
+              children={[
+                <span className="mr-2">
+                  <TasksIcon />
+                </span>,
+                <span className="flex-grow">Tasks</span>,
+                <span className="sidebar-nav-badge">{todayTasks.length}</span>,
+              ]}
+            />
+            <SidebarLink
+              to="/app/search"
+              children={[
+                <span className="mr-2">
+                  <SearchIcon />
+                </span>,
+                <span className="flex-grow">Search</span>,
+              ]}
+            />
+            <SidebarLink
+              to="/app/files"
+              children={[
+                <span className="mr-2">
+                  <FileIcon />
+                </span>,
+                <span className="flex-grow">Files</span>,
+              ]}
+            />
           </ul>
         </div>
       </div>
