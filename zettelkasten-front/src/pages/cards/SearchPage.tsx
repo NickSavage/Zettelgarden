@@ -3,6 +3,8 @@ import { fetchCards } from "../../api/cards";
 import { Card } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
 import { sortCards } from "../../utils";
+import { Button } from "../../components/Button";
+import { CardList } from "../../components/cards/CardList";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -68,9 +70,7 @@ export function SearchPage({
         }}
       />
 
-      <button className="btn" onClick={handleSearch}>
-        Search
-      </button>
+      <Button onClick={handleSearch} children={"Search"} />
       <select value={sortBy} onChange={handleSortChange}>
         <option value="relevance">Relevance</option>
         <option value="newest">Newest</option>
@@ -78,49 +78,24 @@ export function SearchPage({
         <option value="a-z">A to Z</option>
         <option value="z-a">Z to A</option>
       </select>
-      <ul>
-        {currentItems.map((card, index) => (
-          <li key={index}>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handleCardClick(card.id);
-              }}
-              style={{ color: "black", textDecoration: "none" }}
-            >
-              <span style={{ color: "blue", fontWeight: "bold" }}>
-                {card.card_id}
-              </span>
-              <span>: {card.title} - </span>
-              <span>
-                {card.body.length > 50
-                  ? `${card.body.substring(0, 50)}...`
-                  : card.body}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <CardList cards={currentItems} />
       <div>
-        <button
+        <Button
           onClick={() => setCurrentPage(currentPage - 1)}
           disabled={currentPage === 1}
-        >
-          Previous
-        </button>
+          children={"Previous"}
+        />
         <span>
           {" "}
           Page {currentPage} of {Math.ceil(sortedCards.length / itemsPerPage)}{" "}
         </span>
-        <button
+        <Button
           onClick={() => setCurrentPage(currentPage + 1)}
           disabled={
             currentPage === Math.ceil(sortedCards.length / itemsPerPage)
           }
-        >
-          Next
-        </button>
+          children={"Next"}
+        />
       </div>
     </div>
   );
