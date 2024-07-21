@@ -5,6 +5,7 @@ import { Task, emptyTask } from "../../models/Task";
 import { Card, PartialCard } from "../..//models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
+import { Input } from "../Input";
 
 interface CreateTaskWindowProps {
   currentCard: Card | PartialCard | null;
@@ -46,46 +47,54 @@ export function CreateTaskWindow({
   }
 
   return (
-    <div className="create-task-popup-overlay" onClick={() => setShowTaskWindow(false)}>
-      <div className="create-task-popup-content" onClick={e => e.stopPropagation()}>
-    <div className="create-task-window">
-      <div className="create-task-window-top">
-        <input
-          style={{ width: "100%" }}
-          value={newTask.title}
-          onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-          onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-            if (event.key === "Enter") {
-              handleSaveTask();
-            }
-          }}
-        />
+    <div
+      className="create-task-popup-overlay"
+      onClick={() => setShowTaskWindow(false)}
+    >
+      <div
+        className="create-task-popup-content"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="create-task-window">
+          <div className="create-task-window-top">
+            <Input
+              label="New Task"
+              value={newTask.title}
+              onChange={(e) =>
+                setNewTask({ ...newTask, title: e.target.value })
+              }
+              onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                if (event.key === "Enter") {
+                  handleSaveTask();
+                }
+              }}
+              placeholder="Enter new task"
+              className="w-full"
+            />
+          </div>
+          <div className="create-task-window-bottom">
+            <div className="create-task-window-bottom-left">
+              {!currentCard && <BacklinkInput addBacklink={handleBacklink} />}
+            </div>
+            <div className="crate-task-window-bottom-middle">
+              {selectedCard && (
+                <span style={{ fontWeight: "bold", color: "blue" }}>
+                  [{selectedCard?.card_id}]
+                </span>
+              )}
+              <TaskDateDisplay
+                task={newTask}
+                setTask={setNewTask}
+                setRefresh={setRefresh}
+                saveOnChange={false}
+              />
+            </div>
+            <div className="create-task-window-bottom-right">
+              <button onClick={handleSaveTask}>Save</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="create-task-window-bottom">
-        <div className="create-task-window-bottom-left">
-          {!currentCard && (
-            <BacklinkInput addBacklink={handleBacklink} />
-          )}
-        </div>
-        <div className="crate-task-window-bottom-middle">
-          {selectedCard && (
-            <span style={{ fontWeight: "bold", color: "blue" }}>
-              [{selectedCard?.card_id}]
-            </span>
-          )}
-          <TaskDateDisplay
-            task={newTask}
-            setTask={setNewTask}
-            setRefresh={setRefresh}
-            saveOnChange={false}
-          />
-        </div>
-        <div className="create-task-window-bottom-right">
-          <button onClick={handleSaveTask}>Save</button>
-        </div>
-      </div>
-    </div>
-    </div>
     </div>
   );
 }
