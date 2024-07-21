@@ -5,6 +5,7 @@ import { getCurrentUser } from "../api/users";
 import { editUser } from "../api/users";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
+import { HeaderTop } from "../components/Header";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -76,7 +77,9 @@ export function UserSettingsPage() {
 
       {user && (
         <div>
-          <h2>Edit User: {user["username"]}</h2>
+          <div>
+            <HeaderTop text="Settings" />
+          </div>
           <form onSubmit={handleSubmit}>
             <div>
               <label>

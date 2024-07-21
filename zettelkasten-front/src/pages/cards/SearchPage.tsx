@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { sortCards } from "../../utils";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
+import { HeaderTop } from "../../components/Header";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -56,46 +57,51 @@ export function SearchPage({
 
   return (
     <div>
-      <input
-        style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
-        type="text"
-        id="title"
-        value={searchTerm}
-        placeholder="Search"
-        onChange={handleSearchUpdate}
-        onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-          if (event.key === "Enter") {
-            handleSearch();
-          }
-        }}
-      />
-
-      <Button onClick={handleSearch} children={"Search"} />
-      <select value={sortBy} onChange={handleSortChange}>
-        <option value="relevance">Relevance</option>
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
-        <option value="a-z">A to Z</option>
-        <option value="z-a">Z to A</option>
-      </select>
-      <CardList cards={currentItems} />
+      <div className="mb-4">
+        <HeaderTop text={"Search"} />
+      </div>
       <div>
-        <Button
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          children={"Previous"}
+        <input
+          style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
+          type="text"
+          id="title"
+          value={searchTerm}
+          placeholder="Search"
+          onChange={handleSearchUpdate}
+          onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+            if (event.key === "Enter") {
+              handleSearch();
+            }
+          }}
         />
-        <span>
-          {" "}
-          Page {currentPage} of {Math.ceil(sortedCards.length / itemsPerPage)}{" "}
-        </span>
-        <Button
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={
-            currentPage === Math.ceil(sortedCards.length / itemsPerPage)
-          }
-          children={"Next"}
-        />
+
+        <Button onClick={handleSearch} children={"Search"} />
+        <select value={sortBy} onChange={handleSortChange}>
+          <option value="relevance">Relevance</option>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="a-z">A to Z</option>
+          <option value="z-a">Z to A</option>
+        </select>
+        <CardList cards={currentItems} />
+        <div>
+          <Button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            children={"Previous"}
+          />
+          <span>
+            {" "}
+            Page {currentPage} of {Math.ceil(sortedCards.length / itemsPerPage)}{" "}
+          </span>
+          <Button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={
+              currentPage === Math.ceil(sortedCards.length / itemsPerPage)
+            }
+            children={"Next"}
+          />
+        </div>
       </div>
     </div>
   );

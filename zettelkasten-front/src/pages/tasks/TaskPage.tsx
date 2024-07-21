@@ -9,6 +9,7 @@ import {
   getTomorrow,
   isTodayOrPast,
 } from "../../utils/dates";
+import { HeaderTop } from "../../components/Header";
 
 interface TaskListProps {}
 
@@ -73,6 +74,9 @@ export function TaskPage({}: TaskListProps) {
   }, [refresh]);
   return (
     <div>
+      <div className="mb-4">
+        <HeaderTop text="Tasks" />
+      </div>
       <div>
         <select value={dateView} onChange={handleDateChange}>
           <option value="today">Today</option>

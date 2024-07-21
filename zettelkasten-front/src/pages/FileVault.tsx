@@ -7,6 +7,7 @@ import { FileListItem } from "../components/FileListItem";
 import { useNavigate } from "react-router-dom";
 
 import { File } from "../models/File";
+import { HeaderTop } from "../components/Header";
 
 export function FileVault() {
   const [files, setFiles] = useState<File[]>([]);
@@ -28,7 +29,7 @@ export function FileVault() {
 
   function onRename(fileId: number, updatedFile: File) {
     setFiles((prevFiles) =>
-      prevFiles.map((f) => (f.id === updatedFile.id ? updatedFile : f)),
+      prevFiles.map((f) => (f.id === updatedFile.id ? updatedFile : f))
     );
     setIsRenameModalOpen(false);
   }
@@ -39,13 +40,15 @@ export function FileVault() {
   }, []);
   return (
     <>
+      <div className="mb-4">
+        <HeaderTop text="File Vault" />
+      </div>
       <FileRenameModal
         isOpen={isRenameModalOpen}
         onClose={() => setIsRenameModalOpen(false)}
         onRename={onRename}
         file={fileToRename}
       />
-      <h3>File Vault</h3>
       {files && files.length > 0 ? (
         <ul>
           {files.map((file, index) => (
