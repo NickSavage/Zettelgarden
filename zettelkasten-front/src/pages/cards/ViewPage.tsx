@@ -15,6 +15,7 @@ import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
 import { HeaderSection, HeaderSubSection } from "../../components/Header";
+import { Button } from "../../components/Button";
 
 interface ViewPageProps {
   setLastCardId: (cardId: string) => void;
@@ -128,7 +129,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
             )}
           </div>
           <hr />
-          <button onClick={handleEditCard}>Edit</button>
+          <Button onClick={handleEditCard} children="Edit" />
           <div>
             <span className="text-xs">
               Created At: {viewingCard.created_at}
@@ -147,19 +148,23 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
               </ul>
             </div>
           )}
-          <HeaderSubSection text="Files" />
-          <ul>
-            {viewingCard.files.map((file, index) => (
-              <FileListItem
-                file={file}
-                onDelete={onFileDelete}
-                handleViewCard={handleViewCard}
-                openRenameModal={openRenameModal}
-              />
-            ))}
-          </ul>
+          {viewingCard.files.length > 0 && (
+            <div>
+              <HeaderSubSection text="Files" />
+              <ul>
+                {viewingCard.files.map((file, index) => (
+                  <FileListItem
+                    file={file}
+                    onDelete={onFileDelete}
+                    handleViewCard={handleViewCard}
+                    openRenameModal={openRenameModal}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
           <HeaderSubSection text="Tasks" />
-          <span onClick={toggleCreateTaskWindow}>Add Task</span>
+          <Button onClick={toggleCreateTaskWindow} children={"Add Task"} />
           {showCreateTaskWindow && (
             <CreateTaskWindow
               currentCard={viewingCard}
@@ -176,8 +181,12 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
           <div>
             <BacklinkInput addBacklink={handleAddBacklink} />
           </div>
-          <HeaderSubSection text="Children" />
-          <CardList cards={viewingCard.children} />
+          {viewingCard.children.length > 0 && (
+            <div>
+              <HeaderSubSection text="Children" />
+              <CardList cards={viewingCard.children} />
+            </div>
+          )}
         </div>
       )}
     </div>

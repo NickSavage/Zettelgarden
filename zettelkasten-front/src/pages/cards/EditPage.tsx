@@ -14,6 +14,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Card, PartialCard, defaultCard } from "../../models/Card";
 import { File } from "../../models/File";
 import { usePartialCardContext } from "../../contexts/CardContext";
+import { Button } from "../../components/Button";
 
 interface EditPageProps {
   newCard: boolean;
@@ -257,10 +258,10 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
             }
             placeholder="Title"
           />
-          <button onClick={handleSaveCard}>Save</button>
-          <button onClick={handleCancelButtonClick}>Cancel</button>
+          <Button onClick={handleSaveCard} children={"Save"} />
+          <Button onClick={handleCancelButtonClick} children={"Cancel"} />
           {!newCard && (
-            <button onClick={handleDeleteButtonClick}>Delete</button>
+            <Button onClick={handleDeleteButtonClick} children={"Delete"} />
           )}
           {!newCard && (
             <div>
