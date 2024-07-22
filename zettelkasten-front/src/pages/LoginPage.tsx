@@ -25,15 +25,13 @@ function LoginForm() {
   };
 
   useEffect(() => {
-
-    console.log("Asdas")
-  console.log(import.meta.env.VITE_URL)
-
-  }, [])
+    console.log("Asdas");
+    console.log(import.meta.env.VITE_URL);
+  }, []);
 
   return (
     <div className="login-container">
-      <h2>Zettelkastsdasdsaen</h2>
+      <h2>Zettelgarden</h2>
 
       <div className="login-error">{error && <span>{error}</span>}</div>
       <div className="login-error">{message && <span>{message}</span>}</div>
