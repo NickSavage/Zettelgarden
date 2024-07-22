@@ -6,6 +6,7 @@ import { Task } from "../../models/Task";
 import { Link } from "react-router-dom";
 import { PartialCard } from "../../models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
+import linkifyHtml from "linkify-html";
 
 interface TaskListItemProps {
   task: Task;
@@ -85,9 +86,8 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
             <span
               onClick={handleTitleClick}
               className={task.is_complete ? "task-completed" : "task-title"}
-            >
-              {task.title}
-            </span>
+              dangerouslySetInnerHTML={{ __html: linkifyHtml(task.title) }}
+            />
           )}
         </div>
         <div className="task-list-item-details">
@@ -111,9 +111,7 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
         {!task.card ||
           (task.card.id == 0 && (
             <div>
-              {showCardLink && (
-                <BacklinkInput addBacklink={handleBacklink} />
-              )}
+              {showCardLink && <BacklinkInput addBacklink={handleBacklink} />}
             </div>
           ))}
       </div>
