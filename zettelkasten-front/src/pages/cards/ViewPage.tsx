@@ -16,6 +16,7 @@ import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
 import { HeaderSection, HeaderSubSection } from "../../components/Header";
 import { Button } from "../../components/Button";
+import Linkify from "linkify-react";
 
 interface ViewPageProps {
   setLastCardId: (cardId: string) => void;
@@ -124,7 +125,9 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
             {viewingCard.link && (
               <div>
                 <span style={{ fontWeight: "bold" }}>Link:</span>
-                <span>{viewingCard.link}</span>
+                <Linkify>
+                  <span> {viewingCard.link}</span>
+                </Linkify>
               </div>
             )}
           </div>
