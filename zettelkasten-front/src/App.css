@@ -97,7 +97,7 @@ option {
   flex-shrink: 0;
   width: 20%;
   overflow-y: auto;
-  height: 100%;
+  height: calc(100vh);
   border-right: 1px solid #ccc;
   background-color: #57cc99;
 }
@@ -182,7 +182,7 @@ option {
 
 .content {
   flex-grow: 1; /* takes the remaining space */
-  height: calc(100vh - 50px);
+  height: calc(100vh);
   overflow-y: auto; /* enables scrolling */
 }
 .content-display {

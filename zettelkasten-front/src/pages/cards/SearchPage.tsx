@@ -36,7 +36,7 @@ export function SearchPage({
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSortBy(e.target.value);
   }
-  const sortedCards = sortCards(cards, sortBy);
+  const sortedCards = cards ? sortCards(cards, sortBy) : [];
 
   // Calculate the index of the last and first item on the current page
   const indexOfLastItem = currentPage * itemsPerPage;
