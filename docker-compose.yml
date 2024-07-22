@@ -7,21 +7,17 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_URL: ${VITE_URL}
-        VITE_USERNAME: ${VITE_USERNAME}
-        VITE_PASSWORD: ${VITE_PASSWORD}
-    image: 192.168.0.97:50000/zettelkasten_frontend:latest
+    image: nsavage/zettelgarden_frontend:latest
     ports:
       - "3001:3000"
     environment:
       - VITE_URL=${VITE_URL}
-      - VITE_USERNAME=${VITE_USERNAME}
-      - VITE_PASSWORD=${VITE_PASSWORD}
 
   go-backend:
     build:
       context: ./go-backend
       dockerfile: Dockerfile
-    image: 192.168.0.97:50000/zettelkasten_go_backend:latest
+    image: nsavage/zettelgarden_go_backend:latest
     ports:
       - "8080:8080"
     env_file:

@@ -18,7 +18,7 @@ COPY . .
 ARG VITE_URL
 ARG VITE_USERNAME
 ARG VITE_PASSWORD
-RUN VITE_URL=${VITE_URL} VITE_USERNAME=${VITE_USERNAME} VITE_PASSWORD=${VITE_PASSWORD} npm run build
+RUN VITE_URL=${VITE_URL} npm run build
 
 # Use serve to serve the build folder
 RUN npm install -g serve
