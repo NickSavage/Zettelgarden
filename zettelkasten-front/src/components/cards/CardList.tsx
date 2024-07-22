@@ -5,18 +5,22 @@ import { PartialCard } from "../../models/Card";
 
 interface CardListProps {
   cards: PartialCard[];
+  sort?: boolean;
 }
 
-export function CardList({ cards }: CardListProps) {
+export function CardList({ cards, sort = true }: CardListProps) {
+  console.log("sort?", sort);
+  const sortedCards = sort
+    ? [...cards].sort((a, b) => a.card_id.localeCompare(b.card_id))
+    : cards;
+
   return (
     <ul>
-      {cards
-        .sort((a, b) => a.card_id.localeCompare(b.card_id))
-        .map((backlink, index) => (
-          <li className="p-2">
-            <CardItem card={backlink} />
-          </li>
-        ))}
+      {sortedCards.map((backlink, index) => (
+        <li className="p-2">
+          <CardItem card={backlink} />
+        </li>
+      ))}
     </ul>
   );
 }

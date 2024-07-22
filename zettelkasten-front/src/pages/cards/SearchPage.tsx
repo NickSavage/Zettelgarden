@@ -1,7 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards } from "../../api/cards";
 import { Card } from "../../models/Card";
-import { useNavigate } from "react-router-dom";
 import { sortCards } from "../../utils";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
@@ -20,14 +19,9 @@ export function SearchPage({
   cards,
   setCards,
 }: SearchPageProps) {
-  const [sortBy, setSortBy] = useState("relevant");
+  const [sortBy, setSortBy] = useState("sortNewOld");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const navigate = useNavigate();
-
-  function handleCardClick(card_id: number) {
-    navigate(`/app/card/${card_id}`);
-  }
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -42,7 +36,7 @@ export function SearchPage({
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSortBy(e.target.value);
   }
-  const sortedCards = sortCards(cards, "sortBigSmall");
+  const sortedCards = sortCards(cards, sortBy);
 
   // Calculate the index of the last and first item on the current page
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -77,13 +71,12 @@ export function SearchPage({
 
         <Button onClick={handleSearch} children={"Search"} />
         <select value={sortBy} onChange={handleSortChange}>
-          <option value="relevance">Relevance</option>
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-          <option value="a-z">A to Z</option>
-          <option value="z-a">Z to A</option>
+          <option value="sortNewOld">Newest</option>
+          <option value="sortOldNew">Oldest</option>
+          <option value="sortBigSmall">A to Z</option>
+          <option value="sortSmallBig">Z to A</option>
         </select>
-        <CardList cards={currentItems} />
+        <CardList cards={currentItems} sort={false} />
         <div>
           <Button
             onClick={() => setCurrentPage(currentPage - 1)}
