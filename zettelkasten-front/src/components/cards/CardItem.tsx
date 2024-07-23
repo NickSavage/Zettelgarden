@@ -33,7 +33,7 @@ export function CardItem({ card }: CardItemProps) {
         : {card.title}
       </Link>
       {showHover && card && (
-        <CardPreviewWindow card={card} mousePosition={mousePosition} />
+       <CardPreviewWindow cardPK={card.id} mousePosition={mousePosition} />
       )}
     </div>
   );

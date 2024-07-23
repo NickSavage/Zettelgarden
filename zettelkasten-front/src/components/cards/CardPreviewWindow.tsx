@@ -6,12 +6,12 @@ import { CardBody } from "./CardBody";
 import { isErrorResponse } from "../../models/common";
 
 interface CardPreviewWindowProps {
-  card: PartialCard;
+  cardPK: number;
   mousePosition: { x: number; y: number };
 }
 
 export function CardPreviewWindow({
-  card,
+  cardPK,
   mousePosition,
 }: CardPreviewWindowProps) {
   const [viewingCard, setViewingCard] = useState<Card | null>(null);
@@ -28,8 +28,8 @@ export function CardPreviewWindow({
   }
   useEffect(() => {
     console.log("asdasasdasd");
-    fetchCard(card.id.toString());
-  }, [card.id]);
+    fetchCard(cardPK.toString());
+  }, [cardPK]);
   const windowHeight = window.innerHeight;
   const previewHeight = 300; // Approximate height of your preview window, adjust as needed
   const topPosition =
@@ -51,9 +51,9 @@ export function CardPreviewWindow({
         <div>
           <h3 style={{ marginBottom: "10px" }}>
             <span style={{ fontWeight: "bold", color: "blue" }}>
-              {card.card_id}
+              {viewingCard.card_id}
             </span>
-            <span>: {card.title}</span>
+            <span>: {viewingCard.title}</span>
           </h3>
           <div>
             <CardBody viewingCard={viewingCard} />
