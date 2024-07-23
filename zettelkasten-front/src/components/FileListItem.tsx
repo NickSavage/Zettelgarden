@@ -34,13 +34,11 @@ export function FileListItem({
         });
     }
   };
-  console.log(file.created_at); // Check the type and value
   return (
     <li key={file.id}>
       <div className="file-item">
         <div>
           {" "}
-          {/* Ensure file.id is unique */}
           <span>{file.id} - </span>
           <a href="#" onClick={(e) => handleFileDownload(file, e)}>
             {file.name}

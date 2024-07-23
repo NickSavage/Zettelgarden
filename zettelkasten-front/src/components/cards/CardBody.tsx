@@ -74,6 +74,7 @@ function renderCardText(
             <span>
               <CardLink
                 currentCard={card}
+                card_id={cardId}
                 handleViewBacklink={handleViewBacklink}
               />
             </span>
