@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CardBody } from "../../components/cards/CardBody";
 import { CardItem } from "../../components/cards/CardItem";
 import { CardList } from "../../components/cards/CardList";
-import { FileListItem } from "../../components/FileListItem";
+import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { getCard, saveExistingCard } from "../../api/cards";
 import { useParams } from "react-router-dom";

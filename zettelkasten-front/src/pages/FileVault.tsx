@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getAllFiles } from "../api/files";
 import { sortCards } from "../utils";
-import { FileRenameModal } from "../components/FileRenameModal";
-import { FileListItem } from "../components/FileListItem";
+import { FileRenameModal } from "../components/files/FileRenameModal";
+import { FileListItem } from "../components/files/FileListItem";
 
 import { useNavigate } from "react-router-dom";
 

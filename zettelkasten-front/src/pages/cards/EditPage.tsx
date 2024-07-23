@@ -8,7 +8,7 @@ import {
   saveExistingCard,
   getCard,
 } from "../../api/cards";
-import { FileListItem } from "../../components/FileListItem";
+import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Card, PartialCard, defaultCard } from "../../models/Card";
