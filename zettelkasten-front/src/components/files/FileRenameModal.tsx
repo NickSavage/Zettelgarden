@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-import { editFile } from "../api/files";
-import { File } from "../models/File";
+import { editFile } from "../../api/files";
+import { File } from "../../models/File";
 
 interface FileRenameModal {
   isOpen: boolean;

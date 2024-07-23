@@ -1,8 +1,7 @@
-import { File } from "../models/File";
-import { renderFile, deleteFile } from "../api/files";
-import { Button } from "./Button";
+import { File } from "../../models/File";
+import { renderFile, deleteFile } from "../../api/files";
+import { Button } from "../Button";
 import React from "react";
-import { CardLink } from "./cards/CardLink";
 
 interface FileListItemProps {
   file: File;
