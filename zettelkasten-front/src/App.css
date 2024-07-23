@@ -184,6 +184,8 @@ option {
   flex-grow: 1; /* takes the remaining space */
   height: calc(100vh);
   overflow-y: auto; /* enables scrolling */
+  word-wrap: break-word; /* Added: ensures text wrapping */
+  overflow-x: hidden; /* Added: prevents horizontal scrolling */
 }
 .content-display {
   padding: 10px;
