@@ -1,7 +1,8 @@
 import { File } from "../models/File";
-import { Card } from "../models/Card";
 import { renderFile, deleteFile } from "../api/files";
+import { Button } from "./Button";
 import React from "react";
+import { CardLink } from "./cards/CardLink";
 
 interface FileListItemProps {
   file: File;
@@ -22,10 +23,7 @@ export function FileListItem({
       console.error("Error downloading file:", error);
     });
   };
-  const handleFileDelete = (file_id: number, e: React.MouseEvent) => {
-    e.preventDefault();
-
-    // Show confirmation dialog
+  const handleFileDelete = (file_id: number) => {
     if (window.confirm("Are you sure you want to delete this file?")) {
       deleteFile(file_id)
         .then(() => {
@@ -68,12 +66,8 @@ export function FileListItem({
           <span>Created At: {file.created_at}</span>
         </div>
         <div className="file-item-right">
-          <button className="btn" onClick={(e) => openRenameModal(file)}>
-            Rename
-          </button>
-          <button className="btn" onClick={(e) => handleFileDelete(file.id, e)}>
-            Delete
-          </button>
+          <Button children={"Rename"} onClick={() => openRenameModal(file)} />
+          <Button  children={"Delete"} onClick={() => handleFileDelete(file.id)} />
         </div>
       </div>
     </li>
