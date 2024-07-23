@@ -11,6 +11,7 @@ import {
 } from "../../utils/dates";
 import { HeaderTop } from "../../components/Header";
 import { FilterInput } from "../../components/FilterInput";
+import { SettingsIcon } from "../../assets/icons/SettingsIcon";
 
 interface TaskListProps {}
 
@@ -87,8 +88,11 @@ export function TaskPage({}: TaskListProps) {
   }, [refresh]);
   return (
     <div>
-      <div className="mb-4">
-        <HeaderTop text="Tasks" />
+      <div className="mb-4 flex">
+        <HeaderTop text="Tasks" className="flex-grow" />
+        <div className="flex-shrink">
+          <SettingsIcon />
+        </div>
       </div>
       <div className="flex">
         <select value={dateView} onChange={handleDateChange}>
