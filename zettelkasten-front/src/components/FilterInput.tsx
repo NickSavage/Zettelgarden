@@ -1,10 +1,10 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, InputHTMLAttributes } from "react";
 
-interface FilterInputProps {
+interface FilterInputProps extends InputHTMLAttributes<HTMLInputElement> {
   handleFilterHook: (text: string) => void;
 }
 
-export function FilterInput({ handleFilterHook }: FilterInputProps) {
+export function FilterInput({ handleFilterHook, ...props }: FilterInputProps) {
   const [filter, setFilter] = useState<string>("");
   function handleFilter(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -18,6 +18,7 @@ export function FilterInput({ handleFilterHook }: FilterInputProps) {
       value={filter}
       onChange={handleFilter}
       placeholder="Filter"
+      {...props}
     />
   );
 }

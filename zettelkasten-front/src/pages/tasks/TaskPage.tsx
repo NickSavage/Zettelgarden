@@ -10,6 +10,7 @@ import {
   isTodayOrPast,
 } from "../../utils/dates";
 import { HeaderTop } from "../../components/Header";
+import { FilterInput } from "../../components/FilterInput";
 
 interface TaskListProps {}
 
@@ -18,6 +19,18 @@ export function TaskPage({}: TaskListProps) {
   const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
   const [showTaskWindow, setShowTaskWindow] = useState<boolean>(false);
+  const [filterString, setFilterString] = useState<string>("");
+
+  function handleFilterChange(text: string) {
+    setFilterString(text);
+  }
+
+  function filterTasks(task: Task) {
+    if (filterString === "") {
+      return task;
+    }
+    return task.title.includes(filterString);
+  }
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
     setDateView(e.target.value);
@@ -77,7 +90,7 @@ export function TaskPage({}: TaskListProps) {
       <div className="mb-4">
         <HeaderTop text="Tasks" />
       </div>
-      <div>
+      <div className="flex">
         <select value={dateView} onChange={handleDateChange}>
           <option value="today">Today</option>
           <option value="tomorrow">Tomorrow</option>
@@ -85,6 +98,7 @@ export function TaskPage({}: TaskListProps) {
           <option value="all">All</option>
           <option value="allClosed">All Closed</option>
         </select>
+        <FilterInput handleFilterHook={handleFilterChange} />
       </div>
       <span onClick={toggleShowTaskWindow}>Add Task</span>
       <div>
@@ -99,7 +113,10 @@ export function TaskPage({}: TaskListProps) {
       <ul>
         {tasks && (
           <TaskList
-            tasks={tasks?.filter(changeDateView).sort((a, b) => a.id - b.id)}
+            tasks={tasks
+              ?.filter(changeDateView)
+              .filter(filterTasks)
+              .sort((a, b) => a.id - b.id)}
           />
         )}
       </ul>
