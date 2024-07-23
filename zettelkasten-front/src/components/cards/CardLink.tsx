@@ -19,7 +19,12 @@ export function CardLink({
         <span style={{ color: "blue", fontWeight: "bold" }}>
           [{card.card_id}]
         </span>
-        {showTitle && <span>{" - "}card.title</span>}
+        {showTitle && (
+          <span>
+            {" - "}
+            {card.title}
+          </span>
+        )}
       </Link>
     </span>
   );

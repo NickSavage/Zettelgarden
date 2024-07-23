@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { PartialCard } from "../../models/Card";
 
 import { CardPreviewWindow } from "./CardPreviewWindow";
+import { CardLink } from "./CardLink";
 
 interface CardItemProps {
   card: PartialCard;
@@ -19,21 +20,18 @@ export function CardItem({ card }: CardItemProps) {
 
   return (
     <div key={card.id} className="card-item">
-      <Link
-        to={`/app/card/${card.id}`}
-        style={{ textDecoration: "none", color: "inherit" }}
+      <span
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={() => setShowHover(false)}
       >
-        <span
-          style={{ color: "blue", fontWeight: "bold" }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={() => setShowHover(false)}
-        >
-          - [{card.card_id}]
-        </span>
-        : {card.title}
-      </Link>
+        <CardLink
+          card={card}
+          handleViewBacklink={(id: number) => {}}
+          showTitle={true}
+        />
+      </span>
       {showHover && card && (
-       <CardPreviewWindow cardPK={card.id} mousePosition={mousePosition} />
+        <CardPreviewWindow cardPK={card.id} mousePosition={mousePosition} />
       )}
     </div>
   );
