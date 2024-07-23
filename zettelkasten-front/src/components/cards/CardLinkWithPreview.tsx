@@ -3,17 +3,17 @@ import React, { useState } from "react";
 import { Card } from "../../models/Card";
 import { CardPreviewWindow } from "./CardPreviewWindow";
 
-interface CardLinkProps {
-  currentCard: Card
+interface CardLinkWithPreviewProps {
+  currentCard: Card;
   card_id: string;
   handleViewBacklink: (card_id: number) => void;
 }
 
-export function CardLink({
+export function CardLinkWithPreview({
   currentCard,
   card_id,
   handleViewBacklink,
-}: CardLinkProps) {
+}: CardLinkWithPreviewProps) {
   const [showHover, setShowHover] = useState(false);
   const linkedCard = currentCard.references
     .filter((x) => x !== null)
@@ -41,7 +41,10 @@ export function CardLink({
         [{card_id}]
       </a>
       {showHover && linkedCard && (
-        <CardPreviewWindow cardPK={linkedCard.id} mousePosition={mousePosition} />
+        <CardPreviewWindow
+          cardPK={linkedCard.id}
+          mousePosition={mousePosition}
+        />
       )}
     </span>
   );

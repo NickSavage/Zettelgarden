@@ -4,7 +4,7 @@ import { downloadFile } from "../../api/files";
 import { Card } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
 
-import { CardLink } from "./CardLink";
+import { CardLinkWithPreview } from "./CardLinkWithPreview";
 
 interface CustomImageRendererProps {
   src?: string; // Make src optional
@@ -58,7 +58,7 @@ const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
 
 function renderCardText(
   card: Card,
-  handleViewBacklink: (card_id: number) => void,
+  handleViewBacklink: (card_id: number) => void
 ) {
   let body = card.body;
   body = preprocessCardLinks(body);
@@ -72,7 +72,7 @@ function renderCardText(
 
           return (
             <span>
-              <CardLink
+              <CardLinkWithPreview
                 currentCard={card}
                 card_id={cardId}
                 handleViewBacklink={handleViewBacklink}
