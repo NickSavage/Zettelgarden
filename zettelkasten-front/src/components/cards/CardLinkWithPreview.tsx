@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 import { Card } from "../../models/Card";
 import { CardPreviewWindow } from "./CardPreviewWindow";
+import { CardLink } from "./CardLink";
+import { cardToPartialCard } from "../../utils/cards";
 
 interface CardLinkWithPreviewProps {
   currentCard: Card;
@@ -30,16 +32,13 @@ export function CardLinkWithPreview({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShowHover(false)}
     >
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          handleViewBacklink(linkedCard!.id);
-        }}
-        style={{ fontWeight: "bold", color: "blue" }}
-      >
-        [{card_id}]
-      </a>
+      {linkedCard && (
+        <CardLink
+          card={linkedCard}
+          handleViewBacklink={handleViewBacklink}
+          showTitle={true}
+        />
+      )}
       {showHover && linkedCard && (
         <CardPreviewWindow
           cardPK={linkedCard.id}

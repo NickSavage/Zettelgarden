@@ -20,11 +20,13 @@ export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
     const search = e.target.value; // assuming you want case-insensitive matching
     setSearchTerm(search);
     if (search !== "") {
-      const exactMatchCard = partialCards.find((card) => card.card_id === search);
+      const exactMatchCard = partialCards.find(
+        (card) => card.card_id === search
+      );
       const matchingCards = partialCards.filter(
         (card) =>
           card.card_id.toLowerCase().startsWith(search.toLowerCase()) ||
-          card.title.toLowerCase().includes(search.toLowerCase()),
+          card.title.toLowerCase().includes(search.toLowerCase())
       );
 
       // If an exact match is found, make sure it is at the front of the array
@@ -33,7 +35,7 @@ export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
         : matchingCards;
       filteredCards = filteredCards.filter(
         (card, index, self) =>
-          index === self.findIndex((t) => t.card_id === card.card_id),
+          index === self.findIndex((t) => t.card_id === card.card_id)
       );
       let results = filteredCards.slice(0, 5);
       setTopResults(results);
@@ -82,7 +84,7 @@ export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
         onKeyDown={handleEnterPress}
         style={{ display: "block", marginRight: "10px" }}
       />
-      {topResults && (
+      {topResults.length > 0 && (
         <BacklinkInputDropdownList
           addBacklink={handleDropdownClick}
           cards={topResults}
