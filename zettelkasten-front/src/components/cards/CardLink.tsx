@@ -14,18 +14,13 @@ export function CardLink({
   showTitle,
 }: CardLinkProps) {
   return (
-    <div>
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          handleViewBacklink(card!.id);
-        }}
-        style={{ fontWeight: "bold", color: "blue" }}
-      >
-        [{card.card_id}]
-      </a>
-      {showTitle && <span>{": "}card.title</span>}
-    </div>
+    <span>
+      <Link to={`/app/card/${card.id}`}>
+        <span style={{ color: "blue", fontWeight: "bold" }}>
+          [{card.card_id}]
+        </span>
+        {showTitle && <span>{" - "}card.title</span>}
+      </Link>
+    </span>
   );
 }

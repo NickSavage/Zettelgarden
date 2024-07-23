@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Card } from "../../models/Card";
 import { CardPreviewWindow } from "./CardPreviewWindow";
 import { CardLink } from "./CardLink";
-import { cardToPartialCard } from "../../utils/cards";
 
 interface CardLinkWithPreviewProps {
   currentCard: Card;
@@ -36,7 +35,7 @@ export function CardLinkWithPreview({
         <CardLink
           card={linkedCard}
           handleViewBacklink={handleViewBacklink}
-          showTitle={true}
+          showTitle={false}
         />
       )}
       {showHover && linkedCard && (
