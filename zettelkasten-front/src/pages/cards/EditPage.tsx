@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../../utils";
-import { uploadFile, editFile } from "../../api/files";
-import {
-  deleteCard,
-  getNextId,
-  saveNewCard,
-  saveExistingCard,
-  getCard,
-} from "../../api/cards";
+import { uploadFile } from "../../api/files";
+import { saveNewCard, saveExistingCard, getCard } from "../../api/cards";
 import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, PartialCard, defaultCard } from "../../models/Card";
 import { File } from "../../models/File";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
+import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
 
 interface EditPageProps {
   newCard: boolean;
@@ -42,7 +37,6 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const addFileId = (fileId: string) => {
     setFileIds((prevFileIds) => [...prevFileIds, fileId]);
@@ -88,22 +82,6 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
       navigate(`/app/card/${editingCard.id}`);
     } else {
       navigate("/");
-    }
-  }
-
-  function handleDeleteButtonClick() {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this card? This cannot be reversed"
-      )
-    ) {
-      deleteCard(editingCard.id)
-        .then(() => setRefreshPartialCards(true))
-        .catch((error) =>
-          setMessage(
-            "Unable to delete card. Does it have backlinks, children or files?"
-          )
-        );
     }
   }
 
@@ -261,7 +239,7 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
           <Button onClick={handleSaveCard} children={"Save"} />
           <Button onClick={handleCancelButtonClick} children={"Cancel"} />
           {!newCard && (
-            <Button onClick={handleDeleteButtonClick} children={"Delete"} />
+            <ButtonCardDelete card={editingCard} setMessage={setMessage} />
           )}
           {!newCard && (
             <div>
