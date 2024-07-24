@@ -1,6 +1,7 @@
 import React from "react";
 import { PartialCard } from "../../models/Card";
 import { Link } from "react-router-dom";
+import { CardTag } from "./CardTag";
 
 interface CardLinkProps {
   card: PartialCard;
@@ -8,23 +9,11 @@ interface CardLinkProps {
   showTitle: boolean;
 }
 
-export function CardLink({
-  card,
-  handleViewBacklink,
-  showTitle,
-}: CardLinkProps) {
+export function CardLink({ card, showTitle }: CardLinkProps) {
   return (
     <span>
       <Link to={`/app/card/${card.id}`}>
-        <span style={{ color: "blue", fontWeight: "bold" }}>
-          [{card.card_id}]
-        </span>
-        {showTitle && (
-          <span>
-            {" - "}
-            {card.title}
-          </span>
-        )}
+        <CardTag card={card} showTitle={showTitle} />
       </Link>
     </span>
   );

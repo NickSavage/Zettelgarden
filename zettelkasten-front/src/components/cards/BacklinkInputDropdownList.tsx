@@ -1,7 +1,7 @@
 import React from "react";
 
-import { Card, PartialCard } from "../../models/Card";
-import { CardLink } from "./CardLink";
+import { PartialCard } from "../../models/Card";
+import { CardTag } from "./CardTag";
 
 interface BacklinkInputDropdownListProps {
   addBacklink: (card: PartialCard) => void;
@@ -23,11 +23,7 @@ export function BacklinkInputDropdownList({
           }}
           onClick={(e) => addBacklink(card)}
         >
-          <CardLink
-            card={card}
-            handleViewBacklink={(id: number) => {}}
-            showTitle={true}
-          />
+          <CardTag card={card} showTitle={true} />
         </li>
       ))}
     </ul>
