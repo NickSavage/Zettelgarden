@@ -50,9 +50,11 @@ export function Sidebar() {
   }, [mainCards, filter]);
 
   function handleNewStandardCard() {
+    toggleNewDropdown();
     navigate("/app/card/new", { state: { cardType: "standard" } });
   }
   function handleNewTask() {
+    toggleNewDropdown();
     setShowCreateTaskWindow(true);
   }
 
