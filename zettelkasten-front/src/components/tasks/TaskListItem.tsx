@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import { PartialCard } from "../../models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import linkifyHtml from "linkify-html";
+import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
+import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 
 interface TaskListItemProps {
   task: Task;
@@ -66,7 +68,7 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
     <div className="task-list-item">
       <div className="task-list-item-checkbox">
         <span onClick={handleToggleComplete}>
-          {task.is_complete ? "[x]" : "[ ]"}
+          {task.is_complete ? <TaskClosedIcon /> : <TaskOpenIcon />}
         </span>
       </div>
       <div className="task-list-item-middle-container">
