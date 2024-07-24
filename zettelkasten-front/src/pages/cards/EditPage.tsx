@@ -10,6 +10,7 @@ import { File } from "../../models/File";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
 import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
+import { insertAtCursor } from "../../utils/strings";
 
 interface EditPageProps {
   newCard: boolean;
@@ -57,11 +58,6 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
     }
 
     if (!("error" in response)) {
-      // if (newCard) {
-      //   fileIds.forEach((fileId) => {
-      //     editFile(fileId, { card_pk: response.id });
-      //   });
-      // }
       navigate(`/app/card/${response.id}`);
     } else {
       setError("Unable to save card, something has gone wrong.");
@@ -117,12 +113,11 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
   const handlePaste = async (
     event: React.ClipboardEvent<HTMLTextAreaElement>
   ) => {
-    event.preventDefault();
-
     if (event.clipboardData && event.clipboardData.items) {
       const items = Array.from(event.clipboardData.items);
       for (const item of items) {
         if (item.type.indexOf("image") !== -1) {
+          event.preventDefault(); // Prevent default only for images
           const file = item.getAsFile();
 
           if (newCard) {
@@ -151,17 +146,11 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
           } catch (error) {
             setMessage(`Error uploading file: ${error}`);
           }
-        } else if (item.type === "text/plain") {
-          const text = event.clipboardData.getData("text/plain");
-          setEditingCard((prevEditingCard) => ({
-            ...prevEditingCard,
-            body: prevEditingCard.body + text,
-          }));
         }
+        // Remove the else if block for text/plain
       }
     }
   };
-
   const handleDragOver = (event: React.DragEvent<HTMLTextAreaElement>) => {
     event.preventDefault();
   };
