@@ -12,6 +12,7 @@ import { SidebarLink } from "./SidebarLink";
 import { SearchIcon } from "../assets/icons/SearchIcon";
 import { TasksIcon } from "../assets/icons/TasksIcon";
 import { FileIcon } from "../assets/icons/FileIcon";
+import { Button } from "./Button";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -89,13 +90,9 @@ export function Sidebar() {
             +
           </button>
           {isNewDropdownOpen && (
-            <div className="dropdown-content">
-              <a href="#settings" onClick={handleNewStandardCard}>
-                New Card
-              </a>
-              <a href="#task" onClick={handleNewTask}>
-                New Task
-              </a>
+            <div className="popup-menu">
+              <button onClick={handleNewStandardCard} children={"New Card"} />
+              <button onClick={handleNewTask} children={"New Task"} />
             </div>
           )}
         </div>

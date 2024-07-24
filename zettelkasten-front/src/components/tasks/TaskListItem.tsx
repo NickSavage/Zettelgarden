@@ -115,7 +115,7 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
             </div>
           ))}
       </div>
-      <div className="task-list-item-menu">
+      <div className="dropdown">
         <button onClick={toggleMenu} className="menu-button">
           ⋮
         </button>

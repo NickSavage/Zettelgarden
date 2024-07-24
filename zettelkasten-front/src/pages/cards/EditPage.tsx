@@ -10,7 +10,6 @@ import { File } from "../../models/File";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
 import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
-import { insertAtCursor } from "../../utils/strings";
 
 interface EditPageProps {
   newCard: boolean;
