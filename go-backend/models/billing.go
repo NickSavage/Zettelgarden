@@ -26,3 +26,7 @@ type CreateCheckoutSessionParams struct {
 type CreateCheckoutSessionResponse struct {
 	URL string `json:"redirect_url"`
 }
+
+type GetSuccessfulSessionDataResponse struct {
+	Error string `json:"error"`
+}

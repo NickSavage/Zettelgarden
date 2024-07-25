@@ -10,6 +10,7 @@ import (
 
 	"github.com/stripe/stripe-go/v79"
 	"github.com/stripe/stripe-go/v79/checkout/session"
+	"github.com/stripe/stripe-go/v79/customer"
 )
 
 type StripeClient struct {
@@ -52,7 +53,7 @@ func (s *Server) fetchPlanInformation(interval string) (models.StripePlan, error
 	return plan, nil
 }
 
-func (s *Server) createCheckoutSession(w http.ResponseWriter, r *http.Request) {
+func (s *Server) CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 
 	var params models.CreateCheckoutSessionParams
 
@@ -85,8 +86,8 @@ func (s *Server) createCheckoutSession(w http.ResponseWriter, r *http.Request) {
 				Quantity: stripe.Int64(1),
 			},
 		},
-		SuccessURL: stripe.String(baseUrl + "/success.html?session_id={CHECKOUT_SESSION_ID}"),
-		CancelURL:  stripe.String(baseUrl + "/cancel.html"),
+		SuccessURL: stripe.String(baseUrl + "/app/settings/billing/success?session_id={CHECKOUT_SESSION_ID}"),
+		CancelURL:  stripe.String(baseUrl + "/app/settings/billing/cancelled"),
 	}
 
 	sess, err := session.New(checkoutParams)
@@ -99,4 +100,28 @@ func (s *Server) createCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
+}
+
+func (s *Server) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Request) {
+	var response models.GetSuccessfulSessionDataResponse
+	sessionID := r.URL.Query().Get("session_id")
+
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+	resource, err := session.Get(sessionID, &stripe.CheckoutSessionParams{})
+	if err != nil {
+		response.Error = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	customer, err := customer.Get(resource.Customer.ID, &stripe.CustomerParams{})
+	if err != nil {
+		response.Error = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	json.NewEncoder(w).Encode(customer)
 }

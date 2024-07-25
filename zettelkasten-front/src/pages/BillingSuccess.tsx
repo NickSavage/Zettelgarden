@@ -9,6 +9,8 @@ export function BillingSuccess() {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get("session_id");
 
+    console.log("asdfadf");
+    console.log(sessionId);
     if (sessionId) {
       getSuccessfulSessionData(sessionId)
         .then((data) => {

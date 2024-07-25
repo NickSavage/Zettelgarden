@@ -206,7 +206,8 @@ func main() {
 	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute)).Methods("PUT")
 	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.DeleteTaskRoute)).Methods("DELETE")
 
-	r.HandleFunc("/api/billing/create_checkout_session", s.createCheckoutSession).Methods("POST")
+	r.HandleFunc("/api/billing/create_checkout_session", s.CreateCheckoutSession).Methods("POST")
+	r.HandleFunc("/api/billing/success", s.GetSuccessfulSessionData).Methods("GET")
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -219,7 +220,7 @@ func main() {
 		AllowedHeaders:   []string{"authorization", "content-type"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 		// Enable Debugging for testing, consider disabling in production
-		Debug: true,
+		//Debug: true,
 	})
 
 	handler := c.Handler(r)

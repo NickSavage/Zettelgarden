@@ -50,7 +50,7 @@ function MainAppContent() {
     setRefreshPartialCards(true);
   }, []);
 
-  if ((!isLoading && !isAuthenticated) || !hasSubscription) {
+  if (!isLoading && !isAuthenticated) {
     return <SubscriptionPage />;
   }
   return (
