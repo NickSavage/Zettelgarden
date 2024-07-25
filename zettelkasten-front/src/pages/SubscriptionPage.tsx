@@ -9,12 +9,12 @@ export function SubscriptionPage() {
 
   async function handleMonthlySubscribe() {
     let response = await createCheckoutSession("month");
-    window.location.href = response.url;
+    window.location.href = response.redirect_url;
   }
 
   async function handleAnnualSubscribe() {
     let response = await createCheckoutSession("year");
-    window.location.href = response.url;
+    window.location.href = response.redirect_url;
   }
 
   function handleLogout() {

@@ -14,6 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   isAdmin: boolean;
+  hasSubscription: boolean;
   loginUser: (data: LoginResponse) => void;
   logoutUser: () => void;
   currentUser: User | null;
@@ -29,6 +30,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Added loading state
+  const [hasSubscription, setHasSubscription] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -42,6 +44,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsAdmin(adminStatus);
         const currentUser = await getCurrentUser();
         setCurrentUser(currentUser);
+        console.log(currentUser.stripe_subscription_status === "active");
+        setHasSubscription(currentUser.stripe_subscription_status === "active");
       }
       setIsLoading(false);
     };
@@ -67,6 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isAuthenticated,
         isLoading,
         isAdmin,
+        hasSubscription,
         loginUser,
         logoutUser,
         currentUser,

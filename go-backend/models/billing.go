@@ -18,3 +18,11 @@ type StripePlan struct {
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 }
+
+type CreateCheckoutSessionParams struct {
+	Interval string `json:"interval"`
+}
+
+type CreateCheckoutSessionResponse struct {
+	URL string `json:"redirect_url"`
+}

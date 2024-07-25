@@ -28,7 +28,7 @@ function MainAppContent() {
   const [lastCardId, setLastCardId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
-  const { isAuthenticated, isLoading, logoutUser } = useAuth();
+  const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
   const { setRefreshPartialCards } = usePartialCardContext();
 
@@ -50,7 +50,7 @@ function MainAppContent() {
     setRefreshPartialCards(true);
   }, []);
 
-  if (!isLoading && !isAuthenticated) {
+  if ((!isLoading && !isAuthenticated) || !hasSubscription) {
     return <SubscriptionPage />;
   }
   return (

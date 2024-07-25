@@ -14,6 +14,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"github.com/stripe/stripe-go"
 )
 
 var s *Server
@@ -161,6 +162,8 @@ func main() {
 	s.runMigrations()
 	s.s3 = s.createS3Client()
 
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+
 	s.mail = &MailClient{
 		Host:     os.Getenv("MAIL_HOST"),
 		Password: os.Getenv("MAIL_PASSWORD"),
@@ -203,6 +206,8 @@ func main() {
 	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute)).Methods("PUT")
 	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.DeleteTaskRoute)).Methods("DELETE")
 
+	r.HandleFunc("/api/billing/create_checkout_session", s.createCheckoutSession).Methods("POST")
+
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte("{\"hello\": \"world\"}"))
@@ -214,7 +219,7 @@ func main() {
 		AllowedHeaders:   []string{"authorization", "content-type"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 		// Enable Debugging for testing, consider disabling in production
-		//Debug: true,
+		Debug: true,
 	})
 
 	handler := c.Handler(r)
