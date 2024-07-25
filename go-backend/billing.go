@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"github.com/stripe/stripe-go/v79"
 	"github.com/stripe/stripe-go/v79/checkout/session"
 	"github.com/stripe/stripe-go/v79/customer"
+	"github.com/stripe/stripe-go/v79/webhook"
 )
 
 type StripeClient struct {
@@ -124,4 +126,42 @@ func (s *Server) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Request
 	}
 
 	json.NewEncoder(w).Encode(customer)
+}
+
+func (s *Server) handleCheckoutSessionComplete(event stripe.Event) error {
+	var subscription stripe.Subscription
+	err := json.Unmarshal(event.Data.Raw, &subscription)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing webhook JSON: %v\n", err)
+		return err
+	}
+	resource, err := session.Get(subscription.ID, &stripe.CheckoutSessionParams{})
+	if err != nil {
+		return err
+	}
+	log.Printf("resource %v", resource)
+	return nil
+}
+
+func (s *Server) HandleWebhook(w http.ResponseWriter, r *http.Request) {
+	const MaxBodyBytes = int64(65536)
+	bodyReader := http.MaxBytesReader(w, r.Body, MaxBodyBytes)
+	payload, err := ioutil.ReadAll(bodyReader)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading request body: %v\n", err)
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	endpointSecret := os.Getenv("STRIPE_ENDPOINT_SECRET")
+	signatureHeader := r.Header.Get("Stripe-Signature")
+	event, err := webhook.ConstructEvent(payload, signatureHeader, endpointSecret)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "⚠️  Webhook signature verification failed. %v\n", err)
+		w.WriteHeader(http.StatusBadRequest) // Return a 400 error on a bad signature
+		return
+	}
+	switch event.Type {
+	case "checkout.session.completed":
+		err = s.handleCheckoutSessionComplete(event)
+	}
 }
