@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
@@ -12,6 +13,7 @@ import (
 	"github.com/stripe/stripe-go/v79"
 	"github.com/stripe/stripe-go/v79/checkout/session"
 	"github.com/stripe/stripe-go/v79/customer"
+	"github.com/stripe/stripe-go/v79/price"
 	"github.com/stripe/stripe-go/v79/webhook"
 )
 
@@ -25,6 +27,78 @@ func (s *Server) createStripeClient() *StripeClient {
 	}
 
 	return client
+}
+
+func (s *Server) syncStripePlans() error {
+	log.Printf("start")
+	stripe.Key = s.stripe_key
+
+	params := &stripe.PriceListParams{
+		Active: stripe.Bool(true),
+	}
+	params.AddExpand("data.product")
+	iter := price.List(params)
+
+	for iter.Next() {
+		p := iter.Price()
+		product := p.Product
+
+		log.Printf("price %v", p)
+		// Prepare data for insertion or update
+		metadata, err := json.Marshal(product.Metadata)
+		if err != nil {
+			return fmt.Errorf("failed to marshal metadata: %w", err)
+		}
+
+		var interval, intervalCount sql.NullString
+		var trialDays int64
+		if p.Recurring != nil {
+			interval = sql.NullString{String: string(p.Recurring.Interval), Valid: true}
+			intervalCount = sql.NullString{String: fmt.Sprintf("%d", p.Recurring.IntervalCount), Valid: true}
+			trialDays = p.Recurring.TrialPeriodDays
+		}
+
+		// Upsert query (PostgreSQL 9.5+)
+		query := `
+		INSERT INTO stripe_plans (stripe_product_id, stripe_price_id, name, description, active, unit_amount, currency, interval, interval_count, trial_days, metadata)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		ON CONFLICT (stripe_price_id)
+		DO UPDATE SET
+			name = EXCLUDED.name,
+			description = EXCLUDED.description,
+			active = EXCLUDED.active,
+			unit_amount = EXCLUDED.unit_amount,
+			currency = EXCLUDED.currency,
+			interval = EXCLUDED.interval,
+			interval_count = EXCLUDED.interval_count,
+			trial_days = EXCLUDED.trial_days,
+			metadata = EXCLUDED.metadata,
+			updated_at = CURRENT_TIMESTAMP;
+		`
+
+		_, err = s.db.Exec(query,
+			product.ID,
+			p.ID,
+			product.Name,
+			product.Description,
+			product.Active,
+			p.UnitAmount,
+			string(p.Currency),
+			interval,
+			intervalCount,
+			trialDays,
+			metadata,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to execute upsert query: %w", err)
+		}
+	}
+
+	if err := iter.Err(); err != nil {
+		return fmt.Errorf("error iterating through prices: %w", err)
+	}
+
+	return nil
 }
 
 func (s *Server) fetchPlanInformation(interval string) (models.StripePlan, error) {
@@ -108,6 +182,7 @@ func (s *Server) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Request
 	var response models.GetSuccessfulSessionDataResponse
 	sessionID := r.URL.Query().Get("session_id")
 
+	s.syncStripePlans()
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 	resource, err := session.Get(sessionID, &stripe.CheckoutSessionParams{})
 	if err != nil {
