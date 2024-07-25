@@ -24,6 +24,7 @@ type Server struct {
 	s3             *s3.Client
 	testing        bool
 	jwt_secret_key []byte
+	stripe_key     string
 	mail           *MailClient
 	TestInspector  *TestInspector
 }
@@ -162,6 +163,7 @@ func main() {
 	s.runMigrations()
 	s.s3 = s.createS3Client()
 
+	s.stripe_key = os.Getenv("STRIPE_SECRET_KEY")
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
 	s.mail = &MailClient{
@@ -208,6 +210,7 @@ func main() {
 
 	r.HandleFunc("/api/billing/create_checkout_session", s.CreateCheckoutSession).Methods("POST")
 	r.HandleFunc("/api/billing/success", s.GetSuccessfulSessionData).Methods("GET")
+	r.HandleFunc("/api/webhook", s.HandleWebhook).Methods("POST")
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
