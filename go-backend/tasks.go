@@ -326,6 +326,7 @@ func checkRecurringTasks(task models.Task) error {
 		Title:         task.Title,
 		IsComplete:    false,
 	}
+	log.Printf("creating recurring task - %v", newTask)
 	_, err := s.CreateTask(newTask)
 	if err != nil {
 		return err
