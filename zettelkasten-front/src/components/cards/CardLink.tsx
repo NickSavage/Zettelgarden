@@ -11,10 +11,8 @@ interface CardLinkProps {
 
 export function CardLink({ card, showTitle }: CardLinkProps) {
   return (
-    <span>
-      <Link to={`/app/card/${card.id}`}>
-        <CardTag card={card} showTitle={showTitle} />
-      </Link>
-    </span>
+    <Link to={`/app/card/${card.id}`}>
+      <CardTag card={card} showTitle={showTitle} />
+    </Link>
   );
 }

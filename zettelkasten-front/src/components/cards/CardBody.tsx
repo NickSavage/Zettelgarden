@@ -71,13 +71,11 @@ function renderCardText(
           const cardId = children as string;
 
           return (
-            <span>
-              <CardLinkWithPreview
-                currentCard={card}
-                card_id={cardId}
-                handleViewBacklink={handleViewBacklink}
-              />
-            </span>
+            <CardLinkWithPreview
+              currentCard={card}
+              card_id={cardId}
+              handleViewBacklink={handleViewBacklink}
+            />
           );
         },
         img({ src, alt, title, ...props }) {

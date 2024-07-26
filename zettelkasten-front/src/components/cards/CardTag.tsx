@@ -8,7 +8,7 @@ interface CardTagProps {
 
 export function CardTag({ card, showTitle }: CardTagProps) {
   return (
-    <div>
+    <div className="inline-block">
       <span style={{ color: "blue", fontWeight: "bold" }}>
         [{card.card_id}]
       </span>
