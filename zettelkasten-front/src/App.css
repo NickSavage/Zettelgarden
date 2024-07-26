@@ -477,9 +477,13 @@ h1 {
 
 .task-list-item-middle-container {
   flex-grow: 1;
+  min-width: 0;
 }
 
 .task-list-item-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .task-list-item-details {
