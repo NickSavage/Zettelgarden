@@ -204,6 +204,7 @@ func (s *Server) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Request
 }
 
 func (s *Server) handleCheckoutSessionComplete(event stripe.Event) error {
+	stripe.Key = s.stripe_key
 	var subscription stripe.Subscription
 	err := json.Unmarshal(event.Data.Raw, &subscription)
 	if err != nil {
@@ -214,7 +215,37 @@ func (s *Server) handleCheckoutSessionComplete(event stripe.Event) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("resource %v", resource)
+	customerID := resource.Customer.ID
+	log.Printf("cus_id %v", customerID)
+	customer, err := customer.Get(customerID, &stripe.CustomerParams{})
+	if err != nil {
+		log.Printf("cx err %v")
+		return err
+	}
+	log.Printf("customer %v email %v", customer, customer.Email)
+	var frequency string
+	lineItemsIter := session.ListLineItems(&stripe.CheckoutSessionListLineItemsParams{})
+	for lineItemsIter.Next() {
+		lineItem := lineItemsIter.LineItem()
+		frequency = lineItem.Description
+		break
+	}
+
+	status := "active"
+
+	_, err = s.db.Exec(`
+		UPDATE users SET
+			stripe_customer_id = $1,
+			stripe_subscription_id = $2, 
+			stripe_subscription_status = $3,
+	        stripe_subscription_frequency = $4,
+			updated_at = NOW()
+		WHERE email = $5`, customerID, subscription.ID, status, frequency, customer.Email)
+
+	if err != nil {
+		log.Printf("error: %v", err)
+		return fmt.Errorf("unable to update task")
+	}
 	return nil
 }
 
