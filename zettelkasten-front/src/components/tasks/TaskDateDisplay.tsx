@@ -10,6 +10,7 @@ import {
   isRecurringTask,
 } from "../../utils/dates";
 import { saveExistingTask } from "../../api/tasks";
+import { DatePicker } from "../DatePicker";
 
 interface TaskDateDisplayProps {
   task: Task;
@@ -26,20 +27,11 @@ export function TaskDateDisplay({
 }: TaskDateDisplayProps) {
   const [displayText, setDisplayText] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>(
-    task.scheduled_date ? task.scheduled_date.toISOString().substr(0, 10) : "",
+    task.scheduled_date ? task.scheduled_date.toISOString().substr(0, 10) : ""
   );
   const [displayDatePicker, setDisplayDatePicker] = useState<boolean>(false);
 
-  async function handleScheduledDateChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) {
-    const newDate = new Date(e.target.value);
-    const localTimezoneOffset = newDate.getTimezoneOffset();
-    const utcDate = new Date(newDate.getTime() + localTimezoneOffset * 60000);
-
-    setSelectedDate(newDate.toISOString().substr(0, 10)); // Update selected date in the state
-
-    let editedTask = { ...task, scheduled_date: utcDate };
+  async function updateTask(editedTask: Task) {
     if (saveOnChange) {
       let response = await saveExistingTask(editedTask);
       if (!("error" in response)) {
@@ -48,6 +40,28 @@ export function TaskDateDisplay({
     } else {
       setTask(editedTask);
     }
+  }
+
+  async function setNoDate() {
+    let editedTask = { ...task, scheduled_date: null };
+    updateTask(editedTask);
+    setDisplayDatePicker(false);
+    setSelectedDate("");
+  }
+
+  async function handleScheduledDateChange(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    console.log(e);
+    const newDate = new Date(e.target.value);
+    const localTimezoneOffset = newDate.getTimezoneOffset();
+    const utcDate = new Date(newDate.getTime() + localTimezoneOffset * 60000);
+
+    setSelectedDate(newDate.toISOString().substr(0, 10)); // Update selected date in the state
+    let editedTask = { ...task, scheduled_date: utcDate };
+
+    updateTask(editedTask);
+
     setDisplayDatePicker(false);
     setSelectedDate("");
   }
@@ -111,11 +125,10 @@ export function TaskDateDisplay({
       </div>
       <div>
         {displayDatePicker && (
-          <input
-            aria-label="Date"
-            type="date"
-            value={selectedDate}
-            onChange={handleScheduledDateChange}
+          <DatePicker
+            selectedDate={selectedDate}
+            setNoDate={setNoDate}
+            handleScheduledDateChange={handleScheduledDateChange}
           />
         )}
       </div>
