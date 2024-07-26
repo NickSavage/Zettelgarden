@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS backlinks (
     source_id TEXT,
     target_id TEXT,
     created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    updated_at TIMESTAMP,
+    source_id_int INTEGER,
+    target_id_int INTEGER
 );
 CREATE TABLE IF NOT EXISTS card_views (
     id SERIAL PRIMARY KEY,

@@ -107,7 +107,7 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, backlink := range backlinks {
-		_, err := s.db.Exec("INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceID, backlink.TargetID, backlink.CreatedAt, backlink.UpdatedAt)
+		_, err := s.db.Exec("INSERT INTO backlinks (source_id_int, target_id_int, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceIDInt, backlink.TargetIDInt, backlink.CreatedAt, backlink.UpdatedAt)
 		if err != nil {
 			log.Printf("err %v", err)
 			return err
@@ -211,23 +211,23 @@ func (s *Server) generateData() map[string]interface{} {
 	backlinks := []models.Backlink{}
 	for i := 1; i <= 30; i++ {
 		backlinks = append(backlinks, models.Backlink{
-			SourceID:  randomString(20),
-			TargetID:  randomString(20),
-			CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			SourceIDInt: i,
+			TargetIDInt: i,
+			CreatedAt:   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt:   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 		})
 	}
 	backlinks = append(backlinks, models.Backlink{
-		SourceID:  "2/A",
-		TargetID:  "1",
-		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		SourceIDInt: 22,
+		TargetIDInt: 1,
+		CreatedAt:   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt:   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})
 	backlinks = append(backlinks, models.Backlink{
-		SourceID:  "3",
-		TargetID:  "REF001",
-		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		SourceIDInt: 3,
+		TargetIDInt: 4,
+		CreatedAt:   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt:   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})
 
 	files := []models.File{}

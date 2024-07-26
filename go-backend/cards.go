@@ -86,18 +86,26 @@ func extractBacklinks(text string) []string {
 	return backlinks
 }
 
-func updateBacklinks(cardID string, backlinks []string) error {
+func updateBacklinks(cardPK int, backlinks []string) error {
 	tx, _ := s.db.Begin()
-	_, err := tx.Exec("DELETE FROM backlinks WHERE source_id = $1", cardID)
+	_, err := tx.Exec("DELETE FROM backlinks WHERE source_id = $1", cardPK)
 	if err != nil {
 		log.Fatal(err.Error())
 		tx.Rollback()
 		return err
 	}
 	for _, targetID := range backlinks {
-		_, err = tx.Exec(
-			"INSERT INTO backlinks (source_id, target_id, created_at, updated_at) VALUES ($1, $2, NOW(), NOW());",
-			cardID, targetID,
+		_, err = tx.Exec(`
+	WITH target_id AS (
+    SELECT id 
+    FROM cards 
+    WHERE card_id = $2
+)
+INSERT INTO backlinks (source_id_int, target_id_int, created_at, updated_at)
+SELECT $1, target_id.id, NOW(), NOW()
+FROM target_id;	
+		`,
+			cardPK, targetID,
 		)
 		if err != nil {
 			tx.Rollback()
@@ -165,20 +173,27 @@ func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
 func getBacklinks(cardID string) ([]models.PartialCard, error) {
 
 	query := `
-	SELECT 
-	cards.id, backlinks.source_id, cards.user_id, cards.title, cards.created_at, cards.updated_at
-	FROM backlinks 
-	JOIN cards ON backlinks.source_id = cards.card_id 
-	WHERE target_id = $1 AND cards.is_deleted = FALSE`
+	SELECT
+    cards.id, 
+	cards.card_id,
+    cards.user_id, 
+    cards.title, 
+    cards.created_at, 
+    cards.updated_at
+FROM backlinks
+JOIN cards ON backlinks.source_id_int = cards.id
+JOIN cards target_card ON backlinks.target_id_int = target_card.id
+WHERE target_card.card_id = $1 AND cards.is_deleted = FALSE;`
 
 	rows, err := s.db.Query(query, cardID)
 	if err != nil {
+		log.Printf("cardid %v", cardID)
 		log.Printf("err %v", err)
 	}
 	var cards []models.PartialCard
 
 	for rows.Next() {
-		var card models.PartialCard
+		card := models.PartialCard{}
 		if err := rows.Scan(
 			&card.ID,
 			&card.CardID,
@@ -769,7 +784,7 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 
 	card, err := s.QueryFullCard(userID, cardPK)
 	backlinks := extractBacklinks(card.Body)
-	updateBacklinks(card.CardID, backlinks)
+	updateBacklinks(card.ID, backlinks)
 	return s.QueryFullCard(userID, cardPK)
 }
 
@@ -788,7 +803,7 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	}
 	card, err := s.QueryFullCard(userID, id)
 	backlinks := extractBacklinks(card.Body)
-	updateBacklinks(card.CardID, backlinks)
+	updateBacklinks(card.ID, backlinks)
 	return s.QueryFullCard(userID, id)
 }
 
