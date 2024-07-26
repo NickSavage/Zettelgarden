@@ -170,7 +170,7 @@ func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
 	return cards, nil
 }
 
-func getBacklinks(cardID string) ([]models.PartialCard, error) {
+func getBacklinks(userID int, cardID string) ([]models.PartialCard, error) {
 
 	query := `
 	SELECT
@@ -183,9 +183,9 @@ func getBacklinks(cardID string) ([]models.PartialCard, error) {
 FROM backlinks
 JOIN cards ON backlinks.source_id_int = cards.id
 JOIN cards target_card ON backlinks.target_id_int = target_card.id
-WHERE target_card.card_id = $1 AND cards.is_deleted = FALSE;`
+WHERE target_card.card_id = $1 AND cards.user_id = $2 AND cards.is_deleted = FALSE;`
 
-	rows, err := s.db.Query(query, cardID)
+	rows, err := s.db.Query(query, cardID, userID)
 	if err != nil {
 		log.Printf("cardid %v", cardID)
 		log.Printf("err %v", err)
@@ -243,7 +243,7 @@ func getUniqueCards(input []models.PartialCard) []models.PartialCard {
 
 func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
 	directLinks := getDirectlinks(userID, card)
-	backlinks, _ := getBacklinks(card.CardID)
+	backlinks, _ := getBacklinks(userID, card.CardID)
 	links := append(directLinks, backlinks...)
 	if len(links) == 0 {
 		return []models.PartialCard{}, nil
@@ -446,7 +446,7 @@ func (s *Server) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	backlinks, _ := getBacklinks(card.CardID)
+	backlinks, _ := getBacklinks(userID, card.CardID)
 	if len(backlinks) > 0 {
 		http.Error(w, "card has backlinks, cannot be deleted", http.StatusBadRequest)
 		return
