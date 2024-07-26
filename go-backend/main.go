@@ -144,7 +144,21 @@ func (s *Server) SendEmail(subject, recipient, body string) error {
 	return nil
 }
 
+func addProtectedRoute(r *mux.Router, path string, handler http.HandlerFunc, method string) *mux.Route {
+	return r.HandleFunc(path, jwtMiddleware(logRoute(handler))).Methods(method)
+
+}
+
+func addRoute(r *mux.Router, path string, handler http.HandlerFunc, method string) *mux.Route {
+	return r.HandleFunc(path, logRoute(handler)).Methods(method)
+}
+
 func main() {
+	file, err := openLogFile(os.Getenv("ZETTEL_BACKEND_LOG_LOCATION"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.SetOutput(file)
 	s = &Server{}
 
 	dbConfig := models.DatabaseConfig{}
@@ -173,50 +187,44 @@ func main() {
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
 	r := mux.NewRouter()
-	r.HandleFunc("/api/auth", jwtMiddleware(s.CheckTokenRoute)).Methods("GET")
-	r.HandleFunc("/api/login", s.LoginRoute).Methods("POST")
-	r.HandleFunc("/api/reset-password", s.ResetPasswordRoute).Methods("POST")
-	r.HandleFunc("/api/email-validate", jwtMiddleware(s.ResendEmailValidationRoute)).Methods("GET")
-	r.HandleFunc("/api/email-validate", s.ValidateEmailRoute).Methods("POST")
-	r.HandleFunc("/api/request-reset", s.RequestPasswordResetRoute).Methods("POST")
+	addProtectedRoute(r, "/api/auth", s.CheckTokenRoute, "GET")
+	addRoute(r, "/api/login", s.LoginRoute, "POST")
+	addRoute(r, "/api/reset-password", s.ResetPasswordRoute, "POST")
+	addRoute(r, "/api/email-validate", s.ValidateEmailRoute, "POST")
+	addRoute(r, "/api/request-reset", s.RequestPasswordResetRoute, "POST")
 
-	r.HandleFunc("/api/files", jwtMiddleware(s.GetAllFilesRoute)).Methods("GET")
-	r.HandleFunc("/api/files/upload", jwtMiddleware(s.UploadFileRoute)).Methods("POST")
-	r.HandleFunc("/api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute)).Methods("GET")
-	r.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute)).Methods("PATCH")
-	r.HandleFunc("/api/files/{id}", jwtMiddleware(s.DeleteFileRoute)).Methods("DELETE")
-	r.HandleFunc("/api/files/download/{id}", jwtMiddleware(s.DownloadFileRoute)).Methods("GET")
+	addProtectedRoute(r, "/api/files", s.GetAllFilesRoute, "GET")
+	addProtectedRoute(r, "/api/files/upload", s.UploadFileRoute, "POST")
+	addProtectedRoute(r, "/api/files/{id}", s.GetFileMetadataRoute, "GET")
+	addProtectedRoute(r, "/api/files/{id}", s.EditFileMetadataRoute, "PATCH")
+	addProtectedRoute(r, "/api/files/{id}", s.DeleteFileRoute, "DELETE")
+	addProtectedRoute(r, "/api/files/download/{id}", s.DownloadFileRoute, "GET")
 
-	r.HandleFunc("/api/cards", jwtMiddleware(s.GetCardsRoute)).Methods("GET")
-	r.HandleFunc("/api/cards", jwtMiddleware(s.CreateCardRoute)).Methods("POST")
-	r.HandleFunc("/api/next", jwtMiddleware(s.NextIDRoute)).Methods("POST")
-	r.HandleFunc("/api/cards/{id}", jwtMiddleware(s.GetCardRoute)).Methods("GET")
-	r.HandleFunc("/api/cards/{id}", jwtMiddleware(s.UpdateCardRoute)).Methods("PUT")
-	r.HandleFunc("/api/cards/{id}", jwtMiddleware(s.DeleteCardRoute)).Methods("DELETE")
+	addProtectedRoute(r, "/api/cards", s.GetCardsRoute, "GET")
+	addProtectedRoute(r, "/api/cards", s.CreateCardRoute, "POST")
+	addProtectedRoute(r, "/api/next", s.NextIDRoute, "POST")
+	addProtectedRoute(r, "/api/cards/{id}", s.GetCardRoute, "GET")
+	addProtectedRoute(r, "/api/cards/{id}", s.UpdateCardRoute, "PUT")
+	addProtectedRoute(r, "/api/cards/{id}", s.DeleteCardRoute, "DELETE")
 
-	r.HandleFunc("/api/users/{id}", jwtMiddleware(admin(s.GetUserRoute))).Methods("GET")
-	r.HandleFunc("/api/users/{id}", jwtMiddleware(s.UpdateUserRoute)).Methods("PUT")
-	r.HandleFunc("/api/users", jwtMiddleware(admin(s.GetUsersRoute))).Methods("GET")
-	r.HandleFunc("/api/users", s.CreateUserRoute).Methods("POST")
-	r.HandleFunc("/api/users/{id}/subscription", jwtMiddleware(admin(s.GetUserSubscriptionRoute))).Methods("GET")
-	r.HandleFunc("/api/current", jwtMiddleware(s.GetCurrentUserRoute)).Methods("GET")
-	r.HandleFunc("/api/admin", jwtMiddleware(s.GetUserAdminRoute)).Methods("GET")
+	addProtectedRoute(r, "/api/users/{id}", s.GetUserRoute, "GET")
+	addProtectedRoute(r, "/api/users/{id}", s.UpdateUserRoute, "PUT")
+	addProtectedRoute(r, "/api/users", s.GetUsersRoute, "GET")
+	addProtectedRoute(r, "/api/users", s.CreateUserRoute, "POST")
+	addProtectedRoute(r, "/api/users/{id}/subscription", s.GetUserSubscriptionRoute, "GET")
+	addProtectedRoute(r, "/api/current", s.GetCurrentUserRoute, "GET")
+	addProtectedRoute(r, "/api/admin", s.GetUserAdminRoute, "GET")
 
-	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.GetTaskRoute)).Methods("GET")
-	r.HandleFunc("/api/tasks", jwtMiddleware(s.GetTasksRoute)).Methods("GET")
-	r.HandleFunc("/api/tasks", jwtMiddleware(s.CreateTaskRoute)).Methods("POST")
-	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute)).Methods("PUT")
-	r.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.DeleteTaskRoute)).Methods("DELETE")
+	addProtectedRoute(r, "/api/tasks/{id}", s.GetTaskRoute, "GET")
+	addProtectedRoute(r, "/api/tasks", s.GetTasksRoute, "GET")
+	addProtectedRoute(r, "/api/tasks", s.CreateTaskRoute, "POST")
+	addProtectedRoute(r, "/api/tasks/{id}", s.UpdateTaskRoute, "PUT")
+	addProtectedRoute(r, "/api/tasks/{id}", s.DeleteTaskRoute, "DELETE")
 
-	r.HandleFunc("/api/billing/create_checkout_session", s.CreateCheckoutSession).Methods("POST")
-	r.HandleFunc("/api/billing/success", s.GetSuccessfulSessionData).Methods("GET")
-	r.HandleFunc("/api/webhook", s.HandleWebhook).Methods("POST")
+	addRoute(r, "/api/billing/create_checkout_session", s.CreateCheckoutSession, "POST")
+	addRoute(r, "/api/billing/success", s.GetSuccessfulSessionData, "GET")
+	addRoute(r, "/api/webhook", s.HandleWebhook, "POST")
 
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte("{\"hello\": \"world\"}"))
-	})
-	//handler := cors.Default().Handler(r)
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},
 		AllowCredentials: true,
