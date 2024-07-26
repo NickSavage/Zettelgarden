@@ -219,7 +219,6 @@ func (s *Server) handleCheckoutSessionComplete(event stripe.Event) error {
 	log.Printf("cus_id %v", customerID)
 	customer, err := customer.Get(customerID, &stripe.CustomerParams{})
 	if err != nil {
-		log.Printf("cx err %v")
 		return err
 	}
 	log.Printf("customer %v email %v", customer, customer.Email)
