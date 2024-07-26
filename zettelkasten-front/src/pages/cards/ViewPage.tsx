@@ -57,6 +57,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
     };
     let response = await saveExistingCard(editedCard);
     setViewCard(editedCard);
+    fetchCard(id!)
   }
   function handleEditCard() {
     if (viewingCard === null) {
