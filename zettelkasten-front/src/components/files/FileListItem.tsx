@@ -1,7 +1,8 @@
 import { File } from "../../models/File";
 import { renderFile, deleteFile } from "../../api/files";
-import { Button } from "../Button";
-import React from "react";
+import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { FileIcon } from "../../assets/icons/FileIcon";
 
 interface FileListItemProps {
   file: File;
@@ -16,6 +17,11 @@ export function FileListItem({
   handleViewCard,
   openRenameModal,
 }: FileListItemProps) {
+  const [showMenu, setShowMenu] = useState<boolean>(false);
+
+  function toggleMenu() {
+    setShowMenu(!showMenu);
+  }
   const handleFileDownload = (file: File, e: React.MouseEvent) => {
     e.preventDefault();
     renderFile(file.id, file.name).catch((error) => {
@@ -32,39 +38,41 @@ export function FileListItem({
           console.error("Error deleting file:", error);
         });
     }
+    setShowMenu(false);
   };
   return (
     <li key={file.id}>
-      <div className="file-item">
-        <div>
-          {" "}
-          <span>{file.id} - </span>
+      <div className="flex">
+        <div className="flex-grow">
+          <FileIcon />
           <a href="#" onClick={(e) => handleFileDownload(file, e)}>
-            {file.name}
+            <span className="font-bold">{file.name}</span>
           </a>
           <br />
-          <div>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handleViewCard(file["card"]["id"]);
-              }}
-              style={{ color: "black", textDecoration: "none" }}
-            >
-              <span style={{ color: "blue", fontWeight: "bold" }}>
-                {file["card"]["card_id"]}
-              </span>
-              <span>: {file["card"]["title"]} </span>
-            </a>
-
-            <br />
-          </div>
-          <span>Created At: {file.created_at}</span>
+          <span className="text-xs">Created At: {file.created_at}</span>
         </div>
         <div className="file-item-right">
-          <Button children={"Rename"} onClick={() => openRenameModal(file)} />
-          <Button  children={"Delete"} onClick={() => handleFileDelete(file.id)} />
+          <div>
+            <Link
+              to={`/app/card/${file.card.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <span className="card-id">[{file.card.card_id}]</span>
+            </Link>
+          </div>
+          <div className="dropdown">
+            <button onClick={toggleMenu} className="menu-button">
+              ⋮
+            </button>
+            {showMenu && (
+              <div className="popup-menu">
+                <button onClick={() => handleFileDelete(file.id)}>
+                  Delete
+                </button>
+                <button onClick={() => openRenameModal(file)}>Rename</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </li>
