@@ -13,7 +13,7 @@ export function TaskList({ tasks }: TaskListProps) {
   return (
     <ul>
       {tasks.map((task, index) => (
-        <li key={index} className="p-0">
+        <li key={task.id} className="p-0">
           <TaskListItem task={task} setRefresh={setRefreshTasks} />
         </li>
       ))}
