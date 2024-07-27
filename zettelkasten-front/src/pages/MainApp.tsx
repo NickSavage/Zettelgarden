@@ -7,7 +7,7 @@ import { ViewPage } from "./cards/ViewPage";
 import { EditPage } from "./cards/EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
 import { BillingSuccess } from "./BillingSuccess";
@@ -41,7 +41,6 @@ function MainAppContent() {
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       logoutUser();
-      navigate("/login");
     }
   }, [isAuthenticated]);
 
@@ -50,57 +49,77 @@ function MainAppContent() {
     setRefreshPartialCards(true);
   }, []);
 
-  if (!isLoading && !isAuthenticated) {
-    return <SubscriptionPage />;
-  }
-  return (
-    <div className="main-content">
-      <Sidebar />
-      <div className="content">
-        <div className="content-display">
-          <EmailValidationBanner />
-          <Routes>
-            <Route
-              path="search"
-              element={
-                <SearchPage
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  cards={searchCards}
-                  setCards={setSearchCards}
-                />
-              }
-            />
-            <Route
-              path="card/:id"
-              element={<ViewPage setLastCardId={setLastCardId} />}
-            />
-            <Route
-              path="card/:id/edit"
-              element={<EditPage newCard={false} lastCardId={lastCardId} />}
-            />
+  if (!isLoading) {
+    if (!isAuthenticated) {
+      <Navigate to="/login" />;
+    }
+    return (
+      <div className="main-content">
+        <Sidebar />
+        <div className="content">
+          <div className="content-display">
+            <EmailValidationBanner />
+            <Routes>
+              {!hasSubscription && (
+                <>
+                  <Route path="subscription" element={<SubscriptionPage />} />
+                  <Route
+                    path="settings/billing/success"
+                    element={<BillingSuccess />}
+                  />
+                  <Route
+                    path="settings/billing/cancelled"
+                    element={<BillingCancelled />}
+                  />
+                </>
+              )}
+              {hasSubscription ? (
+                <>
+                  <Route
+                    path="search"
+                    element={
+                      <SearchPage
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        cards={searchCards}
+                        setCards={setSearchCards}
+                      />
+                    }
+                  />
+                  <Route
+                    path="card/:id"
+                    element={<ViewPage setLastCardId={setLastCardId} />}
+                  />
+                  <Route
+                    path="card/:id/edit"
+                    element={
+                      <EditPage newCard={false} lastCardId={lastCardId} />
+                    }
+                  />
 
-            <Route
-              path="card/new"
-              element={<EditPage newCard={true} lastCardId={lastCardId} />}
-            />
-            <Route path="settings" element={<UserSettingsPage />} />
-            <Route
-              path="settings/billing/success"
-              element={<BillingSuccess />}
-            />
-            <Route
-              path="settings/billing/cancelled"
-              element={<BillingCancelled />}
-            />
-            <Route path="files" element={<FileVault />} />
-            <Route path="tasks" element={<TaskPage />} />
-            <Route path="*" element={<DashboardPage />} />
-          </Routes>
+                  <Route
+                    path="card/new"
+                    element={
+                      <EditPage newCard={true} lastCardId={lastCardId} />
+                    }
+                  />
+                  <Route path="settings" element={<UserSettingsPage />} />
+                  <Route path="files" element={<FileVault />} />
+                  <Route path="tasks" element={<TaskPage />} />
+                  <Route path="*" element={<DashboardPage />} />
+                </>
+              ) : (
+                <Route
+                  path="*"
+                  element={<Navigate to="/app/subscription" replace />}
+                />
+              )}
+            </Routes>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 function MainApp() {

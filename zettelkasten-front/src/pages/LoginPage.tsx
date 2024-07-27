@@ -18,7 +18,7 @@ function LoginForm() {
     try {
       const response = await login(email, password);
       loginUser(response);
-      navigate("/app");
+      navigate("/app/");
     } catch (message) {
       setError("Login Failed: " + message);
     }

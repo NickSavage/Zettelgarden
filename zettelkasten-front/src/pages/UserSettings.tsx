@@ -13,6 +13,7 @@ export function UserSettingsPage() {
     null
   );
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { logoutUser } = useAuth();
 
   async function handleSubmit(event: FormEvent) {
@@ -49,6 +50,7 @@ export function UserSettingsPage() {
   }
   function handleLogout() {
     logoutUser();
+    navigate("/login");
   }
 
   useEffect(() => {

@@ -42,7 +42,7 @@ export function SubscriptionPage() {
       </div>
 
       <span className="text">
-        <Link to="/app" onClick={handleLogout}>
+        <Link to="/login" onClick={handleLogout}>
           Already have an account?
         </Link>
       </span>

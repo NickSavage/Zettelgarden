@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsAdmin(adminStatus);
         const currentUser = await getCurrentUser();
         setCurrentUser(currentUser);
-        console.log(currentUser.stripe_subscription_status === "active");
         setHasSubscription(currentUser.stripe_subscription_status === "active");
       }
       setIsLoading(false);
