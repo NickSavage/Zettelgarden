@@ -80,7 +80,7 @@ export function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-upper">
         <Link to="/">
-          <img src={logo} alt="Company Logo" className="logo" />
+          <img src={logo} alt="Company Logo" className="logo rounded-md" />
         </Link>
         <div className="grow">
           <Link to="/app/settings">
