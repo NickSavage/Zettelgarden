@@ -57,7 +57,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
     };
     let response = await saveExistingCard(editedCard);
     setViewCard(editedCard);
-    fetchCard(id!)
+    fetchCard(id!);
   }
   function handleEditCard() {
     if (viewingCard === null) {
@@ -160,8 +160,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
                   <FileListItem
                     file={file}
                     onDelete={onFileDelete}
-                    handleViewCard={handleViewCard}
-                    openRenameModal={openRenameModal}
+                    setRefreshFiles={(refresh: boolean) => {}}
                   />
                 ))}
               </ul>

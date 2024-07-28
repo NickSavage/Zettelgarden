@@ -238,8 +238,7 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
                     key={index}
                     file={file}
                     onDelete={onFileDelete}
-                    handleViewCard={handleViewCard}
-                    openRenameModal={openRenameModal}
+                    setRefreshFiles={(refresh: boolean) => {}}
                   />
                 ))}
               </ul>
