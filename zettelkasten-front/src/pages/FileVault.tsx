@@ -4,8 +4,6 @@ import { sortCards } from "../utils";
 import { FileRenameModal } from "../components/files/FileRenameModal";
 import { FileListItem } from "../components/files/FileListItem";
 
-import { useNavigate } from "react-router-dom";
-
 import { File } from "../models/File";
 import { HeaderTop } from "../components/Header";
 
@@ -13,15 +11,7 @@ export function FileVault() {
   const [files, setFiles] = useState<File[]>([]);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState<File | null>(null);
-  const navigate = useNavigate();
-
-  function handleCardClick(id: number) {
-    navigate(`/app/card/${id}`);
-  }
-  const openRenameModal = (file: File) => {
-    setFileToRename(file);
-    setIsRenameModalOpen(true);
-  };
+  const [refreshFiles, setRefreshFiles] = useState<boolean>(false);
 
   function onDelete(file_id: number) {
     setFiles(files.filter((file) => file.id !== file_id));
@@ -33,10 +23,18 @@ export function FileVault() {
     );
     setIsRenameModalOpen(false);
   }
+  useEffect(() => {
+    console.log("refresh?");
+    if (refreshFiles) {
+      console.log("refresh!");
+      getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
+      setRefreshFiles(false);
+    }
+  }, [refreshFiles]);
 
   useEffect(() => {
     document.title = "Zettelgarden - Files";
-    getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
+    setRefreshFiles(true);
   }, []);
   return (
     <>
@@ -53,11 +51,9 @@ export function FileVault() {
         <ul>
           {files.map((file, index) => (
             <FileListItem
-              key={file.id} // Assuming each file has a unique `id` property
               file={file}
               onDelete={onDelete}
-              handleViewCard={handleCardClick}
-              openRenameModal={openRenameModal}
+              setRefreshFiles={setRefreshFiles}
             />
           ))}
         </ul>

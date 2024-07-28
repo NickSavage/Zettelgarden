@@ -12,8 +12,6 @@ export function isCardIdUnique(cards, id) {
 
 export function sortCards(cards, value) {
   let temp = [...cards];
-  console.log(cards)
-  console.log("sortCards", value)
   if (value === "sortBigSmall" || value === "sortSmallBig") {
     temp.sort((a, b) => {
       const partsA = a.card_id.match(/\D+|\d+/g) || [];
@@ -37,12 +35,10 @@ export function sortCards(cards, value) {
     });
   } else if (value === "sortNewOld") {
     temp.sort((a, b) => {
-      console.log(new Date(b.updated_at), new Date(a.updated_at), new Date(b.updated_at) - new Date(a.updated_at) )
       return new Date(b.updated_at) - new Date(a.updated_at);
     });
   } else if (value === "sortOldNew") {
     temp.sort((a, b) => {
-      console.log(new Date(b.updated_at), new Date(a.updated_at), new Date(a.updated_at) - new Date(b.updated_at) )
       return new Date(a.updated_at) - new Date(b.updated_at);
     });
   } else {

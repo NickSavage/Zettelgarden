@@ -1,26 +1,35 @@
 import { File } from "../../models/File";
-import { renderFile, deleteFile } from "../../api/files";
+import { renderFile, deleteFile, editFile } from "../../api/files";
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, KeyboardEvent } from "react";
 import { FileIcon } from "../../assets/icons/FileIcon";
 
 interface FileListItemProps {
   file: File;
   onDelete: (file_id: number) => void;
-  handleViewCard: (card_pk: number) => void;
-  openRenameModal: (file: File) => void;
+  setRefreshFiles: (refresh: boolean) => void;
 }
 
 export function FileListItem({
   file,
   onDelete,
-  handleViewCard,
-  openRenameModal,
+  setRefreshFiles,
 }: FileListItemProps) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
+  const [newName, setNewName] = useState<string>("");
+  const [showEditName, setShowEditName] = useState<boolean>(false);
 
   function toggleMenu() {
     setShowMenu(!showMenu);
+  }
+  function toggleEditName() {
+    setNewName(file.name);
+    setShowEditName(!showEditName);
+  }
+  function handleTitleEdit() {
+    editFile(file["id"].toString(), { name: newName });
+    toggleEditName();
+    setRefreshFiles(true);
   }
   const handleFileDownload = (file: File, e: React.MouseEvent) => {
     e.preventDefault();
@@ -44,13 +53,34 @@ export function FileListItem({
     <li key={file.id}>
       <div className="flex">
         <div className="flex-grow">
-          <FileIcon />
-          <a href="#" onClick={(e) => handleFileDownload(file, e)}>
-            <span className="font-bold">{file.name}</span>
-          </a>
-          <br />
-          <span className="text-xs">Created At: {file.created_at}</span>
+          <div className="flex items-center">
+            <FileIcon />
+            {showEditName ? (
+              <input
+                className="task-list-item-title-input"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+                  if (event.key === "Enter") {
+                    handleTitleEdit();
+                  }
+                }}
+              />
+            ) : (
+              <a
+                href="#"
+                onClick={(e) => handleFileDownload(file, e)}
+                className="ml-2"
+              >
+                <span className="font-bold">{file.name}</span>
+              </a>
+            )}
+          </div>
+          <div>
+            <span className="text-xs">Created At: {file.created_at}</span>
+          </div>
         </div>
+
         <div className="file-item-right">
           <div>
             <Link
@@ -69,7 +99,7 @@ export function FileListItem({
                 <button onClick={() => handleFileDelete(file.id)}>
                   Delete
                 </button>
-                <button onClick={() => openRenameModal(file)}>Rename</button>
+                <button onClick={() => toggleEditName()}>Rename</button>
               </div>
             )}
           </div>
