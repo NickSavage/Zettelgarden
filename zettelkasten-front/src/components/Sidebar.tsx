@@ -80,13 +80,12 @@ export function Sidebar() {
   }
 
   const handleKeyPress = (event) => {
-    if (event.key === "t") {
-      const focusedElement = document.activeElement;
-      if (
-        !focusedElement ||
-        !focusedElement.tagName.match(/^INPUT|TEXTAREA$/i)
-      ) {
-        // Create a new task
+    const focusedElement = document.activeElement;
+    if (!focusedElement || !focusedElement.tagName.match(/^INPUT|TEXTAREA$/i)) {
+      if (event.key === "c") {
+        navigate("/app/card/new", { state: { cardType: "standard" } });
+      }
+      if (event.key === "t") {
         setShowCreateTaskWindow(true);
       }
     }
