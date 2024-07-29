@@ -14,6 +14,8 @@ import { TasksIcon } from "../assets/icons/TasksIcon";
 import { FileIcon } from "../assets/icons/FileIcon";
 import { Button } from "./Button";
 
+import { useShortcutContext } from "../contexts/ShortcutContext";
+
 export function Sidebar() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
@@ -21,8 +23,9 @@ export function Sidebar() {
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
-  const [showCreateTaskWindow, setShowCreateTaskWindow] =
-    useState<boolean>(false);
+  const { showCreateTaskWindow, setShowCreateTaskWindow } =
+    useShortcutContext();
+  useState<boolean>(false);
 
   const mainCards = useMemo(
     () => partialCards.filter((card) => !card.card_id.includes("/")),
@@ -75,6 +78,26 @@ export function Sidebar() {
   function handleFilter(text: string) {
     setFilter(text);
   }
+
+  const handleKeyPress = (event) => {
+    if (event.key === "t") {
+      const focusedElement = document.activeElement;
+      if (
+        !focusedElement ||
+        !focusedElement.tagName.match(/^INPUT|TEXTAREA$/i)
+      ) {
+        // Create a new task
+        setShowCreateTaskWindow(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
 
   return (
     <div className="sidebar">

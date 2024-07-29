@@ -22,6 +22,7 @@ import {
   PartialCardProvider,
   usePartialCardContext,
 } from "../contexts/CardContext";
+import { ShortcutProvider } from "../contexts/ShortcutContext";
 
 function MainAppContent() {
   const navigate = useNavigate();
@@ -126,7 +127,9 @@ function MainApp() {
   return (
     <PartialCardProvider>
       <TaskProvider>
-        <MainAppContent />
+        <ShortcutProvider>
+          <MainAppContent />
+        </ShortcutProvider>
       </TaskProvider>
     </PartialCardProvider>
   );
