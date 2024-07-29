@@ -210,7 +210,7 @@ func main() {
 	addProtectedRoute(r, "/api/users/{id}", s.GetUserRoute, "GET")
 	addProtectedRoute(r, "/api/users/{id}", s.UpdateUserRoute, "PUT")
 	addProtectedRoute(r, "/api/users", s.GetUsersRoute, "GET")
-	addProtectedRoute(r, "/api/users", s.CreateUserRoute, "POST")
+	addRoute(r, "/api/users", s.CreateUserRoute, "POST")
 	addProtectedRoute(r, "/api/users/{id}/subscription", s.GetUserSubscriptionRoute, "GET")
 	addProtectedRoute(r, "/api/current", s.GetCurrentUserRoute, "GET")
 	addProtectedRoute(r, "/api/admin", s.GetUserAdminRoute, "GET")

@@ -5,6 +5,7 @@ import { Card } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
 
 import { CardLinkWithPreview } from "./CardLinkWithPreview";
+import { H1, H2, H3, H4,H5,H6 } from "../Header";
 
 interface CustomImageRendererProps {
   src?: string; // Make src optional
@@ -77,6 +78,24 @@ function renderCardText(
               handleViewBacklink={handleViewBacklink}
             />
           );
+        },
+        h1( {children, ...props}) {
+          return (<H1 children={children as string}/>)
+        },
+        h2( {children, ...props}) {
+          return (<H2 children={children as string}/>)
+        },
+        h3( {children, ...props}) {
+          return (<H3 children={children as string}/>)
+        },
+        h4( {children, ...props}) {
+          return (<H4 children={children as string}/>)
+        },
+        h5( {children, ...props}) {
+          return (<H5 children={children as string}/>)
+        },
+        h6( {children, ...props}) {
+          return (<H6 children={children as string}/>)
         },
         img({ src, alt, title, ...props }) {
           return (

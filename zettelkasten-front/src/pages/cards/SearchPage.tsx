@@ -4,7 +4,7 @@ import { Card } from "../../models/Card";
 import { sortCards } from "../../utils";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
-import { HeaderTop } from "../../components/Header";
+import { H6 } from "../../components/Header";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -52,7 +52,7 @@ export function SearchPage({
   return (
     <div>
       <div className="mb-4">
-        <HeaderTop text={"Search"} />
+        <H6 children={"Search"} />
       </div>
       <div>
         <input

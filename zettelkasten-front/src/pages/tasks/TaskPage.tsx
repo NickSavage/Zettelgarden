@@ -9,7 +9,7 @@ import {
   getTomorrow,
   isTodayOrPast,
 } from "../../utils/dates";
-import { HeaderTop } from "../../components/Header";
+import { H6 } from "../../components/Header";
 import { FilterInput } from "../../components/FilterInput";
 import { SettingsIcon } from "../../assets/icons/SettingsIcon";
 import { TaskViewOptionsMenu } from "../../components/tasks/TaskViewOptionsMenu";
@@ -85,7 +85,7 @@ export function TaskPage({}: TaskListProps) {
   return (
     <div>
       <div className="mb-4 flex">
-        <HeaderTop text="Tasks" className="flex-grow" />
+        <H6 children="Tasks" className="flex-grow" />
         <div className="flex-shrink">
           <TaskViewOptionsMenu
             showCompleted={showCompleted}

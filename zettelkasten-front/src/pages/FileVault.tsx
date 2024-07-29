@@ -5,7 +5,7 @@ import { FileRenameModal } from "../components/files/FileRenameModal";
 import { FileListItem } from "../components/files/FileListItem";
 
 import { File } from "../models/File";
-import { HeaderTop } from "../components/Header";
+import { H6 } from "../components/Header";
 
 export function FileVault() {
   const [files, setFiles] = useState<File[]>([]);
@@ -39,7 +39,7 @@ export function FileVault() {
   return (
     <>
       <div className="mb-4">
-        <HeaderTop text="File Vault" />
+        <H6 children="File Vault" />
       </div>
       <FileRenameModal
         isOpen={isRenameModalOpen}

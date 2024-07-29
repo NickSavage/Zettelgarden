@@ -5,7 +5,7 @@ import { PartialCard } from "../models/Card";
 import { isTodayOrPast } from "../utils/dates";
 import { useTaskContext } from "../contexts/TaskContext";
 import { usePartialCardContext } from "../contexts/CardContext";
-import { HeaderSection, HeaderTop } from "../components/Header";
+import { H4, H6 } from "../components/Header";
 import { CardList } from "../components/cards/CardList";
 import { TaskList } from "../components/tasks/TaskList";
 
@@ -29,10 +29,10 @@ export function DashboardPage() {
 
   return (
     <div>
-      <HeaderTop text="Dashboard" />
+      <H4 children="Dashboard" />
       <div className="mt-5 flex flex-wrap">
         <div style={{ flex: 1, minWidth: "50%" }}>
-          <HeaderSection text="Tasks" />
+          <H6 children="Tasks" />
           {tasks && (
             <TaskList
               tasks={tasks
@@ -43,7 +43,7 @@ export function DashboardPage() {
           )}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
-          <HeaderSection text="Unsorted Cards" />
+          <H6 children="Unsorted Cards" />
           {partialCards && (
             <CardList
               cards={partialCards
@@ -53,11 +53,11 @@ export function DashboardPage() {
           )}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
-          <HeaderSection text="Recent Cards" />
+          <H6 children="Recent Cards" />
           {partialCards && <CardList cards={partialCards.slice(0, 10)} />}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
-          <HeaderSection text="Inactive Cards" />
+          <H6 children="Inactive Cards" />
           {inactiveCards && <CardList cards={inactiveCards.slice(0, 10)} />}
         </div>
       </div>
