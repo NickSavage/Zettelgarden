@@ -1,7 +1,9 @@
 import React, { DragEventHandler, useState } from "react";
-import { Card } from "../../models/Card";
+import { PartialCard, Card } from "../../models/Card";
 import { uploadFile } from "../../api/files";
 import { findWordBoundaries } from "../../utils/strings";
+import { usePartialCardContext } from "../../contexts/CardContext";
+import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 
 interface CardBodyTextAreaProps {
   editingCard: Card;
@@ -18,22 +20,53 @@ export function CardBodyTextArea({
 }: CardBodyTextAreaProps) {
   const [isLinkMode, setIsLinkMode] = useState<boolean>(false);
   const [linkText, setLinkText] = useState<string>("");
-  const [cursorPosition, setCursorPosition] = useState<number | null>(null);
-
-  const handleSelect = (event) => {
-    setCursorPosition(event.target.selectionStart);
-  };
+  const [topResults, setTopResults] = useState<PartialCard[]>([]);
+  const { partialCards } = usePartialCardContext();
 
   function handleBodyChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const inputValue = event.target.value;
     const newCursorPosition = event.target.selectionStart;
 
-    const wordBoundaries = findWordBoundaries(inputValue, newCursorPosition);
-    const word = inputValue.slice(wordBoundaries.start, wordBoundaries.end);
+    let word = "";
+
+    try {
+      const wordBoundaries = findWordBoundaries(inputValue, newCursorPosition);
+      word = inputValue.slice(wordBoundaries.start, wordBoundaries.end);
+    } catch (error) {
+      // Log the error if needed
+      console.error("Error finding word boundaries:", error);
+      // Do nothing and continue execution
+    }
+
+    let processedWord = word;
 
     if (word.startsWith("[")) {
-      setLinkText(word);
+      processedWord = word.slice(1); // Remove the preceding `[`
+    }
+    if (processedWord.endsWith("]")) {
+      processedWord = processedWord.slice(0, -1); // Remove the final `]`
+    }
+
+    if (word.startsWith("[")) {
+      setLinkText(processedWord);
       setIsLinkMode(true);
+
+      // Adding console logs to debug
+      console.log("partialCards", partialCards);
+      console.log("processedWord", processedWord);
+
+      // Check filtered results
+      const results = partialCards.filter((card) => {
+        const cardIdLower = card.card_id.toLowerCase();
+        const processedWordLower = processedWord.toLowerCase().trim();
+        console.log(
+          `Comparing card_id "${cardIdLower}" with processedWord "${processedWordLower}"`
+        );
+        return cardIdLower.startsWith(processedWordLower);
+      });
+
+      setTopResults(results);
+      console.log("results", results);
     } else {
       setLinkText("");
       setIsLinkMode(false);
@@ -112,9 +145,21 @@ export function CardBodyTextArea({
       }
     }
   };
+
+  function handleDropdownClick(card: PartialCard) {
+    let append_text = "\n\n[" + card.card_id + "] - " + card.title;
+    let prevEditingCard = {
+      ...editingCard,
+      body: editingCard.body + append_text,
+    };
+    setEditingCard(prevEditingCard);
+    setIsLinkMode(false);
+    setLinkText("");
+  }
+
   return (
     <div>
-      {isLinkMode && <span>{linkText}</span>}
+      <span>{linkText}</span>
       <textarea
         style={{ display: "block", width: "100%", height: "200px" }}
         className="border-2 p-2"
@@ -126,6 +171,31 @@ export function CardBodyTextArea({
         onPaste={handlePaste}
         placeholder="Body"
       />
+      {isLinkMode && (
+        <div>
+          {" "}
+          {topResults.length > 0 && (
+            <div
+              style={{
+                position: "absolute",
+                top: "auto",
+                left: "25%",
+                width: "25%",
+                backgroundColor: "white",
+                border: "1px solid black",
+                zIndex: 1000,
+                padding: "1rem",
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <BacklinkInputDropdownList
+                addBacklink={handleDropdownClick}
+                cards={topResults}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

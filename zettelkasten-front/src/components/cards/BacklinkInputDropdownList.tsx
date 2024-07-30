@@ -12,6 +12,7 @@ export function BacklinkInputDropdownList({
   addBacklink,
   cards,
 }: BacklinkInputDropdownListProps) {
+  console.log("?");
   return (
     <ul className="input-link-dropdown">
       {cards.map((card, index) => (
