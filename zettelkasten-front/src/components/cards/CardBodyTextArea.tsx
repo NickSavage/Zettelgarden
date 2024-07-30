@@ -21,17 +21,20 @@ export function CardBodyTextArea({
   const [isLinkMode, setIsLinkMode] = useState<boolean>(false);
   const [linkText, setLinkText] = useState<string>("");
   const [topResults, setTopResults] = useState<PartialCard[]>([]);
+  const [cursorPosition, setCursorPosition] = useState<number | null>(null);
   const { partialCards } = usePartialCardContext();
 
   function handleBodyChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const inputValue = event.target.value;
     const newCursorPosition = event.target.selectionStart;
+    setCursorPosition(newCursorPosition);
 
     let word = "";
 
     try {
       const wordBoundaries = findWordBoundaries(inputValue, newCursorPosition);
       word = inputValue.slice(wordBoundaries.start, wordBoundaries.end);
+      setCursorPosition(wordBoundaries.start);
     } catch (error) {
       // Log the error if needed
       console.error("Error finding word boundaries:", error);
@@ -52,16 +55,16 @@ export function CardBodyTextArea({
       setIsLinkMode(true);
 
       // Adding console logs to debug
-      console.log("partialCards", partialCards);
-      console.log("processedWord", processedWord);
-
       // Check filtered results
       const results = partialCards.filter((card) => {
         const cardIdLower = card.card_id.toLowerCase();
         const processedWordLower = processedWord.toLowerCase().trim();
-        console.log(
-          `Comparing card_id "${cardIdLower}" with processedWord "${processedWordLower}"`
+
+        return (
+          card.card_id.toLowerCase().startsWith(processedWordLower) ||
+          card.title.includes(processedWordLower)
         );
+
         return cardIdLower.startsWith(processedWordLower);
       });
 
@@ -147,10 +150,22 @@ export function CardBodyTextArea({
   };
 
   function handleDropdownClick(card: PartialCard) {
-    let append_text = "\n\n[" + card.card_id + "] - " + card.title;
+    let append_text = "[" + card.card_id + "]";
+    append_text.trim();
+    let updatedBody = editingCard.body;
+    if (cursorPosition === null) {
+      updatedBody = updatedBody + "\n\n" + append_text;
+    } else {
+      updatedBody =
+        editingCard.body.slice(0, cursorPosition) +
+        append_text +
+        editingCard.body.slice(cursorPosition + linkText.length);
+    }
+    console.log(editingCard.body);
+    console.log(updatedBody);
     let prevEditingCard = {
       ...editingCard,
-      body: editingCard.body + append_text,
+      body: updatedBody,
     };
     setEditingCard(prevEditingCard);
     setIsLinkMode(false);
@@ -161,8 +176,7 @@ export function CardBodyTextArea({
     <div>
       <span>{linkText}</span>
       <textarea
-        style={{ display: "block", width: "100%", height: "200px" }}
-        className="border-2 p-2"
+        className="block w-full h-48 p-2 border border-gray-200"
         id="body"
         value={editingCard.body}
         onChange={handleBodyChange}
@@ -175,19 +189,7 @@ export function CardBodyTextArea({
         <div>
           {" "}
           {topResults.length > 0 && (
-            <div
-              style={{
-                position: "absolute",
-                top: "auto",
-                left: "25%",
-                width: "25%",
-                backgroundColor: "white",
-                border: "1px solid black",
-                zIndex: 1000,
-                padding: "1rem",
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-              }}
-            >
+            <div className="absolute top-auto left-1/2 w-1/4 p-4 bg-white border border-gray-200 z-10 shadow">
               <BacklinkInputDropdownList
                 addBacklink={handleDropdownClick}
                 cards={topResults}
