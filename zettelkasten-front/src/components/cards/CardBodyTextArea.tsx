@@ -62,7 +62,7 @@ export function CardBodyTextArea({
 
         return (
           card.card_id.toLowerCase().startsWith(processedWordLower) ||
-          card.title.includes(processedWordLower)
+          card.title.toLowerCase().includes(processedWordLower)
         );
 
         return cardIdLower.startsWith(processedWordLower);
