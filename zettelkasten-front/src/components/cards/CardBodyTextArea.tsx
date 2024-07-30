@@ -174,7 +174,6 @@ export function CardBodyTextArea({
 
   return (
     <div>
-      <span>{linkText}</span>
       <textarea
         className="block w-full h-48 p-2 border border-gray-200"
         id="body"
@@ -187,7 +186,6 @@ export function CardBodyTextArea({
       />
       {isLinkMode && (
         <div>
-          {" "}
           {topResults.length > 0 && (
             <div className="absolute top-auto left-1/2 w-1/4 p-4 bg-white border border-gray-200 z-10 shadow">
               <BacklinkInputDropdownList
