@@ -10,6 +10,7 @@ import { File } from "../../models/File";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
 import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
+import { CardBodyTextArea } from "../../components/cards/CardBodyTextArea";
 
 interface EditPageProps {
   newCard: boolean;
@@ -32,15 +33,10 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
-  const [fileIds, setFileIds] = useState<string[]>([]);
   const { partialCards, setRefreshPartialCards } = usePartialCardContext();
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const addFileId = (fileId: string) => {
-    setFileIds((prevFileIds) => [...prevFileIds, fileId]);
-  };
 
   async function fetchCard(id: string) {
     let refreshed = await getCard(id);
@@ -79,80 +75,6 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
       navigate("/");
     }
   }
-
-  function handleBodyChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
-    setEditingCard({ ...editingCard, body: event.target.value });
-  }
-
-  const handleDrop = async (event: React.DragEvent<HTMLTextAreaElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const files = event.dataTransfer.files;
-
-    if (files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        try {
-          const response = await uploadFile(files[i], editingCard.id);
-          if ("error" in response) {
-            setMessage("Error uploading file: " + response["message"]);
-          } else {
-            setMessage(
-              "File uploaded successfully: " + response["file"]["name"]
-            );
-            addFileId(response["file"]["id"].toString());
-          }
-        } catch (error) {
-          setMessage("Error uploading file: " + error);
-        }
-      }
-    }
-  };
-
-  const handlePaste = async (
-    event: React.ClipboardEvent<HTMLTextAreaElement>
-  ) => {
-    if (event.clipboardData && event.clipboardData.items) {
-      const items = Array.from(event.clipboardData.items);
-      for (const item of items) {
-        if (item.type.indexOf("image") !== -1) {
-          event.preventDefault(); // Prevent default only for images
-          const file = item.getAsFile();
-
-          if (newCard) {
-            setMessage(
-              "Error: Cannot upload images for new cards, please save the card first"
-            );
-            return;
-          }
-
-          try {
-            const response = await uploadFile(file!, editingCard.id);
-
-            if ("error" in response) {
-              setMessage("Error uploading file: " + response["message"]);
-            } else {
-              let append_text = "\n\n![](" + response["file"]["id"] + ")";
-              setMessage(
-                `File uploaded successfully: ${response["file"]["name"]}`
-              );
-
-              setEditingCard((prevEditingCard) => ({
-                ...prevEditingCard,
-                body: prevEditingCard.body + append_text,
-              }));
-            }
-          } catch (error) {
-            setMessage(`Error uploading file: ${error}`);
-          }
-        }
-        // Remove the else if block for text/plain
-      }
-    }
-  };
-  const handleDragOver = (event: React.DragEvent<HTMLTextAreaElement>) => {
-    event.preventDefault();
-  };
 
   function addBacklink(selectedCard: PartialCard) {
     let text = "";
@@ -198,16 +120,11 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
           />
 
           <label htmlFor="body">Body:</label>
-          <textarea
-            style={{ display: "block", width: "100%", height: "200px" }}
-            className="border-2 p-2"
-            id="body"
-            value={editingCard.body}
-            onChange={handleBodyChange}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onPaste={handlePaste}
-            placeholder="Body"
+          <CardBodyTextArea
+            editingCard={editingCard}
+            setEditingCard={setEditingCard}
+            setMessage={setMessage}
+            newCard={newCard}
           />
           <div>
             <BacklinkInput addBacklink={addBacklink} />
