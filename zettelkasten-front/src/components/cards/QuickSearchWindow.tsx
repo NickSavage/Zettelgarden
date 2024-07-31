@@ -55,11 +55,6 @@ export function QuickSearchWindow({ setShowWindow }: QuickSearchWindowProps) {
     handleSearch(enteredCard);
   }
 
-  useEffect(() => {
-    setLink("");
-    setSearchTerm("");
-  });
-
   return (
     <div
       className="create-task-popup-overlay"
