@@ -98,7 +98,7 @@ option {
   width: 20%;
   overflow-y: auto;
   height: calc(100vh);
-  border-right: 1px solid #ccc;
+  border: 1px solid black;
   background-color: #57cc99;
 }
 
