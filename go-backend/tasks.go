@@ -291,6 +291,34 @@ func parseRecurringTasks(title string) (models.RecurringTask, bool) {
 				return interval
 			},
 		},
+		// Weekly patterns
+		{
+			regex:       regexp.MustCompile(`(?i)every week|weekly`),
+			frequency:   "weekly",
+			getInterval: func([]string) int { return 7 },
+		},
+		{
+			regex:     regexp.MustCompile(`(?i)every (\d+) weeks?`),
+			frequency: "weekly",
+			getInterval: func(matches []string) int {
+				interval, _ := strconv.Atoi(matches[1])
+				return interval
+			},
+		},
+		// Monthly patterns
+		{
+			regex:       regexp.MustCompile(`(?i)every month|monthly`),
+			frequency:   "monthly",
+			getInterval: func([]string) int { return 30 },
+		},
+		{
+			regex:     regexp.MustCompile(`(?i)every (\d+) months?`),
+			frequency: "monthly",
+			getInterval: func(matches []string) int {
+				interval, _ := strconv.Atoi(matches[1])
+				return interval
+			},
+		},
 	}
 
 	lowercaseTitle := strings.ToLower(title)
@@ -307,7 +335,6 @@ func parseRecurringTasks(title string) (models.RecurringTask, bool) {
 
 	return models.RecurringTask{}, false
 }
-
 func checkRecurringTasks(task models.Task) error {
 	recurringTask, found := parseRecurringTasks(task.Title)
 	if !found {

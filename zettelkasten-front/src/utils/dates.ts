@@ -64,11 +64,9 @@ export function isRecurringTask(task: Task): boolean {
     /daily/i,
     /every \d+ days?/i,
     /weekly/i,
-    /every (monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i,
+    /every \d+ weeks?/i,
     /monthly/i,
-    /yearly/i,
-    /annually/i,
-    // Add more patterns as needed
+    /every \d+ months?/i,
   ];
 
   return recurringPatterns.some((pattern) => pattern.test(task.title));

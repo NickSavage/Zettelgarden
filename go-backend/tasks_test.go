@@ -319,6 +319,30 @@ func TestParseRecurringTasks(t *testing.T) {
 			found:    true,
 		},
 		{
+			name:     "weekly",
+			input:    "hello world every week",
+			expected: models.RecurringTask{Frequency: "weekly", Interval: 7},
+			found:    true,
+		},
+		{
+			name:     "every 5 weeks",
+			input:    "hello world every 5 weeks",
+			expected: models.RecurringTask{Frequency: "weekly", Interval: 5},
+			found:    true,
+		},
+		{
+			name:     "monthly",
+			input:    "hello world every month",
+			expected: models.RecurringTask{Frequency: "monthly", Interval: 30},
+			found:    true,
+		},
+		{
+			name:     "every 6 months",
+			input:    "hello world every 6 months",
+			expected: models.RecurringTask{Frequency: "monthly", Interval: 6},
+			found:    true,
+		},
+		{
 			name:     "no recurring task",
 			input:    "hello world",
 			expected: models.RecurringTask{},
