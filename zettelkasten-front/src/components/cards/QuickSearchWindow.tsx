@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 import { quickFilterCards } from "../../utils/cards";
@@ -55,10 +55,15 @@ export function QuickSearchWindow({ setShowWindow }: QuickSearchWindowProps) {
     handleSearch(enteredCard);
   }
 
+  useEffect(() => {
+    setLink("");
+    setSearchTerm("");
+  });
+
   return (
     <div
       className="create-task-popup-overlay"
-      //  onClick={() => setShowWindow(false)}
+      onClick={() => setShowWindow(false)}
     >
       <div
         className="create-task-popup-content"
@@ -71,6 +76,7 @@ export function QuickSearchWindow({ setShowWindow }: QuickSearchWindowProps) {
           placeholder="ID"
           onKeyDown={handleEnterPress}
           style={{ display: "block", marginRight: "10px" }}
+          autoFocus
         />
 
         {topResults.length > 0 && (
