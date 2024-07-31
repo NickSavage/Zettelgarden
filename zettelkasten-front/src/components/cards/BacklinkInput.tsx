@@ -4,6 +4,7 @@ import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
 
 import { PartialCard, Card } from "../../models/Card";
 import { usePartialCardContext } from "../../contexts/CardContext";
+import { quickFilterCards } from "../../utils/cards";
 
 interface BacklinkInputProps {
   addBacklink: (selectedCard: PartialCard) => void;
@@ -20,24 +21,7 @@ export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
     const search = e.target.value; // assuming you want case-insensitive matching
     setSearchTerm(search);
     if (search !== "") {
-      const exactMatchCard = partialCards.find(
-        (card) => card.card_id === search
-      );
-      const matchingCards = partialCards.filter(
-        (card) =>
-          card.card_id.toLowerCase().startsWith(search.toLowerCase()) ||
-          card.title.toLowerCase().includes(search.toLowerCase())
-      );
-
-      // If an exact match is found, make sure it is at the front of the array
-      let filteredCards = exactMatchCard
-        ? [exactMatchCard, ...matchingCards]
-        : matchingCards;
-      filteredCards = filteredCards.filter(
-        (card, index, self) =>
-          index === self.findIndex((t) => t.card_id === card.card_id)
-      );
-      let results = filteredCards.slice(0, 5);
+      let results = quickFilterCards(partialCards, search);
       setTopResults(results);
     } else {
       setTopResults([]);

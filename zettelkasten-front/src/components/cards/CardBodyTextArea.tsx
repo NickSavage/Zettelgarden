@@ -4,6 +4,7 @@ import { uploadFile } from "../../api/files";
 import { findWordBoundaries } from "../../utils/strings";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
+import { quickFilterCards } from "../../utils/cards";
 
 interface CardBodyTextAreaProps {
   editingCard: Card;
@@ -56,18 +57,8 @@ export function CardBodyTextArea({
 
       // Adding console logs to debug
       // Check filtered results
-      const results = partialCards.filter((card) => {
-        const cardIdLower = card.card_id.toLowerCase();
-        const processedWordLower = processedWord.toLowerCase().trim();
 
-        return (
-          card.card_id.toLowerCase().startsWith(processedWordLower) ||
-          card.title.toLowerCase().includes(processedWordLower)
-        );
-
-        return cardIdLower.startsWith(processedWordLower);
-      });
-
+      let results = quickFilterCards(partialCards, processedWord);
       setTopResults(results);
       console.log("results", results);
     } else {

@@ -55,6 +55,7 @@ export function CardPreviewWindow({
             </span>
             <span>: {viewingCard.title}</span>
           </h3>
+          <p className="text-xs">{viewingCard.created_at}</p>
           <div>
             <CardBody viewingCard={viewingCard} />
           </div>
