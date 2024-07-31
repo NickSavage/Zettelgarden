@@ -95,6 +95,7 @@ export function Sidebar() {
         setShowCreateTaskWindow(true);
       }
       if (event.key === "s") {
+        event.preventDefault();
         setShowCreateTaskWindow(false);
         setShowQuickSearchWindow(true);
       }
