@@ -15,6 +15,7 @@ import { FileIcon } from "../assets/icons/FileIcon";
 import { Button } from "./Button";
 
 import { useShortcutContext } from "../contexts/ShortcutContext";
+import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -23,8 +24,12 @@ export function Sidebar() {
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
-  const { showCreateTaskWindow, setShowCreateTaskWindow } =
-    useShortcutContext();
+  const {
+    showCreateTaskWindow,
+    setShowCreateTaskWindow,
+    showQuickSearchWindow,
+    setShowQuickSearchWindow,
+  } = useShortcutContext();
   useState<boolean>(false);
 
   const mainCards = useMemo(
@@ -86,7 +91,12 @@ export function Sidebar() {
         navigate("/app/card/new", { state: { cardType: "standard" } });
       }
       if (event.key === "t") {
+        setShowQuickSearchWindow(false);
         setShowCreateTaskWindow(true);
+      }
+      if (event.key === "s") {
+        setShowCreateTaskWindow(false);
+        setShowQuickSearchWindow(true);
       }
     }
   };
@@ -170,6 +180,11 @@ export function Sidebar() {
             setRefresh={(refresh: boolean) => {}}
             setShowTaskWindow={setShowCreateTaskWindow}
           />
+        )}
+      </div>
+      <div>
+        {showQuickSearchWindow && (
+          <QuickSearchWindow setShowWindow={setShowQuickSearchWindow} />
         )}
       </div>
     </div>
