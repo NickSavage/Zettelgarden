@@ -85,6 +85,10 @@ export function Sidebar() {
   }
 
   const handleKeyPress = (event) => {
+    // if this is true, the user is using a system shortcut, don't do anything with it
+    if (event.metaKey) {
+      return;
+    }
     const focusedElement = document.activeElement;
     if (!focusedElement || !focusedElement.tagName.match(/^INPUT|TEXTAREA$/i)) {
       if (event.key === "c") {
