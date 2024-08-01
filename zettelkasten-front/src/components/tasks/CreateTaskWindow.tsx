@@ -70,6 +70,7 @@ export function CreateTaskWindow({
               }}
               placeholder="Enter new task"
               className="w-full"
+              autoFocus
             />
           </div>
           <div className="create-task-window-bottom">

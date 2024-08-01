@@ -95,6 +95,7 @@ export function Sidebar() {
         navigate("/app/card/new", { state: { cardType: "standard" } });
       }
       if (event.key === "t") {
+        event.preventDefault();
         setShowQuickSearchWindow(false);
         setShowCreateTaskWindow(true);
       }
