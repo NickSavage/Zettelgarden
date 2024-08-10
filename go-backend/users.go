@@ -24,7 +24,7 @@ func (s *Server) GetUserAdminRoute(w http.ResponseWriter, r *http.Request) {
 	if user.IsAdmin {
 		w.WriteHeader(http.StatusNoContent)
 	} else {
-		w.WriteHeader(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusForbidden)
 	}
 
 }
@@ -171,7 +171,7 @@ func (s *Server) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request
 
 	user, err := s.QueryUser(userID)
 	if user.ID != id || !user.IsAdmin {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, "unauthorized", http.StatusForbidden)
 		return
 	}
 
