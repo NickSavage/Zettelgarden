@@ -67,9 +67,9 @@ func TestUserGetAdminFailure(t *testing.T) {
 	handler := http.HandlerFunc(jwtMiddleware(s.GetUserAdminRoute))
 	handler.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusUnauthorized {
+	if status := rr.Code; status != http.StatusForbidden {
 		log.Printf("err %v", rr.Body.String())
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusForbidden)
 	}
 }
 
