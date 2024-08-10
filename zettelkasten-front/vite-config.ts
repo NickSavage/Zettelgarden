@@ -7,6 +7,5 @@ export default defineConfig({
   plugins: [react()],
   define: {
     'import.meta.env.VITE_URL': JSON.stringify(env.VITE_URL),
-    'import.meta.env.VITE_BACKEND_URL': JSON.stringify(env.VITE_BACKEND_URL),
   },
 })
