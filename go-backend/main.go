@@ -77,7 +77,7 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				http.Error(w, "Invalid token signature", http.StatusUnauthorized)
 				return
 			}
-			http.Error(w, "Invalid token", http.StatusBadRequest)
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 
