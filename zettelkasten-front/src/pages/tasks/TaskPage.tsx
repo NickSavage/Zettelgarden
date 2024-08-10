@@ -32,7 +32,7 @@ export function TaskPage({}: TaskListProps) {
     if (filterString === "") {
       return task;
     }
-    return task.title.includes(filterString);
+    return task.title.toLowerCase().includes(filterString.toLowerCase());
   }
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
