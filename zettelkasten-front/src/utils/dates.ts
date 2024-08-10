@@ -64,6 +64,7 @@ export function isRecurringTask(task: Task): boolean {
     /daily/i,
     /every \d+ days?/i,
     /weekly/i,
+    /every week/i,
     /every \d+ weeks?/i,
     /monthly/i,
     /every \d+ months?/i,
