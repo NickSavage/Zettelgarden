@@ -3,6 +3,7 @@ import { renderFile, deleteFile, editFile } from "../../api/files";
 import { Link } from "react-router-dom";
 import React, { useState, KeyboardEvent } from "react";
 import { FileIcon } from "../../assets/icons/FileIcon";
+import { FileRender } from "./FileRender";
 
 interface FileListItemProps {
   file: File;
@@ -18,6 +19,7 @@ export function FileListItem({
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>("");
   const [showEditName, setShowEditName] = useState<boolean>(false);
+  const [renderImage, setRenderImage] = useState<boolean>(false);
 
   function toggleMenu() {
     setShowMenu(!showMenu);
@@ -31,8 +33,15 @@ export function FileListItem({
     toggleEditName();
     setRefreshFiles(true);
   }
+  function closeRenderImage() {
+    setRenderImage(false);
+  }
   const handleFileDownload = (file: File, e: React.MouseEvent) => {
     e.preventDefault();
+    if (file.filetype === "image/png" || file.filetype === "image/jpeg") {
+      setRenderImage(true);
+      return;
+    }
     renderFile(file.id, file.name).catch((error) => {
       console.error("Error downloading file:", error);
     });
@@ -67,13 +76,20 @@ export function FileListItem({
                 }}
               />
             ) : (
-              <a
-                href="#"
-                onClick={(e) => handleFileDownload(file, e)}
-                className="ml-2"
-              >
-                <span className="font-bold">{file.name}</span>
-              </a>
+              <div>
+                <a
+                  href="#"
+                  onClick={(e) => handleFileDownload(file, e)}
+                  className="ml-2"
+                >
+                  <span className="font-bold">{file.name}</span>
+                </a>
+                {renderImage && (
+                  <div onClick={closeRenderImage}>
+                    <FileRender file={file} />
+                  </div>
+                )}
+              </div>
             )}
           </div>
           <div>
