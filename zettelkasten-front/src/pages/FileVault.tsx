@@ -3,6 +3,7 @@ import { getAllFiles } from "../api/files";
 import { sortCards } from "../utils";
 import { FileRenameModal } from "../components/files/FileRenameModal";
 import { FileListItem } from "../components/files/FileListItem";
+import { FilterInput } from "../components/FilterInput";
 
 import { File } from "../models/File";
 import { H6 } from "../components/Header";
@@ -12,14 +13,26 @@ export function FileVault() {
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState<File | null>(null);
   const [refreshFiles, setRefreshFiles] = useState<boolean>(false);
+  const [filterString, setFilterString] = useState<string>("");
 
   function onDelete(file_id: number) {
     setFiles(files.filter((file) => file.id !== file_id));
   }
 
+  function handleFilter(text: string) {
+    setFilterString(text);
+  }
+
+  function filterFiles(file: File) {
+    if (filterString === "") {
+      return file;
+    }
+    return file.name.toLowerCase().includes(filterString.toLowerCase());
+  }
+
   function onRename(fileId: number, updatedFile: File) {
     setFiles((prevFiles) =>
-      prevFiles.map((f) => (f.id === updatedFile.id ? updatedFile : f))
+      prevFiles.map((f) => (f.id === updatedFile.id ? updatedFile : f)),
     );
     setIsRenameModalOpen(false);
   }
@@ -41,6 +54,9 @@ export function FileVault() {
       <div className="mb-4">
         <H6 children="File Vault" />
       </div>
+      <div>
+        <FilterInput handleFilterHook={handleFilter} />
+      </div>
       <FileRenameModal
         isOpen={isRenameModalOpen}
         onClose={() => setIsRenameModalOpen(false)}
@@ -49,7 +65,7 @@ export function FileVault() {
       />
       {files && files.length > 0 ? (
         <ul>
-          {files.map((file, index) => (
+          {files.filter(filterFiles).map((file, index) => (
             <FileListItem
               file={file}
               onDelete={onDelete}
