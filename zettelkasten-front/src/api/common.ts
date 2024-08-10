@@ -1,6 +1,10 @@
 export function checkStatus(response: Response) {
   if (response.status === 401 || response.status === 422) {
-    localStorage.removeItem("token");
+    const token = localStorage.getItem("token");
+    if (token) {
+      localStorage.removeItem("token");
+      window.location.reload();
+    }
     return;
   }
   // If the response is ok, return the response to continue the promise chain
