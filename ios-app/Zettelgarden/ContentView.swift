@@ -18,7 +18,7 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 if selection == .tasks {
-                    HomeView(cardViewModel: cardViewModel)
+                    TaskListView()
                 }
                 else if selection == .card {
                     CardDisplayView(cardViewModel: cardViewModel)

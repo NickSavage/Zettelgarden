@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TaskListView: View {
-    @ObservedObject var taskListViewModel: TaskListViewModel
+    @StateObject private var taskListViewModel = TaskListViewModel()
     @State private var showingAddTaskView = false
 
     var body: some View {
@@ -10,7 +10,6 @@ struct TaskListView: View {
             Text("Tasks")
             HStack {
               FilterFieldView(filterText: $taskListViewModel.filterText, placeholder: "Filter")
-              TaskListOptionsMenu(taskListViewModel: taskListViewModel)
             }
             if !taskListViewModel.filteredTasks.isEmpty {
                 List {
@@ -54,6 +53,12 @@ struct TaskListView: View {
         }
         .sheet(isPresented: $showingAddTaskView) {
             AddTaskView(taskListViewModel: taskListViewModel)
+        }
+        .toolbar {
+          TaskListOptionsMenu(taskListViewModel: taskListViewModel)
+        }
+        .onAppear {
+            taskListViewModel.loadTasks()
         }
     }
 }
