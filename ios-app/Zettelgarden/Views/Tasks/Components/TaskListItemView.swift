@@ -64,12 +64,6 @@ struct TaskListItemView: View {
                         Image(systemName: "pencil")
                       }
                     }
-
-               //     .onLongPressGesture(minimumDuration: 0.5) {
-                 //       let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                   //     impactMed.impactOccurred()
-                     //   showingEditTaskView.toggle()
-                    //}
                     Spacer()
                     if let card = task.card {
                         if card.id == 0 {

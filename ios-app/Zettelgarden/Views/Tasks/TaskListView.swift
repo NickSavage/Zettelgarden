@@ -5,8 +5,14 @@ struct TaskListView: View {
     @State private var showingAddTaskView = false
 
     var body: some View {
-        VStack {
+        ZStack {
+          VStack{
             if !taskListViewModel.filteredTasks.isEmpty {
+                Picker("Filter", selection: $taskListViewModel.dateFilter) {
+                    ForEach(TaskDisplayOptions.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
                 List {
                     ForEach(taskListViewModel.filteredTasks) { task in
                         TaskListItemView(taskListViewModel: taskListViewModel, inputTask: task)
@@ -19,23 +25,34 @@ struct TaskListView: View {
             else {
                 Text("No tasks available.")
             }
+            
+          }
+          VStack{
+            Spacer()
+            HStack{
+              Spacer()
+              Button(action: {
+                    showingAddTaskView.toggle()
+                     }, label: {
+                          Text("+")
+                            .font(.system(.largeTitle))
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(Color.white)
+                            .padding(.bottom, 7)
+                        })
+                .background(Color.blue)
+                .cornerRadius(38.5)
+                .padding()
+                .shadow(color: Color.black.opacity(0.3),
+                        radius: 3,
+                        x: 3,
+                        y: 3)
+              
+            }
+          }
         }
         .sheet(isPresented: $showingAddTaskView) {
             AddTaskView(taskListViewModel: taskListViewModel)
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarLeading) {
-                Button(action: {
-                    showingAddTaskView.toggle()
-                }) {
-                    Text("Add Task")
-                }
-                Picker("Filter", selection: $taskListViewModel.dateFilter) {
-                    ForEach(TaskDisplayOptions.allCases) { option in
-                        Text(option.title).tag(option)
-                    }
-                }
-            }
         }
     }
 }

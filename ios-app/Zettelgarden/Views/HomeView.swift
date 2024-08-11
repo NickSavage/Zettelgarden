@@ -13,19 +13,12 @@ struct HomeView: View {
     @StateObject private var taskListViewModel = TaskListViewModel()
     var body: some View {
         VStack {
-            Text("Recent Cards")
+            Text("Tasks")
             TaskListView(taskListViewModel: taskListViewModel)
         }
         .onAppear {
             taskListViewModel.loadTasks()
         }
-        //     NavigationStack {
-        //         Text("recent Cards").bold()
-
-        //         }
-        //     }
-        // }
-
     }
 }
 
