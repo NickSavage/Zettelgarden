@@ -7,29 +7,24 @@ class TaskListViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var dateFilter: TaskDisplayOptions = .today
     @Published var filterText: String = ""
+    @Published var showCompleted: Bool = false
 
     @AppStorage("jwt") private var token: String?
 
     var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
         let filtered: [ZTask]
-        if self.dateFilter == .today {
+        if self.dateFilter == .today && !self.showCompleted {
             filtered = tasks.filter {!$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date)}
+        }
+        else if self.dateFilter == .today && self.showCompleted {
+          filtered = tasks.filter {!$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date) || $0.is_complete && isToday(maybeDate: $0.scheduled_date)}
         }
         else if self.dateFilter == .tomorrow {
             filtered = tasks.filter { !$0.is_complete && isTomorrow(maybeDate: $0.scheduled_date) }
         }
-        else if self.dateFilter == .all {
-            filtered = tasks.filter { !$0.is_complete }
-        }
-        else if self.dateFilter == .closedToday {
-            filtered = tasks.filter { $0.is_complete && isToday(maybeDate: $0.completed_at) }
-        }
-        else if self.dateFilter == .closedAll {
-            filtered = tasks.filter { $0.is_complete }
-        }
         else {
-            filtered =  tasks
+          filtered = self.showCompleted ? tasks : tasks.filter { !$0.is_complete }
         }
         if filterText == "" {
           return filtered

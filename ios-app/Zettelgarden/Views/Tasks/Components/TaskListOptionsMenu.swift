@@ -18,14 +18,16 @@ struct TaskListOptionsMenu: View {
           Button("All", action: allAction)
           
         }
-        Button("Show Completed", action: testAction)
+        Button(taskListViewModel.showCompleted ? "Hide Completed" : "Show Completed", action: toggleCompletedAction)
       } label: {
         Image(systemName: "gearshape")
           .padding()
       }
     }
 
-    private func testAction() {}
+    private func toggleCompletedAction() {
+      taskListViewModel.showCompleted = !taskListViewModel.showCompleted
+    }
 
     private func todayAction() {
       taskListViewModel.dateFilter = .today
