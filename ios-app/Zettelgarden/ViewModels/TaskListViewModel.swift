@@ -6,28 +6,36 @@ class TaskListViewModel: ObservableObject {
     @Published var tasks: [ZTask]?
     @Published var isLoading: Bool = true
     @Published var dateFilter: TaskDisplayOptions = .today
+    @Published var filterText: String = ""
 
     @AppStorage("jwt") private var token: String?
 
     var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
+        let filtered: [ZTask]
         if self.dateFilter == .today {
-            return tasks.filter { !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date) }
+            filtered = tasks.filter {!$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date)}
         }
         else if self.dateFilter == .tomorrow {
-            return tasks.filter { !$0.is_complete && isTomorrow(maybeDate: $0.scheduled_date) }
+            filtered = tasks.filter { !$0.is_complete && isTomorrow(maybeDate: $0.scheduled_date) }
         }
         else if self.dateFilter == .all {
-            return tasks.filter { !$0.is_complete }
+            filtered = tasks.filter { !$0.is_complete }
         }
         else if self.dateFilter == .closedToday {
-            return tasks.filter { $0.is_complete && isToday(maybeDate: $0.completed_at) }
+            filtered = tasks.filter { $0.is_complete && isToday(maybeDate: $0.completed_at) }
         }
         else if self.dateFilter == .closedAll {
-            return tasks.filter { $0.is_complete }
+            filtered = tasks.filter { $0.is_complete }
         }
         else {
-            return tasks
+            filtered =  tasks
+        }
+        if filterText == "" {
+          return filtered
+        }
+        else {
+          return filtered.filter { $0.title.lowercased().contains(filterText.lowercased())}
         }
     }
     func loadTasks() {

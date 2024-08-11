@@ -13,6 +13,7 @@ struct TaskListView: View {
                         Text(option.title).tag(option)
                     }
                 }
+                FilterFieldView(filterText: $taskListViewModel.filterText, placeholder: "Filter")
                 List {
                     ForEach(taskListViewModel.filteredTasks) { task in
                         TaskListItemView(taskListViewModel: taskListViewModel, inputTask: task)
