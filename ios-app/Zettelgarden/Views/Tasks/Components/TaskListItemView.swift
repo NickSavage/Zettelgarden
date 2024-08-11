@@ -54,11 +54,22 @@ struct TaskListItemView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.white.opacity(0.001))  // Nearly transparent background
-                    .onLongPressGesture(minimumDuration: 0.5) {
-                        let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                        impactMed.impactOccurred()
-                        showingEditTaskView.toggle()
+                    .contextMenu {
+                      Button(action: {
+                               let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                               impactMed.impactOccurred()
+                               showingEditTaskView.toggle()
+                             }) {
+                        Text("Edit Task")
+                        Image(systemName: "pencil")
+                      }
                     }
+
+               //     .onLongPressGesture(minimumDuration: 0.5) {
+                 //       let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                   //     impactMed.impactOccurred()
+                     //   showingEditTaskView.toggle()
+                    //}
                     Spacer()
                     if let card = task.card {
                         if card.id == 0 {
