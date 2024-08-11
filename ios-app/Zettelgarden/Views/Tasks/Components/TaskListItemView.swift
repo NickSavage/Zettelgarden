@@ -15,12 +15,12 @@ struct TaskListItemView: View {
     var body: some View {
         VStack {
             if let task = taskViewModel.task {
-                HStack {
-                    Button(action: {
-                        taskViewModel.completeTask()
-                    }) {
-                        Text(task.is_complete ? "[x]" : "[ ]")
-                    }
+              HStack {
+                  Button(action: {
+                           taskViewModel.completeTask()
+                         }) {    
+                    Image(systemName: task.is_complete ? "checkmark.circle" : "circle")
+                  }
                     .frame(width: 40, height: 30)  // Fixed size for the button
                     .contentShape(Rectangle())
                     VStack(alignment: .leading) {
