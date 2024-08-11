@@ -17,8 +17,16 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
+
                 if selection == .tasks {
                     TaskListView()
+                }
+                else if selection == .home {
+                  HomeView(
+                    selection: $selection,
+                    cardViewModel: cardViewModel,
+                    partialViewModel: partialViewModel
+                  )
                 }
                 else if selection == .card {
                     CardDisplayView(cardViewModel: cardViewModel)

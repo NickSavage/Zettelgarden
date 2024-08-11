@@ -3,7 +3,6 @@ import SwiftUI
 struct CardListView: View {
     @State private var errorMessage: String?
     @State private var isInitialized: Bool = false
-    @Binding var isMenuOpen: Bool
     @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
     @ObservedObject var viewModel: PartialCardViewModel
@@ -21,7 +20,6 @@ struct CardListView: View {
                         Button(action: {
                             print(card.card_id)
                             cardViewModel.loadCard(cardPK: card.id)
-                            isMenuOpen.toggle()
                             selection = .card
                         }) {
                             CardListItem(card: card, cardViewModel: cardViewModel)
@@ -83,7 +81,6 @@ struct CardList_Previews: PreviewProvider {
 
         var body: some View {
             CardListView(
-                isMenuOpen: $isMenuOpen,
                 selection: $selection,
                 cardViewModel: cardViewModel,
                 viewModel: viewModel

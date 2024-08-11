@@ -8,29 +8,16 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
-    @StateObject private var partialCardViewModel = PartialCardViewModel()
-    @StateObject private var taskListViewModel = TaskListViewModel()
+    @ObservedObject var partialViewModel: PartialCardViewModel
     var body: some View {
         VStack {
-            TaskListView()
-        }
-        .onAppear {
-            taskListViewModel.loadTasks()
-        }
-    }
-}
-
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeViewWrapper()
-    }
-
-    struct HomeViewWrapper: View {
-        @ObservedObject var cardViewModel = CardViewModel()
-
-        var body: some View {
-            HomeView(cardViewModel: cardViewModel)
+          CardListView(
+            selection: $selection,
+            cardViewModel: cardViewModel,
+            viewModel: partialViewModel
+          )
         }
     }
 }
