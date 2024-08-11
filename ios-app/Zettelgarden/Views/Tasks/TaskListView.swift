@@ -7,13 +7,12 @@ struct TaskListView: View {
     var body: some View {
         ZStack {
           VStack{
+            Text("Tasks")
+            HStack {
+              FilterFieldView(filterText: $taskListViewModel.filterText, placeholder: "Filter")
+              TaskListOptionsMenu(taskListViewModel: taskListViewModel)
+            }
             if !taskListViewModel.filteredTasks.isEmpty {
-                Picker("Filter", selection: $taskListViewModel.dateFilter) {
-                    ForEach(TaskDisplayOptions.allCases) { option in
-                        Text(option.title).tag(option)
-                    }
-                }
-                FilterFieldView(filterText: $taskListViewModel.filterText, placeholder: "Filter")
                 List {
                     ForEach(taskListViewModel.filteredTasks) { task in
                         TaskListItemView(taskListViewModel: taskListViewModel, inputTask: task)
@@ -25,6 +24,7 @@ struct TaskListView: View {
             }
             else {
                 Text("No tasks available.")
+                Spacer()
             }
             
           }

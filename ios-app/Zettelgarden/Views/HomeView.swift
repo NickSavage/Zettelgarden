@@ -13,7 +13,6 @@ struct HomeView: View {
     @StateObject private var taskListViewModel = TaskListViewModel()
     var body: some View {
         VStack {
-            Text("Tasks")
             TaskListView(taskListViewModel: taskListViewModel)
         }
         .onAppear {
