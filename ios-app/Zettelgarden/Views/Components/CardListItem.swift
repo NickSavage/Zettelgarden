@@ -16,12 +16,12 @@ struct CardListItem: View {
             Button(action: {
                 cardViewModel.loadCard(cardPK: card.id)
             }) {
-            HStack {
-                Text(card.card_id).foregroundColor(.blue)
-                Text(" - ")
-                Text(card.title).foregroundColor(.black)
-                Spacer()
-            }.bold()
+                HStack {
+                    Text(card.card_id).foregroundColor(.blue)
+                    Text(" - ")
+                    Text(card.title).foregroundColor(.black)
+                    Spacer()
+                }.bold()
             }
         }
     }
@@ -37,7 +37,9 @@ struct CardListItem_Previews: PreviewProvider {
         @StateObject var cardViewModel = CardViewModel()
 
         var body: some View {
-            CardListItem(card: card, cardViewModel: cardViewModel).previewLayout(.fixed(width: 400, height: 40))
+            CardListItem(card: card, cardViewModel: cardViewModel).previewLayout(
+                .fixed(width: 400, height: 40)
+            )
         }
 
     }
