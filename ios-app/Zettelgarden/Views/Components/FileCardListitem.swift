@@ -7,7 +7,7 @@ struct FileCardListItem: View {
     @State private var identifiableFileURL: IdentifiableURL?
     @State private var isDownloading = false
     @State private var downloadError: Error?
-    
+
     init(file: File) {
         self.file = file
         _viewModel = StateObject(wrappedValue: FileViewModel(file: file))
@@ -16,18 +16,26 @@ struct FileCardListItem: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text(String(file.id))
+                Image(systemName: "doc")
                 Text(file.name)
                     .foregroundColor(.black)
                     .bold()
                     .lineLimit(1)
                     .truncationMode(.tail)
+                Spacer()
+                if let card = viewModel.file.card {
+                    Button(action: {
+                    }) {
+                        Text("[\(card.card_id)]")
+                            .foregroundColor(.blue)
+                            .bold()
+
+                    }
+                    // NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
+                    //     CardListItem(card: card)
+                    // }
+                }
             }
-          //  if let card = viewModel.file.card {
-            //    NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-              //      CardListItem(card: card)
-                //}
-            //}
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -46,5 +54,5 @@ struct FileCardListItem: View {
             )
         }
     }
-    
+
 }

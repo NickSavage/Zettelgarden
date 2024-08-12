@@ -10,9 +10,9 @@ struct FileDetailView: View {
         VStack {
             HStack {
                 Text(file.name)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .padding()
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .padding()
                 Spacer()
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
@@ -24,16 +24,19 @@ struct FileDetailView: View {
                 }
                 .padding()
             }
-            if fileURL.pathExtension.lowercased() == "pdf" {
+            if file.filetype == "application/pdf" {
                 PDFKitView(url: fileURL)
             }
-            else if ["jpg", "jpeg", "png"].contains(fileURL.pathExtension.lowercased()) {
+            else if file.filetype == "image/png" || file.filetype == "image/jpeg" {
                 ImageView(url: fileURL)
             }
             else {
                 Text("Unsupported file type")
             }
             Spacer()
+        }
+        .onAppear {
+            print(file)
         }
     }
 }
