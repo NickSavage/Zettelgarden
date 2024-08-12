@@ -10,7 +10,7 @@ import SwiftUI
 struct File: Identifiable, Codable {
     var id: Int
     var name: String
-    var type: String
+    var filetype: String
     var filename: String
     var size: Int
     var created_by: Int
@@ -23,7 +23,7 @@ struct File: Identifiable, Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case name
-        case type
+        case filetype
         case filename
         case size
         case created_by
@@ -38,7 +38,7 @@ struct File: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(Int.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        type = try container.decode(String.self, forKey: .type)
+        filetype = try container.decode(String.self, forKey: .filetype)
         filename = try container.decode(String.self, forKey: .filename)
         size = try container.decode(Int.self, forKey: .size)
         created_by = try container.decode(Int.self, forKey: .created_by)
@@ -56,7 +56,7 @@ struct File: Identifiable, Codable {
     init(
         id: Int,
         name: String,
-        type: String,
+        filetype: String,
         filename: String,
         size: Int,
         created_by: Int,
@@ -68,7 +68,7 @@ struct File: Identifiable, Codable {
     ) {
         self.id = id
         self.name = name
-        self.type = type
+        self.filetype = filetype
         self.filename = filename
         self.size = size
         self.created_by = created_by
@@ -86,7 +86,7 @@ extension File {
         File(
             id: 0,
             name: "Sample file",
-            type: "filetype",
+            filetype: "filetype",
             filename: "filename.xlsx",
             size: 100,
             created_by: 1,
