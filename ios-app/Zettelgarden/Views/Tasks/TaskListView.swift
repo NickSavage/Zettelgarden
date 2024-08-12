@@ -6,56 +6,63 @@ struct TaskListView: View {
 
     var body: some View {
         ZStack {
-          VStack{
-            Text("Tasks")
-            HStack {
-              FilterFieldView(filterText: $taskListViewModel.filterText, placeholder: "Filter")
-            }
-            if !taskListViewModel.filteredTasks.isEmpty {
-                List {
-                    ForEach(taskListViewModel.filteredTasks) { task in
-                        TaskListItemView(taskListViewModel: taskListViewModel, inputTask: task)
+            VStack {
+                if !taskListViewModel.filteredTasks.isEmpty {
+                    List {
+                        Section(header: Text("Tasks").font(.headline)) {
+                            ForEach(taskListViewModel.filteredTasks) { task in
+                                TaskListItemView(
+                                    taskListViewModel: taskListViewModel,
+                                    inputTask: task
+                                )
+                            }
+
+                        }
+                    }
+                    .refreshable {
+                        taskListViewModel.loadTasks()
                     }
                 }
-                .refreshable {
-                    taskListViewModel.loadTasks()
+                else {
+                    Text("No tasks available.")
+                    Spacer()
                 }
+
             }
-            else {
-                Text("No tasks available.")
+            VStack {
                 Spacer()
-            }
-            
-          }
-          VStack{
-            Spacer()
-            HStack{
-              Spacer()
-              Button(action: {
-                    showingAddTaskView.toggle()
-                     }, label: {
-                          Text("+")
-                            .font(.system(.largeTitle))
-                            .frame(width: 40, height: 40)
-                            .foregroundColor(Color.white)
-                            .padding(.bottom, 7)
-                        })
-                .background(Color.blue)
-                .cornerRadius(38.5)
-                .padding()
-                .shadow(color: Color.black.opacity(0.3),
+                HStack {
+                    Spacer()
+                    Button(
+                        action: {
+                            showingAddTaskView.toggle()
+                        },
+                        label: {
+                            Text("+")
+                                .font(.system(.largeTitle))
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(Color.white)
+                                .padding(.bottom, 7)
+                        }
+                    )
+                    .background(Color.blue)
+                    .cornerRadius(38.5)
+                    .padding()
+                    .shadow(
+                        color: Color.black.opacity(0.3),
                         radius: 3,
                         x: 3,
-                        y: 3)
-              
+                        y: 3
+                    )
+
+                }
             }
-          }
         }
         .sheet(isPresented: $showingAddTaskView) {
             AddTaskView(taskListViewModel: taskListViewModel)
         }
         .toolbar {
-          TaskListOptionsMenu(taskListViewModel: taskListViewModel)
+            TaskListOptionsMenu(taskListViewModel: taskListViewModel)
         }
         .onAppear {
             taskListViewModel.loadTasks()
