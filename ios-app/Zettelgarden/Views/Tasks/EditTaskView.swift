@@ -26,6 +26,9 @@ struct EditTaskView: View {
                         ),
                         displayedComponents: [.date]
                     )
+                    Button("Clear Date") {
+                        task.scheduled_date = nil
+                    }
                 }
 
             }
