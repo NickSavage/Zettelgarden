@@ -58,9 +58,9 @@ struct Card: Identifiable, Codable {
         )
         updated_at = parseDate(input: updatedAtString) ?? Date()
         parent = try container.decodeIfPresent(PartialCard.self, forKey: .parent)
-        children = try container.decode([PartialCard].self, forKey: .children)
-        references = try container.decode([PartialCard].self, forKey: .references)
-        files = try container.decode([File].self, forKey: .files)
+        children = try container.decodeIfPresent([PartialCard].self, forKey: .children) ?? []
+        references = try container.decodeIfPresent([PartialCard].self, forKey: .references) ?? []
+        files = try container.decodeIfPresent([File].self, forKey: .files) ?? []
     }
     init(
         id: Int,
