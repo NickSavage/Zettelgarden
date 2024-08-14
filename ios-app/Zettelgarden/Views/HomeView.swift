@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
+    @ObservedObject var navigationViewModel: NavigationViewModel
     @ObservedObject var partialViewModel: PartialCardViewModel
     var body: some View {
         VStack {
-          CardListView(
-            selection: $selection,
-            cardViewModel: cardViewModel,
-            viewModel: partialViewModel
-          )
+            CardListView(
+                cardViewModel: cardViewModel,
+                navigationViewModel: navigationViewModel,
+                viewModel: partialViewModel
+            )
         }
     }
 }

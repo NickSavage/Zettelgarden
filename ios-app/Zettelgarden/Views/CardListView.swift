@@ -3,8 +3,8 @@ import SwiftUI
 struct CardListView: View {
     @State private var errorMessage: String?
     @State private var isInitialized: Bool = false
-    @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
+    @ObservedObject var navigationViewModel: NavigationViewModel
     @ObservedObject var viewModel: PartialCardViewModel
 
     var body: some View {
@@ -20,7 +20,7 @@ struct CardListView: View {
                         Button(action: {
                             print(card.card_id)
                             cardViewModel.loadCard(cardPK: card.id)
-                            selection = .card
+                            navigationViewModel.selection = .card
                         }) {
                             CardListItem(card: card, cardViewModel: cardViewModel)
                         }
@@ -28,15 +28,6 @@ struct CardListView: View {
                 }
                 .refreshable {
                     viewModel.loadCards()
-                }
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Picker("Filter", selection: $viewModel.selectedFilter) {
-                    ForEach(CardFilterOption.allCases) { option in
-                        Text(option.title).tag(option)
-                    }
                 }
             }
         }
@@ -63,28 +54,6 @@ enum CardFilterOption: Int, CaseIterable, Identifiable {
             return "Work Cards"
         case .unsorted:
             return "Unsorted"
-        }
-    }
-}
-
-struct CardList_Previews: PreviewProvider {
-    static var previews: some View {
-        CardListViewWrapper()
-    }
-
-    struct CardListViewWrapper: View {
-        @State private var isMenuOpen = true
-        @State private var selectedCard: Int? = 1
-        @State private var selection: ContentViewSelection = .tasks
-        @ObservedObject var cardViewModel = CardViewModel()
-        @StateObject var viewModel = PartialCardViewModel()
-
-        var body: some View {
-            CardListView(
-                selection: $selection,
-                cardViewModel: cardViewModel,
-                viewModel: viewModel
-            )
         }
     }
 }

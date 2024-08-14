@@ -9,47 +9,47 @@ import SwiftUI
 
 struct ContentView: View {
     @State var isMenuOpen: Bool = false
-    @State var selection: ContentViewSelection = .tasks
     @StateObject var cardViewModel = CardViewModel()
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var partialViewModel = PartialCardViewModel()
+    @StateObject var navigationViewModel = NavigationViewModel()
 
     var body: some View {
         NavigationView {
             VStack {
 
-                if selection == .tasks {
+                if navigationViewModel.selection == .tasks {
                     TaskListView()
                 }
-                else if selection == .home {
-                  HomeView(
-                    selection: $selection,
-                    cardViewModel: cardViewModel,
-                    partialViewModel: partialViewModel
-                  )
+                else if navigationViewModel.selection == .home {
+                    HomeView(
+                        cardViewModel: cardViewModel,
+                        navigationViewModel: navigationViewModel,
+                        partialViewModel: partialViewModel
+                    )
                 }
-                else if selection == .card {
+                else if navigationViewModel.selection == .card {
                     CardDisplayView(cardViewModel: cardViewModel)
                 }
-                else if selection == .files {
+                else if navigationViewModel.selection == .files {
                     FileListView()
                 }
-                else if selection == .search {
+                else if navigationViewModel.selection == .search {
                     SearchView(
-                        selection: $selection,
                         cardViewModel: cardViewModel,
+                        navigationViewModel: navigationViewModel,
                         viewModel: searchViewModel
                     )
                 }
-                else if selection == .settings {
+                else if navigationViewModel.selection == .settings {
                     SettingsView()
                 }
             }
             .overlay {
                 SidebarView(
                     isMenuOpen: $isMenuOpen,
-                    selection: $selection,
                     cardViewModel: cardViewModel,
+                    navigationViewModel: navigationViewModel,
                     partialViewModel: partialViewModel
                 )
             }

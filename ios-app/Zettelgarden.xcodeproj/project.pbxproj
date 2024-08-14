@@ -28,6 +28,8 @@
 		01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8E2BF2C9E000DF973E /* CardListItem.swift */; };
 		0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E9D62BF55DCA007D4EAD /* Utils.swift */; };
 		016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */; };
+		016D00022C6CE0EF00339760 /* NavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00012C6CE0EF00339760 /* NavigationViewModel.swift */; };
+		016D00042C6CE1F600339760 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00032C6CE1F600339760 /* Visit.swift */; };
 		016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F1C2C3E915800918E10 /* Dates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1B2C3E915800918E10 /* Dates.swift */; };
@@ -109,6 +111,8 @@
 		01201F8C2BF2C9AB00DF973E /* CardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListView.swift; sourceTree = "<group>"; };
 		01201F8E2BF2C9E000DF973E /* CardListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListItem.swift; sourceTree = "<group>"; };
 		0144E9D62BF55DCA007D4EAD /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		016D00012C6CE0EF00339760 /* NavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModel.swift; sourceTree = "<group>"; };
+		016D00032C6CE1F600339760 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
 		016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListOptionsMenu.swift; sourceTree = "<group>"; };
 		016DFFFA2C698E3C00339760 /* ZettelgardenDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenDebug.entitlements; sourceTree = "<group>"; };
 		016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDateTextDisplay.swift; sourceTree = "<group>"; };
@@ -258,6 +262,7 @@
 				010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */,
 				01E604EF2C3CBC4F00717D42 /* Task.swift */,
 				01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */,
+				016D00032C6CE1F600339760 /* Visit.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -280,6 +285,7 @@
 				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
 				01E604ED2C3CBC3700717D42 /* TaskListViewModel.swift */,
 				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
+				016D00012C6CE0EF00339760 /* NavigationViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -467,9 +473,11 @@
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
 				01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */,
+				016D00042C6CE1F600339760 /* Visit.swift in Sources */,
 				01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */,
 				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,
 				01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */,
+				016D00022C6CE0EF00339760 /* NavigationViewModel.swift in Sources */,
 				01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */,
 				01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */,
 				01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */,

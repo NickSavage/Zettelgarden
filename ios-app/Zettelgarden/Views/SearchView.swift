@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct SearchView: View {
-    @Binding var selection: ContentViewSelection
     @ObservedObject var cardViewModel: CardViewModel
+    @ObservedObject var navigationViewModel: NavigationViewModel
     @ObservedObject var viewModel = SearchViewModel()
     @State private var newCard = Card.emptyCard
 
@@ -21,7 +21,7 @@ struct SearchView: View {
                     List(viewModel.searchResults) { card in
                         Button(action: {
                             cardViewModel.loadCard(cardPK: card.id)
-                            selection = .card
+                            navigationViewModel.selection = .card
                         }) {
                             CardListItem(
                                 card: cardToPartialCard(card: card),
@@ -35,21 +35,6 @@ struct SearchView: View {
             }
             .navigationTitle("Search")
             .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct SearchView_Previews: PreviewProvider {
-    static var previews: some View {
-        SearchViewWrapper()
-    }
-
-    struct SearchViewWrapper: View {
-        @ObservedObject var cardViewModel = CardViewModel()
-        @State var selection: ContentViewSelection = .search
-
-        var body: some View {
-            SearchView(selection: $selection, cardViewModel: cardViewModel)
         }
     }
 }
