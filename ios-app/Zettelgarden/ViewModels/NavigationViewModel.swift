@@ -8,7 +8,7 @@
 import SwiftUI
 
 class NavigationViewModel: ObservableObject {
-    var navigationTree: [Visit] = []
+    var history: [Visit] = []
     var currentIndex: Int = -1
     @Published var selection: ContentViewSelection = .tasks
 
@@ -17,6 +17,18 @@ class NavigationViewModel: ObservableObject {
     }
     func nextVisit() {
 
+    }
+
+    func visit(page: ContentViewSelection, cardPK: Int = -1) {
+        currentIndex += 1
+        selection = page
+        if cardPK != -1 {
+            history.append(Visit(view: page, cardPK: cardPK))
+            //            cardViewModel.loadCard(cardPK: cardPK)
+        }
+        else {
+            history.append(Visit(view: page))
+        }
     }
 
 }

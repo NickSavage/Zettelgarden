@@ -20,7 +20,7 @@ struct SidebarView: View {
                 VStack {
                     List {
                         Button(action: {
-                            navigationViewModel.selection = .home
+                            navigationViewModel.visit(page: .home)
                             withAnimation {
                                 isMenuOpen = false
                             }
@@ -28,7 +28,7 @@ struct SidebarView: View {
                             Text("Cards")
                         }
                         Button(action: {
-                            navigationViewModel.selection = .tasks
+                            navigationViewModel.visit(page: .tasks)
                             withAnimation {
                                 isMenuOpen = false
                             }
@@ -36,7 +36,7 @@ struct SidebarView: View {
                             Text("Tasks")
                         }
                         Button(action: {
-                            navigationViewModel.selection = .files
+                            navigationViewModel.visit(page: .files)
                             withAnimation {
                                 isMenuOpen = false
                             }
@@ -44,7 +44,7 @@ struct SidebarView: View {
                             Text("Files")
                         }
                         Button(action: {
-                            navigationViewModel.selection = .search
+                            navigationViewModel.visit(page: .search)
                             withAnimation {
                                 isMenuOpen = false
                             }
@@ -52,7 +52,7 @@ struct SidebarView: View {
                             Text("Search")
                         }
                         Button(action: {
-                            navigationViewModel.selection = .settings
+                            navigationViewModel.visit(page: .settings)
                             withAnimation {
                                 isMenuOpen = false
                             }

@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 
 struct Visit {
-    var id: Int
     var view: ContentViewSelection
-
+    var cardPK: Int?
 }
