@@ -15,54 +15,32 @@ struct TaskListItemView: View {
     var body: some View {
         VStack {
             if let task = taskViewModel.task {
-              HStack {
-                  Button(action: {
-                           taskViewModel.completeTask()
-                         }) {    
-                    Image(systemName: task.is_complete ? "checkmark.circle" : "circle")
-                  }
+                HStack {
+                    Button(action: {
+                        taskViewModel.completeTask()
+                    }) {
+                        Image(systemName: task.is_complete ? "checkmark.circle" : "circle")
+                    }
                     .frame(width: 40, height: 30)  // Fixed size for the button
                     .contentShape(Rectangle())
                     VStack(alignment: .leading) {
                         Text(task.title)
                         HStack {
-                            if let date = task.scheduled_date {
-                                if isToday(maybeDate: date) {
-                                    Text("Today")
-                                        .font(.caption)
-                                        .foregroundColor(.green)
-                                }
-                                else if !task.is_complete && isPast(maybeDate: date) {
-                                    Text(date, style: .date)
-                                        .font(.caption)
-                                        .foregroundColor(.red)
-                                }
-                                else {
-                                    Text(date, style: .date).font(.caption)
-                                }
-                            }
-                            else {
-                                Text("No Date").font(.caption)
-                            }
-                            if isRecurringTask(task: task) {
-                                Text("Recurring")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                            }
+                            TaskDateTextDisplay(taskViewModel: taskViewModel)
 
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.white.opacity(0.001))  // Nearly transparent background
                     .contextMenu {
-                      Button(action: {
-                               let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                               impactMed.impactOccurred()
-                               showingEditTaskView.toggle()
-                             }) {
-                        Text("Edit Task")
-                        Image(systemName: "pencil")
-                      }
+                        Button(action: {
+                            let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                            impactMed.impactOccurred()
+                            showingEditTaskView.toggle()
+                        }) {
+                            Text("Edit Task")
+                            Image(systemName: "pencil")
+                        }
                     }
                     Spacer()
                     if let card = task.card {
