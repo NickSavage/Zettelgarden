@@ -9,12 +9,12 @@ import SwiftUI
 
 struct CardListItem: View {
     let card: PartialCard
-    @ObservedObject var cardViewModel: CardViewModel
+    @ObservedObject var navigationViewModel: NavigationViewModel
 
     var body: some View {
         VStack {
             Button(action: {
-                cardViewModel.loadCard(cardPK: card.id)
+                navigationViewModel.visit(page: .card, cardPK: card.id)
             }) {
                 HStack {
                     Text(card.card_id).foregroundColor(.blue)
@@ -24,23 +24,5 @@ struct CardListItem: View {
                 }.bold()
             }
         }
-    }
-}
-
-struct CardListItem_Previews: PreviewProvider {
-    static var previews: some View {
-        CardListItemWrapper()
-    }
-
-    struct CardListItemWrapper: View {
-        var card = PartialCard.sampleData[0]
-        @StateObject var cardViewModel = CardViewModel()
-
-        var body: some View {
-            CardListItem(card: card, cardViewModel: cardViewModel).previewLayout(
-                .fixed(width: 400, height: 40)
-            )
-        }
-
     }
 }

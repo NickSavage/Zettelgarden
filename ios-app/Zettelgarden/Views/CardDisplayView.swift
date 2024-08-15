@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CardDisplayView: View {
     @ObservedObject var cardViewModel: CardViewModel
+    @ObservedObject var navigationViewModel: NavigationViewModel
     @State private var isPresentingEditView = false
 
     var body: some View {
@@ -29,7 +30,10 @@ struct CardDisplayView: View {
                         VStack {
                             if let parentCard = card.parent {
                                 Text("Parent").bold()
-                                CardListItem(card: parentCard, cardViewModel: cardViewModel)
+                                CardListItem(
+                                    card: parentCard,
+                                    navigationViewModel: navigationViewModel
+                                )
                             }
                         }.padding()
 
@@ -44,11 +48,17 @@ struct CardDisplayView: View {
                         VStack {
                             Text("References").bold()
                             List(card.references.reversed()) { childCard in
-                                CardListItem(card: childCard, cardViewModel: cardViewModel)
+                                CardListItem(
+                                    card: childCard,
+                                    navigationViewModel: navigationViewModel
+                                )
                             }
                             Text("Children").bold()
                             List(card.children.reversed()) { childCard in
-                                CardListItem(card: childCard, cardViewModel: cardViewModel)
+                                CardListItem(
+                                    card: childCard,
+                                    navigationViewModel: navigationViewModel
+                                )
                             }
                         }
 
@@ -66,18 +76,18 @@ struct CardDisplayView: View {
                         cardViewModel.previousCard()
                     }) {
                         Image(systemName: "chevron.backward")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .padding()
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .padding()
                     }
                     .buttonStyle(BorderlessButtonStyle())
                     Button(action: {
                         cardViewModel.nextCard()
                     }) {
                         Image(systemName: "chevron.forward")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .padding()
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .padding()
                     }
                     .buttonStyle(BorderlessButtonStyle())
                     Spacer()
@@ -105,16 +115,5 @@ struct CardDisplayView: View {
                 Text("Loading...")
             }
         }
-    }
-}
-
-struct CardView_Previews: PreviewProvider {
-    static var previews: some View {
-        let mockCard = Card.sampleData[0]
-
-        let cardViewModel = CardViewModel()
-        cardViewModel.card = mockCard
-
-        return CardDisplayView(cardViewModel: cardViewModel)
     }
 }

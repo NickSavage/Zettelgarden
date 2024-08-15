@@ -17,13 +17,10 @@ struct CardListView: View {
 
                 List {
                     ForEach(viewModel.filteredCards) { card in
-                        Button(action: {
-                            print(card.card_id)
-                            cardViewModel.loadCard(cardPK: card.id)
-                            navigationViewModel.selection = .card
-                        }) {
-                            CardListItem(card: card, cardViewModel: cardViewModel)
-                        }
+                        CardListItem(
+                            card: card,
+                            navigationViewModel: navigationViewModel
+                        )
                     }
                 }
                 .refreshable {

@@ -25,7 +25,7 @@ struct SearchView: View {
                         }) {
                             CardListItem(
                                 card: cardToPartialCard(card: card),
-                                cardViewModel: cardViewModel
+                                navigationViewModel: navigationViewModel
                             )
                         }
                     }

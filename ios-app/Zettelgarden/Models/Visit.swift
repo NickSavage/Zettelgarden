@@ -11,5 +11,5 @@ import SwiftUI
 
 struct Visit {
     var view: ContentViewSelection
-    var cardPK: Int?
+    var cardPK: Int
 }

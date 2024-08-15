@@ -12,7 +12,15 @@ struct ContentView: View {
     @StateObject var cardViewModel = CardViewModel()
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var partialViewModel = PartialCardViewModel()
-    @StateObject var navigationViewModel = NavigationViewModel()
+    @StateObject var navigationViewModel: NavigationViewModel
+
+    init() {
+        let cardViewModel = CardViewModel()
+        _cardViewModel = StateObject(wrappedValue: cardViewModel)
+        _navigationViewModel = StateObject(
+            wrappedValue: NavigationViewModel(cardViewModel: cardViewModel)
+        )
+    }
 
     var body: some View {
         NavigationView {
@@ -29,7 +37,10 @@ struct ContentView: View {
                     )
                 }
                 else if navigationViewModel.selection == .card {
-                    CardDisplayView(cardViewModel: cardViewModel)
+                    CardDisplayView(
+                        cardViewModel: cardViewModel,
+                        navigationViewModel: navigationViewModel
+                    )
                 }
                 else if navigationViewModel.selection == .files {
                     FileListView()
@@ -61,6 +72,24 @@ struct ContentView: View {
                         }
                     }) {
                         Image(systemName: "sidebar.left")
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .bottomBar) {
+
+                    Button(action: {
+                        navigationViewModel.previousVisit()
+                    }) {
+                        Image(systemName: "chevron.left")
+                    }
+                }
+                ToolbarItem(placement: .bottomBar) {
+
+                    Button(action: {
+                        navigationViewModel.nextVisit()
+                    }) {
+                        Image(systemName: "chevron.right")
                     }
                 }
             }
