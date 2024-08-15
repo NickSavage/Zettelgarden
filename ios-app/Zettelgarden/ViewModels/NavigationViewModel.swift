@@ -33,7 +33,7 @@ class NavigationViewModel: ObservableObject {
     }
     func nextVisit() {
         print(currentIndex)
-        if currentIndex > history.count - 1 {
+        if currentIndex >= history.count - 1 {
             print("cancelling next")
             return
         }
