@@ -71,30 +71,6 @@ struct CardDisplayView: View {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle())
-                HStack {
-                    Button(action: {
-                        cardViewModel.previousCard()
-                    }) {
-                        Image(systemName: "chevron.backward")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .padding()
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                    Button(action: {
-                        cardViewModel.nextCard()
-                    }) {
-                        Image(systemName: "chevron.forward")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .padding()
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                    Spacer()
-                    QuickAddMenu()
-                    Spacer()
-                }
-                .padding()
             }
             else {
                 Text("No card available")

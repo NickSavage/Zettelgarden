@@ -76,27 +76,30 @@ struct ContentView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .bottomBar) {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    HStack {
+                        Button(action: {
+                            navigationViewModel.previousVisit()
+                        }) {
+                            Image(systemName: "chevron.left")
+                        }
 
-                    Button(action: {
-                        navigationViewModel.previousVisit()
-                    }) {
-                        Image(systemName: "chevron.left")
-                    }
-                }
-                ToolbarItem(placement: .bottomBar) {
+                        Button(action: {
+                            navigationViewModel.nextVisit()
+                        }) {
+                            Image(systemName: "chevron.right")
+                        }
+                        Spacer()
 
-                    Button(action: {
-                        navigationViewModel.nextVisit()
-                    }) {
-                        Image(systemName: "chevron.right")
                     }
+
                 }
             }
         }
         .onAppear {
             partialViewModel.displayOnlyTopLevel = true
             partialViewModel.loadCards()
+            navigationViewModel.visit(page: .tasks)
 
         }
     }
