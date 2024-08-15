@@ -18,52 +18,65 @@ struct SidebarView: View {
         ZStack {
             if isMenuOpen {
                 VStack {
-                    List {
-                        Button(action: {
-                            navigationViewModel.visit(page: .home)
-                            withAnimation {
-                                isMenuOpen = false
+                    VStack {
+                        List {
+                            Section(header: Text("Creation")) {
+                                Button(action: {}) {
+                                    Text("New Card")
+                                }
+                                Button(action: {}) {
+                                    Text("New Task")
+                                }
+
                             }
-                        }) {
-                            Text("Cards")
-                        }
-                        Button(action: {
-                            navigationViewModel.visit(page: .tasks)
-                            withAnimation {
-                                isMenuOpen = false
+                            Section(header: Text("Navigation")) {
+                                Button(action: {
+                                    navigationViewModel.visit(page: .home)
+                                    withAnimation {
+                                        isMenuOpen = false
+                                    }
+                                }) {
+                                    Text("Cards")
+                                }
+                                Button(action: {
+                                    navigationViewModel.visit(page: .tasks)
+                                    withAnimation {
+                                        isMenuOpen = false
+                                    }
+                                }) {
+                                    Text("Tasks")
+                                }
+                                Button(action: {
+                                    navigationViewModel.visit(page: .files)
+                                    withAnimation {
+                                        isMenuOpen = false
+                                    }
+                                }) {
+                                    Text("Files")
+                                }
+                                Button(action: {
+                                    navigationViewModel.visit(page: .search)
+                                    withAnimation {
+                                        isMenuOpen = false
+                                    }
+                                }) {
+                                    Text("Search")
+                                }
+                                Button(action: {
+                                    navigationViewModel.visit(page: .settings)
+                                    withAnimation {
+                                        isMenuOpen = false
+                                    }
+                                }) {
+                                    Text("Settings")
+                                }
                             }
-                        }) {
-                            Text("Tasks")
-                        }
-                        Button(action: {
-                            navigationViewModel.visit(page: .files)
-                            withAnimation {
-                                isMenuOpen = false
-                            }
-                        }) {
-                            Text("Files")
-                        }
-                        Button(action: {
-                            navigationViewModel.visit(page: .search)
-                            withAnimation {
-                                isMenuOpen = false
-                            }
-                        }) {
-                            Text("Search")
-                        }
-                        Button(action: {
-                            navigationViewModel.visit(page: .settings)
-                            withAnimation {
-                                isMenuOpen = false
-                            }
-                        }) {
-                            Text("Settings")
                         }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.white)
-                    .transition(.move(edge: .leading))
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.white)
+                .transition(.move(edge: .leading))
             }
         }
     }
