@@ -12,10 +12,21 @@ struct TaskListContextMenu: View {
     @ObservedObject var taskViewModel: TaskViewModel
     var body: some View {
         Group {
-            Button(action: {
-                taskViewModel.completeTask()
-            }) {
-                Text("Complete Task")
+            if taskViewModel.isComplete() {
+                Button(action: {
+                    taskViewModel.uncompleteTask()
+                }) {
+                    Text("Mark Task As Incomplete")
+                }
+
+            }
+            else {
+                Button(action: {
+                    taskViewModel.completeTask()
+                }) {
+                    Text("Mark Task As Complete")
+                }
+
             }
 
             Button(action: {

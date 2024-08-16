@@ -23,9 +23,22 @@ class TaskViewModel: ObservableObject {
     func setListViewModel(taskListViewModel: TaskListViewModel) {
         self.taskListViewModel = taskListViewModel
     }
+    func isComplete() -> Bool {
+        if var actualTask = self.task {
+            return actualTask.is_complete
+        }
+        return false
+    }
     func completeTask() {
         if var editedTask = task {
             editedTask.is_complete = true
+            self.task = editedTask
+            handleUpdateTask()
+        }
+    }
+    func uncompleteTask() {
+        if var editedTask = task {
+            editedTask.is_complete = false
             self.task = editedTask
             handleUpdateTask()
         }
