@@ -64,10 +64,7 @@ struct TaskListItemView: View {
         .sheet(isPresented: $showingEditTaskView) {
             if var task = taskViewModel.task {
                 EditTaskView(
-                    task: Binding(
-                        get: { task },
-                        set: { newValue in task = newValue }
-                    ),
+                    viewModel: taskViewModel,
                     onSave: handleSaveTask
                 )
             }

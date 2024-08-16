@@ -22,13 +22,14 @@ struct TaskListContextMenu: View {
                 Image(systemName: "pencil")
             }
             Button(action: {
-
+                taskViewModel.deferTomorrow()
             }) {
                 Text("Defer To Tomorrow")
 
             }
             Button(action: {
 
+                taskViewModel.clearScheduledDate()
             }) {
                 Text("Set No Date")
 

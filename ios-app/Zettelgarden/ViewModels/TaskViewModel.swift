@@ -24,27 +24,31 @@ class TaskViewModel: ObservableObject {
         self.taskListViewModel = taskListViewModel
     }
     func completeTask() {
-        guard let token = token else {
-            print("Token is missing")
-            return
-        }
         if var editedTask = task {
             editedTask.is_complete = true
-            updateTask(token: token, task: editedTask) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(_):
-                        if let viewModel = self.taskListViewModel {
-                            viewModel.loadTasks()
-                        }
-                    case .failure(let error):
-                        print(error)
-                    }
-                    self.isLoading = false
-                }
-
-            }
+            self.task = editedTask
+            handleUpdateTask()
         }
+    }
+
+    func deferTomorrow() {
+        if var editedTask = task {
+            let calendar = Calendar.current
+            let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date())!
+            editedTask.scheduled_date = tomorrow
+            self.task = editedTask
+            handleUpdateTask()
+        }
+
+    }
+
+    func clearScheduledDate() {
+        if var editedTask = task {
+            editedTask.scheduled_date = nil
+            self.task = editedTask
+            handleUpdateTask()
+        }
+
     }
 
     func handleUpdateTask() {
@@ -53,7 +57,6 @@ class TaskViewModel: ObservableObject {
             return
         }
         if var editedTask = task {
-            editedTask.is_complete = true
             updateTask(token: token, task: editedTask) { result in
                 DispatchQueue.main.async {
                     switch result {
