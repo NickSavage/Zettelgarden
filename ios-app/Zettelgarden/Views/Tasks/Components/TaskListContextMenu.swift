@@ -12,6 +12,11 @@ struct TaskListContextMenu: View {
     @ObservedObject var taskViewModel: TaskViewModel
     var body: some View {
         Group {
+            Button(action: {
+                taskViewModel.completeTask()
+            }) {
+                Text("Complete Task")
+            }
 
             Button(action: {
                 let impactMed = UIImpactFeedbackGenerator(style: .medium)
