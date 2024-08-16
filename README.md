@@ -4,9 +4,14 @@
 
 **Zettelgarden** started out as a digital implementation of Nick Savage's personal analog (i.e. on paper) zettelkasten and as a personal learning project.
 
+## Features
+
+- **Cards**: Create 'cards', which are meant to be individual, atomic pieces of information. They are arranged in a tree that can be traversed.
+- **Tasks**: You can track all of your tasks, and link them with different cards
+- **Files**: Upload files and link them to cards, to keep all of your information in the same place
+
 ## Architecture
 
 - `zettelkasten-front`: Frontend, using React and Typescript
 - `go-backend`: Backend, using Go with `net/http`
-- `backend`: Original backend, using Python with Flask. Continues as a proxy layer between the frontend and backend until the rewrite is complete
-- `ios-app`: Experimental iOS app
+- `ios-app`: Experimental iOS app. It's pretty ugly, I wouldn't recommend using it yet.
