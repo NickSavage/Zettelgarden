@@ -1,5 +1,7 @@
 # Zettelgarden
 
+**NOTE: This is pretty experimental and designed for me to use. Things might break and change based on my whim, so be warned**
+
 **Zettelgarden** is a personal knowledge management system implemented with React and Go, inspired by the idea of the [zettelkasten](https://zettelkasten.de/introduction/).
 
 **Zettelgarden** started out as a digital implementation of Nick Savage's personal analog (i.e. on paper) zettelkasten and as a personal learning project.
