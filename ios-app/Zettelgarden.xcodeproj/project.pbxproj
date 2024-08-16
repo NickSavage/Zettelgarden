@@ -26,6 +26,7 @@
 		01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */; };
 		01201F8D2BF2C9AB00DF973E /* CardListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8C2BF2C9AB00DF973E /* CardListView.swift */; };
 		01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8E2BF2C9E000DF973E /* CardListItem.swift */; };
+		013C75E72C6EA7A100838E7B /* TaskListContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013C75E62C6EA7A100838E7B /* TaskListContextMenu.swift */; };
 		0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E9D62BF55DCA007D4EAD /* Utils.swift */; };
 		016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */; };
 		016D00022C6CE0EF00339760 /* NavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00012C6CE0EF00339760 /* NavigationViewModel.swift */; };
@@ -110,6 +111,7 @@
 		01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDisplayView.swift; sourceTree = "<group>"; };
 		01201F8C2BF2C9AB00DF973E /* CardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListView.swift; sourceTree = "<group>"; };
 		01201F8E2BF2C9E000DF973E /* CardListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListItem.swift; sourceTree = "<group>"; };
+		013C75E62C6EA7A100838E7B /* TaskListContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListContextMenu.swift; sourceTree = "<group>"; };
 		0144E9D62BF55DCA007D4EAD /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		016D00012C6CE0EF00339760 /* NavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModel.swift; sourceTree = "<group>"; };
 		016D00032C6CE1F600339760 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				0100FCCC2C3D3764006FACAE /* TaskListItemView.swift */,
 				016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */,
 				016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */,
+				013C75E62C6EA7A100838E7B /* TaskListContextMenu.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -485,6 +488,7 @@
 				016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */,
 				01759F1C2C3E915800918E10 /* Dates.swift in Sources */,
 				011AAA512C44691900ED7BE2 /* EnvironmentSelector.swift in Sources */,
+				013C75E72C6EA7A100838E7B /* TaskListContextMenu.swift in Sources */,
 				01E604F02C3CBC4F00717D42 /* Task.swift in Sources */,
 				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,

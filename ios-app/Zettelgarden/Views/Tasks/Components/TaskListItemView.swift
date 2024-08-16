@@ -33,14 +33,10 @@ struct TaskListItemView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.white.opacity(0.001))  // Nearly transparent background
                     .contextMenu {
-                        Button(action: {
-                            let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                            impactMed.impactOccurred()
-                            showingEditTaskView.toggle()
-                        }) {
-                            Text("Edit Task")
-                            Image(systemName: "pencil")
-                        }
+                        TaskListContextMenu(
+                            showingEditTaskView: $showingEditTaskView,
+                            taskViewModel: taskViewModel
+                        )
                     }
                     Spacer()
                     if let card = task.card {
