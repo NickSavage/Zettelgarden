@@ -9,28 +9,42 @@ class TaskListViewModel: ObservableObject {
     @Published var filterText: String = ""
     @Published var showCompleted: Bool = false
 
-    @AppStorage("jwt") private var token: String?
+    private var refreshTimer: AnyCancellable?
 
+    @AppStorage("jwt") private var token: String?
+    init() {
+        loadTasks()
+        refreshTimer = Timer.publish(every: 15, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                self.loadTasks()
+            }
+    }
     var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
         let filtered: [ZTask]
         if self.dateFilter == .today && !self.showCompleted {
-            filtered = tasks.filter {!$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date)}
+            filtered = tasks.filter {
+                !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date)
+            }
         }
         else if self.dateFilter == .today && self.showCompleted {
-          filtered = tasks.filter {!$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date) || $0.is_complete && isToday(maybeDate: $0.scheduled_date)}
+            filtered = tasks.filter {
+                !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date)
+                    || $0.is_complete && isToday(maybeDate: $0.scheduled_date)
+            }
         }
         else if self.dateFilter == .tomorrow {
             filtered = tasks.filter { !$0.is_complete && isTomorrow(maybeDate: $0.scheduled_date) }
         }
         else {
-          filtered = self.showCompleted ? tasks : tasks.filter { !$0.is_complete }
+            filtered = self.showCompleted ? tasks : tasks.filter { !$0.is_complete }
         }
         if filterText == "" {
-          return filtered
+            return filtered
         }
         else {
-          return filtered.filter { $0.title.lowercased().contains(filterText.lowercased())}
+            return filtered.filter { $0.title.lowercased().contains(filterText.lowercased()) }
         }
     }
     func loadTasks() {

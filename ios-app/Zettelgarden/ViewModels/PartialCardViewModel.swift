@@ -1,3 +1,5 @@
+import Combine
+import Foundation
 import SwiftUI
 
 class PartialCardViewModel: ObservableObject {
@@ -12,7 +14,18 @@ class PartialCardViewModel: ObservableObject {
 
     @Published var displayOnlyTopLevel: Bool = false
 
+    private var refreshTimer: AnyCancellable?
+
     @AppStorage("jwt") private var token: String?
+
+    init() {
+        loadCards()
+        refreshTimer = Timer.publish(every: 15, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                self.loadCards()
+            }
+    }
 
     var filteredCards: [PartialCard] {
         let filteredByType: [PartialCard]
