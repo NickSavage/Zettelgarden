@@ -1,5 +1,6 @@
 import React, { useState, KeyboardEvent } from "react";
 import { deleteTask, saveExistingTask } from "../../api/tasks";
+import { getTomorrow } from "../../utils/dates";
 
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Task } from "../../models/Task";
@@ -30,6 +31,23 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
     setShowCardLink(!showCardLink);
   }
 
+  async function handleDeferTomorrow() {
+    let editedTask = { ...task, scheduled_date: getTomorrow() };
+    let response = await saveExistingTask(editedTask);
+    if (!("error" in response)) {
+      setRefresh(true);
+    }
+    
+  }
+  async function handleSetNoDate() {
+
+    let editedTask = { ...task, scheduled_date: null };
+    let response = await saveExistingTask(editedTask);
+    if (!("error" in response)) {
+      setRefresh(true);
+    }
+    
+  }
   async function handleBacklink(card: PartialCard) {
     let editedTask = { ...task, card_pk: card.id };
     let response = await saveExistingTask(editedTask);
@@ -123,9 +141,10 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
         </button>
         {showMenu && (
           <div className="popup-menu">
-            <button onClick={() => handleDelete()}>Delete</button>
             <button onClick={() => toggleCardLink()}>Link Card</button>
-            {/* Add more menu options here */}
+	    <button onClick={() => handleDeferTomorrow()}>Defer to Tomorrow</button>
+	    <button onClick={() => handleSetNoDate()}>Set No Date</button>
+            <button onClick={() => handleDelete()}>Delete</button>
           </div>
         )}
       </div>
