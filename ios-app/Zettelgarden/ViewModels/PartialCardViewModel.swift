@@ -20,11 +20,6 @@ class PartialCardViewModel: ObservableObject {
 
     init() {
         loadCards()
-        refreshTimer = Timer.publish(every: 15, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                self.loadCards()
-            }
     }
 
     var filteredCards: [PartialCard] {

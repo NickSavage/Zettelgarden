@@ -14,11 +14,6 @@ class TaskListViewModel: ObservableObject {
     @AppStorage("jwt") private var token: String?
     init() {
         loadTasks()
-        refreshTimer = Timer.publish(every: 15, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                self.loadTasks()
-            }
     }
     var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
