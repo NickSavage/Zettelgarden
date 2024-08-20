@@ -14,6 +14,9 @@ struct SidebarView: View {
     @ObservedObject var partialViewModel: PartialCardViewModel
     @ObservedObject var taskListViewModel: TaskListViewModel
 
+    @State private var showingAddTaskView = false
+    @State private var showingAddCardView = false
+
     var body: some View {
 
         ZStack {
@@ -25,7 +28,9 @@ struct SidebarView: View {
                                 Button(action: {}) {
                                     Text("New Card")
                                 }
-                                Button(action: {}) {
+                                Button(action: {
+                                    showingAddTaskView.toggle()
+                                }) {
                                     Text("New Task")
                                 }
 
@@ -82,6 +87,9 @@ struct SidebarView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
                 .transition(.move(edge: .leading))
+                .sheet(isPresented: $showingAddTaskView) {
+                    AddTaskView(taskListViewModel: taskListViewModel)
+                }
             }
         }
     }
