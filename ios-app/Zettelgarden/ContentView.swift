@@ -5,14 +5,17 @@
 //  Created by Nicholas Savage on 2024-05-13.
 //
 
+import Combine
 import SwiftUI
 
 struct ContentView: View {
     @State var isMenuOpen: Bool = false
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject var cardViewModel = CardViewModel()
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var partialViewModel = PartialCardViewModel()
     @StateObject var navigationViewModel: NavigationViewModel
+    @StateObject var taskListViewModel = TaskListViewModel()
 
     init() {
         let cardViewModel = CardViewModel()
@@ -27,7 +30,7 @@ struct ContentView: View {
             VStack {
 
                 if navigationViewModel.selection == .tasks {
-                    TaskListView()
+                    TaskListView(taskListViewModel: taskListViewModel)
                 }
                 else if navigationViewModel.selection == .home {
                     HomeView(
@@ -101,6 +104,10 @@ struct ContentView: View {
             partialViewModel.loadCards()
             navigationViewModel.visit(page: .tasks)
 
+        }
+        .onChange(of: scenePhase) { newPhase in
+            partialViewModel.onScenePhaseChanged(to: newPhase)
+            taskListViewModel.onScenePhaseChanged(to: newPhase)
         }
     }
 }

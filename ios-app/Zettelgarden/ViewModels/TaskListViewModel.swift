@@ -9,7 +9,7 @@ class TaskListViewModel: ObservableObject {
     @Published var filterText: String = ""
     @Published var showCompleted: Bool = false
 
-    private var refreshTimer: AnyCancellable?
+    private var timer: Timer?
 
     @AppStorage("jwt") private var token: String?
     init() {
@@ -47,7 +47,6 @@ class TaskListViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        print("start")
         fetchTasks(token: token) { result in
             DispatchQueue.main.async {
                 switch result {
@@ -61,7 +60,6 @@ class TaskListViewModel: ObservableObject {
                 self.isLoading = false
             }
         }
-        print("loading tasks")
     }
 
     func createNewTask(newTask: ZTask) {
@@ -81,4 +79,26 @@ class TaskListViewModel: ObservableObject {
             }
         }
     }
+    func onScenePhaseChanged(to newPhase: ScenePhase) {
+        if newPhase == .active {
+            self.loadTasks()
+            startTimer()
+        }
+        else {
+            stopTimer()
+        }
+    }
+
+    private func startTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { _ in
+            self.loadTasks()
+        }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+
 }

@@ -14,7 +14,7 @@ class PartialCardViewModel: ObservableObject {
 
     @Published var displayOnlyTopLevel: Bool = false
 
-    private var refreshTimer: AnyCancellable?
+    private var timer: Timer?
 
     @AppStorage("jwt") private var token: String?
 
@@ -60,7 +60,6 @@ class PartialCardViewModel: ObservableObject {
 
     func loadCards() {
         guard let token = token else {
-            print("Token is missing")
             return
         }
         fetchPartialCards(token: token, sort: sort, inactive: inactive) { result in
@@ -75,6 +74,27 @@ class PartialCardViewModel: ObservableObject {
                 self.isLoading = false
             }
         }
-        print("loading cards")
+    }
+
+    func onScenePhaseChanged(to newPhase: ScenePhase) {
+        if newPhase == .active {
+            self.loadCards()
+            startTimer()
+        }
+        else {
+            stopTimer()
+        }
+    }
+
+    private func startTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { _ in
+            self.loadCards()
+        }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
     }
 }

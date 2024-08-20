@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TaskListView: View {
-    @StateObject private var taskListViewModel = TaskListViewModel()
+    @ObservedObject var taskListViewModel: TaskListViewModel
     @State private var showingAddTaskView = false
 
     var body: some View {
