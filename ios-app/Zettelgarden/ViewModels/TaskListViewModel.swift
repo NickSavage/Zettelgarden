@@ -42,6 +42,14 @@ class TaskListViewModel: ObservableObject {
             return filtered.filter { $0.title.lowercased().contains(filterText.lowercased()) }
         }
     }
+
+    func countTodayTasks() -> Int {
+        let tasks = self.tasks ?? []
+        let filtered = tasks.filter {
+            !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date)
+        }
+        return filtered.count
+    }
     func loadTasks() {
         guard let token = token else {
             print("Token is missing")

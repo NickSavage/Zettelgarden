@@ -12,6 +12,7 @@ struct SidebarView: View {
     @ObservedObject var cardViewModel: CardViewModel
     @ObservedObject var navigationViewModel: NavigationViewModel
     @ObservedObject var partialViewModel: PartialCardViewModel
+    @ObservedObject var taskListViewModel: TaskListViewModel
 
     var body: some View {
 
@@ -36,7 +37,11 @@ struct SidebarView: View {
                                         isMenuOpen = false
                                     }
                                 }) {
-                                    Text("Cards")
+                                    HStack {
+                                        Text("Cards")
+                                        Spacer()
+                                        Text("\(taskListViewModel.countTodayTasks())")
+                                    }
                                 }
                                 Button(action: {
                                     navigationViewModel.visit(page: .tasks)

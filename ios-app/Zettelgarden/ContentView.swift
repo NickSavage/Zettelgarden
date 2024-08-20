@@ -64,7 +64,8 @@ struct ContentView: View {
                     isMenuOpen: $isMenuOpen,
                     cardViewModel: cardViewModel,
                     navigationViewModel: navigationViewModel,
-                    partialViewModel: partialViewModel
+                    partialViewModel: partialViewModel,
+                    taskListViewModel: taskListViewModel
                 )
             }
             .toolbar {
