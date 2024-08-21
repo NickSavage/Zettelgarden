@@ -50,30 +50,24 @@ export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        position: "relative",
-      }}
-    >
-      <label htmlFor="refInput" style={{ marginRight: "10px" }}>
-        Add Backlink:
-      </label>
-      <input
-        type="text"
-        value={link}
-        onChange={handleLinkInputChange}
-        placeholder="ID"
-        onKeyDown={handleEnterPress}
-        style={{ display: "block", marginRight: "10px" }}
-      />
-      {topResults.length > 0 && (
-        <BacklinkInputDropdownList
-          addBacklink={handleDropdownClick}
-          cards={topResults}
-        />
-      )}
+    <div className="flex relative inline">
+      <div>
+        <div>
+          <input
+            type="text"
+            value={link}
+            onChange={handleLinkInputChange}
+            placeholder="Add Backlink"
+            onKeyDown={handleEnterPress}
+          />
+        </div>
+        {topResults.length > 0 && (
+          <BacklinkInputDropdownList
+            addBacklink={handleDropdownClick}
+            cards={topResults}
+          />
+        )}
+      </div>
     </div>
   );
 }

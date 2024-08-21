@@ -18,10 +18,7 @@ export function BacklinkInputDropdownList({
       {cards.map((card, index) => (
         <li
           key={card.card_id}
-          style={{
-            background: "lightgrey",
-            cursor: "pointer",
-          }}
+	  className="cursor-pointer bg-slate-200 hover:bg-slate-400 p-2"
           onClick={(e) => addBacklink(card)}
         >
           <CardTag card={card} showTitle={true} />

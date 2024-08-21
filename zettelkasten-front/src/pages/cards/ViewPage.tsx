@@ -126,16 +126,19 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
             {viewingCard.link && (
               <div>
                 <span style={{ fontWeight: "bold" }}>{"Link: "}</span>
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: linkifyWithDefaultOptions(viewingCard.link),
-                    }}
-		/>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: linkifyWithDefaultOptions(viewingCard.link),
+                  }}
+                />
               </div>
             )}
           </div>
           <hr />
-          <Button onClick={handleEditCard} children="Edit" />
+          <div className="flex align-center">
+            <BacklinkInput addBacklink={handleAddBacklink} />
+            <Button onClick={handleEditCard} children="Edit" />
+          </div>
           <div>
             <span className="text-xs">
               Created At: {viewingCard.created_at}
@@ -183,9 +186,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
 
           <HeaderSubSection text="References" />
           <CardList cards={viewingCard.references} />
-          <div>
-            <BacklinkInput addBacklink={handleAddBacklink} />
-          </div>
+          <div></div>
           {viewingCard.children.length > 0 && (
             <div>
               <HeaderSubSection text="Children" />

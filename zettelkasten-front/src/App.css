@@ -286,8 +286,6 @@ option {
 
 .input-link-dropdown {
   position: absolute;
-  z-index: 100; /* High z-index to ensure it's on top */
-  width: 100%; /* Make the dropdown as wide as the input */
   max-height: 200px; /* Maximum height before scrolling */
   overflow-y: auto; /* Scrollable */
   background: white; /* Background color */
