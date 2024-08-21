@@ -12,7 +12,8 @@ import SwiftUI
 class FileListViewModel: ObservableObject {
     @Published var files: [File]?
     @Published var isLoading = true
-    @AppStorage("jwt") private var token: String?
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var token: String?
 
     func loadFiles() {
         guard let token = token else {
@@ -25,7 +26,7 @@ class FileListViewModel: ObservableObject {
                 switch results {
                 case .success(let fetchedFiles):
                     self.files = self.sortFiles(fetchedFiles)
-                 //   print(self.files)
+                //   print(self.files)
                 case .failure(let error):
                     print("Unable to load files: \(error.localizedDescription)")
                 }

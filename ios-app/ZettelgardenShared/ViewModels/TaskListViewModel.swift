@@ -1,22 +1,29 @@
+//
+//  TaskListViewModel.swift
+//  ZettelgardenShared
+//
+//  Created by Nicholas Savage on 2024-08-21.
+//
+
 import Combine
 import Foundation
 import SwiftUI
-import ZettelgardenShared
 
-class TaskListViewModel: ObservableObject {
+public class TaskListViewModel: ObservableObject {
     @Published var tasks: [ZTask]?
     @Published var isLoading: Bool = true
-    @Published var dateFilter: TaskDisplayOptions = .today
+    @Published public var dateFilter: TaskDisplayOptions = .today
     @Published var filterText: String = ""
-    @Published var showCompleted: Bool = false
+    @Published public var showCompleted: Bool = false
 
     private var timer: Timer?
 
-    @AppStorage("jwt") private var token: String?
-    init() {
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var token: String?
+    public init() {
         loadTasks()
     }
-    var filteredTasks: [ZTask] {
+    public var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
         let filtered: [ZTask]
         if self.dateFilter == .today && !self.showCompleted {
@@ -44,14 +51,14 @@ class TaskListViewModel: ObservableObject {
         }
     }
 
-    func countTodayTasks() -> Int {
+    public func countTodayTasks() -> Int {
         let tasks = self.tasks ?? []
         let filtered = tasks.filter {
             !$0.is_complete && isTodayOrPast(maybeDate: $0.scheduled_date)
         }
         return filtered.count
     }
-    func loadTasks() {
+    public func loadTasks() {
         guard let token = token else {
             print("Token is missing")
             return
@@ -71,7 +78,7 @@ class TaskListViewModel: ObservableObject {
         }
     }
 
-    func createNewTask(newTask: ZTask) {
+    public func createNewTask(newTask: ZTask) {
         guard let token = token else {
             print("Token is missing")
             return
@@ -88,7 +95,7 @@ class TaskListViewModel: ObservableObject {
             }
         }
     }
-    func onScenePhaseChanged(to newPhase: ScenePhase) {
+    public func onScenePhaseChanged(to newPhase: ScenePhase) {
         if newPhase == .active {
             self.loadTasks()
             startTimer()

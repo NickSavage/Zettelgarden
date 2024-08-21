@@ -49,6 +49,9 @@
 		01953ED62C769FD500F44FAD /* Tasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953ED52C769FD500F44FAD /* Tasks.swift */; };
 		01953ED92C769FE900F44FAD /* ZTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953ED82C769FE900F44FAD /* ZTask.swift */; };
 		01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDA2C76A10700F44FAD /* PartialCard.swift */; };
+		01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */; };
+		01953EDF2C76A4D700F44FAD /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDE2C76A4D700F44FAD /* GenericResponse.swift */; };
+		01953EE12C76AC5F00F44FAD /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EE02C76AC5F00F44FAD /* KeychainManager.swift */; };
 		01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888062BF6C72E00B3ACF1 /* SearchView.swift */; };
 		01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
 		01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
@@ -61,8 +64,6 @@
 		01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888212BFB8FE400B3ACF1 /* FileListView.swift */; };
 		01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
 		01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */; };
-		01E604EE2C3CBC3700717D42 /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E604ED2C3CBC3700717D42 /* TaskListViewModel.swift */; };
-		01E604F02C3CBC4F00717D42 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E604EF2C3CBC4F00717D42 /* Task.swift */; };
 		01ECE50D2BF3747B00691C07 /* CardEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50C2BF3747B00691C07 /* CardEditView.swift */; };
 		01ECE50F2BF422D900691C07 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50E2BF422D900691C07 /* Api.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
@@ -172,6 +173,9 @@
 		01953ED52C769FD500F44FAD /* Tasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tasks.swift; sourceTree = "<group>"; };
 		01953ED82C769FE900F44FAD /* ZTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZTask.swift; sourceTree = "<group>"; };
 		01953EDA2C76A10700F44FAD /* PartialCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCard.swift; sourceTree = "<group>"; };
+		01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
+		01953EDE2C76A4D700F44FAD /* GenericResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericResponse.swift; sourceTree = "<group>"; };
+		01953EE02C76AC5F00F44FAD /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		01B888062BF6C72E00B3ACF1 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
@@ -184,8 +188,6 @@
 		01B888212BFB8FE400B3ACF1 /* FileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListView.swift; sourceTree = "<group>"; };
 		01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListViewModel.swift; sourceTree = "<group>"; };
 		01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardViewModel.swift; sourceTree = "<group>"; };
-		01E604ED2C3CBC3700717D42 /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
-		01E604EF2C3CBC4F00717D42 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		01ECE50C2BF3747B00691C07 /* CardEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditView.swift; sourceTree = "<group>"; };
 		01ECE50E2BF422D900691C07 /* Api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -328,7 +330,6 @@
 				01B888192BFB5F7D00B3ACF1 /* File.swift */,
 				01B8881F2BFB689000B3ACF1 /* IdentifiableURL.swift */,
 				010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */,
-				01E604EF2C3CBC4F00717D42 /* Task.swift */,
 				01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */,
 				016D00032C6CE1F600339760 /* Visit.swift */,
 			);
@@ -348,12 +349,13 @@
 		01953EAF2C76845500F44FAD /* ZettelgardenShared */ = {
 			isa = PBXGroup;
 			children = (
-				01953ED72C769FDD00F44FAD /* New Group */,
+				01953ED72C769FDD00F44FAD /* ViewModels */,
 				01953ED42C769FCB00F44FAD /* Api */,
 				01953ECC2C7696CE00F44FAD /* Utils */,
 				01953ECB2C7696AE00F44FAD /* Models */,
 				01953EB02C76845500F44FAD /* ZettelgardenShared.h */,
 				01953EB12C76845500F44FAD /* ZettelgardenShared.docc */,
+				01953EE02C76AC5F00F44FAD /* KeychainManager.swift */,
 			);
 			path = ZettelgardenShared;
 			sourceTree = "<group>";
@@ -363,6 +365,7 @@
 			children = (
 				01953ED82C769FE900F44FAD /* ZTask.swift */,
 				01953EDA2C76A10700F44FAD /* PartialCard.swift */,
+				01953EDE2C76A4D700F44FAD /* GenericResponse.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -384,11 +387,12 @@
 			path = Api;
 			sourceTree = "<group>";
 		};
-		01953ED72C769FDD00F44FAD /* New Group */ = {
+		01953ED72C769FDD00F44FAD /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
 			);
-			path = "New Group";
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		01B888082BF6CA8700B3ACF1 /* ViewModels */ = {
@@ -399,7 +403,6 @@
 				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
 				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
-				01E604ED2C3CBC3700717D42 /* TaskListViewModel.swift */,
 				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
 				016D00012C6CE0EF00339760 /* NavigationViewModel.swift */,
 			);
@@ -653,7 +656,6 @@
 				01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */,
 				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
 				01B8881A2BFB5F7D00B3ACF1 /* File.swift in Sources */,
-				01E604EE2C3CBC3700717D42 /* TaskListViewModel.swift in Sources */,
 				01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */,
 				01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */,
 				01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */,
@@ -673,7 +675,6 @@
 				016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */,
 				011AAA512C44691900ED7BE2 /* EnvironmentSelector.swift in Sources */,
 				013C75E72C6EA7A100838E7B /* TaskListContextMenu.swift in Sources */,
-				01E604F02C3CBC4F00717D42 /* Task.swift in Sources */,
 				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
 				01B888202BFB689000B3ACF1 /* IdentifiableURL.swift in Sources */,
@@ -716,9 +717,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */,
 				01953ED62C769FD500F44FAD /* Tasks.swift in Sources */,
 				01953ED12C76970300F44FAD /* Dates.swift in Sources */,
 				01953ED92C769FE900F44FAD /* ZTask.swift in Sources */,
+				01953EE12C76AC5F00F44FAD /* KeychainManager.swift in Sources */,
+				01953EDF2C76A4D700F44FAD /* GenericResponse.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				01953ED32C769EBD00F44FAD /* Http.swift in Sources */,

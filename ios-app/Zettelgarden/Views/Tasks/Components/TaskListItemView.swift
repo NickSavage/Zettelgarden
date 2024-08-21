@@ -2,7 +2,8 @@ import SwiftUI
 import ZettelgardenShared
 
 struct TaskListItemView: View {
-    @AppStorage("jwt") private var token: String?
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var jwt: String?
     @ObservedObject var taskListViewModel: TaskListViewModel
     @StateObject private var taskViewModel = TaskViewModel()
 
@@ -58,7 +59,7 @@ struct TaskListItemView: View {
             taskViewModel.setTask(task: newTask)
         }
         .sheet(isPresented: $showingEditTaskView) {
-            if var task = taskViewModel.task {
+            if var _ = taskViewModel.task {
                 EditTaskView(
                     viewModel: taskViewModel,
                     onSave: handleSaveTask
@@ -67,22 +68,4 @@ struct TaskListItemView: View {
         }
     }
 
-}
-
-struct TaskListItem_Previews: PreviewProvider {
-    static var previews: some View {
-        TaskListItemWrapper()
-    }
-
-    struct TaskListItemWrapper: View {
-        var task = ZTask.sampleData[0]
-        var listViewModel = TaskListViewModel()
-
-        var body: some View {
-            TaskListItemView(taskListViewModel: listViewModel, inputTask: task).previewLayout(
-                .fixed(width: 400, height: 80)
-            )
-        }
-
-    }
 }

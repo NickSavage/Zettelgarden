@@ -9,7 +9,8 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("isLoggedIn") private var isLoggedIn = false
-    @AppStorage("jwt") private var jwt: String?
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var jwt: String?
 
     var body: some View {
         Form {

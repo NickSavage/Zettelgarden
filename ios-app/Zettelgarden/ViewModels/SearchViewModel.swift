@@ -7,7 +7,8 @@ class SearchViewModel: ObservableObject {
     @Published var isLoading: Bool = false
 
     private var cancellable: AnyCancellable?
-    @AppStorage("jwt") private var token: String?
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var token: String?
 
     func search() {
         guard let token = token else {

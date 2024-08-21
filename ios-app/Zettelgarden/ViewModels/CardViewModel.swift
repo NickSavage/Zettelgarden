@@ -6,7 +6,8 @@ class CardViewModel: ObservableObject {
     @Published var card: Card?
     var cardHistory: [Int] = []
     var currentIndex: Int = -1
-    @AppStorage("jwt") private var token: String?
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var token: String?
 
     func loadCard(cardPK: Int) {
         guard let token = token else {

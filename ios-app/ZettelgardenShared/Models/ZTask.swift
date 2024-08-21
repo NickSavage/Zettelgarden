@@ -84,3 +84,30 @@ public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         self.card = card
     }
 }
+
+public enum TaskDisplayOptions: Int, CaseIterable, Identifiable {
+    case today = 1
+    case tomorrow = 2
+    case closedToday = 3
+    case all = 4
+    case closedAll = 5
+
+    public var id: Int { self.rawValue }
+    public var title: String {
+        switch self {
+        case .today:
+            return "Today"
+        case .tomorrow:
+            return "Tomorrow"
+        case .closedToday:
+            return "Closed Today"
+        case .all:
+            return "All"
+        case .closedAll:
+            return "Closed All"
+        }
+    }
+}
+public struct CreateTaskResponse: Decodable {
+    var id: Int
+}

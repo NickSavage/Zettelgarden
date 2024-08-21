@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct SidebarView: View {
     @Binding var isMenuOpen: Bool

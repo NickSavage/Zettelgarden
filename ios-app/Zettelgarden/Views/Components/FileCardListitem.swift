@@ -3,7 +3,8 @@ import SwiftUI
 struct FileCardListItem: View {
     let file: File
     @StateObject private var viewModel: FileViewModel
-    @AppStorage("jwt") private var token: String?
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var jwt: String?
     @State private var identifiableFileURL: IdentifiableURL?
     @State private var isDownloading = false
     @State private var downloadError: Error?

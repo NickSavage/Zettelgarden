@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct TaskListOptionsMenu: View {
     @ObservedObject var taskListViewModel: TaskListViewModel

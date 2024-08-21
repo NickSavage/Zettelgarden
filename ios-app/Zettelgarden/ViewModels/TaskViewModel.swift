@@ -15,7 +15,8 @@ class TaskViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     var taskListViewModel: TaskListViewModel?
 
-    @AppStorage("jwt") private var token: String?
+    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+        var token: String?
 
     func setTask(task: ZTask) {
         self.task = task

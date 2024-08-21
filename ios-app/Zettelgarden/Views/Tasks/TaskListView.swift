@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct TaskListView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
@@ -51,30 +52,6 @@ struct TaskListView: View {
         }
         .onAppear {
             taskListViewModel.loadTasks()
-        }
-    }
-}
-
-enum TaskDisplayOptions: Int, CaseIterable, Identifiable {
-    case today = 1
-    case tomorrow = 2
-    case closedToday = 3
-    case all = 4
-    case closedAll = 5
-
-    var id: Int { self.rawValue }
-    var title: String {
-        switch self {
-        case .today:
-            return "Today"
-        case .tomorrow:
-            return "Tomorrow"
-        case .closedToday:
-            return "Closed Today"
-        case .all:
-            return "All"
-        case .closedAll:
-            return "Closed All"
         }
     }
 }
