@@ -1,4 +1,5 @@
 import Foundation
+import ZettelgardenShared
 
 struct CreateTaskResponse: Decodable {
     var id: Int

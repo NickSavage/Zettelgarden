@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct File: Identifiable, Codable {
     var id: Int

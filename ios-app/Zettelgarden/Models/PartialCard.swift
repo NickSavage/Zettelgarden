@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ZettelgardenShared
 
 struct PartialCard: Identifiable, Codable, Equatable {
     var id: Int

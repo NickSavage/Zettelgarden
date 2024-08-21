@@ -7,17 +7,7 @@
 
 import Foundation
 
-func formatDate(input: Date) -> String {
-    if isToday(maybeDate: input) {
-        return "Today"
-    }
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "YYYY-MM-dd"
-    let result = dateFormatter.string(from: input)
-    return result
-}
-
-func isTodayOrPast(maybeDate: Date?) -> Bool {
+public func isTodayOrPast(maybeDate: Date?) -> Bool {
     guard let date = maybeDate else {
         return false
     }
@@ -35,7 +25,7 @@ func isTodayOrPast(maybeDate: Date?) -> Bool {
 
 }
 
-func isPast(maybeDate: Date?) -> Bool {
+public func isPast(maybeDate: Date?) -> Bool {
     guard let date = maybeDate else {
         return false
     }
@@ -52,7 +42,7 @@ func isPast(maybeDate: Date?) -> Bool {
     return targetDate < todayDate
 }
 
-func isToday(maybeDate: Date?) -> Bool {
+public func isToday(maybeDate: Date?) -> Bool {
     guard let date = maybeDate else {
         return false
     }
@@ -68,7 +58,7 @@ func isToday(maybeDate: Date?) -> Bool {
         && todayComponents.day == dateComponents.day
 }
 
-func isTomorrow(maybeDate: Date?) -> Bool {
+public func isTomorrow(maybeDate: Date?) -> Bool {
     guard let date = maybeDate else {
         return false
     }
@@ -77,7 +67,7 @@ func isTomorrow(maybeDate: Date?) -> Bool {
     return calendar.isDate(date, inSameDayAs: tomorrow)
 }
 
-func parseDate(input: String?) -> Date? {
+public func parseDate(input: String?) -> Date? {
     guard let dateString = input else { return nil }
 
     let isoDateFormatter = DateFormatter()
