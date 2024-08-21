@@ -105,7 +105,6 @@ struct ContentView: View {
             partialViewModel.displayOnlyTopLevel = true
             partialViewModel.loadCards()
             navigationViewModel.visit(page: .tasks)
-            ZettelTest()
 
         }
         .onChange(of: scenePhase) { newPhase in

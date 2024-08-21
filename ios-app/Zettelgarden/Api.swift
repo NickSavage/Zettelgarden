@@ -1,4 +1,5 @@
 import Foundation
+import ZettelgardenShared
 
 //var baseUrl = "https://zettelgarden.com/api"
 //var baseUrl = "https://nicksavage.ca/zettel-dev/api"

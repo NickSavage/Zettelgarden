@@ -8,14 +8,11 @@
 import MobileCoreServices
 import SwiftUI
 import UIKit
-import ZettelgardenShared
 
 @objc(PrincipalClassName)
 class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("?")
-        ZettelTest()
         let extensionAttachments = (self.extensionContext!.inputItems.first as! NSExtensionItem)
             .attachments
         let u = UIHostingController(
