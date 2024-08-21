@@ -1,4 +1,5 @@
 import Foundation
+import ZettelgardenShared
 
 func cardToPartialCard(card: Card) -> PartialCard {
     return PartialCard(

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct CardListItem: View {
     let card: PartialCard

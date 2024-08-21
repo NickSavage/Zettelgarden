@@ -81,21 +81,3 @@ struct File: Identifiable, Codable {
     }
 
 }
-
-extension File {
-    static var sampleData: File {
-        File(
-            id: 0,
-            name: "Sample file",
-            filetype: "filetype",
-            filename: "filename.xlsx",
-            size: 100,
-            created_by: 1,
-            updated_by: 1,
-            card_pk: 0,
-            card: PartialCard.sampleData[0],
-            created_at: Date(),
-            updated_at: Date()
-        )
-    }
-}

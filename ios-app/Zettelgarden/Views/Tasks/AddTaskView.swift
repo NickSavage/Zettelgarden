@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct AddTaskView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel

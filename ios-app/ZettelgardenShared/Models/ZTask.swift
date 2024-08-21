@@ -1,22 +1,24 @@
+//
+//  ZTask.swift
+//  ZettelgardenShared
+//
+//  Created by Nicholas Savage on 2024-08-21.
+//
+
 import Foundation
-import ZettelgardenShared
 
-struct CreateTaskResponse: Decodable {
-    var id: Int
-}
-
-struct ZTasks: Identifiable, Decodable, Encodable, Equatable {
-    var id: Int
-    var card_pk: Int
-    var user_id: Int
-    var scheduled_date: Date?
-    var created_at: Date
-    var updated_at: Date
-    var completed_at: Date?
-    var title: String
-    var is_complete: Bool
-    var is_deleted: Bool
-    var card: PartialCard?
+public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
+    public var id: Int
+    public var card_pk: Int
+    public var user_id: Int
+    public var scheduled_date: Date?
+    public var created_at: Date
+    public var updated_at: Date
+    public var completed_at: Date?
+    public var title: String
+    public var is_complete: Bool
+    public var is_deleted: Bool
+    public var card: PartialCard?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -32,7 +34,7 @@ struct ZTasks: Identifiable, Decodable, Encodable, Equatable {
         case card
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(Int.self, forKey: .id)
         card_pk = try container.decode(Int.self, forKey: .card_pk)
@@ -56,7 +58,7 @@ struct ZTasks: Identifiable, Decodable, Encodable, Equatable {
         card = try container.decodeIfPresent(PartialCard.self, forKey: .card)
     }
 
-    init(
+    public init(
         id: Int,
         card_pk: Int,
         user_id: Int,
@@ -81,49 +83,4 @@ struct ZTasks: Identifiable, Decodable, Encodable, Equatable {
         self.is_deleted = is_deleted
         self.card = card
     }
-}
-
-extension ZTask {
-    static var sampleData: [ZTask] = [
-        ZTask(
-            id: 1,
-            card_pk: 1,
-            user_id: 1,
-            scheduled_date: Date(),
-            created_at: Date(),
-            updated_at: Date(),
-            completed_at: nil,
-            title: "This is a task",
-            is_complete: false,
-            is_deleted: false,
-            card: PartialCard(
-                id: 1,
-                card_id: "1",
-                user_id: 1,
-                title: "this is a card",
-                created_at: Date(),
-                updated_at: Date()
-            )
-        ),
-        ZTask(
-            id: 2,
-            card_pk: 1,
-            user_id: 1,
-            scheduled_date: Date(),
-            created_at: Date(),
-            updated_at: Date(),
-            completed_at: nil,
-            title: "This is another task",
-            is_complete: false,
-            is_deleted: false,
-            card: PartialCard(
-                id: 1,
-                card_id: "1",
-                user_id: 1,
-                title: "this is a card",
-                created_at: Date(),
-                updated_at: Date()
-            )
-        ),
-    ]
 }

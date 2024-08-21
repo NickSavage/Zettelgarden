@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import SwiftUI
+import ZettelgardenShared
 
 class PartialCardViewModel: ObservableObject {
     @Published var cards: [PartialCard]?

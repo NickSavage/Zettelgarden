@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct TaskListItemView: View {
     @AppStorage("jwt") private var token: String?

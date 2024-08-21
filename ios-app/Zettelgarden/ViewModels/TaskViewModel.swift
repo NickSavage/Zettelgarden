@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import SwiftUI
+import ZettelgardenShared
 
 class TaskViewModel: ObservableObject {
     @Published var task: ZTask?

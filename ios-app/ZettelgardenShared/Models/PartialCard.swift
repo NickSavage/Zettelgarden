@@ -1,20 +1,19 @@
 //
 //  PartialCard.swift
-//  Zettelgarden
+//  ZettelgardenShared
 //
-//  Created by Nicholas Savage on 2024-05-13.
+//  Created by Nicholas Savage on 2024-08-21.
 //
 
 import Foundation
-import ZettelgardenShared
 
-struct PartialCard: Identifiable, Codable, Equatable {
-    var id: Int
-    var card_id: String
-    var user_id: Int
-    var title: String
-    var created_at: Date
-    var updated_at: Date
+public struct PartialCard: Identifiable, Codable, Equatable {
+    public var id: Int
+    public var card_id: String
+    public var user_id: Int
+    public var title: String
+    public var created_at: Date
+    public var updated_at: Date
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -24,7 +23,7 @@ struct PartialCard: Identifiable, Codable, Equatable {
         case created_at
         case updated_at
     }
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container: KeyedDecodingContainer<PartialCard.CodingKeys> = try decoder.container(
             keyedBy: CodingKeys.self
         )
@@ -44,7 +43,7 @@ struct PartialCard: Identifiable, Codable, Equatable {
         updated_at = parseDate(input: updatedAtString) ?? Date()
     }
 
-    init(
+    public init(
         id: Int,
         card_id: String,
         user_id: Int,
@@ -58,38 +57,5 @@ struct PartialCard: Identifiable, Codable, Equatable {
         self.title = title
         self.created_at = created_at
         self.updated_at = updated_at
-    }
-}
-
-extension PartialCard {
-    static var sampleData: [PartialCard] =
-        [
-            PartialCard(
-                id: 0,
-                card_id: "1",
-                user_id: 1,
-                title: "hello world",
-                created_at: Date(),
-                updated_at: Date()
-            ),
-            PartialCard(
-                id: 1,
-                card_id: "1/A",
-                user_id: 1,
-                title: "update",
-                created_at: Date(),
-                updated_at: Date()
-            ),
-        ]
-
-    static var emptyPartialCard: PartialCard {
-        PartialCard(
-            id: -1,
-            card_id: "",
-            user_id: -1,
-            title: "",
-            created_at: Date(),
-            updated_at: Date()
-        )
     }
 }
