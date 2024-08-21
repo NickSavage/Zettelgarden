@@ -126,9 +126,7 @@ export function Sidebar() {
           </Link>
         </div>
         <div className="dropdown">
-          <button className="btn" onClick={toggleNewDropdown}>
-            +
-          </button>
+        <Button onClick={toggleNewDropdown} children="+" />
           {isNewDropdownOpen && (
             <div className="popup-menu">
               <button onClick={handleNewStandardCard} children={"New Card"} />

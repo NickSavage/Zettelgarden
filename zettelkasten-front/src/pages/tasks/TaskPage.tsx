@@ -13,6 +13,7 @@ import { H6 } from "../../components/Header";
 import { FilterInput } from "../../components/FilterInput";
 import { SettingsIcon } from "../../assets/icons/SettingsIcon";
 import { TaskViewOptionsMenu } from "../../components/tasks/TaskViewOptionsMenu";
+import { Button } from "../../components/Button";
 
 interface TaskListProps {}
 
@@ -101,7 +102,7 @@ export function TaskPage({}: TaskListProps) {
         </select>
         <FilterInput handleFilterHook={handleFilterChange} />
       </div>
-      <span onClick={toggleShowTaskWindow}>Add Task</span>
+      <Button onClick={toggleShowTaskWindow} children="Add Task" />
       <div>
         {showTaskWindow && (
           <CreateTaskWindow
