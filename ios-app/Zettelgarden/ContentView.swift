@@ -7,6 +7,7 @@
 
 import Combine
 import SwiftUI
+import ZettelgardenShared
 
 struct ContentView: View {
     @State var isMenuOpen: Bool = false
@@ -104,6 +105,7 @@ struct ContentView: View {
             partialViewModel.displayOnlyTopLevel = true
             partialViewModel.loadCards()
             navigationViewModel.visit(page: .tasks)
+            ZettelTest()
 
         }
         .onChange(of: scenePhase) { newPhase in

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import ZettelgardenShared
 
 struct ImageView: View {
     @State var image: Image
@@ -25,6 +26,7 @@ class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         print("?")
+        ZettelTest()
         let extensionAttachments = (self.extensionContext!.inputItems.first as! NSExtensionItem)
             .attachments
         for provider in extensionAttachments! {

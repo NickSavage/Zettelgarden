@@ -41,6 +41,11 @@
 		01953E732C72040A00F44FAD /* FloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E722C72040A00F44FAD /* FloatingButton.swift */; };
 		01953E7B2C7681B700F44FAD /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E7A2C7681B700F44FAD /* ShareViewController.swift */; };
 		01953E822C7681B700F44FAD /* ZettelgardenShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 01953E782C7681B700F44FAD /* ZettelgardenShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */ = {isa = PBXBuildFile; fileRef = 01953EB12C76845500F44FAD /* ZettelgardenShared.docc */; };
+		01953EB32C76845500F44FAD /* ZettelgardenShared.h in Headers */ = {isa = PBXBuildFile; fileRef = 01953EB02C76845500F44FAD /* ZettelgardenShared.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01953EB62C76845500F44FAD /* ZettelgardenShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */; };
+		01953EB72C76845500F44FAD /* ZettelgardenShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		01953EBD2C76847300F44FAD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EBC2C76847300F44FAD /* Utils.swift */; };
 		01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888062BF6C72E00B3ACF1 /* SearchView.swift */; };
 		01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
 		01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
@@ -83,6 +88,13 @@
 			remoteGlobalIDString = 01953E772C7681B700F44FAD;
 			remoteInfo = ZettelgardenShare;
 		};
+		01953EB42C76845500F44FAD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 01201F502BF2BB6200DF973E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 01953EAD2C76845500F44FAD;
+			remoteInfo = ZettelgardenShared;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -95,6 +107,17 @@
 				01953E822C7681B700F44FAD /* ZettelgardenShare.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01953EB82C76845500F44FAD /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				01953EB72C76845500F44FAD /* ZettelgardenShared.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -139,6 +162,10 @@
 		01953E782C7681B700F44FAD /* ZettelgardenShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ZettelgardenShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		01953E7A2C7681B700F44FAD /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		01953E7F2C7681B700F44FAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZettelgardenShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		01953EB02C76845500F44FAD /* ZettelgardenShared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZettelgardenShared.h; sourceTree = "<group>"; };
+		01953EB12C76845500F44FAD /* ZettelgardenShared.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = ZettelgardenShared.docc; sourceTree = "<group>"; };
+		01953EBC2C76847300F44FAD /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		01B888062BF6C72E00B3ACF1 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
@@ -164,6 +191,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01953EB62C76845500F44FAD /* ZettelgardenShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,6 +210,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		01953E752C7681B700F44FAD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01953EAB2C76845500F44FAD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -220,6 +255,7 @@
 				01201F6B2BF2BB6400DF973E /* ZettelgardenTests */,
 				01201F752BF2BB6400DF973E /* ZettelgardenUITests */,
 				01953E792C7681B700F44FAD /* ZettelgardenShare */,
+				01953EAF2C76845500F44FAD /* ZettelgardenShared */,
 				01201F592BF2BB6200DF973E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -231,6 +267,7 @@
 				01201F682BF2BB6400DF973E /* ZettelgardenTests.xctest */,
 				01201F722BF2BB6400DF973E /* ZettelgardenUITests.xctest */,
 				01953E782C7681B700F44FAD /* ZettelgardenShare.appex */,
+				01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -241,8 +278,6 @@
 				016DFFFA2C698E3C00339760 /* ZettelgardenDebug.entitlements */,
 				01759F1A2C3E914F00918E10 /* Utils */,
 				01B8880F2BF814DC00B3ACF1 /* Views */,
-				01B888082BF6CA8700B3ACF1 /* ViewModels */,
-				01201F852BF2BBC200DF973E /* Models */,
 				01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */,
 				01201F5D2BF2BB6200DF973E /* ContentView.swift */,
 				01201F5F2BF2BB6300DF973E /* Assets.xcassets */,
@@ -311,6 +346,18 @@
 			path = ZettelgardenShare;
 			sourceTree = "<group>";
 		};
+		01953EAF2C76845500F44FAD /* ZettelgardenShared */ = {
+			isa = PBXGroup;
+			children = (
+				01B888082BF6CA8700B3ACF1 /* ViewModels */,
+				01201F852BF2BBC200DF973E /* Models */,
+				01953EB02C76845500F44FAD /* ZettelgardenShared.h */,
+				01953EB12C76845500F44FAD /* ZettelgardenShared.docc */,
+				01953EBC2C76847300F44FAD /* Utils.swift */,
+			);
+			path = ZettelgardenShared;
+			sourceTree = "<group>";
+		};
 		01B888082BF6CA8700B3ACF1 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -360,6 +407,17 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		01953EA92C76845500F44FAD /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01953EB32C76845500F44FAD /* ZettelgardenShared.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		01201F572BF2BB6200DF973E /* Zettelgarden */ = {
 			isa = PBXNativeTarget;
@@ -369,11 +427,13 @@
 				01201F552BF2BB6200DF973E /* Frameworks */,
 				01201F562BF2BB6200DF973E /* Resources */,
 				016DFFF92C698CFE00339760 /* Embed Foundation Extensions */,
+				01953EB82C76845500F44FAD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				01953E812C7681B700F44FAD /* PBXTargetDependency */,
+				01953EB52C76845500F44FAD /* PBXTargetDependency */,
 			);
 			name = Zettelgarden;
 			productName = Zettelgarden;
@@ -433,6 +493,24 @@
 			productReference = 01953E782C7681B700F44FAD /* ZettelgardenShare.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		01953EAD2C76845500F44FAD /* ZettelgardenShared */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01953EBB2C76845500F44FAD /* Build configuration list for PBXNativeTarget "ZettelgardenShared" */;
+			buildPhases = (
+				01953EA92C76845500F44FAD /* Headers */,
+				01953EAA2C76845500F44FAD /* Sources */,
+				01953EAB2C76845500F44FAD /* Frameworks */,
+				01953EAC2C76845500F44FAD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ZettelgardenShared;
+			productName = ZettelgardenShared;
+			productReference = 01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -457,6 +535,9 @@
 					01953E772C7681B700F44FAD = {
 						CreatedOnToolsVersion = 15.4;
 					};
+					01953EAD2C76845500F44FAD = {
+						CreatedOnToolsVersion = 15.4;
+					};
 				};
 			};
 			buildConfigurationList = 01201F532BF2BB6200DF973E /* Build configuration list for PBXProject "Zettelgarden" */;
@@ -476,6 +557,7 @@
 				01201F672BF2BB6400DF973E /* ZettelgardenTests */,
 				01201F712BF2BB6400DF973E /* ZettelgardenUITests */,
 				01953E772C7681B700F44FAD /* ZettelgardenShare */,
+				01953EAD2C76845500F44FAD /* ZettelgardenShared */,
 			);
 		};
 /* End PBXProject section */
@@ -505,6 +587,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		01953E762C7681B700F44FAD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01953EAC2C76845500F44FAD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -591,6 +680,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		01953EAA2C76845500F44FAD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
+				01953EBD2C76847300F44FAD /* Utils.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -608,6 +706,11 @@
 			isa = PBXTargetDependency;
 			target = 01953E772C7681B700F44FAD /* ZettelgardenShare */;
 			targetProxy = 01953E802C7681B700F44FAD /* PBXContainerItemProxy */;
+		};
+		01953EB52C76845500F44FAD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 01953EAD2C76845500F44FAD /* ZettelgardenShared */;
+			targetProxy = 01953EB42C76845500F44FAD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -924,6 +1027,80 @@
 			};
 			name = Release;
 		};
+		01953EB92C76845500F44FAD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = K2F766LH7S;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.Zettelgarden.ZettelgardenShared;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		01953EBA2C76845500F44FAD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.Zettelgarden.ZettelgardenShared;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -968,6 +1145,15 @@
 			buildConfigurations = (
 				01953E842C7681B700F44FAD /* Debug */,
 				01953E852C7681B700F44FAD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01953EBB2C76845500F44FAD /* Build configuration list for PBXNativeTarget "ZettelgardenShared" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01953EB92C76845500F44FAD /* Debug */,
+				01953EBA2C76845500F44FAD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
