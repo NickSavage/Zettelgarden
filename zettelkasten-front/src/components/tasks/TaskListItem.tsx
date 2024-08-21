@@ -7,7 +7,7 @@ import { Task } from "../../models/Task";
 import { Link } from "react-router-dom";
 import { PartialCard } from "../../models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
-import linkifyHtml from "linkify-html";
+import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
 import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 
@@ -106,7 +106,7 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
             <span
               onClick={handleTitleClick}
               className={task.is_complete ? "task-completed" : "task-title"}
-              dangerouslySetInnerHTML={{ __html: linkifyHtml(task.title) }}
+              dangerouslySetInnerHTML={{ __html: linkifyWithDefaultOptions(task.title) }}
             />
           )}
         </div>
