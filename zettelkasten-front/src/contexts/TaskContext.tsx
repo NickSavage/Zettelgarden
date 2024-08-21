@@ -19,6 +19,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   const [refreshTasks, setRefreshTasks] = useState(false);
 
   const getTasks = async () => {
+    console.log("run getTasks")
     await fetchTasks().then((data) => {
       console.log("asdas");
       setTasks(data);
@@ -29,6 +30,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     if (refreshTasks) {
       getTasks();
     }
+    const intervalId = setInterval(() => {
+      getTasks();
+    }, 15000);
+
+    return () => clearInterval(intervalId); // Cleanup on component unmount
   }, [refreshTasks]);
 
   return (
