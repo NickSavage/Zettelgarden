@@ -10,33 +10,32 @@ import SwiftUI
 import ZettelgardenShared
 
 struct ShareAddTaskView: View {
-
+    var extensionContext: NSExtensionContext?
     @State var data: [NSItemProvider]?
-    @State var sharedURL: URL?
     @StateObject var taskListViewModel = TaskListViewModel()
+
+    @State private var title: String = ""
+    @State private var scheduledDate: Date = Date()
+    @State private var message: String = ""
 
     func handleAttachments() {
 
         for provider in data! {
-            print(provider)
             provider.loadItem(forTypeIdentifier: "public.url") { url, _ in
-                print(url)
                 if let url = url as? URL {
-                    print(url)
-                    sharedURL = url
-                    saveTask(title: url.absoluteString)
+                    title = url.absoluteString
                 }
 
             }
         }
     }
 
-    private func saveTask(title: String) {
+    private func saveTask() {
         let newTask = ZTask(
             id: -1,
             card_pk: -1,
             user_id: -1,
-            scheduled_date: Date(),
+            scheduled_date: scheduledDate,
             created_at: Date(),
             updated_at: Date(),
             completed_at: nil,
@@ -46,17 +45,32 @@ struct ShareAddTaskView: View {
             card: nil
         )
         taskListViewModel.createNewTask(newTask: newTask)
+        extensionContext!.completeRequest(returningItems: nil, completionHandler: nil)
     }
 
     var body: some View {
         VStack {
-            Spacer()
-            Text("Hello, from share extension").font(.largeTitle)
-            if let url = sharedURL {
-                Text(url.absoluteString)
-
+            Text(message)
+            Form {
+                Section(header: Text("Add Task")) {
+                    TextField("Title", text: $title)
+                    DatePicker(
+                        "Scheduled Date",
+                        selection: $scheduledDate,
+                        displayedComponents: [.date]
+                    )
+                }
+                Button(action: {
+                    saveTask()
+                }) {
+                    Text("Save")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
             }
-            Spacer()
         }
         .onAppear {
             handleAttachments()
