@@ -20,7 +20,7 @@ public class KeychainManager {
         // Check if already exists
         if let _ = getToken(forKey: key) {
             // Update the existing value
-            let query = [kSecClass as String: kSecClassGenericPassword,
+            let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                          kSecAttrAccount as String: key]
             
             let attributesToUpdate = [kSecValueData: tokenData]
