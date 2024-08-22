@@ -29,36 +29,6 @@ func login(email: String, password: String) async throws -> String {
     return wrapper.access_token
 }
 
-func fetchCard(token: String, id: Int, completion: @escaping (Result<Card, Error>) -> Void) {
-    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
-    guard let url = URL(string: baseUrl + "/cards/" + String(id)) else {
-        completion(.failure(NetworkError.invalidURL))
-        return
-    }
-
-    performRequest(with: url, token: token, completion: completion)
-}
-func fetchCards(
-    token: String,
-    searchTerm: String = "",
-    completion: @escaping (Result<[Card], Error>) -> Void
-) {
-    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
-    var urlComponents = URLComponents(string: baseUrl + "/cards?partial=true")!
-
-    if !searchTerm.isEmpty {
-        urlComponents.queryItems = [URLQueryItem(name: "search_term", value: searchTerm)]
-    }
-
-    guard let url = urlComponents.url else {
-        completion(.failure(NetworkError.invalidURL))
-        return
-    }
-
-    print("Request URL: \(url.absoluteString)")
-
-    performRequest(with: url, token: token, completion: completion)
-}
 func fetchPartialCards(
     token: String,
     searchTerm: String = "",

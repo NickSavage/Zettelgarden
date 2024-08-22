@@ -1,16 +1,17 @@
 import Combine
 import SwiftUI
 
-class SearchViewModel: ObservableObject {
-    @Published var searchString: String = ""
-    @Published var searchResults: [Card] = []
-    @Published var isLoading: Bool = false
+public class SearchViewModel: ObservableObject {
+    @Published public var searchString: String = ""
+    @Published public var searchResults: [Card] = []
+    @Published public var isLoading: Bool = false
 
     private var cancellable: AnyCancellable?
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
-    func search() {
+    public init() {}
+    public func search() {
         guard let token = token else {
             print("Token is missing")
             return

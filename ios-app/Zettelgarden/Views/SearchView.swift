@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct SearchView: View {
     @ObservedObject var cardViewModel: CardViewModel

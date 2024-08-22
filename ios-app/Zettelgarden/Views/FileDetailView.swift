@@ -1,5 +1,6 @@
 import PDFKit
 import SwiftUI
+import ZettelgardenShared
 
 struct FileDetailView: View {
     let file: File

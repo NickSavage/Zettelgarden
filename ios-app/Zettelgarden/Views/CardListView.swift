@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct CardListView: View {
     @State private var errorMessage: String?

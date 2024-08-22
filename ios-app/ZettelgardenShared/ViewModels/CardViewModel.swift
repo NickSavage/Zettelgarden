@@ -2,14 +2,16 @@ import Combine
 import Foundation
 import SwiftUI
 
-class CardViewModel: ObservableObject {
-    @Published var card: Card?
+public class CardViewModel: ObservableObject {
+    @Published public var card: Card?
     var cardHistory: [Int] = []
     var currentIndex: Int = -1
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
-    func loadCard(cardPK: Int) {
+    public init() {}
+
+    public func loadCard(cardPK: Int) {
         guard let token = token else {
             print("Token is missing")
             return
@@ -34,7 +36,7 @@ class CardViewModel: ObservableObject {
             }
         }
     }
-    func previousCard() {
+    public func previousCard() {
         if currentIndex < 1 {
             print("cannot go back")
             return
@@ -42,7 +44,7 @@ class CardViewModel: ObservableObject {
         currentIndex -= 1
         loadCard(cardPK: cardHistory[currentIndex])
     }
-    func nextCard() {
+    public func nextCard() {
 
         if currentIndex >= cardHistory.count - 1 {
             print("cannot go forward")

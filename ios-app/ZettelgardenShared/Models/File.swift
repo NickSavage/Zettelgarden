@@ -8,20 +8,20 @@
 import SwiftUI
 import ZettelgardenShared
 
-struct File: Identifiable, Codable {
-    var id: Int
-    var name: String
-    var filetype: String
-    var filename: String
-    var size: Int
-    var created_by: Int
-    var updated_by: Int
-    var card_pk: Int
-    var card: PartialCard?
-    var created_at: Date?
-    var updated_at: Date?
+public struct File: Identifiable, Codable {
+    public var id: Int
+    public var name: String
+    public var filetype: String
+    public var filename: String
+    public var size: Int
+    public var created_by: Int
+    public var updated_by: Int
+    public var card_pk: Int
+    public var card: PartialCard?
+    public var created_at: Date?
+    public var updated_at: Date?
 
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case id
         case name
         case filetype
@@ -35,7 +35,7 @@ struct File: Identifiable, Codable {
         case updated_at
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(Int.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
@@ -54,7 +54,7 @@ struct File: Identifiable, Codable {
         updated_at = parseDate(input: updatedAtString) ?? Date()
     }
 
-    init(
+    public init(
         id: Int,
         name: String,
         filetype: String,

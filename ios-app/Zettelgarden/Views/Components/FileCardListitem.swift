@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct FileCardListItem: View {
     let file: File

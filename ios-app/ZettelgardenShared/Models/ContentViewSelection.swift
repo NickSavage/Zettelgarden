@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ContentViewSelection {
+public enum ContentViewSelection {
     case home
     case tasks
     case card

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct QuickAddMenu: View {
     @State var newCard: Card = Card.emptyCard
@@ -36,7 +37,7 @@ struct QuickAddMenu: View {
         if let current = currentCard {
             newCard.card_id = current.card_id
         }
-        
+
         isPresentingNewCardView = true
 
     }

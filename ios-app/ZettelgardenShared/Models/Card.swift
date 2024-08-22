@@ -9,22 +9,22 @@ import Foundation
 import SwiftUI
 import ZettelgardenShared
 
-struct Card: Identifiable, Codable {
-    var id: Int
-    var card_id: String
-    var user_id: Int
-    var title: String
-    var body: String
-    var link: String
-    var created_at: Date
-    var updated_at: Date
-    var parent: PartialCard?
+public struct Card: Identifiable, Codable {
+    public var id: Int
+    public var card_id: String
+    public var user_id: Int
+    public var title: String
+    public var body: String
+    public var link: String
+    public var created_at: Date
+    public var updated_at: Date
+    public var parent: PartialCard?
     //var card_links: [PartialCard]
-    var children: [PartialCard]
-    var references: [PartialCard]
-    var files: [File]
+    public var children: [PartialCard]
+    public var references: [PartialCard]
+    public var files: [File]
 
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case id
         case card_id
         case user_id
@@ -38,7 +38,7 @@ struct Card: Identifiable, Codable {
         case references
         case files
     }
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container: KeyedDecodingContainer<Card.CodingKeys> = try decoder.container(
             keyedBy: CodingKeys.self
         )
@@ -63,7 +63,7 @@ struct Card: Identifiable, Codable {
         references = try container.decodeIfPresent([PartialCard].self, forKey: .references) ?? []
         files = try container.decodeIfPresent([File].self, forKey: .files) ?? []
     }
-    init(
+    public init(
         id: Int,
         card_id: String,
         user_id: Int,
@@ -125,7 +125,7 @@ extension Card {
             ),
         ]
 
-    static var emptyCard: Card {
+    public static var emptyCard: Card {
         Card(
             id: -1,
             card_id: "",

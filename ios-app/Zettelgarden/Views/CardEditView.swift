@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct CardEditView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -56,13 +57,5 @@ struct CardEditView: View {
                 }
             )
         }
-    }
-}
-
-struct CardEditView_Previews: PreviewProvider {
-    @State static var card = Card.sampleData[0]
-
-    static var previews: some View {
-        CardEditView(card: $card, onSave: { _ in }, isNew: true)
     }
 }

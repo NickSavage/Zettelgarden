@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 class FileViewModel: ObservableObject {
     var file: File
@@ -20,10 +21,14 @@ class FileViewModel: ObservableObject {
     func downloadFile() {
 
         guard let token = token else {
-            self.downloadError = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No token found"])
+            self.downloadError = NSError(
+                domain: "",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "No token found"]
+            )
             return
         }
-        
+
         isDownloading = true
         fetchFile(token: token, fileId: file.id, originalFileName: file.filename) { result in
             DispatchQueue.main.async {

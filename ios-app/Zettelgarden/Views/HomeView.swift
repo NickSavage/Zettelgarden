@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct HomeView: View {
     @ObservedObject var cardViewModel: CardViewModel
