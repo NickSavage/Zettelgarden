@@ -12,7 +12,7 @@ import SwiftUI
 class FileListViewModel: ObservableObject {
     @Published var files: [File]?
     @Published var isLoading = true
-    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+    @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
     func loadFiles() {

@@ -69,6 +69,7 @@
 		01ECE50F2BF422D900691C07 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50E2BF422D900691C07 /* Api.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
 		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
+		01FC266C2C76B95600039EDA /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC266B2C76B95600039EDA /* AuthViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -194,6 +195,8 @@
 		01ECE50E2BF422D900691C07 /* Api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		01FC266B2C76B95600039EDA /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenShareDebug.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -341,6 +344,7 @@
 		01953E792C7681B700F44FAD /* ZettelgardenShare */ = {
 			isa = PBXGroup;
 			children = (
+				01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */,
 				01953E7A2C7681B700F44FAD /* ShareViewController.swift */,
 				01953E7F2C7681B700F44FAD /* Info.plist */,
 				01953EBE2C768B9100F44FAD /* ShareAddTaskView.swift */,
@@ -394,6 +398,7 @@
 			isa = PBXGroup;
 			children = (
 				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
+				01FC266B2C76B95600039EDA /* AuthViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -727,6 +732,7 @@
 				01953EE12C76AC5F00F44FAD /* KeychainManager.swift in Sources */,
 				01953EDF2C76A4D700F44FAD /* GenericResponse.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
+				01FC266C2C76B95600039EDA /* AuthViewModel.swift in Sources */,
 				01953EE32C76AD7600F44FAD /* TokenManager.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				01953ED32C769EBD00F44FAD /* Http.swift in Sources */,
@@ -1020,6 +1026,7 @@
 		01953E842C7681B700F44FAD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ZettelgardenShare/ZettelgardenShareDebug.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

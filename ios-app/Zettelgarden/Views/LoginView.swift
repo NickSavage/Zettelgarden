@@ -6,7 +6,7 @@ struct LoginView: View {
     @State private var isLoading: Bool = false
     @State private var loginError: String?
     @AppStorage("isLoggedIn") private var isLoggedIn = false
-    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+    @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var jwt: String?
 
     var body: some View {

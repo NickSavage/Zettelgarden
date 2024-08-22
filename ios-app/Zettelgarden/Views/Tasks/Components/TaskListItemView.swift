@@ -2,7 +2,7 @@ import SwiftUI
 import ZettelgardenShared
 
 struct TaskListItemView: View {
-    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+    @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var jwt: String?
     @ObservedObject var taskListViewModel: TaskListViewModel
     @StateObject private var taskViewModel = TaskViewModel()

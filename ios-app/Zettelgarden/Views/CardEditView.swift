@@ -3,7 +3,7 @@ import SwiftUI
 struct CardEditView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var card: Card
-    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+    @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
     var onSave: (Card) -> Void
     var isNew: Bool

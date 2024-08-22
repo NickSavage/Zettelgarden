@@ -17,7 +17,7 @@ class PartialCardViewModel: ObservableObject {
 
     private var timer: Timer?
 
-    @AppStorage("jwt", store: UserDefaults(suiteName: "com.zettelgarden.sharedSuite")) private
+    @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
     init() {
