@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct TaskListContextMenu: View {
     @Binding var showingEditTaskView: Bool
@@ -48,7 +49,15 @@ struct TaskListContextMenu: View {
                 taskViewModel.clearScheduledDate()
             }) {
                 Text("Set No Date")
-
+            }
+            Button(action: {
+                taskViewModel.handleDeleteTask()
+            }) {
+                Text("Delete")
+            }
+            Button(action: {
+            }) {
+                Text("Link Card")
             }
         }
     }

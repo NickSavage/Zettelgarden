@@ -57,6 +57,23 @@ public func updateTask(
     }
 }
 
+public func deleteTask(
+    token: String,
+    task: ZTask,
+    completion: @escaping (Result<[ZTask], Error>) -> Void
+) {
+
+    let baseUrl: String = "https://zettelgarden.com/api"
+    let urlString = "\(baseUrl)/tasks/\(task.id)"
+
+    guard let url = URL(string: urlString) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+
+    performRequest(with: url, token: token, httpMethod: "DELETE", completion: completion)
+}
+
 public func createTask(
     token: String,
     task: ZTask,

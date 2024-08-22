@@ -39,6 +39,7 @@ public func performRequest<T: Decodable>(
 
         guard let httpResponse = response as? HTTPURLResponse,
             httpResponse.statusCode == 200 || httpResponse.statusCode == 201
+                || httpResponse.statusCode == 204
         else {
             let statusError = NSError(
                 domain: "",
@@ -104,7 +105,9 @@ public func performFileDownloadRequest(
             return
         }
 
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        guard let httpResponse = response as? HTTPURLResponse,
+            httpResponse.statusCode == 200 || httpResponse.statusCode == 204
+        else {
             let statusError = NSError(
                 domain: "",
                 code: (response as? HTTPURLResponse)?.statusCode ?? 500,

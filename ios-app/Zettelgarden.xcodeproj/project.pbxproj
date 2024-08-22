@@ -28,7 +28,6 @@
 		016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */; };
 		016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
-		01759F1E2C3E958100918E10 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1D2C3E958100918E10 /* TaskViewModel.swift */; };
 		01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
 		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
@@ -68,6 +67,7 @@
 		01FC26732C77B5BD00039EDA /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
 		01FC26752C77B5D000039EDA /* Cards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC26742C77B5D000039EDA /* Cards.swift */; };
 		01FC26762C77B6BB00039EDA /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
+		01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1D2C3E958100918E10 /* TaskViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -394,6 +394,7 @@
 			children = (
 				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
 				01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */,
+				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
 				01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */,
 				016D00012C6CE0EF00339760 /* NavigationViewModel.swift */,
 			);
@@ -406,7 +407,6 @@
 				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
 				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
-				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -678,7 +678,6 @@
 				01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */,
 				0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */,
 				016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */,
-				01759F1E2C3E958100918E10 /* TaskViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -728,6 +727,7 @@
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
 				01953ED32C769EBD00F44FAD /* Http.swift in Sources */,
 				01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */,
+				01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
