@@ -51,8 +51,6 @@
 		01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDA2C76A10700F44FAD /* PartialCard.swift */; };
 		01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */; };
 		01953EDF2C76A4D700F44FAD /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDE2C76A4D700F44FAD /* GenericResponse.swift */; };
-		01953EE12C76AC5F00F44FAD /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EE02C76AC5F00F44FAD /* KeychainManager.swift */; };
-		01953EE32C76AD7600F44FAD /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EE22C76AD7600F44FAD /* TokenManager.swift */; };
 		01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888062BF6C72E00B3ACF1 /* SearchView.swift */; };
 		01B8880A2BF6CA9900B3ACF1 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
 		01B8880C2BF762D800B3ACF1 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
@@ -69,7 +67,6 @@
 		01ECE50F2BF422D900691C07 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE50E2BF422D900691C07 /* Api.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
 		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
-		01FC266C2C76B95600039EDA /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC266B2C76B95600039EDA /* AuthViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -177,8 +174,6 @@
 		01953EDA2C76A10700F44FAD /* PartialCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCard.swift; sourceTree = "<group>"; };
 		01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
 		01953EDE2C76A4D700F44FAD /* GenericResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericResponse.swift; sourceTree = "<group>"; };
-		01953EE02C76AC5F00F44FAD /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
-		01953EE22C76AD7600F44FAD /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
 		01B888062BF6C72E00B3ACF1 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
@@ -195,7 +190,6 @@
 		01ECE50E2BF422D900691C07 /* Api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		01FC266B2C76B95600039EDA /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenShareDebug.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -361,8 +355,6 @@
 				01953ECB2C7696AE00F44FAD /* Models */,
 				01953EB02C76845500F44FAD /* ZettelgardenShared.h */,
 				01953EB12C76845500F44FAD /* ZettelgardenShared.docc */,
-				01953EE02C76AC5F00F44FAD /* KeychainManager.swift */,
-				01953EE22C76AD7600F44FAD /* TokenManager.swift */,
 			);
 			path = ZettelgardenShared;
 			sourceTree = "<group>";
@@ -398,7 +390,6 @@
 			isa = PBXGroup;
 			children = (
 				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
-				01FC266B2C76B95600039EDA /* AuthViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -729,11 +720,8 @@
 				01953ED62C769FD500F44FAD /* Tasks.swift in Sources */,
 				01953ED12C76970300F44FAD /* Dates.swift in Sources */,
 				01953ED92C769FE900F44FAD /* ZTask.swift in Sources */,
-				01953EE12C76AC5F00F44FAD /* KeychainManager.swift in Sources */,
 				01953EDF2C76A4D700F44FAD /* GenericResponse.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
-				01FC266C2C76B95600039EDA /* AuthViewModel.swift in Sources */,
-				01953EE32C76AD7600F44FAD /* TokenManager.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				01953ED32C769EBD00F44FAD /* Http.swift in Sources */,
 			);
