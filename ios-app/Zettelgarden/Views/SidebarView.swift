@@ -43,11 +43,7 @@ struct SidebarView: View {
                                         isMenuOpen = false
                                     }
                                 }) {
-                                    HStack {
-                                        Text("Cards")
-                                        Spacer()
-                                        Text("\(taskListViewModel.countTodayTasks())")
-                                    }
+                                    Text("Cards")
                                 }
                                 Button(action: {
                                     navigationViewModel.visit(page: .tasks)
@@ -55,7 +51,11 @@ struct SidebarView: View {
                                         isMenuOpen = false
                                     }
                                 }) {
-                                    Text("Tasks")
+                                    HStack {
+                                        Text("Tasks")
+                                        Spacer()
+                                        Text("\(taskListViewModel.countTodayTasks())")
+                                    }
                                 }
                                 Button(action: {
                                     navigationViewModel.visit(page: .files)
