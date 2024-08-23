@@ -136,7 +136,7 @@ export function Sidebar() {
         </div>
       </div>
       <div>
-        <div className="sidebar-links p-4 border-y border-black">
+        <div className="sidebar-links p-4">
           <ul>
             <SidebarLink
               to="/app/tasks"
@@ -169,7 +169,7 @@ export function Sidebar() {
           </ul>
         </div>
       </div>
-      <div className="scroll-cards bg-slate-200">
+      <div className="scroll-cards">
       <span className="px-2.5 py-2 font-bold">Recent Cards</span>
       <div className="m-1">
         <FilterInput handleFilterHook={handleFilter} />
