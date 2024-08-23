@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "A1D86455-46A5-4A7F-A2AA-610950FBC601",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Zettelgarden.xcodeproj",
+      "identifier" : "01201F572BF2BB6200DF973E",
+      "name" : "Zettelgarden"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Zettelgarden.xcodeproj",
+        "identifier" : "01201F672BF2BB6400DF973E",
+        "name" : "ZettelgardenTests"
+      }
+    },
+    {
+      "enabled" : false,
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Zettelgarden.xcodeproj",
+        "identifier" : "01201F712BF2BB6400DF973E",
+        "name" : "ZettelgardenUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -27,6 +27,7 @@
 		0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E9D62BF55DCA007D4EAD /* Utils.swift */; };
 		016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */; };
 		016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */; };
+		0170E42C2C7927D1007DBA95 /* PartialCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
@@ -155,6 +156,8 @@
 		016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListOptionsMenu.swift; sourceTree = "<group>"; };
 		016DFFFA2C698E3C00339760 /* ZettelgardenDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenDebug.entitlements; sourceTree = "<group>"; };
 		016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDateTextDisplay.swift; sourceTree = "<group>"; };
+		0170E4292C7925C7007DBA95 /* Zettelgarden.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Zettelgarden.xctestplan; sourceTree = "<group>"; };
+		0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardTests.swift; sourceTree = "<group>"; };
 		01759F182C3E092D00918E10 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		01759F1B2C3E915800918E10 /* Dates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dates.swift; sourceTree = "<group>"; };
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
@@ -260,6 +263,7 @@
 		01201F4F2BF2BB6200DF973E = {
 			isa = PBXGroup;
 			children = (
+				0170E4292C7925C7007DBA95 /* Zettelgarden.xctestplan */,
 				01201F5A2BF2BB6200DF973E /* Zettelgarden */,
 				01201F6B2BF2BB6400DF973E /* ZettelgardenTests */,
 				01201F752BF2BB6400DF973E /* ZettelgardenUITests */,
@@ -310,6 +314,7 @@
 		01201F6B2BF2BB6400DF973E /* ZettelgardenTests */ = {
 			isa = PBXGroup;
 			children = (
+				0170E42A2C7927BE007DBA95 /* ZettelgardenShared */,
 				01201F6C2BF2BB6400DF973E /* ZettelgardenTests.swift */,
 			);
 			path = ZettelgardenTests;
@@ -331,6 +336,14 @@
 				01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		0170E42A2C7927BE007DBA95 /* ZettelgardenShared */ = {
+			isa = PBXGroup;
+			children = (
+				0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */,
+			);
+			path = ZettelgardenShared;
 			sourceTree = "<group>";
 		};
 		01953E792C7681B700F44FAD /* ZettelgardenShare */ = {
@@ -686,6 +699,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				01201F6D2BF2BB6400DF973E /* ZettelgardenTests.swift in Sources */,
+				0170E42C2C7927D1007DBA95 /* PartialCardTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,6 +964,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K2F766LH7S;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
 				MARKETING_VERSION = 1.0;
@@ -987,6 +1002,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K2F766LH7S;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zettelgarden.ZettelgardenUITests;
