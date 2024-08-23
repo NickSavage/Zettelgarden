@@ -51,9 +51,3 @@ struct QuickAddMenu: View {
         isPresentingNewCardView = true
     }
 }
-
-struct QuickAddMenu_Previews: PreviewProvider {
-    static var previews: some View {
-        QuickAddMenu()
-    }
-}

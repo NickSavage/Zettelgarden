@@ -61,7 +61,7 @@ public struct PartialCard: Identifiable, Codable, Equatable {
 }
 
 extension PartialCard {
-    static var sampleDate: [PartialCard] = [
+    public static var sampleData: [PartialCard] = [
         PartialCard(
             id: 0,
             card_id: "1",

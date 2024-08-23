@@ -27,3 +27,16 @@ struct CardListItem: View {
         }
     }
 }
+
+struct CardListItem_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockCard = PartialCard.sampleData[0]
+        let mockNavigationViewModel = getTestNavigationViewModel()
+
+        // Return a preview of the CardListItem with the mock data
+        return CardListItem(card: mockCard, navigationViewModel: mockNavigationViewModel)
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
+    }
+
+}

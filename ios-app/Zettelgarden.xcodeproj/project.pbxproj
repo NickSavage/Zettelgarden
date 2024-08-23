@@ -28,6 +28,7 @@
 		016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */; };
 		016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */; };
 		0170E42C2C7927D1007DBA95 /* PartialCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */; };
+		0172F7102C793668000F3CEB /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F70F2C793667000F3CEB /* Test.swift */; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
@@ -158,6 +159,7 @@
 		016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDateTextDisplay.swift; sourceTree = "<group>"; };
 		0170E4292C7925C7007DBA95 /* Zettelgarden.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Zettelgarden.xctestplan; sourceTree = "<group>"; };
 		0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardTests.swift; sourceTree = "<group>"; };
+		0172F70F2C793667000F3CEB /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		01759F182C3E092D00918E10 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		01759F1B2C3E915800918E10 /* Dates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dates.swift; sourceTree = "<group>"; };
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
@@ -387,6 +389,7 @@
 		01953ECC2C7696CE00F44FAD /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				0172F70F2C793667000F3CEB /* Test.swift */,
 				01759F1B2C3E915800918E10 /* Dates.swift */,
 				01953ED22C769EBD00F44FAD /* Http.swift */,
 			);
@@ -736,6 +739,7 @@
 				01FC26732C77B5BD00039EDA /* CardViewModel.swift in Sources */,
 				01953EDF2C76A4D700F44FAD /* GenericResponse.swift in Sources */,
 				01FC26712C77B52C00039EDA /* Card.swift in Sources */,
+				0172F7102C793668000F3CEB /* Test.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
