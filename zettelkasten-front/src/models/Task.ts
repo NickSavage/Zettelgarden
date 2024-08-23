@@ -22,7 +22,7 @@ export const emptyTask: Task = {
   created_at: new Date(0),
   updated_at: new Date(0),
   dueDate: null,
-  scheduled_date: null,
+  scheduled_date: new Date(),
   completed_at: null,
   title: "",
   is_complete: false,
