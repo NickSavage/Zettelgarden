@@ -29,6 +29,7 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
 
   function toggleCardLink() {
     setShowCardLink(!showCardLink);
+    setShowMenu(false)
   }
 
   async function handleDeferTomorrow() {
@@ -37,6 +38,7 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
     if (!("error" in response)) {
       setRefresh(true);
     }
+    setShowMenu(false)
     
   }
   async function handleSetNoDate() {
@@ -46,6 +48,7 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
     if (!("error" in response)) {
       setRefresh(true);
     }
+    setShowMenu(false)
     
   }
   async function handleBacklink(card: PartialCard) {
