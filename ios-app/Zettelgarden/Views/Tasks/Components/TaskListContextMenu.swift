@@ -50,14 +50,35 @@ struct TaskListContextMenu: View {
             }) {
                 Text("Set No Date")
             }
+            Divider()
+            if let task = taskViewModel.task {
+                if task.card_pk > 0 {
+                    Button(action: {
+                        taskViewModel.unlinkCard()
+
+                    }) {
+                        Text("Unlink Card")
+                    }
+
+                }
+                else {
+
+                    Button(action: {
+
+                    }) {
+                        Text("Link Card")
+                    }
+                }
+
+            }
+            else {
+
+            }
+            Divider()
             Button(action: {
                 taskViewModel.handleDeleteTask()
             }) {
                 Text("Delete")
-            }
-            Button(action: {
-            }) {
-                Text("Link Card")
             }
         }
     }

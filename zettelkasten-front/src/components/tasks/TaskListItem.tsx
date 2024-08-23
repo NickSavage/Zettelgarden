@@ -29,7 +29,15 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
 
   function toggleCardLink() {
     setShowCardLink(!showCardLink);
-    setShowMenu(false)
+    setShowMenu(false);
+  }
+  async function handleCardUnlink() {
+    let editedTask = { ...task, card_pk: 0 };
+    let response = await saveExistingTask(editedTask);
+    if (!("error" in response)) {
+      setRefresh(true);
+    }
+    setShowMenu(false);
   }
 
   async function handleDeferTomorrow() {
@@ -38,18 +46,15 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
     if (!("error" in response)) {
       setRefresh(true);
     }
-    setShowMenu(false)
-    
+    setShowMenu(false);
   }
   async function handleSetNoDate() {
-
     let editedTask = { ...task, scheduled_date: null };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
       setRefresh(true);
     }
-    setShowMenu(false)
-    
+    setShowMenu(false);
   }
   async function handleBacklink(card: PartialCard) {
     let editedTask = { ...task, card_pk: card.id };
@@ -109,7 +114,9 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
             <span
               onClick={handleTitleClick}
               className={task.is_complete ? "task-completed" : "task-title"}
-              dangerouslySetInnerHTML={{ __html: linkifyWithDefaultOptions(task.title) }}
+              dangerouslySetInnerHTML={{
+                __html: linkifyWithDefaultOptions(task.title),
+              }}
             />
           )}
         </div>
@@ -144,9 +151,15 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
         </button>
         {showMenu && (
           <div className="popup-menu">
-            <button onClick={() => toggleCardLink()}>Link Card</button>
-	    <button onClick={() => handleDeferTomorrow()}>Defer to Tomorrow</button>
-	    <button onClick={() => handleSetNoDate()}>Set No Date</button>
+            {task.card_pk === 0 ? (
+              <button onClick={() => toggleCardLink()}>Link Card</button>
+            ) : (
+              <button onClick={() => handleCardUnlink()}>Unlink Card</button>
+            )}
+            <button onClick={() => handleDeferTomorrow()}>
+              Defer to Tomorrow
+            </button>
+            <button onClick={() => handleSetNoDate()}>Set No Date</button>
             <button onClick={() => handleDelete()}>Delete</button>
           </div>
         )}

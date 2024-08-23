@@ -46,6 +46,13 @@ public class TaskViewModel: ObservableObject {
             handleUpdateTask()
         }
     }
+    public func unlinkCard() {
+        if var editedTask = task {
+            editedTask.card_pk = 0
+            self.task = editedTask
+            handleUpdateTask()
+        }
+    }
     public func handleDeleteTask() {
 
         guard let token = token else {
