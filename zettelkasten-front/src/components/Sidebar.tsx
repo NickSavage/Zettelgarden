@@ -136,7 +136,7 @@ export function Sidebar() {
         </div>
       </div>
       <div>
-        <div className="sidebar-links">
+        <div className="sidebar-links p-4 border-y border-black">
           <ul>
             <SidebarLink
               to="/app/tasks"
@@ -169,8 +169,11 @@ export function Sidebar() {
           </ul>
         </div>
       </div>
-      <div className="scroll-cards">
+      <div className="scroll-cards bg-slate-200">
+      <span className="px-2.5 py-2 font-bold">Recent Cards</span>
+      <div className="m-1">
         <FilterInput handleFilterHook={handleFilter} />
+	</div>
         <div>
           {filteredCards.map((card) => (
             <CardItem key={card.id} card={card} />

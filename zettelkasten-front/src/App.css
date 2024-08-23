@@ -34,7 +34,6 @@ option {
 
 .scroll-cards {
 
-  background-color: #57cc99;
   overflow-y: auto;
   height: 75vh;
 }
@@ -105,11 +104,6 @@ option {
 .sidebar input {
   width: 100%;
   font-size: 16px;
-}
-
-.sidebar div {
-  cursor: pointer;
-  padding: 5px;
 }
 
 .sidebar-upper {
@@ -327,7 +321,6 @@ input[type="password"] {
   width: calc(
     100% - 10px
   ); /* Adjust width as needed, considering padding and border */
-  margin-bottom: 20px;
   padding: 10px;
   border: 1px solid #e0e0e0;
   border-radius: 4px;

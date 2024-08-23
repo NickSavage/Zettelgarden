@@ -85,24 +85,25 @@ export function TaskPage({}: TaskListProps) {
   }, [refresh]);
   return (
     <div>
-      <div className="mb-4 flex">
-        <H6 children="Tasks" className="flex-grow" />
+      <div className="bg-slate-200 p-2 border-slate-400 border">
+        <div className="flex">
+          <select value={dateView} onChange={handleDateChange}>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="all">All</option>
+          </select>
+	  <div className="mb-5 flex-grow">
+          <FilterInput handleFilterHook={handleFilterChange} />
+	  </div>
         <div className="flex-shrink">
           <TaskViewOptionsMenu
             showCompleted={showCompleted}
             setShowCompleted={setShowCompleted}
           />
         </div>
+        </div>
+        <Button onClick={toggleShowTaskWindow} children="Add Task" />
       </div>
-      <div className="flex">
-        <select value={dateView} onChange={handleDateChange}>
-          <option value="today">Today</option>
-          <option value="tomorrow">Tomorrow</option>
-          <option value="all">All</option>
-        </select>
-        <FilterInput handleFilterHook={handleFilterChange} />
-      </div>
-      <Button onClick={toggleShowTaskWindow} children="Add Task" />
       <div>
         {showTaskWindow && (
           <CreateTaskWindow
@@ -112,16 +113,18 @@ export function TaskPage({}: TaskListProps) {
           />
         )}
       </div>
-      <ul>
-        {tasks && (
-          <TaskList
-            tasks={tasks
-              ?.filter(changeDateView)
-              .filter(filterTasks)
-              .sort((a, b) => a.id - b.id)}
-          />
-        )}
-      </ul>
+      <div className="p-4">
+        <ul>
+          {tasks && (
+            <TaskList
+              tasks={tasks
+                ?.filter(changeDateView)
+                .filter(filterTasks)
+                .sort((a, b) => a.id - b.id)}
+            />
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
