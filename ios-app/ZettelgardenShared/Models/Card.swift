@@ -7,7 +7,6 @@
 import Combine
 import Foundation
 import SwiftUI
-import ZettelgardenShared
 
 public struct Card: Identifiable, Codable {
     public var id: Int

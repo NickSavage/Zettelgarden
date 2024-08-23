@@ -59,3 +59,24 @@ public struct PartialCard: Identifiable, Codable, Equatable {
         self.updated_at = updated_at
     }
 }
+
+extension PartialCard {
+    static var sampleDate: [PartialCard] = [
+        PartialCard(
+            id: 0,
+            card_id: "1",
+            user_id: 1,
+            title: "hello world",
+            created_at: Date(),
+            updated_at: Date()
+        ),
+        PartialCard(
+            id: 1,
+            card_id: "1/A",
+            user_id: 1,
+            title: "update",
+            created_at: Date(),
+            updated_at: Date()
+        ),
+    ]
+}
