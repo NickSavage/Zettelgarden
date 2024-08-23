@@ -17,7 +17,7 @@ export function CardList({ cards, sort = true }: CardListProps) {
   return (
     <ul>
       {sortedCards.map((backlink, index) => (
-        <li className="p-2">
+        <li className="">
           <CardItem card={backlink} />
         </li>
       ))}
