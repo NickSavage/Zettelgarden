@@ -29,3 +29,16 @@ struct FloatingButton: View {
         .padding(7)
     }
 }
+struct FloatingButton_Preview: PreviewProvider {
+    static var previews: some View {
+        FloatingButton(
+            action: {
+                // Action to be triggered when the button is tapped
+                print("Floating Button Pressed")
+            },
+            imageText: "plus"
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()  // Add padding for better appearance in the preview
+    }
+}

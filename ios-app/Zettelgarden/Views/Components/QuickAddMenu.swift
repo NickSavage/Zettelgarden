@@ -51,3 +51,16 @@ struct QuickAddMenu: View {
         isPresentingNewCardView = true
     }
 }
+struct QuickAddMenu_Preview: PreviewProvider {
+    static var previews: some View {
+        QuickAddMenu(
+            onAdd: {
+                // Action to be triggered when a new card is added
+                print("New card added")
+            },
+            currentCard: Card.emptyCard  // Assuming you want to pass an existing card
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()  // Add some padding for better appearance in the preview
+    }
+}

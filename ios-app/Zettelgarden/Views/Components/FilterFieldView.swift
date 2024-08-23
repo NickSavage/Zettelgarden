@@ -26,3 +26,12 @@ struct FilterFieldView: View {
         .padding()
     }
 }
+
+struct FilterFieldView_Preview: PreviewProvider {
+    @State static var filterText = ""
+    static var previews: some View {
+        FilterFieldView(filterText: $filterText, placeholder: "Filter")
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
+    }
+}
