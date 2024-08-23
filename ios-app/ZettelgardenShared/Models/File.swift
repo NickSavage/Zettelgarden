@@ -80,3 +80,47 @@ public struct File: Identifiable, Codable {
     }
 
 }
+
+extension File {
+    public static var sampleData: [File] = [
+        File(
+            id: 1,
+            name: "Sample File",
+            filetype: "txt",
+            filename: "sample.txt",
+            size: 1024,
+            created_by: 1,
+            updated_by: 1,
+            card_pk: 1,
+            card: nil,
+            created_at: Date(),
+            updated_at: Date()
+        ),
+        File(
+            id: 2,
+            name: "Another Sample File",
+            filetype: "pdf",
+            filename: "another_sample.pdf",
+            size: 5120,
+            created_by: 1,
+            updated_by: 1,
+            card_pk: 1,
+            card: nil,
+            created_at: Date(),
+            updated_at: Date()
+        ),
+        File(
+            id: 3,
+            name: "Yet Another Sample File",
+            filetype: "docx",
+            filename: "yet_another_sample.docx",
+            size: 2048,
+            created_by: 1,
+            updated_by: 1,
+            card_pk: 1,
+            card: nil,
+            created_at: Date(),
+            updated_at: Date()
+        ),
+    ]
+}

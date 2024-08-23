@@ -58,3 +58,16 @@ struct FileCardListItem: View {
     }
 
 }
+
+struct FileCardListItem_Preview: PreviewProvider {
+
+    static var previews: some View {
+        let mockFile = File.sampleData[0]
+        let mockFileViewModel = FileViewModel(file: mockFile)
+
+        // Return a preview of the CardListItem with the mock data
+        return FileCardListItem(file: mockFile)
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
+    }
+}
