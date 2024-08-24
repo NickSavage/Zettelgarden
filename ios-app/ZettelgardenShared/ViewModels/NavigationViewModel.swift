@@ -5,6 +5,7 @@
 //  Created by Nicholas Savage on 2024-08-14.
 //
 
+import Combine
 import SwiftUI
 
 public class NavigationViewModel: ObservableObject {
