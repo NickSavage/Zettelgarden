@@ -1,4 +1,5 @@
 import SwiftUI
+import ZettelgardenShared
 
 struct LoginView: View {
     @State private var email: String = ""
@@ -65,7 +66,8 @@ struct LoginView: View {
         loginError = nil
 
         do {
-            let token = try await login(email: email, password: password)
+            let session = openSession(token: nil, environment: .production)
+            let token = try await login(session: session, email: email, password: password)
 
             // Store the JWT
             jwt = token

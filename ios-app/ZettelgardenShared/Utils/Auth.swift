@@ -1,16 +1,11 @@
 import Foundation
-import ZettelgardenShared
-
-//var baseUrl = "https://zettelgarden.com/api"
-//var baseUrl = "https://nicksavage.ca/zettel-dev/api"
-//vvar baseUrl = "http://192.168.0.72:5000/api"
 
 struct Wrapper: Codable {
     var access_token: String
 }
-func login(email: String, password: String) async throws -> String {
-    let baseUrl: String = SettingsManager.shared.currentEnvironment.rawValue
-    let url = URL(string: baseUrl + "/login")!
+public func login(session: HttpSession, email: String, password: String) async throws -> String {
+
+    let url = URL(string: session.environment + "/login")!
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")

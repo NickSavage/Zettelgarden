@@ -17,3 +17,18 @@ public func openSession(token: String?, environment: AppEnvironment) -> HttpSess
     )
     return session
 }
+
+public struct GenericResponse: Encodable, Decodable {
+    public var Message: String
+    public var Error: Bool
+}
+
+public struct IdentifiableURL: Identifiable {
+    public var id: UUID
+    public var url: URL
+
+    public init(url: URL) {
+        self.id = UUID()
+        self.url = url
+    }
+}
