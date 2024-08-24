@@ -59,7 +59,8 @@ public class TaskViewModel: ObservableObject {
             return
         }
         if var editedTask = task {
-            deleteTask(token: token, task: editedTask) { result in
+            let session = openSession(token: token, environment: .production)
+            deleteTask(session: session, task: editedTask) { result in
                 DispatchQueue.main.async {
                     if let viewModel = self.taskListViewModel {
                         viewModel.loadTasks()
@@ -97,7 +98,8 @@ public class TaskViewModel: ObservableObject {
             return
         }
         if var editedTask = task {
-            updateTask(token: token, task: editedTask) { result in
+            let session = openSession(token: token, environment: .production)
+            updateTask(session: session, task: editedTask) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(_):

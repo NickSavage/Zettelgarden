@@ -20,7 +20,8 @@ public class SearchViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.isLoading = true
         }
-        fetchCards(token: token, searchTerm: searchString) { [weak self] result in
+        let session = openSession(token: token, environment: .production)
+        fetchCards(session: session, searchTerm: searchString) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let cards):

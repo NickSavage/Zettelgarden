@@ -24,7 +24,8 @@ public class CardViewModel: ObservableObject {
             cardHistory.append(cardPK)
             currentIndex += 1
         }
-        fetchCard(token: token, id: cardPK) { result in
+        let session = openSession(token: token, environment: .production)
+        fetchCard(session: session, id: cardPK) { result in
             switch result {
             case .success(let fetchedCard):
                 DispatchQueue.main.async {

@@ -63,7 +63,8 @@ public class TaskListViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        fetchTasks(token: token) { result in
+        let session = openSession(token: token, environment: .production)
+        fetchTasks(session: session) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedTasks):
@@ -87,7 +88,8 @@ public class TaskListViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        createTask(token: token, task: newTask) { result in
+        let session = openSession(token: token, environment: .production)
+        createTask(session: session, task: newTask) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(_):

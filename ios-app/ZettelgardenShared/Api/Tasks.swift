@@ -8,28 +8,27 @@
 import Foundation
 
 public func fetchTasks(
-    token: String,
+    session: HttpSession,
     searchTerm: String = "",
     completion: @escaping (Result<[ZTask], Error>) -> Void
 ) {
-    let baseUrl: String = "https://zettelgarden.com/api"
-
-    guard let url = URL(string: baseUrl + "/tasks") else {
+    guard let url = URL(string: session.environment + "/tasks") else {
         completion(.failure(NetworkError.invalidURL))
         return
     }
+    let token = session.token ?? ""
     print("Request URL: \(url.absoluteString)")
 
     performRequest(with: url, token: token, completion: completion)
 }
 
 public func updateTask(
-    token: String,
+    session: HttpSession,
     task: ZTask,
     completion: @escaping (Result<GenericResponse, Error>) -> Void
 ) {
-    let baseUrl: String = "https://zettelgarden.com/api"
-    let urlString = "\(baseUrl)/tasks/\(task.id)"
+    let urlString = "\(session.environment)/tasks/\(task.id)"
+    let token = session.token ?? ""
 
     guard let url = URL(string: urlString) else {
         completion(.failure(NetworkError.invalidURL))
@@ -58,13 +57,13 @@ public func updateTask(
 }
 
 public func deleteTask(
-    token: String,
+    session: HttpSession,
     task: ZTask,
     completion: @escaping (Result<[ZTask], Error>) -> Void
 ) {
 
-    let baseUrl: String = "https://zettelgarden.com/api"
-    let urlString = "\(baseUrl)/tasks/\(task.id)"
+    let urlString = "\(session.environment)/tasks/\(task.id)"
+    let token = session.token ?? ""
 
     guard let url = URL(string: urlString) else {
         completion(.failure(NetworkError.invalidURL))
@@ -75,12 +74,12 @@ public func deleteTask(
 }
 
 public func createTask(
-    token: String,
+    session: HttpSession,
     task: ZTask,
     completion: @escaping (Result<CreateTaskResponse, Error>) -> Void
 ) {
-    let baseUrl: String = "https://zettelgarden.com/api"
-    let urlString = "\(baseUrl)/tasks"
+    let urlString = "\(session.environment)/tasks"
+    let token = session.token ?? ""
 
     guard let url = URL(string: urlString) else {
         completion(.failure(NetworkError.invalidURL))
