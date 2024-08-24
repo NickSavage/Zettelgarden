@@ -55,3 +55,15 @@ struct TaskListView: View {
         }
     }
 }
+
+struct TaskListView_Preview: PreviewProvider {
+    static var mockViewModel: TaskListViewModel = getTestTaskListViewModel()
+
+    static var previews: some View {
+        TaskListView(
+            taskListViewModel: mockViewModel  // Use the static mockViewModel here
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()  // Optional: improve appearance in the preview
+    }
+}

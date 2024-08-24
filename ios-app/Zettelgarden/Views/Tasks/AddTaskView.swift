@@ -58,3 +58,15 @@ struct AddTaskView: View {
         self.message = "Task created"
     }
 }
+
+struct AddTaskView_Preview: PreviewProvider {
+    static var mockViewModel: TaskListViewModel = getTestTaskListViewModel()
+
+    static var previews: some View {
+        AddTaskView(
+            taskListViewModel: mockViewModel  // Use the static mockViewModel here
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()  // Optional: improve appearance in the preview
+    }
+}

@@ -47,11 +47,7 @@ struct TaskListOptionsMenu: View {
 }
 
 struct TaskListOptionsMenu_Preview: PreviewProvider {
-    static var mockViewModel: TaskListViewModel = {
-        let viewModel = TaskListViewModel()
-        viewModel.loadTestTasks(tasks: ZTask.sampleData)
-        return viewModel
-    }()
+    static var mockViewModel: TaskListViewModel = getTestTaskListViewModel()
 
     static var previews: some View {
         TaskListOptionsMenu(

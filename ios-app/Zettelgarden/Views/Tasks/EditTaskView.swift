@@ -43,3 +43,18 @@ struct EditTaskView: View {
         }
     }
 }
+
+struct EditTaskView_Preview: PreviewProvider {
+    static var mockViewModel: TaskViewModel = getTestTaskViewModel()
+
+    static var previews: some View {
+        EditTaskView(
+            viewModel: mockViewModel,
+            onSave: {
+                print("New card added")
+            }
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()  // Optional: improve appearance in the preview
+    }
+}
