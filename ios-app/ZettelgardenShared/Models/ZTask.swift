@@ -111,3 +111,75 @@ public enum TaskDisplayOptions: Int, CaseIterable, Identifiable {
 public struct CreateTaskResponse: Decodable {
     var id: Int
 }
+
+extension ZTask {
+    public static var sampleData: [ZTask] {
+        [
+            ZTask(
+                id: 1,
+                card_pk: 101,
+                user_id: 1001,
+                scheduled_date: Calendar.current.date(byAdding: .day, value: 1, to: Date()),  // Tomorrow
+                created_at: Date(),
+                updated_at: Date(),
+                completed_at: nil,
+                title: "Daily Standup Meeting",
+                is_complete: false,
+                is_deleted: false,
+                card: nil  // Or provide a mock PartialCard if needed
+            ),
+            ZTask(
+                id: 2,
+                card_pk: 102,
+                user_id: 1001,
+                scheduled_date: Date(),  // Today
+                created_at: Date(),
+                updated_at: Date(),
+                completed_at: nil,
+                title: "Weekly Sync-up",
+                is_complete: false,
+                is_deleted: false,
+                card: nil
+            ),
+            ZTask(
+                id: 3,
+                card_pk: 103,
+                user_id: 1002,
+                scheduled_date: Calendar.current.date(byAdding: .day, value: -2, to: Date()),  // 2 days ago
+                created_at: Date(),
+                updated_at: Date(),
+                completed_at: nil,
+                title: "Write Quarterly Report",
+                is_complete: false,
+                is_deleted: false,
+                card: nil
+            ),
+            ZTask(
+                id: 4,
+                card_pk: 104,
+                user_id: 1003,
+                scheduled_date: Calendar.current.date(byAdding: .day, value: -7, to: Date()),  // 7 days ago
+                created_at: Date(),
+                updated_at: Date(),
+                completed_at: Date(),  // Completed
+                title: "Submit Expense Reports",
+                is_complete: true,
+                is_deleted: false,
+                card: nil
+            ),
+            ZTask(
+                id: 5,
+                card_pk: 105,
+                user_id: 1004,
+                scheduled_date: nil,  // No scheduled date
+                created_at: Date(),
+                updated_at: Date(),
+                completed_at: nil,
+                title: "Brainstorm Session",
+                is_complete: false,
+                is_deleted: false,
+                card: nil
+            ),
+        ]
+    }
+}

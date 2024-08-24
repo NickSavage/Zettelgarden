@@ -83,3 +83,18 @@ struct TaskListContextMenu: View {
         }
     }
 }
+struct TaskListContextMenu_Preview: PreviewProvider {
+    @State static var showingEditTaskView = false
+    static var previews: some View {
+        // Your mock TaskViewModel with a mock task
+        let mockTaskViewModel = TaskViewModel()
+        mockTaskViewModel.task = ZTask.sampleData[0]
+
+        return TaskListContextMenu(
+            showingEditTaskView: $showingEditTaskView,
+            taskViewModel: mockTaskViewModel
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()  // Add some padding for better appearance in the preview
+    }
+}

@@ -79,6 +79,10 @@ public class TaskListViewModel: ObservableObject {
         }
     }
 
+    public func loadTestTasks(tasks: [ZTask]) {
+        self.tasks = tasks
+    }
+
     public func createNewTask(newTask: ZTask) {
         guard let token = token else {
             print("Token is missing")

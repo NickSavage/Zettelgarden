@@ -67,5 +67,13 @@ struct TaskListItemView: View {
             }
         }
     }
+}
 
+struct TaskListItemView_Preview: PreviewProvider {
+    static var previews: some View {
+        TaskListItemView(
+            taskListViewModel: TaskListViewModel(),
+            inputTask: ZTask.sampleData[0]
+        )
+    }
 }

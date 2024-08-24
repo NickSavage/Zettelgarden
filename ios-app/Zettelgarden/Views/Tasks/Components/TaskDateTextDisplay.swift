@@ -56,3 +56,14 @@ struct TaskDateTextDisplay: View {
         }
     }
 }
+struct TaskDateTextDisplay_Preview: PreviewProvider {
+    static var previews: some View {
+        // Your mock TaskViewModel with a mock task
+        let mockTaskViewModel = TaskViewModel()
+        mockTaskViewModel.task = ZTask.sampleData[0]
+
+        return TaskDateTextDisplay(taskViewModel: mockTaskViewModel)
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
+    }
+}
