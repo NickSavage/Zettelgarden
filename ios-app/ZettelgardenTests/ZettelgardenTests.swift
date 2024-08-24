@@ -28,20 +28,6 @@ final class ZettelgardenTests: XCTestCase {
         XCTAssertEqual(1, 2)
     }
 
-    func decodePartialCard() throws {
-        let jsonString = """
-            {
-                "id": 850,
-                "card_id": "SP127",
-                "user_id": 1,
-                "title": "Research Web App",
-                "created_at": "2023-09-25T12:55:01Z",
-                "updated_at": "2023-10-05T20:27:04Z"
-            }
-            """
-
-    }
-
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
         self.measure {

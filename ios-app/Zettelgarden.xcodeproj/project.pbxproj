@@ -29,6 +29,9 @@
 		016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */; };
 		0170E42C2C7927D1007DBA95 /* PartialCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */; };
 		0172F7102C793668000F3CEB /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F70F2C793667000F3CEB /* Test.swift */; };
+		0172F7122C796C51000F3CEB /* DateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F7112C796C51000F3CEB /* DateTests.swift */; };
+		0172F7142C7975C3000F3CEB /* ZettelgardenShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */; };
+		0172F7152C7975C3000F3CEB /* ZettelgardenShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
@@ -87,6 +90,13 @@
 			remoteGlobalIDString = 01201F572BF2BB6200DF973E;
 			remoteInfo = Zettelgarden;
 		};
+		0172F7162C7975C3000F3CEB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 01201F502BF2BB6200DF973E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 01953EAD2C76845500F44FAD;
+			remoteInfo = ZettelgardenShared;
+		};
 		01953E802C7681B700F44FAD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 01201F502BF2BB6200DF973E /* Project object */;
@@ -113,6 +123,17 @@
 				01953E822C7681B700F44FAD /* ZettelgardenShare.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0172F7182C7975C3000F3CEB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0172F7152C7975C3000F3CEB /* ZettelgardenShared.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		01953EB82C76845500F44FAD /* Embed Frameworks */ = {
@@ -160,6 +181,7 @@
 		0170E4292C7925C7007DBA95 /* Zettelgarden.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Zettelgarden.xctestplan; sourceTree = "<group>"; };
 		0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardTests.swift; sourceTree = "<group>"; };
 		0172F70F2C793667000F3CEB /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
+		0172F7112C796C51000F3CEB /* DateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTests.swift; sourceTree = "<group>"; };
 		01759F182C3E092D00918E10 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		01759F1B2C3E915800918E10 /* Dates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dates.swift; sourceTree = "<group>"; };
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
@@ -227,6 +249,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0172F7142C7975C3000F3CEB /* ZettelgardenShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,6 +295,7 @@
 				01953E792C7681B700F44FAD /* ZettelgardenShare */,
 				01953EAF2C76845500F44FAD /* ZettelgardenShared */,
 				01201F592BF2BB6200DF973E /* Products */,
+				0172F7132C7975C3000F3CEB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -343,9 +367,17 @@
 		0170E42A2C7927BE007DBA95 /* ZettelgardenShared */ = {
 			isa = PBXGroup;
 			children = (
+				0172F7112C796C51000F3CEB /* DateTests.swift */,
 				0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */,
 			);
 			path = ZettelgardenShared;
+			sourceTree = "<group>";
+		};
+		0172F7132C7975C3000F3CEB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		01953E792C7681B700F44FAD /* ZettelgardenShare */ = {
@@ -537,10 +569,12 @@
 				01953E742C7681B700F44FAD /* Sources */,
 				01953E752C7681B700F44FAD /* Frameworks */,
 				01953E762C7681B700F44FAD /* Resources */,
+				0172F7182C7975C3000F3CEB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0172F7172C7975C3000F3CEB /* PBXTargetDependency */,
 			);
 			name = ZettelgardenShare;
 			productName = ZettelgardenShare;
@@ -702,6 +736,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				01201F6D2BF2BB6400DF973E /* ZettelgardenTests.swift in Sources */,
+				0172F7122C796C51000F3CEB /* DateTests.swift in Sources */,
 				0170E42C2C7927D1007DBA95 /* PartialCardTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -761,6 +796,11 @@
 			isa = PBXTargetDependency;
 			target = 01201F572BF2BB6200DF973E /* Zettelgarden */;
 			targetProxy = 01201F732BF2BB6400DF973E /* PBXContainerItemProxy */;
+		};
+		0172F7172C7975C3000F3CEB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 01953EAD2C76845500F44FAD /* ZettelgardenShared */;
+			targetProxy = 0172F7162C7975C3000F3CEB /* PBXContainerItemProxy */;
 		};
 		01953E812C7681B700F44FAD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

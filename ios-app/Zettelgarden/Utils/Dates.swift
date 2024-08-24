@@ -16,23 +16,17 @@ func formatDate(input: Date) -> String {
     let result = dateFormatter.string(from: input)
     return result
 }
-
 func isTodayOrPast(maybeDate: Date?) -> Bool {
     guard let date = maybeDate else {
         return false
     }
 
+    print(date)
     let calendar = Calendar.current
     let today = Date()
+    print(today)
 
-    let todayComponents = calendar.dateComponents([.year, .month, .day], from: today)
-    let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-
-    let todayDate = calendar.date(from: todayComponents)!
-    let targetDate = calendar.date(from: dateComponents)!
-
-    return targetDate <= todayDate
-
+    return calendar.compare(date, to: today, toGranularity: .day) != .orderedDescending
 }
 
 func isPast(maybeDate: Date?) -> Bool {
@@ -82,7 +76,7 @@ func parseDate(input: String?) -> Date? {
 
     let isoDateFormatter = DateFormatter()
     isoDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-    isoDateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    isoDateFormatter.timeZone = TimeZone.current
 
     let alternativeDateFormatter = DateFormatter()
     alternativeDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
