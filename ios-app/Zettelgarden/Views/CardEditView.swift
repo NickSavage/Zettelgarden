@@ -29,8 +29,9 @@ struct CardEditView: View {
                         print("Token is missing")
                         return
                     }
+                    let session = openSession(token: token, environment: .production)
                     if isNew {
-                        saveNewCard(token: token, card: card) { result in
+                        saveNewCard(session: session, card: card) { result in
                             switch result {
                             case .success(let savedCard):
                                 print("success!")
@@ -42,7 +43,7 @@ struct CardEditView: View {
                         }
                     }
                     else {
-                        saveExistingCard(token: token, card: card) { result in
+                        saveExistingCard(session: session, card: card) { result in
                             switch result {
                             case .success(let savedCard):
                                 print("success!")

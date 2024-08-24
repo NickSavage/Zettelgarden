@@ -22,7 +22,8 @@ class FileListViewModel: ObservableObject {
             return
         }
 
-        fetchFiles(token: token) { results in
+        let session = openSession(token: token, environment: .production)
+        fetchFiles(session: session) { results in
             DispatchQueue.main.async {
                 switch results {
                 case .success(let fetchedFiles):

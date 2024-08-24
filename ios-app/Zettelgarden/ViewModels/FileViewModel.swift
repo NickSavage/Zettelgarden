@@ -30,7 +30,8 @@ class FileViewModel: ObservableObject {
         }
 
         isDownloading = true
-        fetchFile(token: token, fileId: file.id, originalFileName: file.filename) { result in
+        let session = openSession(token: token, environment: .production)
+        fetchFile(session: session, fileId: file.id, originalFileName: file.filename) { result in
             DispatchQueue.main.async {
                 self.isDownloading = false
                 switch result {

@@ -33,6 +33,7 @@
 		0172F7142C7975C3000F3CEB /* ZettelgardenShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */; };
 		0172F7152C7975C3000F3CEB /* ZettelgardenShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01953EAE2C76845500F44FAD /* ZettelgardenShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0172F71A2C79F779000F3CEB /* Http.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F7192C79F779000F3CEB /* Http.swift */; };
+		0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F71B2C7A0C6E000F3CEB /* Files.swift */; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F202C3E9B9D00918E10 /* GenericResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1F2C3E9B9D00918E10 /* GenericResponse.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
@@ -184,6 +185,7 @@
 		0172F70F2C793667000F3CEB /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		0172F7112C796C51000F3CEB /* DateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTests.swift; sourceTree = "<group>"; };
 		0172F7192C79F779000F3CEB /* Http.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Http.swift; sourceTree = "<group>"; };
+		0172F71B2C7A0C6E000F3CEB /* Files.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Files.swift; sourceTree = "<group>"; };
 		01759F182C3E092D00918E10 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		01759F1B2C3E915800918E10 /* Dates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dates.swift; sourceTree = "<group>"; };
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
@@ -434,6 +436,7 @@
 		01953ED42C769FCB00F44FAD /* Api */ = {
 			isa = PBXGroup;
 			children = (
+				0172F71B2C7A0C6E000F3CEB /* Files.swift */,
 				01953ED52C769FD500F44FAD /* Tasks.swift */,
 				01FC26742C77B5D000039EDA /* Cards.swift */,
 			);
@@ -783,6 +786,7 @@
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
 				01953ED32C769EBD00F44FAD /* HttpRequests.swift in Sources */,
+				0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */,
 				01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */,
 				01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */,
 			);

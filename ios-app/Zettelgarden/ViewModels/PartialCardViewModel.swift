@@ -64,7 +64,8 @@ class PartialCardViewModel: ObservableObject {
         guard let token = token else {
             return
         }
-        fetchPartialCards(token: token, sort: sort, inactive: inactive) { result in
+        let session = openSession(token: token, environment: .production)
+        fetchPartialCards(session: session, sort: sort, inactive: inactive) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCards):
