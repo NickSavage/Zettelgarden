@@ -112,7 +112,7 @@ export function TaskDateDisplay({
     <div>
       <div
         onClick={handleTextClick}
-        className="task-date"
+        className="task-date mr-1"
         style={{ color: getDisplayColor() }}
       >
         {displayText}
@@ -132,7 +132,6 @@ export function TaskDateDisplay({
           />
         )}
       </div>
-      <div></div>
     </div>
   );
 }

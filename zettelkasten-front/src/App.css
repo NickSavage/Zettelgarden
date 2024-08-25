@@ -478,6 +478,8 @@ h1 {
 }
 
 .task-list-item-details {
+    display: flex;
+  font-size: small;
 }
 
 .task-title {
@@ -512,11 +514,9 @@ h1 {
 }
 
 .task-date {
-  font-size: small;
 }
 
 .task-recurring {
-  font-size: small;
   color: #007bff;
 }
 .task-list-item {

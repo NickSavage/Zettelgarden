@@ -10,13 +10,15 @@ import { BacklinkInput } from "../cards/BacklinkInput";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
 import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
+import { TaskTagDisplay } from "../../components/tasks/TaskTagDisplay";
 
 interface TaskListItemProps {
   task: Task;
   setRefresh: (refresh: boolean) => void;
+  onTagClick: (tag: string) => void;
 }
 
-export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
+export function TaskListItem({ task, setRefresh, onTagClick }: TaskListItemProps) {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
@@ -120,13 +122,14 @@ export function TaskListItem({ task, setRefresh }: TaskListItemProps) {
             />
           )}
         </div>
-        <div className="task-list-item-details">
+        <div className="task-list-item-details inline-block">
           <TaskDateDisplay
             task={task}
             setTask={(task: Task) => {}}
             setRefresh={setRefresh}
             saveOnChange={true}
           />
+	  <TaskTagDisplay task={task} onTagClick={onTagClick}/>
         </div>
       </div>
       <div className="task-list-item-card">

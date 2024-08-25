@@ -9,9 +9,6 @@ import {
   getTomorrow,
   isTodayOrPast,
 } from "../../utils/dates";
-import { H6 } from "../../components/Header";
-import { FilterInput } from "../../components/FilterInput";
-import { SettingsIcon } from "../../assets/icons/SettingsIcon";
 import { TaskViewOptionsMenu } from "../../components/tasks/TaskViewOptionsMenu";
 import { Button } from "../../components/Button";
 
@@ -25,10 +22,10 @@ export function TaskPage({}: TaskListProps) {
   const [filterString, setFilterString] = useState<string>("");
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
-  function handleFilterChange(text: string) {
-    setFilterString(text);
-  }
-
+  function handleFilterChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+      setFilterString(e.target.value)
+    }
   function filterTasks(task: Task) {
     if (filterString === "") {
       return task;
@@ -79,6 +76,12 @@ export function TaskPage({}: TaskListProps) {
   function toggleShowTaskWindow() {
     setShowTaskWindow(!showTaskWindow);
   }
+
+
+  function handleTagClick(tag: string) {
+    setFilterString(tag)
+    
+  }
   useEffect(() => {
     document.title = "Zettelgarden - Tasks";
     //   setAllTasks();
@@ -93,7 +96,7 @@ export function TaskPage({}: TaskListProps) {
             <option value="all">All</option>
           </select>
 	  <div className="mb-5 flex-grow">
-          <FilterInput handleFilterHook={handleFilterChange} />
+	  <input type="text" value={filterString} onChange={handleFilterChange} placeholder="Filter" />
 	  </div>
         <div className="flex-shrink">
           <TaskViewOptionsMenu
@@ -117,6 +120,7 @@ export function TaskPage({}: TaskListProps) {
         <ul>
           {tasks && (
             <TaskList
+	      onTagClick={handleTagClick}
               tasks={tasks
                 ?.filter(changeDateView)
                 .filter(filterTasks)
