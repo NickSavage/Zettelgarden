@@ -14,7 +14,7 @@ import { CardBodyTextArea } from "../../components/cards/CardBodyTextArea";
 
 interface EditPageProps {
   newCard: boolean;
-  lastCardId: string;
+  lastCard: Card | null;
 }
 
 function handleViewCard(card_pk: number) {}
@@ -29,7 +29,7 @@ function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
   return null;
 }
 
-export function EditPage({ newCard, lastCardId }: EditPageProps) {
+export function EditPage({ newCard, lastCard }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
@@ -64,15 +64,29 @@ export function EditPage({ newCard, lastCardId }: EditPageProps) {
     if (!newCard) {
       fetchCard(id!);
     } else {
-      setEditingCard({ ...defaultCard, card_id: lastCardId });
+      setEditingCard({
+        ...defaultCard,
+        card_id: lastCard ? lastCard.card_id : "",
+      });
     }
   }, [id]);
 
   function handleCancelButtonClick() {
-    if (editingCard.id) {
-      navigate(`/app/card/${editingCard.id}`);
+    if (newCard) {
+      console.log("we get here?");
+      console.log(lastCard);
+      if (lastCard) {
+        console.log("?");
+        navigate(`/app/card/${lastCard.id}`);
+      } else {
+        navigate(`/`);
+      }
     } else {
-      navigate("/");
+      if (editingCard.id) {
+        navigate(`/app/card/${editingCard.id}`);
+      } else {
+        navigate(`/`);
+      }
     }
   }
 

@@ -17,12 +17,13 @@ import { useTaskContext } from "../../contexts/TaskContext";
 import { HeaderSection, HeaderSubSection } from "../../components/Header";
 import { Button } from "../../components/Button";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
+import { NonNullChain } from "typescript";
 
 interface ViewPageProps {
-  setLastCardId: (cardId: string) => void;
+  setLastCard: (card: Card | null) => void;
 }
 
-export function ViewPage({ setLastCardId }: ViewPageProps) {
+export function ViewPage({ setLastCard }: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
@@ -75,7 +76,7 @@ export function ViewPage({ setLastCardId }: ViewPageProps) {
       } else {
         setViewCard(refreshed);
         document.title = "Zettelgarden - " + refreshed.card_id + " - View";
-        setLastCardId(refreshed.card_id);
+        setLastCard(refreshed);
 
         if (refreshed.parent && "id" in refreshed.parent) {
           let parentCardId = refreshed.parent.id;

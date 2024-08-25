@@ -26,7 +26,7 @@ import { ShortcutProvider } from "../contexts/ShortcutContext";
 
 function MainAppContent() {
   const navigate = useNavigate();
-  const [lastCardId, setLastCardId] = useState("");
+  const [lastCard, setLastCard] = useState<Card | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
@@ -89,19 +89,19 @@ function MainAppContent() {
                   />
                   <Route
                     path="card/:id"
-                    element={<ViewPage setLastCardId={setLastCardId} />}
+                    element={<ViewPage setLastCard={setLastCard} />}
                   />
                   <Route
                     path="card/:id/edit"
                     element={
-                      <EditPage newCard={false} lastCardId={lastCardId} />
+                      <EditPage newCard={false} lastCard={lastCard} />
                     }
                   />
 
                   <Route
                     path="card/new"
                     element={
-                      <EditPage newCard={true} lastCardId={lastCardId} />
+                      <EditPage newCard={true} lastCard={lastCard} />
                     }
                   />
                   <Route path="settings" element={<UserSettingsPage />} />
