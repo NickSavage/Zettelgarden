@@ -269,7 +269,7 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(card.CardID))
+	parent, err := s.QueryPartialCardByID(userID, card.ParentID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -616,7 +616,7 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 
 	err := s.db.QueryRow(`
 	SELECT 
-	id, card_id, user_id, title, body, link, created_at, updated_at 
+	id, card_id, user_id, title, body, link, parent_id, created_at, updated_at 
 	FROM 
 	cards
 	WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
@@ -627,10 +627,12 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 		&card.Title,
 		&card.Body,
 		&card.Link,
+		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
 	)
 	if err != nil {
+		log.Printf("err? %v", err)
 		return models.Card{}, fmt.Errorf("unable to access card")
 	}
 
@@ -643,7 +645,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 	var cards []models.Card
 	query := `
     SELECT 
-		id, card_id, user_id, title, body, link, created_at, updated_at 
+		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at 
     FROM 
         cards
     WHERE
@@ -672,6 +674,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 			&card.Title,
 			&card.Body,
 			&card.Link,
+			&card.ParentID,
 			&card.CreatedAt,
 			&card.UpdatedAt,
 		); err != nil {
@@ -789,19 +792,29 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 }
 
 func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Card, error) {
+	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
+
 	query := `
 	INSERT INTO cards 
-	(title, body, link, user_id, card_id, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+	(title, body, link, user_id, card_id, parent_id, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
 	RETURNING id;
 	`
 	var id int
-	err := s.db.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID).Scan(&id)
+	err = s.db.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID, parent.ID).Scan(&id)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
 	}
 	card, err := s.QueryFullCard(userID, id)
+
+	// set parent id to id if there's no parent
+	if parent.ID == 0 {
+		_, err = s.db.Exec("UPDATE cards SET parent_id = $1 WHERE id = $1", id)
+		if err != nil {
+			return models.Card{}, err
+		}
+	}
 	backlinks := extractBacklinks(card.Body)
 	updateBacklinks(card.ID, backlinks)
 	return s.QueryFullCard(userID, id)
