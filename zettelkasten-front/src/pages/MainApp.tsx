@@ -56,7 +56,7 @@ function MainAppContent() {
     }
     return (
       <div className="main-content">
-        <Sidebar />
+        {hasSubscription ? <Sidebar /> : <div></div>}
         <div className="content">
           <div className="content-display">
             <EmailValidationBanner />
