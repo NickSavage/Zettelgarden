@@ -321,6 +321,22 @@ func TestGetCardsSuccessSearch(t *testing.T) {
 	}
 }
 
+func TestGetCardsOtherUsersBodyNoResults(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardsRequestSuccess(t, "search_term=hello")
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var cards []models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	if len(cards) != 0 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 0)
+	}
+}
+
 func TestGetCardsSuccessPartial(t *testing.T) {
 	setup()
 	//defer teardown()

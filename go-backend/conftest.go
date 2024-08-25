@@ -207,6 +207,16 @@ func (s *Server) generateData() map[string]interface{} {
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})
+	cards = append(cards, models.Card{
+		ID:        23,
+		CardID:    "1",
+		UserID:    2,
+		Title:     "test card",
+		Body:      "hello world",
+		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+	})
 
 	backlinks := []models.Backlink{}
 	for i := 1; i <= 30; i++ {

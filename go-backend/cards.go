@@ -653,7 +653,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 	var rows *sql.Rows
 	var err error
 	if searchTerm != "" {
-		query += " AND title ILIKE $2 OR body ILIKE $2 "
+		query += " AND (title ILIKE $2 OR body ILIKE $2) "
 		rows, err = s.db.Query(query, userID, "%"+searchTerm+"%")
 	} else {
 		rows, err = s.db.Query(query, userID)
