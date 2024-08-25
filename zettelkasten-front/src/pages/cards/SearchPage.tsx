@@ -76,7 +76,10 @@ export function SearchPage({
           <option value="sortBigSmall">A to Z</option>
           <option value="sortSmallBig">Z to A</option>
         </select>
+	{currentItems.length > 0 ?
         <CardList cards={currentItems} sort={false} />
+	  : <div>No results</div>
+	  }
         <div>
           <Button
             onClick={() => setCurrentPage(currentPage - 1)}
