@@ -39,6 +39,7 @@ export function DashboardPage() {
                 .filter((task) => !task.is_complete)
                 .filter((task) => isTodayOrPast(task.scheduled_date))
                 .slice(0, 10)}
+	      onTagClick={(tag: string) => {}}
             />
           )}
         </div>

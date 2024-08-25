@@ -182,7 +182,7 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
             />
           )}
           {cardTasks.map((task, index) => (
-            <TaskListItem task={task} setRefresh={setRefreshTasks} />
+            <TaskListItem task={task} setRefresh={setRefreshTasks} onTagClick={(tag: string) => {}} />
           ))}
 
           <HeaderSubSection text="References" />
