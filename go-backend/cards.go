@@ -616,7 +616,7 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 
 	err := s.db.QueryRow(`
 	SELECT 
-	id, card_id, user_id, title, body, link, created_at, updated_at 
+	id, card_id, user_id, title, body, link, parent_id, created_at, updated_at 
 	FROM 
 	cards
 	WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
@@ -627,6 +627,7 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 		&card.Title,
 		&card.Body,
 		&card.Link,
+		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
 	)
@@ -644,7 +645,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 	var cards []models.Card
 	query := `
     SELECT 
-		id, card_id, user_id, title, body, link, created_at, updated_at 
+		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at 
     FROM 
         cards
     WHERE
@@ -673,6 +674,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 			&card.Title,
 			&card.Body,
 			&card.Link,
+			&card.ParentID,
 			&card.CreatedAt,
 			&card.UpdatedAt,
 		); err != nil {
