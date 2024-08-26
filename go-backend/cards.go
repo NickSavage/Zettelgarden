@@ -269,7 +269,7 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(card.CardID))
+	parent, err := s.QueryPartialCardByID(userID, card.ParentID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
