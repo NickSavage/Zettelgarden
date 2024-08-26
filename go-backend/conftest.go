@@ -82,11 +82,10 @@ func (s *Server) importTestData() error {
 
 	for _, card := range cards {
 		_, err := s.db.Exec(
-			"INSERT INTO cards (card_id, user_id, title, body, link, parent_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
-			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.ParentID, card.CreatedAt, card.UpdatedAt,
+			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt,
 		)
 		if err != nil {
-			log.Printf("insert card error %v", err)
 			return err
 		}
 	}
@@ -173,7 +172,6 @@ func (s *Server) generateData() map[string]interface{} {
 			Title:     randomString(20),
 			Body:      randomString(100),
 			Link:      fmt.Sprintf("https://%s.com", randomString(10)),
-			ParentID:  i,
 			CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 		}
@@ -196,7 +194,6 @@ func (s *Server) generateData() map[string]interface{} {
 		Title:     randomString(20),
 		Body:      randomString(20),
 		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
-		ParentID:  1,
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})
@@ -206,7 +203,6 @@ func (s *Server) generateData() map[string]interface{} {
 		UserID:    1,
 		Title:     "test card",
 		Body:      randomString(20) + "[1]",
-		ParentID:  2,
 		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
@@ -215,10 +211,9 @@ func (s *Server) generateData() map[string]interface{} {
 		ID:        23,
 		CardID:    "1",
 		UserID:    2,
-		Title:     "new card",
+		Title:     "test card",
 		Body:      "hello world",
 		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
-		ParentID:  23,
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 	})
