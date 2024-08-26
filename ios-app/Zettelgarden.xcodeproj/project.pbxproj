@@ -34,6 +34,7 @@
 		0172F71A2C79F779000F3CEB /* Http.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F7192C79F779000F3CEB /* Http.swift */; };
 		0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F71B2C7A0C6E000F3CEB /* Files.swift */; };
 		0172F71E2C7A1007000F3CEB /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F71D2C7A1007000F3CEB /* Auth.swift */; };
+		0172F7202C7D0382000F3CEB /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F71F2C7D0382000F3CEB /* SpeechRecognizer.swift */; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
 		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
@@ -182,6 +183,7 @@
 		0172F7192C79F779000F3CEB /* Http.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Http.swift; sourceTree = "<group>"; };
 		0172F71B2C7A0C6E000F3CEB /* Files.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Files.swift; sourceTree = "<group>"; };
 		0172F71D2C7A1007000F3CEB /* Auth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
+		0172F71F2C7D0382000F3CEB /* SpeechRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		01759F182C3E092D00918E10 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		01759F1B2C3E915800918E10 /* Dates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dates.swift; sourceTree = "<group>"; };
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
@@ -405,6 +407,7 @@
 		01953ECC2C7696CE00F44FAD /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				0172F71F2C7D0382000F3CEB /* SpeechRecognizer.swift */,
 				0172F71D2C7A1007000F3CEB /* Auth.swift */,
 				0172F70F2C793667000F3CEB /* Test.swift */,
 				01759F1B2C3E915800918E10 /* Dates.swift */,
@@ -759,6 +762,7 @@
 				0172F7102C793668000F3CEB /* Test.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
+				0172F7202C7D0382000F3CEB /* SpeechRecognizer.swift in Sources */,
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
 				0172F71E2C7A1007000F3CEB /* Auth.swift in Sources */,
 				01953ED32C769EBD00F44FAD /* HttpRequests.swift in Sources */,
@@ -933,6 +937,8 @@
 				DEVELOPMENT_TEAM = K2F766LH7S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = test;
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = test;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -963,9 +969,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Zettelgarden/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = K2F766LH7S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = test;
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = test;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
