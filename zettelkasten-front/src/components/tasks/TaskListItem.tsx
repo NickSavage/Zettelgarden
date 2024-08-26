@@ -11,6 +11,7 @@ import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
 import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 import { TaskTagDisplay } from "../../components/tasks/TaskTagDisplay";
+import { AddTagMenu } from "../../components/tasks/AddTagMenu";
 
 interface TaskListItemProps {
   task: Task;
@@ -18,11 +19,16 @@ interface TaskListItemProps {
   onTagClick: (tag: string) => void;
 }
 
-export function TaskListItem({ task, setRefresh, onTagClick }: TaskListItemProps) {
+export function TaskListItem({
+  task,
+  setRefresh,
+  onTagClick,
+}: TaskListItemProps) {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
   const [showMenu, setShowMenu] = useState<boolean>(false);
+  const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
 
   async function handleTitleClick() {
     setNewTitle(task.title);
@@ -84,7 +90,14 @@ export function TaskListItem({ task, setRefresh, onTagClick }: TaskListItemProps
       setRefresh(true);
     }
   }
+  async function handleAddTagClick() {
+    setShowMenu(false);
+    setShowTagMenu(true);
+  }
   function toggleMenu() {
+    if (showTagMenu) {
+      setShowTagMenu(false);
+    }
     setShowMenu(!showMenu);
   }
   async function handleDelete() {
@@ -129,7 +142,7 @@ export function TaskListItem({ task, setRefresh, onTagClick }: TaskListItemProps
             setRefresh={setRefresh}
             saveOnChange={true}
           />
-	  <TaskTagDisplay task={task} onTagClick={onTagClick}/>
+          <TaskTagDisplay task={task} onTagClick={onTagClick} />
         </div>
       </div>
       <div className="task-list-item-card">
@@ -162,8 +175,18 @@ export function TaskListItem({ task, setRefresh, onTagClick }: TaskListItemProps
             <button onClick={() => handleDeferTomorrow()}>
               Defer to Tomorrow
             </button>
+            <button onClick={() => handleAddTagClick()}>Add Tag</button>
             <button onClick={() => handleSetNoDate()}>Set No Date</button>
             <button onClick={() => handleDelete()}>Delete</button>
+          </div>
+        )}
+        {showTagMenu && (
+          <div className="popup-menu">
+            <AddTagMenu
+              task={task}
+              setRefresh={setRefresh}
+              setShowTagMenu={setShowTagMenu}
+            />
           </div>
         )}
       </div>

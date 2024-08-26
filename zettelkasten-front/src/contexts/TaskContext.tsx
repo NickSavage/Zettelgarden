@@ -10,6 +10,7 @@ interface TaskContextType {
   refreshTasks: boolean;
   setRefreshTasks: (refresh: boolean) => void;
   getTasks: () => Promise<void>;
+  existingTags: string[];
 }
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -17,12 +18,27 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [refreshTasks, setRefreshTasks] = useState(false);
+  const [existingTags, setExistingTags] = useState<string[]>([]);
 
+  const extractTags = async (data: Task[]) => {
+    let tagSet = new Set<string>();
+
+    data.forEach((task) => {
+      const tagsInTitle = task.title.match(/#\w+/g);
+
+      if (tagsInTitle) {
+        tagsInTitle.forEach((tag) => tagSet.add(tag));
+      }
+    });
+
+    setExistingTags(Array.from(tagSet));
+  };
   const getTasks = async () => {
-    console.log("run getTasks")
+    console.log("run getTasks");
     await fetchTasks().then((data) => {
       console.log("asdas");
       setTasks(data);
+      extractTags(data);
       setRefreshTasks(false);
     });
   };
@@ -39,7 +55,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <TaskContext.Provider
-      value={{ tasks, refreshTasks, setRefreshTasks, getTasks }}
+      value={{ tasks, refreshTasks, setRefreshTasks, getTasks, existingTags }}
     >
       {children}
     </TaskContext.Provider>
