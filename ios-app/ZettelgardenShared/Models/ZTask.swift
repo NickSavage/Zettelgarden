@@ -123,7 +123,7 @@ extension ZTask {
                 created_at: Date(),
                 updated_at: Date(),
                 completed_at: nil,
-                title: "Daily Standup Meeting",
+                title: "Daily Standup Meeting #is",
                 is_complete: false,
                 is_deleted: false,
                 card: nil  // Or provide a mock PartialCard if needed
@@ -175,7 +175,7 @@ extension ZTask {
                 created_at: Date(),
                 updated_at: Date(),
                 completed_at: nil,
-                title: "Brainstorm Session",
+                title: "Brainstorm Session #work",
                 is_complete: false,
                 is_deleted: false,
                 card: nil

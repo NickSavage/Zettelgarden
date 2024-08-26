@@ -24,7 +24,11 @@ struct TaskListItemView: View {
                         Text(task.title)
                         HStack {
                             TaskDateTextDisplay(taskViewModel: taskViewModel)
-
+                            ForEach(taskViewModel.tags, id: \.self) { tag in
+                                Text(tag)
+                                    .font(.caption)
+                                    .foregroundColor(.purple)
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)

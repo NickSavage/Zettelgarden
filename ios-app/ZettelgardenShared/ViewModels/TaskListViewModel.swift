@@ -23,6 +23,7 @@ public class TaskListViewModel: ObservableObject {
     public init() {
         loadTasks()
     }
+    
     public var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
         let filtered: [ZTask]

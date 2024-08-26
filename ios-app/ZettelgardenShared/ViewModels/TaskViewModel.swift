@@ -17,6 +17,16 @@ public class TaskViewModel: ObservableObject {
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
+    public var tags: [String] {
+        guard let title = task?.title else { return [] }
+        let pattern = "(?<=\\s|^)#\\w+"  // Match #tags surrounded by spaces or start of string
+        let regex = try? NSRegularExpression(pattern: pattern)
+        let results = regex?.matches(in: title, range: NSRange(title.startIndex..., in: title))
+
+        return results?.compactMap {
+            Range($0.range, in: title).map { String(title[$0]) }
+        } ?? []
+    }
     public init() {}
     public func setTask(task: ZTask) {
         self.task = task
