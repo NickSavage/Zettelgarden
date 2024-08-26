@@ -9,6 +9,12 @@ public class CardViewModel: ObservableObject {
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
+    @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
+        .production.rawValue
+    var environment: AppEnvironment {
+        AppEnvironment(rawValue: currentEnvironment) ?? .production
+    }
+
     public init() {}
 
     public func loadCard(cardPK: Int) {
@@ -24,7 +30,7 @@ public class CardViewModel: ObservableObject {
             cardHistory.append(cardPK)
             currentIndex += 1
         }
-        let session = openSession(token: token, environment: .production)
+        let session = openSession(token: token, environment: environment)
         fetchCard(session: session, id: cardPK) { result in
             switch result {
             case .success(let fetchedCard):

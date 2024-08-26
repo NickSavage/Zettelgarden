@@ -10,6 +10,13 @@ struct LoginView: View {
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var jwt: String?
 
+    @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
+        .production.rawValue
+
+    var environment: AppEnvironment {
+        AppEnvironment(rawValue: currentEnvironment) ?? .production
+    }
+
     var body: some View {
         VStack {
             Text("Zettelgarden")
@@ -42,6 +49,8 @@ struct LoginView: View {
                         .cornerRadius(8)
                 }
                 .padding(.horizontal)
+
+                EnvironmentSelectorView()
             }
 
             if let loginError = loginError {
@@ -66,7 +75,7 @@ struct LoginView: View {
         loginError = nil
 
         do {
-            let session = openSession(token: nil, environment: .production)
+            let session = openSession(token: nil, environment: environment)
             let token = try await login(session: session, email: email, password: password)
 
             // Store the JWT

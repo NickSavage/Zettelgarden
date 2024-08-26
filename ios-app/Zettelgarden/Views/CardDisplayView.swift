@@ -78,15 +78,7 @@ struct CardDisplayView: View {
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
-            if let card = cardViewModel.card {
-                CardEditView(
-                    card: Binding(get: { card }, set: { self.cardViewModel.card = $0 }),
-                    isNew: false
-                )
-            }
-            else {
-                Text("Loading...")
-            }
+           
         }
     }
 }

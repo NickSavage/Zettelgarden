@@ -9,30 +9,25 @@ import SwiftUI
 import ZettelgardenShared
 
 struct EnvironmentSelectorView: View {
-    @State private var selectedEnvironment: AppEnvironment
-
-    // Key for UserDefaults
-    private let environmentKey = "currentEnvironment"
-
-    init() {
-        // Read the saved environment from UserDefaults or default to production
-        let savedEnvironment =
-            UserDefaults.standard.string(forKey: environmentKey)
-            ?? AppEnvironment.production.rawValue
-        _selectedEnvironment = State(
-            initialValue: AppEnvironment(rawValue: savedEnvironment) ?? .production
-        )
-    }
+    // Using @AppStorage to persist and retrieve the selected environment
+    @AppStorage("currentEnvironment") private var selectedEnvironment: String = AppEnvironment
+        .production.rawValue
 
     var body: some View {
-        Picker("Environment", selection: $selectedEnvironment) {
+        Picker(
+            "Environment",
+            selection: Binding(
+                get: {
+                    AppEnvironment(rawValue: selectedEnvironment) ?? .production
+                },
+                set: { newValue in
+                    selectedEnvironment = newValue.rawValue
+                }
+            )
+        ) {
             Text("Development").tag(AppEnvironment.development)
             Text("Production").tag(AppEnvironment.production)
         }
         .pickerStyle(SegmentedPickerStyle())
-        .onChange(of: selectedEnvironment) { newValue in
-            // Persist the selected environment to UserDefaults
-            UserDefaults.standard.setValue(newValue.rawValue, forKey: environmentKey)
-        }
     }
 }

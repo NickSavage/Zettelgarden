@@ -19,6 +19,11 @@ class PartialCardViewModel: ObservableObject {
 
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
+    @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
+        .production.rawValue
+    var environment: AppEnvironment {
+        AppEnvironment(rawValue: currentEnvironment) ?? .production
+    }
 
     init() {
         loadCards()
@@ -64,7 +69,7 @@ class PartialCardViewModel: ObservableObject {
         guard let token = token else {
             return
         }
-        let session = openSession(token: token, environment: .production)
+        let session = openSession(token: token, environment: environment)
         fetchPartialCards(session: session, sort: sort, inactive: inactive) { result in
             DispatchQueue.main.async {
                 switch result {
@@ -83,7 +88,7 @@ class PartialCardViewModel: ObservableObject {
         guard let token = token else {
             return
         }
-        let session = openSession(token: token, environment: .production)
+        let session = openSession(token: token, environment: environment)
 
         saveNewCard(session: session, card: card) { result in
             switch result {

@@ -16,13 +16,18 @@ class FileListViewModel: ObservableObject {
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
+    @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
+        .production.rawValue
+    var environment: AppEnvironment {
+        AppEnvironment(rawValue: currentEnvironment) ?? .production
+    }
     func loadFiles() {
         guard let token = token else {
             print("Token is missing")
             return
         }
 
-        let session = openSession(token: token, environment: .production)
+        let session = openSession(token: token, environment: environment)
         fetchFiles(session: session) { results in
             DispatchQueue.main.async {
                 switch results {

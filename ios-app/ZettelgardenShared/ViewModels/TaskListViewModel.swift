@@ -20,10 +20,16 @@ public class TaskListViewModel: ObservableObject {
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
+    @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
+        .production.rawValue
+    var environment: AppEnvironment {
+        AppEnvironment(rawValue: currentEnvironment) ?? .production
+    }
+
     public init() {
         loadTasks()
     }
-    
+
     public var filteredTasks: [ZTask] {
         let tasks = self.tasks ?? []
         let filtered: [ZTask]
@@ -64,7 +70,7 @@ public class TaskListViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        let session = openSession(token: token, environment: .production)
+        let session = openSession(token: token, environment: environment)
         fetchTasks(session: session) { result in
             DispatchQueue.main.async {
                 switch result {
@@ -89,7 +95,7 @@ public class TaskListViewModel: ObservableObject {
             print("Token is missing")
             return
         }
-        let session = openSession(token: token, environment: .production)
+        let session = openSession(token: token, environment: environment)
         createTask(session: session, task: newTask) { result in
             DispatchQueue.main.async {
                 switch result {

@@ -17,6 +17,12 @@ public class TaskViewModel: ObservableObject {
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
+    @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
+        .production.rawValue
+    var environment: AppEnvironment {
+        AppEnvironment(rawValue: currentEnvironment) ?? .production
+    }
+
     public var tags: [String] {
         guard let title = task?.title else { return [] }
         let pattern = "(?<=\\s|^)#\\w+"  // Match #tags surrounded by spaces or start of string
@@ -69,7 +75,7 @@ public class TaskViewModel: ObservableObject {
             return
         }
         if var editedTask = task {
-            let session = openSession(token: token, environment: .production)
+            let session = openSession(token: token, environment: environment)
             deleteTask(session: session, task: editedTask) { result in
                 DispatchQueue.main.async {
                     if let viewModel = self.taskListViewModel {
@@ -108,7 +114,7 @@ public class TaskViewModel: ObservableObject {
             return
         }
         if var editedTask = task {
-            let session = openSession(token: token, environment: .production)
+            let session = openSession(token: token, environment: environment)
             updateTask(session: session, task: editedTask) { result in
                 DispatchQueue.main.async {
                     switch result {

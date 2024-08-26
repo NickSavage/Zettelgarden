@@ -16,25 +16,28 @@ struct AddCardView: View {
         newCard.body = bodyText
         cardListViewModel.createNewCard(card: newCard)
         cardListViewModel.loadCards()
+        self.message = "card created"
     }
     var body: some View {
-        NavigationView {
-            Text(message)
-            Form {
-                Section(header: Text("Card Details")) {
-                    TextField("Card ID", text: $cardID)
-                    TextField("Title", text: $title)
-                    TextEditor(text: $bodyText)
-                        .frame(height: 200)
-                }
+        Text(message)
+        Form {
+            Section(header: Text("Card Details")) {
+                TextField("Card ID", text: $cardID)
+                TextField("Title", text: $title)
+                TextEditor(text: $bodyText)
+                    .frame(height: 200)
             }
-            .navigationBarTitle("New Card", displayMode: .inline)
-            .navigationBarItems(
-                trailing: Button("Save") {
-                    saveCard()
-                    self.message = "card created"
-                }
-            )
         }
+        Button(action: {
+            saveCard()
+        }) {
+            Text("Save")
+                .frame(maxWidth: .infinity)
+                .padding()
+                .foregroundColor(.white)
+                .background(Color.blue)
+                .cornerRadius(10)
+        }
+        .padding()
     }
 }

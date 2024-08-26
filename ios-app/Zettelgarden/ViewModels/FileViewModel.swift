@@ -15,6 +15,11 @@ class FileViewModel: ObservableObject {
     @Published var isDownloading = false
     @Published var downloadError: Error?
 
+    @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
+        .production.rawValue
+    var environment: AppEnvironment {
+        AppEnvironment(rawValue: currentEnvironment) ?? .production
+    }
     init(file: File) {
         self.file = file
     }
@@ -30,7 +35,7 @@ class FileViewModel: ObservableObject {
         }
 
         isDownloading = true
-        let session = openSession(token: token, environment: .production)
+        let session = openSession(token: token, environment: environment)
         fetchFile(session: session, fileId: file.id, originalFileName: file.filename) { result in
             DispatchQueue.main.async {
                 self.isDownloading = false
