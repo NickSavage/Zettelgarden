@@ -24,7 +24,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     let tagSet = new Set<string>();
 
     data.forEach((task) => {
-      const tagsInTitle = task.title.match(/#\w+/g);
+      const tagsInTitle = task.title.match(/\b#\w+\b/g);
 
       if (tagsInTitle) {
         tagsInTitle.forEach((tag) => tagSet.add(tag));
