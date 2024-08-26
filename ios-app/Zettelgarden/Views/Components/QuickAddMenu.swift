@@ -23,13 +23,6 @@ struct QuickAddMenu: View {
             Image(systemName: "plus")
         }
         .sheet(isPresented: $isPresentingNewCardView) {
-            CardEditView(
-                card: $newCard,
-                onSave: { _ in
-                    onAdd?()
-                },
-                isNew: true
-            )
         }
     }
     private func handleNewCard() {

@@ -26,7 +26,10 @@ struct SidebarView: View {
                     VStack {
                         List {
                             Section(header: Text("Creation")) {
-                                Button(action: {}) {
+                                Button(action: {
+                                    print("boom")
+                                    showingAddCardView.toggle()
+                                }) {
                                     Text("New Card")
                                 }
                                 Button(action: {
@@ -90,6 +93,9 @@ struct SidebarView: View {
                 .transition(.move(edge: .leading))
                 .sheet(isPresented: $showingAddTaskView) {
                     AddTaskView(taskListViewModel: taskListViewModel)
+                }
+                .sheet(isPresented: $showingAddCardView) {
+                    AddCardView(cardListViewModel: partialViewModel)
                 }
             }
         }

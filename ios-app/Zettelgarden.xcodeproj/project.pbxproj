@@ -35,6 +35,7 @@
 		0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F71B2C7A0C6E000F3CEB /* Files.swift */; };
 		0172F71E2C7A1007000F3CEB /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F71D2C7A1007000F3CEB /* Auth.swift */; };
 		0172F7202C7D0382000F3CEB /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F71F2C7D0382000F3CEB /* SpeechRecognizer.swift */; };
+		0172F7232C7D1024000F3CEB /* AddCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0172F7212C7D1024000F3CEB /* AddCardView.swift */; };
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
 		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
@@ -184,6 +185,7 @@
 		0172F71B2C7A0C6E000F3CEB /* Files.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Files.swift; sourceTree = "<group>"; };
 		0172F71D2C7A1007000F3CEB /* Auth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
 		0172F71F2C7D0382000F3CEB /* SpeechRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
+		0172F7212C7D1024000F3CEB /* AddCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCardView.swift; sourceTree = "<group>"; };
 		01759F182C3E092D00918E10 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		01759F1B2C3E915800918E10 /* Dates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dates.swift; sourceTree = "<group>"; };
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
@@ -366,6 +368,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		0172F7222C7D1024000F3CEB /* cards */ = {
+			isa = PBXGroup;
+			children = (
+				0172F7212C7D1024000F3CEB /* AddCardView.swift */,
+			);
+			path = cards;
+			sourceTree = "<group>";
+		};
 		01953E792C7681B700F44FAD /* ZettelgardenShare */ = {
 			isa = PBXGroup;
 			children = (
@@ -451,6 +461,7 @@
 		01B8880F2BF814DC00B3ACF1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0172F7222C7D1024000F3CEB /* cards */,
 				0100FCCA2C3D373E006FACAE /* Tasks */,
 				01B888102BF8159300B3ACF1 /* Components */,
 				01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */,
@@ -698,6 +709,7 @@
 				0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */,
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
+				0172F7232C7D1024000F3CEB /* AddCardView.swift in Sources */,
 				01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */,
 				01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */,
 				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,

@@ -6,7 +6,7 @@ public struct HttpSession {
 }
 
 public enum AppEnvironment: String {
-    case development = "https://nicksavage.ca/zettel-dev/api"
+    case development = "http://nicksavage.ca/zettel-dev/api"
     case production = "https://zettelgarden.com/api"
 }
 

@@ -1,12 +1,11 @@
 import SwiftUI
 import ZettelgardenShared
 
-struct CardEditView: View {
-    @Environment(\.presentationMode) var presentationMode
+struct AddCardEditView: View {
+    @ObservedObject var cardListViewModel: PartialCardViewModel
     @Binding var card: Card
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
-    var onSave: (Card) -> Void
     var isNew: Bool
 
     var body: some View {
@@ -21,9 +20,6 @@ struct CardEditView: View {
             }
             .navigationBarTitle(isNew ? "New Card" : "Edit Card", displayMode: .inline)
             .navigationBarItems(
-                leading: Button("Cancel") {
-                    presentationMode.wrappedValue.dismiss()
-                },
                 trailing: Button("Save") {
                     guard let token = token else {
                         print("Token is missing")
@@ -35,11 +31,9 @@ struct CardEditView: View {
                             switch result {
                             case .success(let savedCard):
                                 print("success!")
-                                onSave(savedCard)
                             case .failure(let error):
                                 print("Failed to save new card: \(error)")
                             }
-                            presentationMode.wrappedValue.dismiss()
                         }
                     }
                     else {
@@ -48,11 +42,9 @@ struct CardEditView: View {
                             case .success(let savedCard):
                                 print("success!")
 
-                                onSave(savedCard)
                             case .failure(let error):
                                 print("Failed to save existing card: \(error)")
                             }
-                            presentationMode.wrappedValue.dismiss()
                         }
                     }
                 }

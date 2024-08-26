@@ -79,6 +79,23 @@ class PartialCardViewModel: ObservableObject {
         }
     }
 
+    func createNewCard(card: Card) {
+        guard let token = token else {
+            return
+        }
+        let session = openSession(token: token, environment: .production)
+
+        saveNewCard(session: session, card: card) { result in
+            switch result {
+            case .success(let savedCard):
+                print("success!")
+            case .failure(let error):
+                print("Failed to save new card: \(error)")
+            }
+        }
+
+    }
+
     func onScenePhaseChanged(to newPhase: ScenePhase) {
         if newPhase == .active {
             self.loadCards()
