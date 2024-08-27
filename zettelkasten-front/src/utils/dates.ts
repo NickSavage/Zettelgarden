@@ -19,6 +19,12 @@ export function getYesterday(): Date {
   return yesterday;
 }
 
+export function getNextWeek(): Date {
+  const result = new Date();
+  result.setDate(result.getDate() + 7)
+  return result
+}
+
 export function compareDates(date1: Date | null, date2: Date | null): boolean {
   if (date1 === null || date2 === null) {
     return false;
