@@ -172,11 +172,7 @@ export function TaskListItem({
             ) : (
               <button onClick={() => handleCardUnlink()}>Unlink Card</button>
             )}
-            <button onClick={() => handleDeferTomorrow()}>
-              Defer to Tomorrow
-            </button>
             <button onClick={() => handleAddTagClick()}>Add Tag</button>
-            <button onClick={() => handleSetNoDate()}>Set No Date</button>
             <button onClick={() => handleDelete()}>Delete</button>
           </div>
         )}
