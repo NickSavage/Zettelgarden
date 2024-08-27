@@ -11,7 +11,6 @@ import {
   isRecurringTask,
 } from "../../utils/dates";
 import { saveExistingTask } from "../../api/tasks";
-import { DatePicker } from "../DatePicker";
 
 interface TaskDateDisplayProps {
   task: Task;
