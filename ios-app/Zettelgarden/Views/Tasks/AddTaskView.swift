@@ -5,7 +5,6 @@ struct AddTaskView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
     @State private var title: String = ""
     @State private var scheduledDate: Date = Date()
-
     @State private var message: String = ""
 
     var body: some View {

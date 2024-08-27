@@ -21,12 +21,16 @@ public actor SpeechRecognizer: ObservableObject {
         }
     }
 
-    @MainActor public var transcript: String = ""
+    @Published @MainActor public var completeTranscript: String = ""
+    @Published @MainActor public var transcript: String = ""
+    @Published @MainActor public var isTranscribing = false
 
     private var audioEngine: AVAudioEngine?
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
     private let recognizer: SFSpeechRecognizer?
+    @Published @MainActor public var transcriptionTimer: Timer?
+
     /// Initializes a new speech recognizer. If this is the first time you've used the class, it
     /// requests access to the speech recognizer and the microphone.
     public init() {
@@ -52,6 +56,9 @@ public actor SpeechRecognizer: ObservableObject {
     }
 
     @MainActor public func startTranscribing() {
+        isTranscribing = true
+        print("starting tanscription")
+        self.scheduleTranscriptionRestart()
         Task {
             await transcribe()
         }
@@ -64,9 +71,31 @@ public actor SpeechRecognizer: ObservableObject {
     }
 
     @MainActor public func stopTranscribing() {
+        print("stopping")
+
+        isTranscribing = false
+        self.cancelTranscriptionRestart()
         Task {
             await reset()
         }
+    }
+    @MainActor public func scheduleTranscriptionRestart() {
+        cancelTranscriptionRestart()  // Make sure to cancel any existing timer
+        transcriptionTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: true) {
+            [weak self] _ in
+            self?.restartTranscription()
+        }
+    }
+    @MainActor public func cancelTranscriptionRestart() {
+        transcriptionTimer?.invalidate()
+        transcriptionTimer = nil
+    }
+
+    @MainActor public func restartTranscription() {
+        print("restart")
+        self.completeTranscript = self.completeTranscript + self.transcript
+        stopTranscribing()
+        startTranscribing()
     }
     /// Begin transcribing audio.
     ///
@@ -142,13 +171,18 @@ public actor SpeechRecognizer: ObservableObject {
         }
 
         if let result {
+            print("Partial transcript: \(result.bestTranscription.formattedString)")
             transcribe(result.bestTranscription.formattedString)
         }
     }
 
     nonisolated private func transcribe(_ message: String) {
         Task { @MainActor in
-            transcript = message
+            print("Updating transcript on the main thread")
+            print(transcript)
+            print(message)
+            print(self.transcript)
+            self.transcript = message
         }
     }
     nonisolated private func transcribe(_ error: Error) {

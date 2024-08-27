@@ -17,6 +17,7 @@ struct SidebarView: View {
 
     @State private var showingAddTaskView = false
     @State private var showingAddCardView = false
+    @State private var showingAddRecordingView = false
 
     var body: some View {
 
@@ -31,6 +32,11 @@ struct SidebarView: View {
                                     showingAddCardView.toggle()
                                 }) {
                                     Text("New Card")
+                                }
+                                Button(action: {
+                                    showingAddRecordingView.toggle()
+                                }) {
+                                    Text("New Recording")
                                 }
                                 Button(action: {
                                     showingAddTaskView.toggle()
@@ -96,6 +102,9 @@ struct SidebarView: View {
                 }
                 .sheet(isPresented: $showingAddCardView) {
                     AddCardView(cardListViewModel: partialViewModel)
+                }
+                .sheet(isPresented: $showingAddRecordingView) {
+                    AddRecordingView(cardListViewModel: partialViewModel)
                 }
             }
         }
