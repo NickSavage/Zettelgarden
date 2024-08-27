@@ -48,22 +48,6 @@ export function TaskListItem({
     setShowMenu(false);
   }
 
-  async function handleDeferTomorrow() {
-    let editedTask = { ...task, scheduled_date: getTomorrow() };
-    let response = await saveExistingTask(editedTask);
-    if (!("error" in response)) {
-      setRefresh(true);
-    }
-    setShowMenu(false);
-  }
-  async function handleSetNoDate() {
-    let editedTask = { ...task, scheduled_date: null };
-    let response = await saveExistingTask(editedTask);
-    if (!("error" in response)) {
-      setRefresh(true);
-    }
-    setShowMenu(false);
-  }
   async function handleBacklink(card: PartialCard) {
     let editedTask = { ...task, card_pk: card.id };
     let response = await saveExistingTask(editedTask);
