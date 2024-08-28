@@ -57,6 +57,7 @@ func (s *Server) importTestData() error {
 	files := data["files"].([]models.File)
 	backlinks := data["backlinks"].([]models.Backlink)
 	tasks := data["tasks"].([]models.Task)
+	keywords := data["keywords"].([]models.Keyword)
 
 	var userIDs []int
 	for _, user := range users {
@@ -132,11 +133,39 @@ func (s *Server) importTestData() error {
 		}
 	}
 
+	for _, keyword := range keywords {
+		_, err := s.db.Exec(
+			"INSERT INTO keywords (card_pk, user_id, keyword) VALUES ($1, $2, $3)",
+			keyword.CardPK,
+			keyword.UserID,
+			keyword.Keyword,
+		)
+		if err != nil {
+			log.Printf("err %v", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
 func (s *Server) generateData() map[string]interface{} {
 	rand.Seed(time.Now().UnixNano())
+
+	keywords := []models.Keyword{}
+	idCount := 0
+	for i := 1; i <= 20; i++ {
+		for x := 1; x < 10; x++ {
+			idCount += 1
+			keyword := models.Keyword{
+				ID:      idCount,
+				CardPK:  i,
+				UserID:  1,
+				Keyword: randomString(10),
+			}
+			keywords = append(keywords, keyword)
+		}
+	}
 
 	users := []models.User{}
 	for i := 1; i <= 10; i++ {
@@ -285,6 +314,7 @@ func (s *Server) generateData() map[string]interface{} {
 		"backlinks": backlinks,
 		"files":     files,
 		"tasks":     tasks,
+		"keywords":  keywords,
 	}
 	return results
 }

@@ -16,6 +16,7 @@ type Card struct {
 	Files      []File        `json:"files"`
 	Children   []PartialCard `json:"children"`
 	References []PartialCard `json:"references"`
+	Keywords   []Keyword     `json:"keywords"`
 }
 
 type PartialCard struct {

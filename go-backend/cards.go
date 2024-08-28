@@ -301,6 +301,14 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	card.References = references
 
+	keywords, err := s.getCardKeywords(userID, card.ID)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	card.Keywords = keywords
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
 }
@@ -804,6 +812,7 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	card, err := s.QueryFullCard(userID, id)
 	backlinks := extractBacklinks(card.Body)
 	updateBacklinks(card.ID, backlinks)
+	go s.computeCardKeywords(userID, card)
 	return s.QueryFullCard(userID, id)
 }
 
