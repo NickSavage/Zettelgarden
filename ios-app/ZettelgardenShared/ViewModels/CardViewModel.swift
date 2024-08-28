@@ -17,6 +17,9 @@ public class CardViewModel: ObservableObject {
 
     public init() {}
 
+    public func loadTestCard(card: Card) {
+        self.card = card
+    }
     public func loadCard(cardPK: Int) {
         guard let token = token else {
             print("Token is missing")
@@ -60,5 +63,26 @@ public class CardViewModel: ObservableObject {
         currentIndex += 1
 
         loadCard(cardPK: cardHistory[currentIndex])
+    }
+
+    public func saveCard() {
+
+        guard let token = token else {
+            print("Token is missing")
+            return
+        }
+        let session = openSession(token: token, environment: environment)
+
+        if let card = self.card {
+            saveExistingCard(session: session, card: card) { result in
+                switch result {
+                case .success(let savedCard):
+                    print("success!")
+                case .failure(let error):
+                    print("Failed to save existing card: \(error)")
+                }
+            }
+
+        }
     }
 }

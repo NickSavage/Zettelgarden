@@ -78,7 +78,7 @@ struct CardDisplayView: View {
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
-           
+            EditCardView(cardViewModel: cardViewModel)
         }
     }
 }

@@ -92,7 +92,7 @@ public struct Card: Identifiable, Codable {
 }
 
 extension Card {
-    static var sampleData: [Card] =
+    public static var sampleData: [Card] =
         [
             Card(
                 id: 0,

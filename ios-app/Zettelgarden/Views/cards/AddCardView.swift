@@ -41,3 +41,15 @@ struct AddCardView: View {
         .padding()
     }
 }
+
+struct AddCardView_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockViewModel = PartialCardViewModel()
+
+        // Return a preview of the CardListItem with the mock data
+        return AddCardView(cardListViewModel: mockViewModel)
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
+    }
+
+}
