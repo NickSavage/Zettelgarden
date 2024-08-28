@@ -160,3 +160,16 @@ func getNextCardID(
         completion(.failure(NetworkError.decodingError(error)))
     }
 }
+
+func deleteCard(
+    session: HttpSession,
+    card: Card,
+    completion: @escaping (Result<Card, Error>) -> Void
+) {
+    guard let url = URL(string: session.environment + "/cards/" + String(card.id)) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+    let token = session.token ?? ""
+    performRequest(with: url, token: token, httpMethod: "DELETE", completion: completion)
+}

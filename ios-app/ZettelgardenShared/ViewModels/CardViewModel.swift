@@ -65,6 +65,26 @@ public class CardViewModel: ObservableObject {
         loadCard(cardPK: cardHistory[currentIndex])
     }
 
+    public func sendDeleteCard() {
+
+        guard let token = token else {
+            print("Token is missing")
+            return
+        }
+        let session = openSession(token: token, environment: environment)
+
+        if let card = self.card {
+            deleteCard(session: session, card: card) { result in
+                switch result {
+                case .success(let savedCard):
+                    print("success!")
+                case .failure(let error):
+                    print("Failed to delete existing card: \(error)")
+                }
+            }
+
+        }
+    }
     public func saveCard() {
 
         guard let token = token else {
