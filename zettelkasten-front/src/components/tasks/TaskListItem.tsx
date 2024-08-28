@@ -12,6 +12,7 @@ import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
 import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 import { TaskTagDisplay } from "../../components/tasks/TaskTagDisplay";
 import { AddTagMenu } from "../../components/tasks/AddTagMenu";
+import { removeTagsFromTitle } from "../../utils/tasks";
 
 interface TaskListItemProps {
   task: Task;
@@ -114,7 +115,7 @@ export function TaskListItem({
               onClick={handleTitleClick}
               className={task.is_complete ? "task-completed" : "task-title"}
               dangerouslySetInnerHTML={{
-                __html: linkifyWithDefaultOptions(task.title),
+                __html: linkifyWithDefaultOptions(removeTagsFromTitle(task.title)),
               }}
             />
           )}
