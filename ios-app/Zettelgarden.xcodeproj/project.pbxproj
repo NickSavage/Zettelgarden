@@ -64,6 +64,7 @@
 		01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */; };
 		01C74F5C2C7EA20000605719 /* EditCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F5B2C7EA20000605719 /* EditCardView.swift */; };
 		01C74F5F2C7F393E00605719 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F5E2C7F393D00605719 /* AuthViewModel.swift */; };
+		01C74F612C7F9BF300605719 /* DisplayTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F602C7F9BF300605719 /* DisplayTaskView.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
 		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
 		01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00032C6CE1F600339760 /* Visit.swift */; };
@@ -220,6 +221,7 @@
 		01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardViewModel.swift; sourceTree = "<group>"; };
 		01C74F5B2C7EA20000605719 /* EditCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditCardView.swift; sourceTree = "<group>"; };
 		01C74F5E2C7F393D00605719 /* AuthViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		01C74F602C7F9BF300605719 /* DisplayTaskView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisplayTaskView.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenShareDebug.entitlements; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 		0100FCCA2C3D373E006FACAE /* Tasks */ = {
 			isa = PBXGroup;
 			children = (
+				01C74F602C7F9BF300605719 /* DisplayTaskView.swift */,
 				0100FCCB2C3D374D006FACAE /* Components */,
 				01759F182C3E092D00918E10 /* TaskListView.swift */,
 				01759F212C3F38CF00918E10 /* AddTaskView.swift */,
@@ -729,6 +732,7 @@
 				0172F7252C7D4A7B000F3CEB /* AddRecordingView.swift in Sources */,
 				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,
 				01B888072BF6C72E00B3ACF1 /* SearchView.swift in Sources */,
+				01C74F612C7F9BF300605719 /* DisplayTaskView.swift in Sources */,
 				01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */,
 				01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */,
 				01759F192C3E092D00918E10 /* TaskListView.swift in Sources */,

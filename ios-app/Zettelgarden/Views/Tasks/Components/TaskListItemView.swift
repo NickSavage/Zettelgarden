@@ -8,6 +8,7 @@ struct TaskListItemView: View {
     @StateObject private var taskViewModel = TaskViewModel()
 
     @State private var showingEditTaskView = false
+    @State private var showingDetailView = false
     let inputTask: ZTask
 
     func handleSaveTask() {
@@ -53,6 +54,11 @@ struct TaskListItemView: View {
 
                     }
                 }
+                .onTapGesture {
+                    if let _ = taskViewModel.task {
+                        showingDetailView = true
+                    }
+                }
             }
         }
         .onAppear {
@@ -61,6 +67,12 @@ struct TaskListItemView: View {
         }
         .onChange(of: inputTask) { newTask in
             taskViewModel.setTask(task: newTask)
+        }
+        .sheet(isPresented: $showingDetailView) {
+            DisplayTaskView(
+                taskViewModel: taskViewModel,
+                isPresented: $showingDetailView
+            )
         }
         .sheet(isPresented: $showingEditTaskView) {
             if var _ = taskViewModel.task {
