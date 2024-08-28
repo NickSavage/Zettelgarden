@@ -4,16 +4,14 @@ import ZettelgardenShared
 struct AddCardView: View {
     @ObservedObject var cardListViewModel: PartialCardViewModel
 
+    @State private var newCard: Card = Card.emptyCard
     @State private var cardID: String = ""
     @State private var title: String = ""
     @State private var bodyText: String = ""
+    @State private var link: String = ""
     @State private var message: String = ""
 
     private func saveCard() {
-        var newCard = Card.emptyCard
-        newCard.card_id = cardID
-        newCard.title = title
-        newCard.body = bodyText
         cardListViewModel.createNewCard(card: newCard)
         cardListViewModel.loadCards()
         self.message = "card created"
@@ -22,10 +20,11 @@ struct AddCardView: View {
         Text(message)
         Form {
             Section(header: Text("Card Details")) {
-                TextField("Card ID", text: $cardID)
-                TextField("Title", text: $title)
-                TextEditor(text: $bodyText)
+                TextField("Card ID", text: $newCard.card_id)
+                TextField("Title", text: $newCard.title)
+                TextEditor(text: $newCard.body)
                     .frame(height: 200)
+                TextField("Link", text: $newCard.link)
             }
         }
         Button(action: {

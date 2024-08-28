@@ -18,6 +18,7 @@ struct EditCardView: View {
                     TextField("Title", text: $cardCopy.title)
                     TextEditor(text: $cardCopy.body)
                         .frame(height: 200)
+                    TextField("Link", text: $cardCopy.link)
                 }
             }
             Button(action: {
