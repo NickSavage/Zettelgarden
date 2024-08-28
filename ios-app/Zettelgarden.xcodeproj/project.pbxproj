@@ -373,6 +373,8 @@
 		0172F7222C7D1024000F3CEB /* cards */ = {
 			isa = PBXGroup;
 			children = (
+				01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */,
+				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
 				01C74F5B2C7EA20000605719 /* EditCardView.swift */,
 				0172F7242C7D4A7A000F3CEB /* AddRecordingView.swift */,
 				0172F7212C7D1024000F3CEB /* AddCardView.swift */,
@@ -468,11 +470,9 @@
 				0172F7222C7D1024000F3CEB /* cards */,
 				0100FCCA2C3D373E006FACAE /* Tasks */,
 				01B888102BF8159300B3ACF1 /* Components */,
-				01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */,
 				01ECE5102BF43B4D00691C07 /* LoginView.swift */,
 				01ECE5122BF4C75A00691C07 /* SettingsView.swift */,
 				01B888062BF6C72E00B3ACF1 /* SearchView.swift */,
-				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
 				01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */,
 				01B888212BFB8FE400B3ACF1 /* FileListView.swift */,
 				0111A7332BFD597300DDED68 /* HomeView.swift */,
