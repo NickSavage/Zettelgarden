@@ -9,7 +9,6 @@ import {
   getTomorrow,
   isTodayOrPast,
 } from "../../utils/dates";
-import { TaskViewOptionsMenu } from "../../components/tasks/TaskViewOptionsMenu";
 import { Button } from "../../components/Button";
 
 interface TaskListProps {}
