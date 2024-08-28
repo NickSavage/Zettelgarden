@@ -63,6 +63,7 @@
 		01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
 		01B888282BFC02BA00B3ACF1 /* PartialCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */; };
 		01C74F5C2C7EA20000605719 /* EditCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F5B2C7EA20000605719 /* EditCardView.swift */; };
+		01C74F5F2C7F393E00605719 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F5E2C7F393D00605719 /* AuthViewModel.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
 		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
 		01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00032C6CE1F600339760 /* Visit.swift */; };
@@ -218,6 +219,7 @@
 		01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListViewModel.swift; sourceTree = "<group>"; };
 		01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCardViewModel.swift; sourceTree = "<group>"; };
 		01C74F5B2C7EA20000605719 /* EditCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditCardView.swift; sourceTree = "<group>"; };
+		01C74F5E2C7F393D00605719 /* AuthViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenShareDebug.entitlements; sourceTree = "<group>"; };
@@ -445,6 +447,7 @@
 		01953ED72C769FDD00F44FAD /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				01C74F5E2C7F393D00605719 /* AuthViewModel.swift */,
 				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
 				01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */,
 				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
@@ -467,14 +470,13 @@
 		01B8880F2BF814DC00B3ACF1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				01C74F5D2C7F381B00605719 /* Files */,
 				0172F7222C7D1024000F3CEB /* cards */,
 				0100FCCA2C3D373E006FACAE /* Tasks */,
 				01B888102BF8159300B3ACF1 /* Components */,
 				01ECE5102BF43B4D00691C07 /* LoginView.swift */,
 				01ECE5122BF4C75A00691C07 /* SettingsView.swift */,
 				01B888062BF6C72E00B3ACF1 /* SearchView.swift */,
-				01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */,
-				01B888212BFB8FE400B3ACF1 /* FileListView.swift */,
 				0111A7332BFD597300DDED68 /* HomeView.swift */,
 				0111A7372BFDF4A900DDED68 /* SidebarView.swift */,
 				011AAA502C44691900ED7BE2 /* EnvironmentSelector.swift */,
@@ -492,6 +494,15 @@
 				01953E722C72040A00F44FAD /* FloatingButton.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		01C74F5D2C7F381B00605719 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */,
+				01B888212BFB8FE400B3ACF1 /* FileListView.swift */,
+			);
+			path = Files;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -782,6 +793,7 @@
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
 				0172F71E2C7A1007000F3CEB /* Auth.swift in Sources */,
 				01953ED32C769EBD00F44FAD /* HttpRequests.swift in Sources */,
+				01C74F5F2C7F393E00605719 /* AuthViewModel.swift in Sources */,
 				0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */,
 				01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */,
 				01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */,

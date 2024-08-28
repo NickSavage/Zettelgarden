@@ -2,6 +2,7 @@ import AVFoundation
 import Foundation
 import Speech
 import SwiftUI
+import Combine
 
 /// A helper for transcribing speech to text using SFSpeechRecognizer and AVAudioEngine.
 public actor SpeechRecognizer: ObservableObject {
