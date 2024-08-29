@@ -58,6 +58,7 @@ export const defaultCard: Card = {
   files: [],
   children: [],
   references: [],
+  keywords: [],
 };
 
 export interface NextIdResponse {
