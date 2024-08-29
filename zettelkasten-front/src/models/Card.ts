@@ -10,6 +10,14 @@ export interface PartialCard {
   updated_at: string;
 }
 
+export interface Keyword {
+  id: number;
+  card_pk: number;
+  user_id: number;
+  keyword: string;
+  
+}
+
 export interface Card {
   id: number;
   card_id: string;
@@ -24,6 +32,7 @@ export interface Card {
   files: File[];
   children: PartialCard[];
   references: PartialCard[];
+  keywords: Keyword[];
 }
 
 export const defaultPartialCard: PartialCard = {

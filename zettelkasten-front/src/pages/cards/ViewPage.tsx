@@ -140,14 +140,26 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
             <BacklinkInput addBacklink={handleAddBacklink} />
             <Button onClick={handleEditCard} children="Edit" />
           </div>
-          <div>
-            <span className="text-xs">
-              Created At: {viewingCard.created_at}
+          <div className="text-xs">
+            <span className="font-bold">
+              Created At:
             </span>
+	    <span> {viewingCard.created_at}</span>
             <br />
-            <span className="text-xs">
-              Updated At: {viewingCard.updated_at}
+            <span className="font-bold">
+              Updated At:
             </span>
+	    <span> {viewingCard.updated_at}</span>
+          {viewingCard.keywords && (
+            <div>
+              <span className="font-bold">
+                {"Keywords: "}{" "}
+              </span>
+                {viewingCard.keywords.map((keyword, index) => (
+                  <span>{keyword.keyword} </span>
+                ))}
+            </div>
+          )}
           </div>
           <hr />
           {parentCard && (
@@ -182,7 +194,11 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
             />
           )}
           {cardTasks.map((task, index) => (
-            <TaskListItem task={task} setRefresh={setRefreshTasks} onTagClick={(tag: string) => {}} />
+            <TaskListItem
+              task={task}
+              setRefresh={setRefreshTasks}
+              onTagClick={(tag: string) => {}}
+            />
           ))}
 
           <HeaderSubSection text="References" />
