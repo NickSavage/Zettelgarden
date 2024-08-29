@@ -22,24 +22,20 @@ type KeywordsResponse struct {
 func definePrompts() {
 	systemPrompt = `
 You are a helpful research assistant designed to help categorize pieces of information for
-a zettelkasten.
-Your job is to take input 'cards' and decide what keywords might relate to that card.
-The keywords should be returned in the following json format: {"keywords": [...]} where
-each keyword is a string. Do not include any backticks surrounding it or the word json. You must include quotes around each string.
+a zettelkasten. Your job is to take input 'cards' and classify them with keywords. It is okay to use synonyms as well. Try to come up with the key concepts, even if they are words that are not included in the card itself.
 
-You will be provided with the following pieces of information:
-card_id, title, and a snippet of the body
+The keywords should be returned in the following json format: {"keywords": [...]} where each keyword is a string. Do not include any backticks surrounding it or the word json. You must include quotes around each string.
 
 If you think the given card relates to metadata about a book, one keyword must be book.
 A quote from a book is not metadata about a book, it is a separate fact.
 It is the same way for news articles (return 'article'), podcasts (return 'podcast'), and so on.
 
 keywords must not have spaces. If you feel like there should be spaces, use dashes instead ('-')
-please only use lowercase, no capitals
+please only use lowercase, no capitals.
 
-Please try to keep keywords regularized. Here are some example existing keywords:
-book, article, podcast, canada, technology, %s
 `
+	//Please try to keep keywords regularized. Here are some example existing keywords:
+	//book, article, podcast, canada, technology, %s
 
 	userPrompt = `
 Please find the keywords for the following card: %s
@@ -85,13 +81,15 @@ func getRandomKeywords(db *sql.DB, userID int, n int) ([]models.Keyword, error) 
 func getKeywordsFromLLM(db *sql.DB, userID int, input string) (KeywordsResponse, error) {
 	definePrompts()
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-	randomExistingKeywords, _ := getRandomKeywords(db, userID, 10)
+	//	randomExistingKeywords, _ := getRandomKeywords(db, userID, 10)
 	req := openai.ChatCompletionRequest{
-		Model: openai.GPT4o,
+		//		Model: openai.GPT4o,
+		Model: openai.GPT3Dot5Turbo0125,
 		Messages: []openai.ChatCompletionMessage{
 			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: fmt.Sprintf(systemPrompt, randomExistingKeywords),
+				Role: openai.ChatMessageRoleSystem,
+				//				Content: fmt.Sprintf(systemPrompt, randomExistingKeywords),
+				Content: systemPrompt,
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
@@ -104,6 +102,7 @@ func getKeywordsFromLLM(db *sql.DB, userID int, input string) (KeywordsResponse,
 	jsonOutput = strings.Replace(jsonOutput, "json```", "", -1)
 	jsonOutput = strings.Replace(jsonOutput, "```", "", -1)
 	log.Printf("%s", jsonOutput)
+	log.Printf("llm keywords - user %v tokens %v", userID, resp.Usage.TotalTokens)
 
 	// Unmarshal JSON into struct
 	var keywordsResponse KeywordsResponse
@@ -124,7 +123,7 @@ func ComputeCardKeywords(db *sql.DB, userID int, card models.Card) error {
 		body = card.Body[:100]
 	}
 
-	input := fmt.Sprintf("card id: %v title: %s, body: %s", card.ID, card.Title, body)
+	input := fmt.Sprintf("title: %s, body: %s", card.Title, body)
 	keywords, err := getKeywordsFromLLM(db, userID, input)
 	if err != nil {
 		log.Printf("err1 %v", err)
