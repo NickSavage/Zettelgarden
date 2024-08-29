@@ -9,6 +9,7 @@ import (
 	"go-backend/models"
 	"log"
 	"os"
+	"strings"
 )
 
 var systemPrompt string
@@ -23,8 +24,8 @@ func definePrompts() {
 You are a helpful research assistant designed to help categorize pieces of information for
 a zettelkasten.
 Your job is to take input 'cards' and decide what keywords might relate to that card.
-The keywords should be returned in the following json format: {keywords: [...]} where
-each keyword is a string. Do not include any backticks surrounding it or the word json.
+The keywords should be returned in the following json format: {"keywords": [...]} where
+each keyword is a string. Do not include any backticks surrounding it or the word json. You must include quotes around each string.
 
 You will be provided with the following pieces of information:
 card_id, title, and a snippet of the body
@@ -100,8 +101,10 @@ func (s *Server) getKeywordsFromLLM(userID int, input string) (KeywordsResponse,
 	}
 	resp, err := client.CreateChatCompletion(context.Background(), req)
 	jsonOutput := resp.Choices[0].Message.Content
-
+	jsonOutput = strings.Replace(jsonOutput, "json```", "", -1)
+	jsonOutput = strings.Replace(jsonOutput, "```", "", -1)
 	log.Printf("%s", jsonOutput)
+
 	// Unmarshal JSON into struct
 	var keywordsResponse KeywordsResponse
 	err = json.Unmarshal([]byte(jsonOutput), &keywordsResponse)
