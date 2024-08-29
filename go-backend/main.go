@@ -154,11 +154,11 @@ func addRoute(r *mux.Router, path string, handler http.HandlerFunc, method strin
 }
 
 func main() {
-	file, err := openLogFile(os.Getenv("ZETTEL_BACKEND_LOG_LOCATION"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.SetOutput(file)
+	// file, err := openLogFile(os.Getenv("ZETTEL_BACKEND_LOG_LOCATION"))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.SetOutput(file)
 	s = &Server{}
 
 	dbConfig := models.DatabaseConfig{}

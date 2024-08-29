@@ -1,8 +1,8 @@
-package main
+package llms
 
 import (
 	"context"
-	//	"database/sql"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
@@ -49,7 +49,7 @@ Please find the keywords for the following card: %s
 
 }
 
-func (s *Server) getRandomKeywords(userID int, n int) ([]models.Keyword, error) {
+func getRandomKeywords(db *sql.DB, userID int, n int) ([]models.Keyword, error) {
 
 	// TODO: this might be slow, we should do something else here
 	query := `
@@ -63,7 +63,7 @@ func (s *Server) getRandomKeywords(userID int, n int) ([]models.Keyword, error) 
     LIMIT 10;
 `
 
-	rows, err := s.db.Query(query, userID)
+	rows, err := db.Query(query, userID)
 	var keywords []models.Keyword
 	if err != nil {
 		log.Printf("err5 %v", err)
@@ -82,10 +82,10 @@ func (s *Server) getRandomKeywords(userID int, n int) ([]models.Keyword, error) 
 	return keywords, nil
 }
 
-func (s *Server) getKeywordsFromLLM(userID int, input string) (KeywordsResponse, error) {
+func getKeywordsFromLLM(db *sql.DB, userID int, input string) (KeywordsResponse, error) {
 	definePrompts()
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-	randomExistingKeywords, _ := s.getRandomKeywords(userID, 10)
+	randomExistingKeywords, _ := getRandomKeywords(db, userID, 10)
 	req := openai.ChatCompletionRequest{
 		Model: openai.GPT4o,
 		Messages: []openai.ChatCompletionMessage{
@@ -114,37 +114,8 @@ func (s *Server) getKeywordsFromLLM(userID int, input string) (KeywordsResponse,
 	return keywordsResponse, nil
 }
 
-func (s *Server) getCardKeywords(userID int, cardPK int) ([]models.Keyword, error) {
+func ComputeCardKeywords(db *sql.DB, userID int, card models.Card) error {
 
-	query := "SELECT id, user_id, card_pk, keyword FROM keywords WHERE user_id = $1 AND card_pk = $2"
-
-	rows, err := s.db.Query(query, userID, cardPK)
-	var keywords []models.Keyword
-	if err != nil {
-		log.Printf("err4 %v", err)
-		return keywords, err
-	}
-	for rows.Next() {
-		keyword := models.Keyword{}
-		if err := rows.Scan(
-			&keyword.ID,
-			&keyword.UserID,
-			&keyword.CardPK,
-			&keyword.Keyword,
-		); err != nil {
-			log.Printf("err3 %v", err)
-			return keywords, err
-		}
-		keywords = append(keywords, keyword)
-	}
-	return keywords, nil
-}
-
-func (s *Server) computeCardKeywords(userID int, card models.Card) error {
-
-	if s.testing {
-		return nil
-	}
 	var body string
 	if len(card.Body) < 100 {
 		body = card.Body
@@ -154,13 +125,13 @@ func (s *Server) computeCardKeywords(userID int, card models.Card) error {
 	}
 
 	input := fmt.Sprintf("card id: %v title: %s, body: %s", card.ID, card.Title, body)
-	keywords, err := s.getKeywordsFromLLM(userID, input)
+	keywords, err := getKeywordsFromLLM(db, userID, input)
 	if err != nil {
 		log.Printf("err1 %v", err)
 		return nil
 	}
 
-	tx, err := s.db.Begin()
+	tx, err := db.Begin()
 	_, err = tx.Exec("DELETE FROM keywords WHERE card_pk = $1 AND user_id = $2", card.ID, userID)
 	if err != nil {
 		log.Printf("err2 %v", err)

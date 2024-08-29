@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"go-backend/llms"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -239,6 +240,32 @@ func getUniqueCards(input []models.PartialCard) []models.PartialCard {
 		}
 	}
 	return u
+}
+
+func (s *Server) getCardKeywords(userID int, cardPK int) ([]models.Keyword, error) {
+
+	query := "SELECT id, user_id, card_pk, keyword FROM keywords WHERE user_id = $1 AND card_pk = $2"
+
+	rows, err := s.db.Query(query, userID, cardPK)
+	var keywords []models.Keyword
+	if err != nil {
+		log.Printf("err4 %v", err)
+		return keywords, err
+	}
+	for rows.Next() {
+		keyword := models.Keyword{}
+		if err := rows.Scan(
+			&keyword.ID,
+			&keyword.UserID,
+			&keyword.CardPK,
+			&keyword.Keyword,
+		); err != nil {
+			log.Printf("err3 %v", err)
+			return keywords, err
+		}
+		keywords = append(keywords, keyword)
+	}
+	return keywords, nil
 }
 
 func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
@@ -794,7 +821,9 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 	backlinks := extractBacklinks(card.Body)
 	updateBacklinks(card.ID, backlinks)
 
-	go s.computeCardKeywords(userID, card)
+	if !s.testing {
+		go llms.ComputeCardKeywords(s.db, userID, card)
+	}
 	return s.QueryFullCard(userID, cardPK)
 }
 
@@ -814,7 +843,9 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	card, err := s.QueryFullCard(userID, id)
 	backlinks := extractBacklinks(card.Body)
 	updateBacklinks(card.ID, backlinks)
-	go s.computeCardKeywords(userID, card)
+	if !s.testing {
+		go llms.ComputeCardKeywords(s.db, userID, card)
+	}
 	return s.QueryFullCard(userID, id)
 }
 
