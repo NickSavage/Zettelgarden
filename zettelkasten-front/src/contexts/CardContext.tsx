@@ -33,7 +33,7 @@ export const PartialCardProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     const intervalId = setInterval(() => {
       getPartialCards();
-    }, 15000);
+    }, 60000);
 
     return () => clearInterval(intervalId); // Cleanup on component unmount
   }, [refreshPartialCards]);
