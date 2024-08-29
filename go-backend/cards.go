@@ -793,6 +793,8 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 	card, err := s.QueryFullCard(userID, cardPK)
 	backlinks := extractBacklinks(card.Body)
 	updateBacklinks(card.ID, backlinks)
+
+	go s.computeCardKeywords(userID, card)
 	return s.QueryFullCard(userID, cardPK)
 }
 

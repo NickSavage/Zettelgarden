@@ -24,9 +24,9 @@ You are a helpful research assistant designed to help categorize pieces of infor
 a zettelkasten.
 Your job is to take input 'cards' and decide what keywords might relate to that card.
 The keywords should be returned in the following json format: {keywords: [...]} where
-each keyword is a string.
+each keyword is a string. Do not include any backticks surrounding it or the word json.
 
-You will be provided with the follwoing pieces of information:
+You will be provided with the following pieces of information:
 card_id, title, and a snippet of the body
 
 If you think the given card relates to metadata about a book, one keyword must be book.
@@ -37,30 +37,64 @@ keywords must not have spaces. If you feel like there should be spaces, use dash
 please only use lowercase, no capitals
 
 Please try to keep keywords regularized. Here are some example existing keywords:
-book, article, podcast, canada, technology
+book, article, podcast, canada, technology, %s
 `
 
 	userPrompt = `
-Please find the keywords for the following card: 
+Please find the keywords for the following card: %s
 }
 
 `
 
 }
 
-func getKeywordsFromLLM(input string) (KeywordsResponse, error) {
+func (s *Server) getRandomKeywords(userID int, n int) ([]models.Keyword, error) {
+
+	// TODO: this might be slow, we should do something else here
+	query := `
+    SELECT keyword 
+    FROM (
+        SELECT DISTINCT keyword 
+        FROM keywords 
+        WHERE user_id = $1
+    ) AS subquery
+    ORDER BY RANDOM()
+    LIMIT 10;
+`
+
+	rows, err := s.db.Query(query, userID)
+	var keywords []models.Keyword
+	if err != nil {
+		log.Printf("err5 %v", err)
+		return keywords, err
+	}
+	for rows.Next() {
+		keyword := models.Keyword{}
+		if err := rows.Scan(
+			&keyword.Keyword,
+		); err != nil {
+			log.Printf("err6 %v", err)
+			return keywords, err
+		}
+		keywords = append(keywords, keyword)
+	}
+	return keywords, nil
+}
+
+func (s *Server) getKeywordsFromLLM(userID int, input string) (KeywordsResponse, error) {
 	definePrompts()
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+	randomExistingKeywords, _ := s.getRandomKeywords(userID, 10)
 	req := openai.ChatCompletionRequest{
 		Model: openai.GPT4o,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: systemPrompt,
+				Content: fmt.Sprintf(systemPrompt, randomExistingKeywords),
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: userPrompt + input,
+				Content: fmt.Sprintf(userPrompt, input),
 			},
 		},
 	}
@@ -84,7 +118,7 @@ func (s *Server) getCardKeywords(userID int, cardPK int) ([]models.Keyword, erro
 	rows, err := s.db.Query(query, userID, cardPK)
 	var keywords []models.Keyword
 	if err != nil {
-		log.Printf("err %v", err)
+		log.Printf("err4 %v", err)
 		return keywords, err
 	}
 	for rows.Next() {
@@ -95,7 +129,7 @@ func (s *Server) getCardKeywords(userID int, cardPK int) ([]models.Keyword, erro
 			&keyword.CardPK,
 			&keyword.Keyword,
 		); err != nil {
-			log.Printf("err %v", err)
+			log.Printf("err3 %v", err)
 			return keywords, err
 		}
 		keywords = append(keywords, keyword)
@@ -117,16 +151,16 @@ func (s *Server) computeCardKeywords(userID int, card models.Card) error {
 	}
 
 	input := fmt.Sprintf("card id: %v title: %s, body: %s", card.ID, card.Title, body)
-	keywords, err := getKeywordsFromLLM(input)
+	keywords, err := s.getKeywordsFromLLM(userID, input)
 	if err != nil {
-		log.Printf("err %v", err)
+		log.Printf("err1 %v", err)
 		return nil
 	}
 
 	tx, err := s.db.Begin()
 	_, err = tx.Exec("DELETE FROM keywords WHERE card_pk = $1 AND user_id = $2", card.ID, userID)
 	if err != nil {
-		log.Printf("err %v", err)
+		log.Printf("err2 %v", err)
 		return nil
 	}
 	for _, keyword := range keywords.Keywords {
