@@ -39,7 +39,7 @@ struct DisplayTaskView: View {
                 }
                 Spacer()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)  // Make the container fill all available space
+            .padding()
 
         }
     }
