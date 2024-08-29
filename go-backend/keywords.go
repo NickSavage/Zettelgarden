@@ -104,6 +104,10 @@ func (s *Server) getCardKeywords(userID int, cardPK int) ([]models.Keyword, erro
 }
 
 func (s *Server) computeCardKeywords(userID int, card models.Card) error {
+
+	if s.testing {
+		return nil
+	}
 	var body string
 	if len(card.Body) < 100 {
 		body = card.Body
@@ -112,7 +116,7 @@ func (s *Server) computeCardKeywords(userID int, card models.Card) error {
 		body = card.Body[:100]
 	}
 
-	input := fmt.Sprintf("card id: %s title: %s, body: %s", card.ID, card.Title, body)
+	input := fmt.Sprintf("card id: %v title: %s, body: %s", card.ID, card.Title, body)
 	keywords, err := getKeywordsFromLLM(input)
 	if err != nil {
 		log.Printf("err %v", err)
