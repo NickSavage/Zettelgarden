@@ -134,7 +134,7 @@ function changeDateView(task: Task): boolean {
     </div>
       <div className="bg-slate-200 p-2 border-slate-400 border">
         <div className="flex">
-          <select value={dateView} onChange={handleDateChange}>
+          <select className="mb-5" value={dateView} onChange={handleDateChange}>
             <option value="today">Today</option>
             <option value="tomorrow">Tomorrow</option>
             <option value="all">All</option>
