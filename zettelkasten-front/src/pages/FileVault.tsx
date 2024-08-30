@@ -54,7 +54,8 @@ export function FileVault() {
       <div className="mb-4">
         <H6 children="File Vault" />
       </div>
-      <div>
+
+        <div className="bg-slate-200 p-2 border-slate-400 border">
         <FilterInput handleFilterHook={handleFilter} />
       </div>
       <FileRenameModal
@@ -63,6 +64,7 @@ export function FileVault() {
         onRename={onRename}
         file={fileToRename}
       />
+      <div className="p-4">
       {files && files.length > 0 ? (
         <ul>
           {files.filter(filterFiles).map((file, index) => (
@@ -76,6 +78,7 @@ export function FileVault() {
       ) : (
         <p>No files to display.</p> // Custom message when files array is empty
       )}
+      </div>
     </>
   );
 }
