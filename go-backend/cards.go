@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"go-backend/llms"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -822,7 +821,7 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 	updateBacklinks(card.ID, backlinks)
 
 	if !s.testing {
-		go llms.ComputeCardKeywords(s.db, userID, card)
+		go s.UpdateCardKeywords(userID, card)
 	}
 	return s.QueryFullCard(userID, cardPK)
 }
@@ -844,7 +843,7 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	backlinks := extractBacklinks(card.Body)
 	updateBacklinks(card.ID, backlinks)
 	if !s.testing {
-		go llms.ComputeCardKeywords(s.db, userID, card)
+		go s.UpdateCardKeywords(userID, card)
 	}
 	return s.QueryFullCard(userID, id)
 }

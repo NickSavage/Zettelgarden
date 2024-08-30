@@ -113,7 +113,7 @@ func getKeywordsFromLLM(db *sql.DB, userID int, input string) (KeywordsResponse,
 	return keywordsResponse, nil
 }
 
-func ComputeCardKeywords(db *sql.DB, userID int, card models.Card) error {
+func ComputeCardKeywords(db *sql.DB, userID int, card models.Card) (KeywordsResponse, error) {
 
 	var body string
 	if len(card.Body) < 100 {
@@ -127,25 +127,8 @@ func ComputeCardKeywords(db *sql.DB, userID int, card models.Card) error {
 	keywords, err := getKeywordsFromLLM(db, userID, input)
 	if err != nil {
 		log.Printf("err1 %v", err)
-		return nil
+		return KeywordsResponse{}, nil
 	}
+	return keywords, nil
 
-	tx, err := db.Begin()
-	_, err = tx.Exec("DELETE FROM keywords WHERE card_pk = $1 AND user_id = $2", card.ID, userID)
-	if err != nil {
-		log.Printf("err2 %v", err)
-		return nil
-	}
-	for _, keyword := range keywords.Keywords {
-		_, err = tx.Exec("INSERT INTO keywords (user_id, card_pk, keyword) VALUES ($1, $2, $3)", userID, card.ID, keyword)
-		if err != nil {
-			log.Printf("error %v", err)
-			return err
-		}
-	}
-	err = tx.Commit()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return nil
 }
