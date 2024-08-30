@@ -81,10 +81,9 @@ func getRandomKeywords(db *sql.DB, userID int, n int) ([]models.Keyword, error) 
 func getKeywordsFromLLM(db *sql.DB, userID int, input string) (KeywordsResponse, error) {
 	definePrompts()
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-	//	randomExistingKeywords, _ := getRandomKeywords(db, userID, 10)
 	req := openai.ChatCompletionRequest{
-		//		Model: openai.GPT4o,
-		Model: openai.GPT3Dot5Turbo0125,
+		Model: openai.GPT4o,
+		//Model: openai.GPT3Dot5Turbo0125,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role: openai.ChatMessageRoleSystem,
