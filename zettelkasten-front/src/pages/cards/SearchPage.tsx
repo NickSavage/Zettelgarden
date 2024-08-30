@@ -55,49 +55,55 @@ export function SearchPage({
         <H6 children={"Search"} />
       </div>
       <div>
-        <input
-          style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
-          type="text"
-          id="title"
-          value={searchTerm}
-          placeholder="Search"
-          onChange={handleSearchUpdate}
-          onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-            if (event.key === "Enter") {
-              handleSearch();
-            }
-          }}
-        />
+        <div className="bg-slate-200 p-2 border-slate-400 border">
+          <input
+            style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
+            type="text"
+            id="title"
+            value={searchTerm}
+            placeholder="Search"
+            onChange={handleSearchUpdate}
+            onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+              if (event.key === "Enter") {
+                handleSearch();
+              }
+            }}
+          />
 
-        <Button onClick={handleSearch} children={"Search"} />
-        <select value={sortBy} onChange={handleSortChange}>
-          <option value="sortNewOld">Newest</option>
-          <option value="sortOldNew">Oldest</option>
-          <option value="sortBigSmall">A to Z</option>
-          <option value="sortSmallBig">Z to A</option>
-        </select>
-	{currentItems.length > 0 ?
-        <CardList cards={currentItems} sort={false} />
-	  : <div>No results</div>
-	  }
-        <div>
-          <Button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            children={"Previous"}
-          />
-          <span>
-            {" "}
-            Page {currentPage} of {Math.ceil(sortedCards.length / itemsPerPage)}{" "}
-          </span>
-          <Button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={
-              currentPage === Math.ceil(sortedCards.length / itemsPerPage)
-            }
-            children={"Next"}
-          />
+          <Button onClick={handleSearch} children={"Search"} />
+          <select value={sortBy} onChange={handleSortChange}>
+            <option value="sortNewOld">Newest</option>
+            <option value="sortOldNew">Oldest</option>
+            <option value="sortBigSmall">A to Z</option>
+            <option value="sortSmallBig">Z to A</option>
+          </select>
         </div>
+        {currentItems.length > 0 ? (
+          <div>
+            <CardList cards={currentItems} sort={false} />
+            <div>
+              <Button
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                children={"Previous"}
+              />
+              <span>
+                {" "}
+                Page {currentPage} of{" "}
+                {Math.ceil(sortedCards.length / itemsPerPage)}{" "}
+              </span>
+              <Button
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={
+                  currentPage === Math.ceil(sortedCards.length / itemsPerPage)
+                }
+                children={"Next"}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center w-full py-20">Search returned no results</div>
+        )}
       </div>
     </div>
   );

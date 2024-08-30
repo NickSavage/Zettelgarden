@@ -16,7 +16,6 @@
 select {
   width: 50%;
   padding: 10px;
-  margin-bottom: 20px;
   font-size: 16px;
   cursor: pointer;
   border: 1px solid #ccc;
