@@ -6,3 +6,7 @@ type Keyword struct {
 	UserID  int    `json:"userid"`
 	Keyword string `json:"keyword"`
 }
+
+type PutCardKeywordsParams struct {
+	Keywords []string `json:"keywords"`
+}
