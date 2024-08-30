@@ -331,7 +331,6 @@ input[type="password"] {
 h2 {
   color: #32325d;
   font-size: 18px;
-  margin: 20px;
   font-weight: 300;
 }
 /* Styling for form elements */
@@ -375,7 +374,6 @@ button[type="submit"] {
 
 h1 {
   color: #333;
-  margin-bottom: 30px;
 }
 
 .subscription-options {

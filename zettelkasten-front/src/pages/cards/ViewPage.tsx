@@ -14,7 +14,7 @@ import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
-import { HeaderSection, HeaderSubSection } from "../../components/Header";
+import { HeaderTop, HeaderSection, HeaderSubSection } from "../../components/Header";
 import { Button } from "../../components/Button";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { NonNullChain } from "typescript";
@@ -112,15 +112,23 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
       )}
       {viewingCard && (
         <div>
-          <h3 style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", color: "blue" }}>
-              {viewingCard.card_id}
-            </span>
-            <HeaderSection text=": " />
-            <HeaderSection text={viewingCard.title} />
-          </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex-grow">
+              <h1 className="">
+                <span style={{ fontWeight: "bold", color: "blue" }}>
+                  {viewingCard.card_id}
+                </span>
+                <HeaderTop text=": " />
+                <HeaderTop text={viewingCard.title} />
+              </h1>
+            </div>
+            <div className="p-2">
+              <Button onClick={handleEditCard} children="Edit" />
+            </div>
+          </div>
+
           <hr />
-          <div>
+          <div className="p-4">
             <CardBody viewingCard={viewingCard} />
           </div>
           <div>
@@ -136,30 +144,25 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
             )}
           </div>
           <hr />
-          <div className="flex align-center">
-            <BacklinkInput addBacklink={handleAddBacklink} />
-            <Button onClick={handleEditCard} children="Edit" />
-          </div>
-          <div className="text-xs">
-            <span className="font-bold">
-              Created At:
-            </span>
-	    <span> {viewingCard.created_at}</span>
-            <br />
-            <span className="font-bold">
-              Updated At:
-            </span>
-	    <span> {viewingCard.updated_at}</span>
-          {viewingCard.keywords && (
-            <div>
-              <span className="font-bold">
-                {"Keywords: "}{" "}
-              </span>
-                {viewingCard.keywords.map((keyword, index) => (
-                  <span>{keyword.keyword} </span>
-                ))}
+          <div className="py-4">
+            <div className="flex align-center pb-2 pr-2">
+              <BacklinkInput addBacklink={handleAddBacklink} />
             </div>
-          )}
+            <div className="text-xs">
+              <span className="font-bold">Created At:</span>
+              <span> {viewingCard.created_at}</span>
+              <br />
+              <span className="font-bold">Updated At:</span>
+              <span> {viewingCard.updated_at}</span>
+              {viewingCard.keywords && (
+                <div>
+                  <span className="font-bold">{"Keywords: "} </span>
+                  {viewingCard.keywords.map((keyword, index) => (
+                    <span>{keyword.keyword} </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <hr />
           {parentCard && (
