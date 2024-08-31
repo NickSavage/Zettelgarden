@@ -139,8 +139,8 @@ option {
 
 /* Hover and active states */
 .sidebar-links a:hover,
-.sidebar-links a.active {
-  background-color: #c7f9cc;
+.sidebar-nav-link.active {
+  background-color: #c7f9cc; /* Active or hover background color */
 }
 
 .sidebar-nav-item {
@@ -152,7 +152,6 @@ option {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 15px;
   text-decoration: none;
   color: #333; /* Adjust color as needed */
 }
@@ -165,6 +164,7 @@ option {
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
+    padding: 10px;
 }
 
 .logo {

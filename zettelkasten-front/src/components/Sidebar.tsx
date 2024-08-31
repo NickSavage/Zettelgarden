@@ -136,12 +136,21 @@ export function Sidebar() {
         </div>
       </div>
       <div>
-        <div className="sidebar-links p-4">
+        <div className="sidebar-links p-2">
           <ul>
+            <SidebarLink
+              to="/app/search"
+              children={[
+                <span className="mx-2">
+                  <SearchIcon />
+                </span>,
+                <span className="flex-grow">Cards</span>,
+              ]}
+            />
             <SidebarLink
               to="/app/tasks"
               children={[
-                <span className="mr-2">
+                <span className="mx-2">
                   <TasksIcon />
                 </span>,
                 <span className="flex-grow">Tasks</span>,
@@ -149,18 +158,9 @@ export function Sidebar() {
               ]}
             />
             <SidebarLink
-              to="/app/search"
-              children={[
-                <span className="mr-2">
-                  <SearchIcon />
-                </span>,
-                <span className="flex-grow">Search</span>,
-              ]}
-            />
-            <SidebarLink
               to="/app/files"
               children={[
-                <span className="mr-2">
+                <span className="mx-2">
                   <FileIcon />
                 </span>,
                 <span className="flex-grow">Files</span>,

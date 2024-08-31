@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface SidebarLinkProps {
   to: string;
@@ -7,10 +7,17 @@ interface SidebarLinkProps {
 }
 
 export function SidebarLink({ to, children }: SidebarLinkProps) {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  // Conditionally apply 'active' class if the current path matches the link's path
+  const linkClassName = `sidebar-nav-link ${currentPath === to ? "active" : ""}`;
+  console.log(location, to, currentPath, linkClassName)
+
   return (
     <div>
       <li className="sidebar-nav-item">
-        <Link className="sidebar-nav-link" to={to}>
+        <Link className={linkClassName} to={to}>
           {children}
         </Link>
       </li>
