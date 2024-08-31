@@ -6,13 +6,30 @@ struct TaskAddTagView: View {
     @StateObject var taskViewModel: TaskViewModel
     @StateObject var taskListViewModel: TaskListViewModel
     @Binding var isPresented: Bool
+    @State private var newTag: String = ""
 
     private func filteredTags() -> [String] {
         return taskListViewModel.existingTags.filter { !taskViewModel.tags.contains($0) }
     }
+    private func addNewTag() {
+        let trimmedTag = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !trimmedTag.hasPrefix("#") {
+            trimmedTag = "#\(trimmedTag)"
+        }
+
+        if !trimmedTag.isEmpty {
+            taskViewModel.addTag(tag: trimmedTag)
+            newTag = ""
+            isPresented = false
+        }
+    }
 
     var body: some View {
         VStack {
+            TextField("Enter new tag", text: $newTag, onCommit: addNewTag)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
             ForEach(filteredTags(), id: \.self) { tag in
                 Button(action: {
                     taskViewModel.addTag(tag: tag)
