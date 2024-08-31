@@ -44,18 +44,6 @@ struct TaskListContextMenu: View {
                 Text("Edit Task")
                 Image(systemName: "pencil")
             }
-            Button(action: {
-                taskViewModel.deferTomorrow()
-            }) {
-                Text("Defer To Tomorrow")
-
-            }
-            Button(action: {
-
-                taskViewModel.clearScheduledDate()
-            }) {
-                Text("Set No Date")
-            }
             Divider()
             if let task = taskViewModel.task {
                 if task.card_pk > 0 {

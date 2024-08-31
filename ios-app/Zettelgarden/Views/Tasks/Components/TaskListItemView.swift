@@ -85,7 +85,9 @@ struct TaskListItemView: View {
             }
         }
         .sheet(isPresented: $showingDateChangeView) {
-            TaskDateChangeView(taskViewModel: taskViewModel)
+            TaskDateChangeView(taskViewModel: taskViewModel, isPresented: $showingDateChangeView)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
 }

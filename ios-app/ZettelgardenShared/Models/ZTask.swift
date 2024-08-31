@@ -183,3 +183,10 @@ extension ZTask {
         ]
     }
 }
+
+public enum TaskDeferDate: Int {
+    case today = 1
+    case noDate = 0
+    case tomorrow = 2
+    case nextWeek = 3
+}

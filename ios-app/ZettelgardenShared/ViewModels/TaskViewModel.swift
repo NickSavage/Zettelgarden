@@ -88,20 +88,36 @@ public class TaskViewModel: ObservableObject {
         }
     }
 
-    public func deferTomorrow() {
+    public func deferDate(to: TaskDeferDate) {
         if var editedTask = task {
             let calendar = Calendar.current
-            let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date())!
-            editedTask.scheduled_date = tomorrow
+
+            switch to {
+            case .today:
+                editedTask.scheduled_date = Date()
+
+            case .noDate:
+                editedTask.scheduled_date = nil
+
+            case .tomorrow:
+                if let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date()) {
+                    editedTask.scheduled_date = tomorrow
+                }
+
+            case .nextWeek:
+                if let nextWeek = calendar.date(byAdding: .day, value: 7, to: Date()) {
+                    editedTask.scheduled_date = nextWeek
+                }
+            }
+
             self.task = editedTask
             handleUpdateTask()
         }
-
     }
 
-    public func clearScheduledDate() {
+    public func setScheduledDate(to: Date) {
         if var editedTask = task {
-            editedTask.scheduled_date = nil
+            editedTask.scheduled_date = to
             self.task = editedTask
             handleUpdateTask()
         }
