@@ -4,7 +4,7 @@ import { Card } from "../../models/Card";
 import { sortCards } from "../../utils";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
-import { H6 } from "../../components/Header";
+import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -22,6 +22,7 @@ export function SearchPage({
   const [sortBy, setSortBy] = useState("sortNewOld");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const { partialCards } = usePartialCardContext();
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -36,7 +37,8 @@ export function SearchPage({
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSortBy(e.target.value);
   }
-  const sortedCards = cards ? sortCards(cards, sortBy) : [];
+  const sortedCards = cards.length > 0 ? sortCards(cards, sortBy) : partialCards.slice(0, 20);
+  console.log(partialCards, cards, sortedCards)
 
   // Calculate the index of the last and first item on the current page
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -51,9 +53,6 @@ export function SearchPage({
 
   return (
     <div>
-      <div className="mb-4">
-        <H6 children={"Search"} />
-      </div>
       <div>
         <div className="bg-slate-200 p-2 border-slate-400 border">
           <input
