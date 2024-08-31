@@ -11,6 +11,7 @@ import ZettelgardenShared
 struct TaskListContextMenu: View {
     @Binding var showingEditTaskView: Bool
     @Binding var showingDateChangeView: Bool
+    @Binding var showingAddTagView: Bool
     @ObservedObject var taskViewModel: TaskViewModel
     var body: some View {
         Group {
@@ -34,6 +35,11 @@ struct TaskListContextMenu: View {
                 showingDateChangeView.toggle()
             }) {
                 Text("Change Date")
+            }
+            Button(action: {
+                showingAddTagView.toggle()
+            }) {
+                Text("Add Tags")
             }
 
             Button(action: {
@@ -80,6 +86,7 @@ struct TaskListContextMenu: View {
 struct TaskListContextMenu_Preview: PreviewProvider {
     @State static var showingEditTaskView = false
     @State static var showingDateChangeView = false
+    @State static var showingAddTagView = false
     static var previews: some View {
         // Your mock TaskViewModel with a mock task
         let mockTaskViewModel = TaskViewModel()
@@ -88,6 +95,7 @@ struct TaskListContextMenu_Preview: PreviewProvider {
         return TaskListContextMenu(
             showingEditTaskView: $showingEditTaskView,
             showingDateChangeView: $showingDateChangeView,
+            showingAddTagView: $showingAddTagView,
             taskViewModel: mockTaskViewModel
         )
         .previewLayout(.sizeThatFits)

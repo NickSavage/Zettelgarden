@@ -136,7 +136,7 @@ extension ZTask {
                 created_at: Date(),
                 updated_at: Date(),
                 completed_at: nil,
-                title: "Weekly Sync-up",
+                title: "Weekly Sync-up #recurring",
                 is_complete: false,
                 is_deleted: false,
                 card: nil
@@ -149,7 +149,7 @@ extension ZTask {
                 created_at: Date(),
                 updated_at: Date(),
                 completed_at: nil,
-                title: "Write Quarterly Report",
+                title: "Write Quarterly Report #report",
                 is_complete: false,
                 is_deleted: false,
                 card: nil
@@ -162,7 +162,7 @@ extension ZTask {
                 created_at: Date(),
                 updated_at: Date(),
                 completed_at: Date(),  // Completed
-                title: "Submit Expense Reports",
+                title: "Submit Expense Reports #task",
                 is_complete: true,
                 is_deleted: false,
                 card: nil
@@ -175,7 +175,7 @@ extension ZTask {
                 created_at: Date(),
                 updated_at: Date(),
                 completed_at: nil,
-                title: "Brainstorm Session #work",
+                title: "Brainstorm Session #work #todo",
                 is_complete: false,
                 is_deleted: false,
                 card: nil

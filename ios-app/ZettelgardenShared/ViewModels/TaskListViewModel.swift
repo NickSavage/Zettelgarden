@@ -14,6 +14,7 @@ public class TaskListViewModel: ObservableObject {
     @Published public var dateFilter: TaskDisplayOptions = .today
     @Published var filterText: String = ""
     @Published public var showCompleted: Bool = false
+    @Published public var existingTags: [String] = []  // Add a new property for tags
 
     private var timer: Timer?
 
@@ -76,6 +77,8 @@ public class TaskListViewModel: ObservableObject {
                 switch result {
                 case .success(let fetchedTasks):
                     self.tasks = fetchedTasks
+                    self.extractTags(from: fetchedTasks)
+                    print(self.existingTags)
 
                 case .failure(let error):
                     print(error)
@@ -85,9 +88,25 @@ public class TaskListViewModel: ObservableObject {
             }
         }
     }
+    private func extractTags(from tasks: [ZTask]) {
+        var tagSet = Set<String>()
+
+        // Extract tags from the title using a regex to match hashtags
+        tasks.forEach { task in
+            let title = task.title
+            let tagMatches = title.matches(for: "(^|\\s)#\\w+(\\s|$)")
+
+            tagMatches.forEach { tag in
+                tagSet.insert(tag.trimmingCharacters(in: .whitespacesAndNewlines))
+            }
+        }
+
+        self.existingTags = Array(tagSet)
+    }
 
     public func loadTestTasks(tasks: [ZTask]) {
         self.tasks = tasks
+        extractTags(from: tasks)  // Extract tags for test tasks as well
     }
 
     public func createNewTask(newTask: ZTask) {

@@ -68,6 +68,14 @@ public class TaskViewModel: ObservableObject {
             handleUpdateTask()
         }
     }
+    public func addTag(tag: String) {
+        if var editedTask = task {
+            editedTask.title = editedTask.title + " " + tag
+            self.task = editedTask
+            handleUpdateTask()
+        }
+
+    }
     public func handleDeleteTask() {
 
         guard let token = token else {

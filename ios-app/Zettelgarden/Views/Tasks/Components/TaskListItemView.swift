@@ -10,6 +10,7 @@ struct TaskListItemView: View {
     @State private var showingEditTaskView = false
     @State private var showingDetailView = false
     @State private var showingDateChangeView = false
+    @State private var showingAddTagView = false
     let inputTask: ZTask
 
     func handleSaveTask() {
@@ -39,6 +40,7 @@ struct TaskListItemView: View {
                         TaskListContextMenu(
                             showingEditTaskView: $showingEditTaskView,
                             showingDateChangeView: $showingDateChangeView,
+                            showingAddTagView: $showingAddTagView,
                             taskViewModel: taskViewModel
                         )
                     }
@@ -88,6 +90,15 @@ struct TaskListItemView: View {
             TaskDateChangeView(taskViewModel: taskViewModel, isPresented: $showingDateChangeView)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showingAddTagView) {
+            TaskAddTagView(
+                taskViewModel: taskViewModel,
+                taskListViewModel: taskListViewModel,
+                isPresented: $showingAddTagView
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
     }
 }
