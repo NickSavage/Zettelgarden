@@ -75,6 +75,7 @@ struct TaskListItemView: View {
         .sheet(isPresented: $showingDetailView) {
             DisplayTaskView(
                 taskViewModel: taskViewModel,
+                taskListViewModel: taskListViewModel,
                 isPresented: $showingDetailView
             )
         }

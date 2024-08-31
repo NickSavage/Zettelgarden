@@ -12,7 +12,7 @@ public class TaskListViewModel: ObservableObject {
     @Published var tasks: [ZTask]?
     @Published var isLoading: Bool = true
     @Published public var dateFilter: TaskDisplayOptions = .today
-    @Published var filterText: String = ""
+    @Published public var filterText: String = ""
     @Published public var showCompleted: Bool = false
     @Published public var existingTags: [String] = []  // Add a new property for tags
 
@@ -101,7 +101,7 @@ public class TaskListViewModel: ObservableObject {
             }
         }
 
-        self.existingTags = Array(tagSet)
+        self.existingTags = Array(tagSet).sorted()
     }
 
     public func loadTestTasks(tasks: [ZTask]) {

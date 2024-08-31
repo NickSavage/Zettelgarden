@@ -3,10 +3,12 @@ import ZettelgardenShared
 
 struct DisplayTaskView: View {
     @ObservedObject var taskViewModel: TaskViewModel
+    @StateObject var taskListViewModel: TaskListViewModel
     @Binding var isPresented: Bool
 
     func handleTagTapped(tag: String) {
-        print(tag)
+        taskListViewModel.filterText = tag
+        isPresented = false
     }
     var body: some View {
         if let task = taskViewModel.task {
@@ -67,9 +69,11 @@ struct DisplayTaskView_Preview: PreviewProvider {
 
     @State static var isPresented = true
     static var mockViewModel: TaskViewModel = getTestTaskViewModel()
+    static var mockListViewModel: TaskListViewModel = getTestTaskListViewModel()
     static var previews: some View {
         DisplayTaskView(
             taskViewModel: mockViewModel,
+            taskListViewModel: mockListViewModel,
             isPresented: $isPresented
         )
         .previewLayout(.sizeThatFits)

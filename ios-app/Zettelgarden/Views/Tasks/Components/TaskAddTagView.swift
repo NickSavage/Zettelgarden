@@ -12,7 +12,7 @@ struct TaskAddTagView: View {
         return taskListViewModel.existingTags.filter { !taskViewModel.tags.contains($0) }
     }
     private func addNewTag() {
-        let trimmedTag = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
+        var trimmedTag = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if !trimmedTag.hasPrefix("#") {
             trimmedTag = "#\(trimmedTag)"

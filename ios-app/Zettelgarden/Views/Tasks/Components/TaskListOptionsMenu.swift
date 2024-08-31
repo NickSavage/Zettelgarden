@@ -19,6 +19,26 @@ struct TaskListOptionsMenu: View {
                 Button("All", action: allAction)
 
             }
+            Menu("Filter By Tag") {
+                ForEach(taskListViewModel.existingTags, id: \.self) { tag in
+
+                    Button(action: {
+                        taskListViewModel.filterText = tag
+
+                    }) {
+                        Text(tag)
+                    }
+                }
+            }
+            if taskListViewModel.filterText != "" {
+                Button(
+                    "Remove Filter",
+                    action: { taskListViewModel.filterText = "" }
+                )
+
+            }
+            Divider()
+
             Button(
                 taskListViewModel.showCompleted ? "Hide Completed" : "Show Completed",
                 action: toggleCompletedAction
