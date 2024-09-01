@@ -6,11 +6,31 @@
 //
 
 import SwiftUI
-import ZettelgardenShared   
+import ZettelgardenShared
 
 struct TaskDateTextDisplay: View {
     @ObservedObject var taskViewModel: TaskViewModel
 
+    var displayText: String {
+        if let task = taskViewModel.task {
+            return formatDate(maybeDate: task.scheduled_date)
+        }
+        return "No Date"
+    }
+    var displayColor: Color {
+        if let task = taskViewModel.task {
+            if !task.is_complete && isPast(maybeDate: task.scheduled_date) {
+                return .red
+            }
+            else if isToday(maybeDate: task.scheduled_date)
+                || isTomorrow(maybeDate: task.scheduled_date)
+            {
+                return .green
+            }
+        }
+        return .black
+
+    }
     func isRecurringTask(task: ZTask) -> Bool {
         let recurringPatterns = [
             "every day",
@@ -30,24 +50,9 @@ struct TaskDateTextDisplay: View {
     }
     var body: some View {
         if let task = taskViewModel.task {
-            if let date = task.scheduled_date {
-                if isToday(maybeDate: date) {
-                    Text("Today")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                }
-                else if !task.is_complete && isPast(maybeDate: date) {
-                    Text(date, style: .date)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                }
-                else {
-                    Text(date, style: .date).font(.caption)
-                }
-            }
-            else {
-                Text("No Date").font(.caption)
-            }
+            Text(displayText)
+                .font(.caption)
+                .foregroundColor(displayColor)
             if isRecurringTask(task: task) {
                 Text("Recurring")
                     .font(.caption)

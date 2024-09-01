@@ -43,6 +43,14 @@ public func isTomorrow(maybeDate: Date?) -> Bool {
     let calendar = Calendar.current
     return calendar.isDateInTomorrow(date)
 }
+public func isYesterday(maybeDate: Date?) -> Bool {
+    guard let date = maybeDate else {
+        return false
+    }
+
+    let calendar = Calendar.current
+    return calendar.isDateInYesterday(date)
+}
 
 public func parseDate(input: String?) -> Date? {
     guard let dateString = input else { return nil }
@@ -65,4 +73,23 @@ public func parseDate(input: String?) -> Date? {
         print("error")
         return nil
     }
+}
+public func formatDate(maybeDate: Date?) -> String {
+    if isToday(maybeDate: maybeDate) {
+        return "Today"
+    }
+    else if isYesterday(maybeDate: maybeDate) {
+        return "Yesterday"
+    }
+    else if isTomorrow(maybeDate: maybeDate) {
+        return "Tomorrow"
+    }
+    guard let date = maybeDate else {
+        return ""
+    }
+
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "YYYY-MM-dd"
+    let result = dateFormatter.string(from: date)
+    return result
 }
