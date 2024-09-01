@@ -51,11 +51,7 @@ export function FileVault() {
   }, []);
   return (
     <>
-      <div className="mb-4">
-        <H6 children="File Vault" />
-      </div>
-
-        <div className="bg-slate-200 p-2 border-slate-400 border">
+      <div className="bg-slate-200 p-2 border-slate-400 border">
         <FilterInput handleFilterHook={handleFilter} />
       </div>
       <FileRenameModal
@@ -65,19 +61,19 @@ export function FileVault() {
         file={fileToRename}
       />
       <div className="p-4">
-      {files && files.length > 0 ? (
-        <ul>
-          {files.filter(filterFiles).map((file, index) => (
-            <FileListItem
-              file={file}
-              onDelete={onDelete}
-              setRefreshFiles={setRefreshFiles}
-            />
-          ))}
-        </ul>
-      ) : (
-        <p>No files to display.</p> // Custom message when files array is empty
-      )}
+        {files && files.length > 0 ? (
+          <ul>
+            {files.filter(filterFiles).map((file, index) => (
+              <FileListItem
+                file={file}
+                onDelete={onDelete}
+                setRefreshFiles={setRefreshFiles}
+              />
+            ))}
+          </ul>
+        ) : (
+          <p>No files to display.</p> // Custom message when files array is empty
+        )}
       </div>
     </>
   );
