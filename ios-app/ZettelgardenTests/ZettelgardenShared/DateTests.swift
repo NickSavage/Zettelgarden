@@ -122,6 +122,22 @@ class DateParserTests: XCTestCase {
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
         XCTAssertFalse(isTomorrow(maybeDate: yesterday), "Should return false for yesterday’s date")
     }
+    func testIsYesterday() {
+        let today = Date()  // System’s current timezone
+
+        // Test with yesterday's date
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+        XCTAssertTrue(isYesterday(maybeDate: yesterday), "Should return true for yesterday’s date")
+
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        XCTAssertFalse(isYesterday(maybeDate: tomorrow), "Should return false for tomorrow’s date")
+
+        let past = Calendar.current.date(byAdding: .day, value: -2, to: today)!
+        XCTAssertFalse(isYesterday(maybeDate: past), "Should return false for a date in the past")
+
+        // Test with today’s date (should be false)
+        XCTAssertFalse(isYesterday(maybeDate: today), "Should return false for today’s date")
+    }
 
     func testIsPast() {
         let today = Date()  // System’s current timezone
@@ -196,5 +212,34 @@ class DateParserTests: XCTestCase {
             isPast(maybeDate: lastMomentOfToday),
             "Should return false for the last second of today"
         )
+    }
+
+    func testFormatDate() {
+        var today = Date()
+
+        XCTAssertTrue(
+            formatDate(maybeDate: today) == "Today",
+            "Should return 'Today' for today's date"
+        )
+        today = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        XCTAssertTrue(
+            formatDate(maybeDate: today) == "Tomorrow",
+            "Should return 'Tomorrow' for tomorrow's date"
+        )
+        // Test for specific date formatting
+        let formatter = DateFormatter()
+        formatter.dateFormat = "YYYY-MM-dd"
+        let specificDate = formatter.date(from: "2023-01-01")!
+        XCTAssertTrue(
+            formatDate(maybeDate: specificDate) == "2023-01-01",
+            "Should return the formatted date string for any date other than today, yesterday, or tomorrow"
+        )
+
+        // Test for nil input
+        XCTAssertTrue(
+            formatDate(maybeDate: nil) == "",
+            "Should return an empty string for nil input"
+        )
+
     }
 }
