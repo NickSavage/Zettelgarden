@@ -21,8 +21,8 @@ export function getYesterday(): Date {
 
 export function getNextWeek(): Date {
   const result = new Date();
-  result.setDate(result.getDate() + 7)
-  return result
+  result.setDate(result.getDate() + 7);
+  return result;
 }
 
 export function compareDates(date1: Date | null, date2: Date | null): boolean {
@@ -77,4 +77,12 @@ export function isRecurringTask(task: Task): boolean {
   ];
 
   return recurringPatterns.some((pattern) => pattern.test(task.title));
+}
+
+export function formatDate(dateString: string): string {
+  const dateTimeString = "2024-08-30T10:28:08.203752Z";
+  const date = new Date(dateTimeString);
+
+  const formattedDate = date.toISOString().split("T")[0];
+  return formattedDate;
 }

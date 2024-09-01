@@ -1,6 +1,6 @@
 import React from "react";
 
-import { CardItem } from "./CardItem";
+import { CardListItem } from "./CardListItem";
 import { PartialCard } from "../../models/Card";
 
 interface CardListProps {
@@ -18,7 +18,7 @@ export function CardList({ cards, sort = true }: CardListProps) {
     <ul>
       {sortedCards.map((backlink, index) => (
         <li className="">
-          <CardItem card={backlink} />
+          <CardListItem card={backlink} />
         </li>
       ))}
     </ul>
