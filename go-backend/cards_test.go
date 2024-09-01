@@ -686,3 +686,51 @@ func TestGenerateInactiveCards(t *testing.T) {
 		t.Errorf("wrong number of post-run inactive cards, got %v want %v", newCount, cards)
 	}
 }
+func TestCreateCardLinkedParentId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	rr := makeCardRequestSuccess(t, 4)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		log.Printf("err %v", rr.Body.String())
+	}
+	var parentCard models.Card
+	parseJsonResponse(t, rr.Body.Bytes(), &parentCard)
+	if parentCard.CardID != "REF001" {
+		t.Errorf("handler returned wrong card: got %v want %v", parentCard.CardID, "REF001")
+	}
+
+	var card models.Card
+	var newCard models.Card
+	token, _ := generateTestJWT(1)
+
+	data := models.EditCardParams{
+		Title:  "asdasd",
+		Body:   "asdasd",
+		CardID: "REF001/A",
+		Link:   "asdasd",
+	}
+	jsonData, _ := json.Marshal(data)
+	req, err := http.NewRequest("POST", "/api/cards/", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr = httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+
+	rr = makeCardRequestSuccess(t, card.ID)
+	log.Printf("%v", rr.Body.String())
+	parseJsonResponse(t, rr.Body.Bytes(), &newCard)
+	if newCard.ParentID != parentCard.ID {
+		t.Errorf("handler returned wrong parent: got %v want %v", newCard.ParentID, parentCard.ID)
+	}
+}

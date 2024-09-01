@@ -83,8 +83,8 @@ func (s *Server) importTestData() error {
 
 	for _, card := range cards {
 		_, err := s.db.Exec(
-			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt,
+			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID,
 		)
 		if err != nil {
 			return err
@@ -203,6 +203,7 @@ func (s *Server) generateData() map[string]interface{} {
 			Link:      fmt.Sprintf("https://%s.com", randomString(10)),
 			CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			ParentID:  i,
 		}
 		if i == 1 {
 			card.Body = card.Body + "\n[" + strconv.Itoa(i+1) + "]"
@@ -225,6 +226,7 @@ func (s *Server) generateData() map[string]interface{} {
 		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:  1,
 	})
 	cards = append(cards, models.Card{
 		ID:        22,
@@ -235,6 +237,7 @@ func (s *Server) generateData() map[string]interface{} {
 		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:  2,
 	})
 	cards = append(cards, models.Card{
 		ID:        23,
@@ -245,6 +248,7 @@ func (s *Server) generateData() map[string]interface{} {
 		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
 		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:  23,
 	})
 
 	backlinks := []models.Backlink{}

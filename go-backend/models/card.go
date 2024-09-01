@@ -12,6 +12,7 @@ type Card struct {
 	IsDeleted  bool          `json:"is_deleted"`
 	CreatedAt  time.Time     `json:"created_at"`
 	UpdatedAt  time.Time     `json:"updated_at"`
+	ParentID   int           `json:"parent_id"`
 	Parent     PartialCard   `json:"parent"`
 	Files      []File        `json:"files"`
 	Children   []PartialCard `json:"children"`
