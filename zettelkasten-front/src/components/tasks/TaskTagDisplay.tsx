@@ -25,7 +25,7 @@ export function TaskTagDisplay({ task, onTagClick }: TaskTagDisplayProps) {
       {tags.length > 0 &&
         tags.map((tag) => (
           <span
-            className="inline-block text-purple-500 text-xs px-2 py-1 cursor-pointer"
+            className="inline-block text-purple-500 text-xs px-2 cursor-pointer"
             onClick={() => onTagClick(tag)}
           >
             {tag}
