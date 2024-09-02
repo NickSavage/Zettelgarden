@@ -39,7 +39,7 @@ export function Sidebar() {
 
   const filteredCards = useMemo(() => {
     const isIdSearch = filter.startsWith("!");
-    return mainCards.filter((card) => {
+    const filteredResults = mainCards.filter((card) => {
       const cardId = card.card_id.toString().toLowerCase();
       const title = card.title.toLowerCase();
       if (isIdSearch) {
@@ -55,6 +55,7 @@ export function Sidebar() {
         });
       }
     });
+    return filteredResults.slice(0,100);
   }, [mainCards, filter]);
 
   function handleNewStandardCard() {
