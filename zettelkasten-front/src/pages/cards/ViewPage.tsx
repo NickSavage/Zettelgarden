@@ -14,10 +14,15 @@ import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
-import { HeaderTop, HeaderSection, HeaderSubSection } from "../../components/Header";
+import {
+  HeaderTop,
+  HeaderSection,
+  HeaderSubSection,
+} from "../../components/Header";
 import { Button } from "../../components/Button";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { NonNullChain } from "typescript";
+import { ChildrenCards } from "../../components/cards/ChildrenCards";
 
 interface ViewPageProps {
   setLastCard: (card: Card | null) => void;
@@ -206,11 +211,10 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
 
           <HeaderSubSection text="References" />
           <CardList cards={viewingCard.references} />
-          <div></div>
           {viewingCard.children.length > 0 && (
             <div>
               <HeaderSubSection text="Children" />
-              <CardList cards={viewingCard.children.filter(card => card.parent_id === viewingCard.id)} />
+              <ChildrenCards allChildren={viewingCard.children} card={viewingCard} />
             </div>
           )}
         </div>
