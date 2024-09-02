@@ -49,13 +49,6 @@ struct ContentView: View {
                 else if navigationViewModel.selection == .files {
                     FileListView()
                 }
-                else if navigationViewModel.selection == .search {
-                    SearchView(
-                        cardViewModel: cardViewModel,
-                        navigationViewModel: navigationViewModel,
-                        viewModel: searchViewModel
-                    )
-                }
                 else if navigationViewModel.selection == .settings {
                     SettingsView()
                 }

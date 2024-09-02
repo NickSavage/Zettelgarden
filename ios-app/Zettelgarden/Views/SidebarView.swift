@@ -75,14 +75,6 @@ struct SidebarView: View {
                                     Text("Files")
                                 }
                                 Button(action: {
-                                    navigationViewModel.visit(page: .search)
-                                    withAnimation {
-                                        isMenuOpen = false
-                                    }
-                                }) {
-                                    Text("Search")
-                                }
-                                Button(action: {
                                     navigationViewModel.visit(page: .settings)
                                     withAnimation {
                                         isMenuOpen = false
