@@ -214,7 +214,12 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
           {viewingCard.children.length > 0 && (
             <div>
               <HeaderSubSection text="Children" />
-              <ChildrenCards allChildren={viewingCard.children} card={viewingCard} />
+              <ChildrenCards
+                allChildren={viewingCard.children.sort((a, b) =>
+                  a.card_id.localeCompare(b.card_id),
+                )}
+                card={viewingCard}
+              />
             </div>
           )}
         </div>
