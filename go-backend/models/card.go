@@ -25,6 +25,7 @@ type PartialCard struct {
 	CardID    string    `json:"card_id"`
 	UserID    int       `json:"user_id"`
 	Title     string    `json:"title"`
+	ParentID  int       `json:"parent_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

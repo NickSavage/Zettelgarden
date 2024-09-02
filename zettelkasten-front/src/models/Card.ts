@@ -6,6 +6,7 @@ export interface PartialCard {
   card_id: string;
   user_id: number;
   title: string;
+  parent_id: number;
   created_at: string;
   updated_at: string;
 }
@@ -28,6 +29,7 @@ export interface Card {
   is_deleted: boolean;
   created_at: string;
   updated_at: string;
+  parent_id: number;
   parent: PartialCard;
   files: File[];
   children: PartialCard[];
@@ -40,6 +42,7 @@ export const defaultPartialCard: PartialCard = {
   card_id: "",
   user_id: -1,
   title: "",
+  parent_id: -1,
   created_at: "",
   updated_at: "",
 };
@@ -54,6 +57,7 @@ export const defaultCard: Card = {
   is_deleted: false,
   created_at: "",
   updated_at: "",
+  parent_id: -1,
   parent: defaultPartialCard,
   files: [],
   children: [],

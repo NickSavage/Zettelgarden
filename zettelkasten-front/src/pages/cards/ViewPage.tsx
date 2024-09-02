@@ -210,7 +210,7 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
           {viewingCard.children.length > 0 && (
             <div>
               <HeaderSubSection text="Children" />
-              <CardList cards={viewingCard.children} />
+              <CardList cards={viewingCard.children.filter(card => card.parent_id === viewingCard.id)} />
             </div>
           )}
         </div>
