@@ -27,7 +27,7 @@ export function ChildrenCards({ allChildren, card }: ChildrenCardsProps) {
       {allChildren.filter((c) => c.parent_id === card.id).map((c, index) => (
         <li key={index} className="flex flex-col">
           <div className="flex items-center">
-            <span className="mr-2 cursor-pointer" onClick={() => handleIconClick(c.id)}>
+            <span className="mr-2 cursor-pointer" onClick={() => handleIconClick(c.card_id)}>
               {openCards[c.id] ? <TriangleDownIcon /> : <TriangleRightIcon />}
             </span>
             <CardListItem card={c} />
