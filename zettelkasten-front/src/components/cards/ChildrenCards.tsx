@@ -11,32 +11,32 @@ interface ChildrenCardsProps {
   card: PartialCard;
 }
 
+
 export function ChildrenCards({ allChildren, card }: ChildrenCardsProps) {
-  const [showChildren, setShowChildren] = useState<boolean>(false);
+  const [openCards, setOpenCards] = useState<Record<string, boolean>>({});
 
-  function handleIconClick() {
-    console.log("click");
-    setShowChildren(!showChildren);
+  function handleIconClick(cardId: string) {
+    setOpenCards((prevOpenCards) => ({
+      ...prevOpenCards,
+      [cardId]: !prevOpenCards[cardId],
+    }));
   }
-  return (
 
+  return (
     <ul>
       {allChildren.filter((c) => c.parent_id === card.id).map((c, index) => (
-        <li className="flex flex-col">
+        <li key={index} className="flex flex-col">
           <div className="flex items-center">
-	  <span className="mr -2" onClick={handleIconClick}>
-	  {showChildren ?
-            <TriangleDownIcon /> : <TriangleRightIcon />
-	  }
-	  </span>
+            <span className="mr-2 cursor-pointer" onClick={() => handleIconClick(c.id)}>
+              {openCards[c.id] ? <TriangleDownIcon /> : <TriangleRightIcon />}
+            </span>
             <CardListItem card={c} />
           </div>
-	  {showChildren && (
-          <div className="ml-6">
-            <ChildrenCards allChildren={allChildren} card={c} />
-          </div>
-	    
-	  )}
+          {openCards[c.id] && (
+            <div className="ml-6">
+              <ChildrenCards allChildren={allChildren} card={c} />
+            </div>
+          )}
         </li>
       ))}
     </ul>
