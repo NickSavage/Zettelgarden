@@ -32,7 +32,7 @@ export function ChildrenCards({ allChildren, card }: ChildrenCardsProps) {
             </span>
             <CardListItem card={c} />
           </div>
-          {openCards[c.id] && (
+          {openCards[c.card_id] && (
             <div className="ml-6">
               <ChildrenCards allChildren={allChildren} card={c} />
             </div>
