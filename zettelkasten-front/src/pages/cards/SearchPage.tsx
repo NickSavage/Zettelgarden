@@ -30,26 +30,32 @@ export function SearchPage({
 
   function handleSearch() {
     fetchCards(searchTerm).then((data) => {
+      if (data === null) {
+	setCards([]);
+      } else {
       setCards(data);
+	
+      }
     });
   }
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSortBy(e.target.value);
   }
-  const sortedCards = cards.length > 0 ? sortCards(cards, sortBy) : partialCards.slice(0, 20);
-  console.log(partialCards, cards, sortedCards)
 
-  // Calculate the index of the last and first item on the current page
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // Slice the sortedCards array to only include the items for the current page
-  const currentItems = sortedCards.slice(indexOfFirstItem, indexOfLastItem);
+  function getSortedAndPagedCards() {
+    const sortedCards = sortCards(cards, sortBy);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return sortedCards.slice(indexOfFirstItem, indexOfLastItem);
+  }
 
-  // Change page handler
   useEffect(() => {
     document.title = "Zettelgarden - Search";
+    handleSearch()
   }, []);
+
+  const currentItems = getSortedAndPagedCards();
 
   return (
     <div>
@@ -89,12 +95,12 @@ export function SearchPage({
               <span>
                 {" "}
                 Page {currentPage} of{" "}
-                {Math.ceil(sortedCards.length / itemsPerPage)}{" "}
+                {Math.ceil((cards.length > 0 ? cards.length : partialCards.length) / itemsPerPage)}{" "}
               </span>
               <Button
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={
-                  currentPage === Math.ceil(sortedCards.length / itemsPerPage)
+                  currentPage === Math.ceil((cards.length > 0 ? cards.length : partialCards.length) / itemsPerPage)
                 }
                 children={"Next"}
               />
