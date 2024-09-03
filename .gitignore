@@ -33,3 +33,6 @@ __pycache__/
 Thumbs.db
 
 ios-app/Zettelgarden.xcodeproj/project.xcworkspace/xcuserdata/nick.xcuserdatad/UserInterfaceState.xcuserstate
+
+# TypeScript incremental build information
+tsconfig.tsbuildinfo
