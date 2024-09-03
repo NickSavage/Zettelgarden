@@ -30,7 +30,6 @@ export function Sidebar() {
     showQuickSearchWindow,
     setShowQuickSearchWindow,
   } = useShortcutContext();
-  useState<boolean>(false);
 
   const mainCards = useMemo(
     () => partialCards.filter((card) => !card.card_id.includes("/")),
@@ -88,12 +87,6 @@ export function Sidebar() {
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
     if (event.metaKey) {
-      return;
-    }
-    if (event.key === "Escape") {
-      event.preventDefault();
-      setShowCreateTaskWindow(false);
-      setShowQuickSearchWindow(false);
       return;
     }
     

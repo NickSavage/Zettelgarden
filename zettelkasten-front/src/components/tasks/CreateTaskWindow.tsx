@@ -1,4 +1,4 @@
-import React, { useState, KeyboardEvent } from "react";
+import React, { useState, useEffect } from "react";
 import { saveNewTask } from "../..//api/tasks";
 
 import { Task, emptyTask } from "../../models/Task";
@@ -66,6 +66,24 @@ export function CreateTaskWindow({
     let editedTask = { ...newTask, title: newTask.title + " " + tag };
     setNewTask(editedTask);
   }
+  const handleKeyPress = (event: KeyboardEvent) => {
+    // if this is true, the user is using a system shortcut, don't do anything with it
+    if (event.metaKey) {
+      return;
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      return;
+    }
+  };
+
+  useEffect(() => {
+  const keyDownListener = (event: KeyboardEvent) => handleKeyPress(event);
+  document.addEventListener("keydown", keyDownListener);
+  return () => {
+    document.removeEventListener("keydown", keyDownListener);
+  };
+  }, []);
 
   return (
     <div
