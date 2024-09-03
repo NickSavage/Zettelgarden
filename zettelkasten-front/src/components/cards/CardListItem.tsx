@@ -5,6 +5,8 @@ import { PartialCard } from "../../models/Card";
 import { CardPreviewWindow } from "./CardPreviewWindow";
 import { CardLink } from "./CardLink";
 
+import { PlusCircleIcon } from "../../assets/icons/PlusCircleIcon";
+
 import { formatDate } from "../../utils/dates"
 
 interface CardListItemProps {
@@ -20,9 +22,13 @@ export function CardListItem({ card }: CardListItemProps) {
     setShowHover(true);
   };
 
+  function handleAddCardClick() {
+    
+  }
+
   return (
-    <div key={card.id} className="card-item py-2 px-2.5 flex">
-      <div className="flex-grow">
+    <div key={card.id} className="card-item py-2 px-2.5 flex w-full">
+      <div className="pr-4">
         <span
           onMouseEnter={handleMouseEnter}
           onMouseLeave={() => setShowHover(false)}
@@ -34,6 +40,7 @@ export function CardListItem({ card }: CardListItemProps) {
           />
         </span>
       </div>
+      <div className="flex-grow"><span onClick={handleAddCardClick}><PlusCircleIcon /></span></div>
       <div className="flex text-xs">{formatDate(card.created_at)}</div>
 
       {showHover && card && (
