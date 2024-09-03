@@ -10,6 +10,7 @@ import {
   isTodayOrPast,
 } from "../../utils/dates";
 import { Button } from "../../components/Button";
+import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 interface TaskListProps {}
 
@@ -17,7 +18,10 @@ export function TaskPage({}: TaskListProps) {
   const { tasks, setRefreshTasks } = useTaskContext();
   const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
-  const [showTaskWindow, setShowTaskWindow] = useState<boolean>(false);
+  const {
+    showCreateTaskWindow,
+    setShowCreateTaskWindow,
+  } = useShortcutContext();
   const [filterString, setFilterString] = useState<string>("");
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
@@ -97,7 +101,7 @@ export function TaskPage({}: TaskListProps) {
     return !task.is_complete;
   }
   function toggleShowTaskWindow() {
-    setShowTaskWindow(!showTaskWindow);
+    setShowCreateTaskWindow(!showCreateTaskWindow);
   }
 
   function handleTagClick(tag: string) {
@@ -119,7 +123,7 @@ export function TaskPage({}: TaskListProps) {
     }
     if (event.key === "Escape") {
       event.preventDefault();
-      setShowTaskWindow(false);
+      setShowCreateTaskWindow(false);
       return;
     }
   };
@@ -174,11 +178,11 @@ export function TaskPage({}: TaskListProps) {
         <Button onClick={toggleShowTaskWindow} children="Add Task" />
       </div>
       <div>
-        {showTaskWindow && (
+        {showCreateTaskWindow && (
           <CreateTaskWindow
             currentCard={null}
             setRefresh={setRefreshTasks}
-            setShowTaskWindow={setShowTaskWindow}
+            setShowTaskWindow={setShowCreateTaskWindow}
           />
         )}
       </div>
