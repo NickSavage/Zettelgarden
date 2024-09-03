@@ -30,8 +30,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
         tagsInTitle.forEach((tag) => tagSet.add(tag));
       }
     });
+    const sortedTags = Array.from(tagSet).sort();
 
-    setExistingTags(Array.from(tagSet));
+    setExistingTags(sortedTags);
   };
   const getTasks = async () => {
     console.log("run getTasks");
