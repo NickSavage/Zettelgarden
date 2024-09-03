@@ -6,6 +6,7 @@ import { Card, PartialCard } from "../..//models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Input } from "../Input";
+import { AddTagMenu } from "../../components/tasks/AddTagMenu";
 
 interface CreateTaskWindowProps {
   currentCard: Card | PartialCard | null;
@@ -20,6 +21,10 @@ export function CreateTaskWindow({
 }: CreateTaskWindowProps) {
   const [newTask, setNewTask] = useState<Task>(emptyTask);
   const [selectedCard, setSelectedCard] = useState<PartialCard | null>(null);
+
+  const [showMenu, setShowMenu] = useState<boolean>(false);
+  const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
+
   async function handleSaveTask() {
     let response;
 
@@ -46,6 +51,18 @@ export function CreateTaskWindow({
     setNewTask({ ...newTask, card_pk: card.id });
   }
 
+  function toggleMenu() {
+    if (showTagMenu) {
+      setShowTagMenu(false);
+    }
+    setShowMenu(!showMenu);
+  }
+
+  async function handleAddTagClick() {
+    setShowMenu(false);
+    setShowTagMenu(true);
+  }
+
   return (
     <div
       className="create-task-popup-overlay"
@@ -57,8 +74,14 @@ export function CreateTaskWindow({
       >
         <div className="create-task-window">
           <div className="create-task-window-top">
-            <Input
-              label="New Task"
+            <label className="block mb-2 font-bold text-gray-700">
+              {"New Task"}
+            </label>
+            <input
+              className="
+w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 focus:border-blue-500
+"
+              placeholder="Enter new task"
               value={newTask.title}
               onChange={(e) =>
                 setNewTask({ ...newTask, title: e.target.value })
@@ -68,16 +91,33 @@ export function CreateTaskWindow({
                   handleSaveTask();
                 }
               }}
-              placeholder="Enter new task"
-              className="w-full"
               autoFocus
             />
+            <div className="dropdown">
+              <button onClick={toggleMenu} className="menu-button">
+                ⋮
+              </button>
+              {showMenu && (
+                <div className="popup-menu">
+                  <button onClick={() => handleAddTagClick()}>Add Tag</button>
+                </div>
+              )}
+        {showTagMenu && (
+          <div className="popup-menu">
+            <AddTagMenu
+              task={newTask}
+              setRefresh={setRefresh}
+              setShowTagMenu={setShowTagMenu}
+            />
+          </div>
+        )}
+            </div>
           </div>
           <div className="create-task-window-bottom">
             <div className="create-task-window-bottom-left">
               {!currentCard && <BacklinkInput addBacklink={handleBacklink} />}
             </div>
-            <div className="crate-task-window-bottom-middle">
+            <div className="create-task-window-bottom-middle">
               {selectedCard && (
                 <span style={{ fontWeight: "bold", color: "blue" }}>
                   [{selectedCard?.card_id}]
