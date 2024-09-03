@@ -34,7 +34,7 @@ export function Sidebar() {
 
   const mainCards = useMemo(
     () => partialCards.filter((card) => !card.card_id.includes("/")),
-    [partialCards]
+    [partialCards],
   );
 
   const filteredCards = useMemo(() => {
@@ -55,7 +55,7 @@ export function Sidebar() {
         });
       }
     });
-    return filteredResults.slice(0,100);
+    return filteredResults.slice(0, 100);
   }, [mainCards, filter]);
 
   function handleNewStandardCard() {
@@ -76,20 +76,28 @@ export function Sidebar() {
   const todayTasks = useMemo(
     () =>
       tasks.filter(
-        (task) => !task.is_complete && isTodayOrPast(task.scheduled_date)
+        (task) => !task.is_complete && isTodayOrPast(task.scheduled_date),
       ),
-    [tasks]
+    [tasks],
   );
 
   function handleFilter(text: string) {
     setFilter(text);
   }
 
-  const handleKeyPress = (event) => {
+  const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
     if (event.metaKey) {
       return;
     }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setShowCreateTaskWindow(false);
+      setShowQuickSearchWindow(false);
+      return;
+    }
+    
+    // these should only work if there isn't an input selected
     const focusedElement = document.activeElement;
     if (!focusedElement || !focusedElement.tagName.match(/^INPUT|TEXTAREA$/i)) {
       if (event.key === "c") {
@@ -127,7 +135,7 @@ export function Sidebar() {
           </Link>
         </div>
         <div className="dropdown">
-        <Button onClick={toggleNewDropdown} children="+" />
+          <Button onClick={toggleNewDropdown} children="+" />
           {isNewDropdownOpen && (
             <div className="popup-menu">
               <button onClick={handleNewStandardCard} children={"New Card"} />
@@ -171,10 +179,10 @@ export function Sidebar() {
         </div>
       </div>
       <div className="scroll-cards">
-      <span className="px-2.5 py-2 font-bold">Recent Cards</span>
-      <div className="m-1">
-        <FilterInput handleFilterHook={handleFilter} />
-	</div>
+        <span className="px-2.5 py-2 font-bold">Recent Cards</span>
+        <div className="m-1">
+          <FilterInput handleFilterHook={handleFilter} />
+        </div>
         <div>
           {filteredCards.map((card) => (
             <CardItem key={card.id} card={card} />

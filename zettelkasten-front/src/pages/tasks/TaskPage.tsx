@@ -21,14 +21,14 @@ export function TaskPage({}: TaskListProps) {
   const [filterString, setFilterString] = useState<string>("");
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
-  const [activeTab, setActiveTab] = useState('Open');
+  const [activeTab, setActiveTab] = useState("Open");
   const openTasksCount = tasks.filter((task) => !task.is_complete).length;
   const closedTasksCount = tasks.filter((task) => task.is_complete).length;
   const allTasksCount = tasks.length;
   const tabs = [
-    { label: 'Open', count: openTasksCount },
-    { label: 'Closed', count: closedTasksCount },
-    { label: 'All', count: allTasksCount },
+    { label: "Open", count: openTasksCount },
+    { label: "Closed", count: closedTasksCount },
+    { label: "All", count: allTasksCount },
   ];
 
   function handleFilterChange(
@@ -46,53 +46,56 @@ export function TaskPage({}: TaskListProps) {
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
     setDateView(e.target.value);
   }
-function changeDateView(task: Task): boolean {
-  // Handle filtering based on the active tab
-  if (activeTab === "Open" && task.is_complete) {
-    return false;
-  }
-
-  if (activeTab === "Closed" && !task.is_complete) {
-    return false;
-  }
-
-  // Handle further filtering based on the date view
-  if (dateView === "all") {
-    // Only show completed tasks if the "Closed" tab is active
-    if (!showCompleted && task.is_complete) {
-      return false; 
-    }
-    return true;
-  }
-
-  if (dateView === "today") {
-    if (!task.is_complete && isTodayOrPast(task.scheduled_date)) {
-      return true;
-    } else if (
-      showCompleted &&
-      compareDates(task.scheduled_date, getToday())
-    ) {
-      return true;
-    } else {
+  function changeDateView(task: Task): boolean {
+    // Handle filtering based on the active tab
+    if (activeTab === "Open" && task.is_complete) {
       return false;
     }
-  }
 
-  if (dateView === "tomorrow") {
-    if (!task.is_complete && compareDates(task.scheduled_date, getTomorrow())) {
-      return true;
-    } else if (
-      showCompleted &&
-      compareDates(task.scheduled_date, getTomorrow())
-    ) {
-      return true; 
-    } else {
+    if (activeTab === "Closed" && !task.is_complete) {
       return false;
     }
-  }
 
-  return !task.is_complete;
-}
+    // Handle further filtering based on the date view
+    if (dateView === "all") {
+      // Only show completed tasks if the "Closed" tab is active
+      if (!showCompleted && task.is_complete) {
+        return false;
+      }
+      return true;
+    }
+
+    if (dateView === "today") {
+      if (!task.is_complete && isTodayOrPast(task.scheduled_date)) {
+        return true;
+      } else if (
+        showCompleted &&
+        compareDates(task.scheduled_date, getToday())
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    if (dateView === "tomorrow") {
+      if (
+        !task.is_complete &&
+        compareDates(task.scheduled_date, getTomorrow())
+      ) {
+        return true;
+      } else if (
+        showCompleted &&
+        compareDates(task.scheduled_date, getTomorrow())
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    return !task.is_complete;
+  }
   function toggleShowTaskWindow() {
     setShowTaskWindow(!showTaskWindow);
   }
@@ -102,36 +105,56 @@ function changeDateView(task: Task): boolean {
   }
 
   function handleTabClick(label: string) {
-    setActiveTab(label)
+    setActiveTab(label);
     if (label === "Closed") {
-      setShowCompleted(true)
+      setShowCompleted(true);
     } else {
-      setShowCompleted(false)
+      setShowCompleted(false);
     }
   }
+  const handleKeyPress = (event: KeyboardEvent) => {
+    // if this is true, the user is using a system shortcut, don't do anything with it
+    if (event.metaKey) {
+      return;
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setShowTaskWindow(false);
+      return;
+    }
+  };
+
   useEffect(() => {
     document.title = "Zettelgarden - Tasks";
-    //   setAllTasks();
-  }, [refresh]);
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
   return (
     <div>
-    <div className="flex items-center space-x-4">
-      {tabs.map((tab) => (
-        <span
-          key={tab.label}
-          onClick={() => handleTabClick(tab.label)}
-          className={`
+      <div className="flex items-center space-x-4">
+        {tabs.map((tab) => (
+          <span
+            key={tab.label}
+            onClick={() => handleTabClick(tab.label)}
+            className={`
             cursor-pointer font-medium py-1.5 px-3 rounded-md flex items-center
-            ${activeTab === tab.label ? 'text-blue-600 border-b-4 border-blue-600' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}
+            ${
+              activeTab === tab.label
+                ? "text-blue-600 border-b-4 border-blue-600"
+                : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+            }
           `}
-        >
-          {tab.label} 
-          <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
-            {tab.count}
+          >
+            {tab.label}
+            <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
+              {tab.count}
+            </span>
           </span>
-        </span>
-      ))}
-    </div>
+        ))}
+      </div>
       <div className="bg-slate-200 p-2 border-slate-400 border">
         <div className="flex">
           <select className="mb-5" value={dateView} onChange={handleDateChange}>
