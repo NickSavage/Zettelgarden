@@ -5,7 +5,7 @@ import { Task, emptyTask } from "../../models/Task";
 import { Card, PartialCard } from "../..//models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
-import { Input } from "../Input";
+import { Button } from "../Button";
 import { AddTagMenu } from "../../components/tasks/AddTagMenu";
 
 interface CreateTaskWindowProps {
@@ -62,6 +62,10 @@ export function CreateTaskWindow({
     setShowMenu(false);
     setShowTagMenu(true);
   }
+  async function handleAddTag(tag: string) {
+    let editedTask = { ...newTask, title: newTask.title + " " + tag };
+    setNewTask(editedTask);
+  }
 
   return (
     <div
@@ -77,40 +81,43 @@ export function CreateTaskWindow({
             <label className="block mb-2 font-bold text-gray-700">
               {"New Task"}
             </label>
-            <input
-              className="
+            <div className="flex mb-2">
+              <input
+                className="
 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 focus:border-blue-500
 "
-              placeholder="Enter new task"
-              value={newTask.title}
-              onChange={(e) =>
-                setNewTask({ ...newTask, title: e.target.value })
-              }
-              onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                if (event.key === "Enter") {
-                  handleSaveTask();
+                placeholder="Enter new task"
+                value={newTask.title}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, title: e.target.value })
                 }
-              }}
-              autoFocus
-            />
-            <div className="dropdown">
-              <button onClick={toggleMenu} className="menu-button">
-                ⋮
-              </button>
-              {showMenu && (
-                <div className="popup-menu">
-                  <button onClick={() => handleAddTagClick()}>Add Tag</button>
-                </div>
-              )}
-        {showTagMenu && (
-          <div className="popup-menu">
-            <AddTagMenu
-              task={newTask}
-              setRefresh={setRefresh}
-              setShowTagMenu={setShowTagMenu}
-            />
-          </div>
-        )}
+                onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (event.key === "Enter") {
+                    handleSaveTask();
+                  }
+                }}
+                autoFocus
+              />
+              <div className="dropdown">
+                <button onClick={toggleMenu} className="menu-button">
+                  ⋮
+                </button>
+                {showMenu && (
+                  <div className="popup-menu">
+                    <button onClick={() => handleAddTagClick()}>Add Tag</button>
+                  </div>
+                )}
+                {showTagMenu && (
+                  <div className="popup-menu">
+                    <AddTagMenu
+                      task={newTask}
+                      setRefresh={setRefresh}
+                      setShowTagMenu={setShowTagMenu}
+                      handleAddTag={handleAddTag}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="create-task-window-bottom">
@@ -131,7 +138,7 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
               />
             </div>
             <div className="create-task-window-bottom-right">
-              <button onClick={handleSaveTask}>Save</button>
+            <Button onClick={handleSaveTask} children="Save" />
             </div>
           </div>
         </div>

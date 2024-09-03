@@ -90,6 +90,15 @@ export function TaskListItem({
     setRefresh(true);
     setShowMenu(false);
   }
+
+  async function handleAddTag(tag: string) {
+    let editedTask = { ...task, title: task.title + " " + tag };
+    let response = await saveExistingTask(editedTask);
+    if (!("error" in response)) {
+      setRefresh(true);
+      setShowTagMenu(false);
+    }
+  }
   return (
     <div className="task-list-item">
       <div className="task-list-item-checkbox">
@@ -115,7 +124,9 @@ export function TaskListItem({
               onClick={handleTitleClick}
               className={task.is_complete ? "task-completed" : "task-title"}
               dangerouslySetInnerHTML={{
-                __html: linkifyWithDefaultOptions(removeTagsFromTitle(task.title)),
+                __html: linkifyWithDefaultOptions(
+                  removeTagsFromTitle(task.title),
+                ),
               }}
             />
           )}
@@ -167,6 +178,7 @@ export function TaskListItem({
               task={task}
               setRefresh={setRefresh}
               setShowTagMenu={setShowTagMenu}
+              handleAddTag={handleAddTag}
             />
           </div>
         )}

@@ -7,12 +7,14 @@ interface AddTagMenuProps {
   task: Task;
   setRefresh: (refresh: boolean) => void;
   setShowTagMenu: (showMenu: boolean) => void;
+  handleAddTag: (tag: string) => void;
 }
 
 export function AddTagMenu({
   task,
   setRefresh,
   setShowTagMenu,
+  handleAddTag,
 }: AddTagMenuProps) {
   const [textInput, setTextInput] = useState<string>("");
   const { existingTags } = useTaskContext();
@@ -31,14 +33,6 @@ export function AddTagMenu({
     handleAddTag("#" + textInput);
   }
 
-  async function handleAddTag(tag: string) {
-    let editedTask = { ...task, title: task.title + " " + tag };
-    let response = await saveExistingTask(editedTask);
-    if (!("error" in response)) {
-      setRefresh(true);
-      setShowTagMenu(false);
-    }
-  }
 
   return (
     <div className="w-24">
