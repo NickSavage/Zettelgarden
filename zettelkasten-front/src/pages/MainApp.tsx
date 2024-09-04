@@ -15,7 +15,7 @@ import { BillingCancelled } from "./BillingCancelled";
 import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
 
-import { Card } from "../models/Card";
+import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
 import {
@@ -26,7 +26,7 @@ import { ShortcutProvider } from "../contexts/ShortcutContext";
 
 function MainAppContent() {
   const navigate = useNavigate();
-  const [lastCard, setLastCard] = useState<Card | null>(null);
+  const [lastCard, setLastCard] = useState<PartialCard | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCards, setSearchCards] = useState<Card[]>([]);
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();

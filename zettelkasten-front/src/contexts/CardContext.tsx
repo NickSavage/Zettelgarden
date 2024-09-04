@@ -1,11 +1,15 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { fetchPartialCards } from "../api/cards";
-import { PartialCard } from "../models/Card";
+import { PartialCard, Card } from "../models/Card";
+
+
 
 interface PartialCardContextType {
+  lastCard: PartialCard | null;
+  setLastCard: (card: PartialCard) => void;
   partialCards: PartialCard[];
   refreshPartialCards: boolean;
-  setRefreshPartialCards: (refrsh: boolean) => void;
+  setRefreshPartialCards: (refresh: boolean) => void;
   getPartialCards: () => Promise<void>;
 }
 const PartialCardContext = createContext<PartialCardContextType | undefined>(
@@ -16,6 +20,7 @@ export const PartialCardProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [partialCards, setPartialCards] = useState<PartialCard[]>([]);
+  const [lastCard, setLastCard] = useState<PartialCard | null>(null);
   const [refreshPartialCards, setRefreshPartialCards] =
     useState<boolean>(false);
 
@@ -41,6 +46,8 @@ export const PartialCardProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <PartialCardContext.Provider
       value={{
+	lastCard,
+	setLastCard,
         partialCards,
         refreshPartialCards,
         setRefreshPartialCards,

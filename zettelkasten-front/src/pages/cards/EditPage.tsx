@@ -14,7 +14,6 @@ import { CardBodyTextArea } from "../../components/cards/CardBodyTextArea";
 
 interface EditPageProps {
   newCard: boolean;
-  lastCard: Card | null;
 }
 
 function handleViewCard(card_pk: number) {}
@@ -29,11 +28,11 @@ function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
   return null;
 }
 
-export function EditPage({ newCard, lastCard }: EditPageProps) {
+export function EditPage({ newCard }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
-  const { partialCards, setRefreshPartialCards } = usePartialCardContext();
+  const { partialCards, setRefreshPartialCards, lastCard } = usePartialCardContext();
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

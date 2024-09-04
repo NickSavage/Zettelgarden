@@ -21,14 +21,15 @@ import {
 } from "../../components/Header";
 import { Button } from "../../components/Button";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
-import { NonNullChain } from "typescript";
+import { convertCardToPartialCard } from "../../utils/cards";
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
 
+import { usePartialCardContext } from "../../contexts/CardContext";
+
 interface ViewPageProps {
-  setLastCard: (card: Card | null) => void;
 }
 
-export function ViewPage({ setLastCard }: ViewPageProps) {
+export function ViewPage({  }: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
@@ -42,6 +43,8 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
     : [];
 
   const navigate = useNavigate();
+
+  const { setLastCard } = usePartialCardContext();
 
   function onFileDelete(file_id: number) {}
   function handleViewCard(card_id: number) {}
@@ -81,7 +84,7 @@ export function ViewPage({ setLastCard }: ViewPageProps) {
       } else {
         setViewCard(refreshed);
         document.title = "Zettelgarden - " + refreshed.card_id + " - View";
-        setLastCard(refreshed);
+        setLastCard(convertCardToPartialCard(refreshed));
 
         if (refreshed.parent && "id" in refreshed.parent) {
           let parentCardId = refreshed.parent.id;

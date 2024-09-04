@@ -1,4 +1,4 @@
-import { PartialCard } from "../models/Card";
+import { PartialCard, Card } from "../models/Card";
 
 // filter the card_id and title by searchText, return top 5 matches
 export function quickFilterCards(cards: PartialCard[], searchText: string): PartialCard[] {
@@ -19,4 +19,15 @@ export function quickFilterCards(cards: PartialCard[], searchText: string): Part
       );
       let results = filteredCards.slice(0, 5);
       return results
+}
+export function convertCardToPartialCard(card: Card): PartialCard {
+  return {
+    id: card.id,
+    card_id: card.card_id,
+    user_id: card.user_id,
+    title: card.title,
+    parent_id: card.parent_id,
+    created_at: card.created_at,
+    updated_at: card.updated_at,
+  };
 }
