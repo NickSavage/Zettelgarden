@@ -1,6 +1,6 @@
 import React from "react";
 import { Admin } from "./pages/admin/AdminPage";
-import LandingPage from "./pages/LandingPage";
+import LandingPage from "./landing/LandingPage";
 import LoginForm from "./pages/LoginPage";
 import MainApp from "./pages/MainApp";
 import RegisterPage from "./pages/RegisterPage";
