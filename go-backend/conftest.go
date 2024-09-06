@@ -177,7 +177,6 @@ func (s *Server) generateData() map[string]interface{} {
 			CreatedAt:                   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 			UpdatedAt:                   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 			CanUploadFiles:              true,
-			LastLogin:                   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 			StripeSubscriptionStatus:    "",
 			StripeCustomerID:            "",
 			StripeCurrentPlan:           "",

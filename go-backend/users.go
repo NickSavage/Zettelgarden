@@ -50,6 +50,7 @@ func (s *Server) GetUserRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) GetUsersRoute(w http.ResponseWriter, r *http.Request) {
 	users, err := s.QueryUsers()
+	log.Printf("users %v", users)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -287,7 +288,7 @@ func (s *Server) QueryUsers() ([]models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage 
+	stripe_subscription_status,max_file_storage, last_login
 	FROM users`)
 	if err != nil {
 		return users, err
@@ -307,6 +308,7 @@ func (s *Server) QueryUsers() ([]models.User, error) {
 			&user.CanUploadFiles,
 			&user.StripeSubscriptionStatus,
 			&user.MaxFileStorage,
+			&user.LastLogin,
 		); err != nil {
 			return users, err
 		}
@@ -331,7 +333,7 @@ func (s *Server) QueryUserByEmail(email string) (models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage 
+	stripe_subscription_status,max_file_storage, last_login 
 	FROM users WHERE email = $1
 	`, email).Scan(
 		&user.ID,
@@ -345,6 +347,7 @@ func (s *Server) QueryUserByEmail(email string) (models.User, error) {
 		&user.CanUploadFiles,
 		&user.StripeSubscriptionStatus,
 		&user.MaxFileStorage,
+		&user.LastLogin,
 	)
 	if err != nil {
 		log.Printf("err %v", err)
@@ -364,7 +367,7 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage 
+	stripe_subscription_status,max_file_storage, last_login 
 	FROM users WHERE id = $1
 	`, id).Scan(
 		&user.ID,
@@ -378,6 +381,7 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 		&user.CanUploadFiles,
 		&user.StripeSubscriptionStatus,
 		&user.MaxFileStorage,
+		&user.LastLogin,
 	)
 	if err != nil {
 		log.Printf("errsd %v", err)
