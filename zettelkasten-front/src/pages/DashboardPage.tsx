@@ -55,7 +55,7 @@ export function DashboardPage() {
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
           <H6 children="Recent Cards" />
-          {partialCards && <CardList cards={partialCards.slice(0, 10)} />}
+          {partialCards && <CardList cards={partialCards.slice(0, 10)} showAddButton={false} />}
         </div>
         <div style={{ flex: 1, minWidth: "50%" }}>
           <H6 children="Inactive Cards" />

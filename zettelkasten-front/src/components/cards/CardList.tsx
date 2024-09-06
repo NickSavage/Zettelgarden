@@ -6,9 +6,10 @@ import { PartialCard } from "../../models/Card";
 interface CardListProps {
   cards: PartialCard[];
   sort?: boolean;
+  showAddButton?: boolean;
 }
 
-export function CardList({ cards, sort = true }: CardListProps) {
+export function CardList({ cards, sort = true, showAddButton = true }: CardListProps) {
   console.log("sort?", sort);
   const sortedCards = sort
     ? [...cards].sort((a, b) => a.card_id.localeCompare(b.card_id))
@@ -18,7 +19,7 @@ export function CardList({ cards, sort = true }: CardListProps) {
     <ul>
       {sortedCards.map((backlink, index) => (
         <li className="">
-          <CardListItem card={backlink} />
+        <CardListItem card={backlink} showAddButton={showAddButton} />
         </li>
       ))}
     </ul>

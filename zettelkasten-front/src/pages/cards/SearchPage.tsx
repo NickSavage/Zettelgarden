@@ -85,7 +85,7 @@ export function SearchPage({
         </div>
         {currentItems.length > 0 ? (
           <div>
-            <CardList cards={currentItems} sort={false} />
+          <CardList cards={currentItems} sort={false} showAddButton={false} />
             <div>
               <Button
                 onClick={() => setCurrentPage(currentPage - 1)}

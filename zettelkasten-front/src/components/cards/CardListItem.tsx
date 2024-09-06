@@ -9,9 +9,13 @@ import { useNavigate } from "react-router-dom";
 
 interface CardListItemProps {
   card: PartialCard;
+  showAddButton?: boolean;
 }
 
-export function CardListItem({ card }: CardListItemProps) {
+export function CardListItem({
+  card,
+  showAddButton = true,
+}: CardListItemProps) {
   const [showHover, setShowHover] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -44,9 +48,11 @@ export function CardListItem({ card }: CardListItemProps) {
         </span>
       </div>
       <div className="flex-grow">
-        <span onClick={handleAddCardClick}>
-          <PlusCircleIcon />
-        </span>
+        {showAddButton && (
+          <span onClick={handleAddCardClick}>
+            <PlusCircleIcon />
+          </span>
+        )}
       </div>
       <div className="flex text-xs">{formatDate(card.created_at)}</div>
 
