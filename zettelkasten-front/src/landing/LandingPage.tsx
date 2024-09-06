@@ -9,7 +9,7 @@ import { GithubIcon } from "../assets/icons/GithubIcon";
 function LandingPage() {
   const navigate = useNavigate();
   const isDev = localStorage.getItem("isDev");
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit() {}
@@ -32,9 +32,9 @@ function LandingPage() {
           </Link>
           <span className="text-2xl">Zettelgarden</span>
           <div className="flex-grow">
-            <Link to="" className="p-4">
+            <a href="#features" className="p-4">
               <span className="text-1xl">Features</span>
-            </Link>
+            </a>
             <Link to="" className="p-4">
               <span className="text-1xl">Pricing</span>
             </Link>
@@ -45,7 +45,7 @@ function LandingPage() {
             </Link>
           </div>
         </div>
-        <div className="py-10 w-6/12">
+        <div className="py-36 w-6/12">
           <p className="text-2xl">Plant Your Thoughts, Cultivate Your Ideas</p>
           <p className="text-xl">
             Zettelgarden is your dynamic 'second brain,' seamlessly blending
@@ -53,35 +53,43 @@ function LandingPage() {
             method.
           </p>
 
-              <button type="submit">Sign Up For Zettelgarden</button>
-	  </div>
-	  <div className="text-lg">
-
-          <p className="font-bold">Atomic Card System</p>
-          <p>
-            Break down your thoughts and tasks into manageable, atomic units
-            with our intuitive card system. Each card holds a single piece of
-            information or task, helping you focus on the essentials and
-            maintain clarity in your knowledge ecosystem.
-          </p>
-
-          <p className="font-bold">Dynamic Linking and File Attachment</p>
-          <p>
-            Enhance your cards with the ability to upload and attach files,
-            creating comprehensive nodes of information. Effortlessly build a
-            rich network by linking cards and their associated files, enabling
-            you to seamlessly integrate and organize diverse content.
-          </p>
-
-          <p className="font-bold">Integrated Task and Knowledge Management</p>
-          <p>
-            Seamlessly blend short-term tasks with long-term knowledge storage.
-            Zettelgarden’s dual-focused approach ensures that your immediate
-            to-dos and evolving ideas coexist harmoniously, providing you a
-            comprehensive personal management solution that adapts as you do.
-          </p>
+          <button type="submit">Sign Up For Zettelgarden</button>
         </div>
-        <div>
+        <div id="features" className="text-lg">
+          <div className="pt-20">
+            <p className="font-bold">Atomic Card System</p>
+            <p>
+              Break down your thoughts and tasks into manageable, atomic units
+              with our intuitive card system. Each card holds a single piece of
+              information or task, helping you focus on the essentials and
+              maintain clarity in your knowledge ecosystem.
+            </p>
+          </div>
+
+          <div className="pt-20">
+            <p className="font-bold">Dynamic Linking and File Attachment</p>
+            <p>
+              Enhance your cards with the ability to upload and attach files,
+              creating comprehensive nodes of information. Effortlessly build a
+              rich network by linking cards and their associated files, enabling
+              you to seamlessly integrate and organize diverse content.
+            </p>
+          </div>
+
+          <div className="pt-20">
+            <p className="font-bold">
+              Integrated Task and Knowledge Management
+            </p>
+            <p>
+              Seamlessly blend short-term tasks with long-term knowledge
+              storage. Zettelgarden’s dual-focused approach ensures that your
+              immediate to-dos and evolving ideas coexist harmoniously,
+              providing you a comprehensive personal management solution that
+              adapts as you do.
+            </p>
+          </div>
+        </div>
+        <div className="pt-36">
           <p>
             We're excited to announce that Zettelgarden is launching soon! Sign
             up for our mailing list to receive the latest updates and be the
@@ -102,10 +110,17 @@ function LandingPage() {
             <p>Thank you for signing up!</p>
           )}
         </div>
-        <div>
-          <a href="https://github.com/NickSavage/Zettelgarden">
-            <GithubIcon />
-          </a>
+        <div className="flex pt-20">
+          <div className="grid text-sm">
+            <Link to="">Terms of Service</Link>
+            <Link to="">Privacy Policy</Link>
+          </div>
+          <div className="flex-grow"></div>
+          <div>
+            <a href="https://github.com/NickSavage/Zettelgarden">
+              <GithubIcon />
+            </a>
+          </div>
         </div>
       </div>
     </div>
