@@ -65,6 +65,7 @@ export function CreateTaskWindow({
   async function handleAddTag(tag: string) {
     let editedTask = { ...newTask, title: newTask.title + " " + tag };
     setNewTask(editedTask);
+    setShowTagMenu(false)
   }
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
