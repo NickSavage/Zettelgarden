@@ -80,8 +80,7 @@ export function isRecurringTask(task: Task): boolean {
 }
 
 export function formatDate(dateString: string): string {
-  const dateTimeString = "2024-08-30T10:28:08.203752Z";
-  const date = new Date(dateTimeString);
+  const date = new Date(dateString);
 
   const formattedDate = date.toISOString().split("T")[0];
   return formattedDate;
