@@ -8,22 +8,22 @@
 import SwiftUI
 import ZettelgardenShared
 
-class FileViewModel: ObservableObject {
-    var file: File
+public class FileViewModel: ObservableObject {
+    public var file: File
     @AppStorage("jwt") private var token: String?
-    @Published var identifiableFileURL: IdentifiableURL?
-    @Published var isDownloading = false
-    @Published var downloadError: Error?
+    @Published public var identifiableFileURL: IdentifiableURL?
+    @Published public var isDownloading = false
+    @Published public var downloadError: Error?
 
     @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
         .production.rawValue
     var environment: AppEnvironment {
         AppEnvironment(rawValue: currentEnvironment) ?? .production
     }
-    init(file: File) {
+    public init(file: File) {
         self.file = file
     }
-    func downloadFile() {
+    public func downloadFile() {
 
         guard let token = token else {
             self.downloadError = NSError(

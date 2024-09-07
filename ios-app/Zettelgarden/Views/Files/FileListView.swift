@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ZettelgardenShared
 
 struct FileListView: View {
     @ObservedObject var viewModel = FileListViewModel()
@@ -14,7 +15,8 @@ struct FileListView: View {
         VStack {
             if viewModel.isLoading {
                 ProgressView("Loading")
-            } else if let files = viewModel.files {
+            }
+            else if let files = viewModel.files {
                 List {
                     ForEach(files) { file in
                         FileCardListItem(file: file)

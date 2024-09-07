@@ -10,9 +10,9 @@ import Foundation
 import SwiftUI
 import ZettelgardenShared
 
-class FileListViewModel: ObservableObject {
-    @Published var files: [File]?
-    @Published var isLoading = true
+public class FileListViewModel: ObservableObject {
+    @Published public var files: [File]?
+    @Published public var isLoading = true
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
@@ -21,7 +21,8 @@ class FileListViewModel: ObservableObject {
     var environment: AppEnvironment {
         AppEnvironment(rawValue: currentEnvironment) ?? .production
     }
-    func loadFiles() {
+    public init() {}
+    public func loadFiles() {
         guard let token = token else {
             print("Token is missing")
             return

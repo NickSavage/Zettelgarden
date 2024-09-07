@@ -9,9 +9,10 @@
 /* Begin PBXBuildFile section */
 		0100FCCD2C3D3764006FACAE /* TaskListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0100FCCC2C3D3764006FACAE /* TaskListItemView.swift */; };
 		0111A7342BFD597300DDED68 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7332BFD597300DDED68 /* HomeView.swift */; };
-		0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7352BFD640400DDED68 /* FileViewModel.swift */; };
 		0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7372BFDF4A900DDED68 /* SidebarView.swift */; };
 		011785432C8BD77000FA1052 /* PartialCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */; };
+		011785442C8BD97B00FA1052 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
+		011785452C8BD99C00FA1052 /* FileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0111A7352BFD640400DDED68 /* FileViewModel.swift */; };
 		011AAA512C44691900ED7BE2 /* EnvironmentSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011AAA502C44691900ED7BE2 /* EnvironmentSelector.swift */; };
 		01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F5B2BF2BB6200DF973E /* ZettelgardenApp.swift */; };
 		01201F5E2BF2BB6200DF973E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F5D2BF2BB6200DF973E /* ContentView.swift */; };
@@ -60,7 +61,6 @@
 		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
 		01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */; };
 		01B888222BFB8FE400B3ACF1 /* FileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888212BFB8FE400B3ACF1 /* FileListView.swift */; };
-		01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */; };
 		01C74F5C2C7EA20000605719 /* EditCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F5B2C7EA20000605719 /* EditCardView.swift */; };
 		01C74F5F2C7F393E00605719 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F5E2C7F393D00605719 /* AuthViewModel.swift */; };
 		01C74F612C7F9BF300605719 /* DisplayTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F602C7F9BF300605719 /* DisplayTaskView.swift */; };
@@ -458,7 +458,9 @@
 			isa = PBXGroup;
 			children = (
 				01C74F5E2C7F393D00605719 /* AuthViewModel.swift */,
+				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
+				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
 				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
 				01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */,
 				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
@@ -471,8 +473,6 @@
 		01B888082BF6CA8700B3ACF1 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
-				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -729,7 +729,6 @@
 				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
 				01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */,
 				01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */,
-				0111A7362BFD640400DDED68 /* FileViewModel.swift in Sources */,
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
 				0172F7232C7D1024000F3CEB /* AddCardView.swift in Sources */,
@@ -739,7 +738,6 @@
 				01C74F612C7F9BF300605719 /* DisplayTaskView.swift in Sources */,
 				01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */,
 				01C74F672C83413500605719 /* TaskAddTagView.swift in Sources */,
-				01B888242BFB907F00B3ACF1 /* FileListViewModel.swift in Sources */,
 				01759F192C3E092D00918E10 /* TaskListView.swift in Sources */,
 				01C74F632C823EF300605719 /* TaskDateChangeView.swift in Sources */,
 				016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */,
@@ -787,6 +785,8 @@
 			files = (
 				01FC26752C77B5D000039EDA /* Cards.swift in Sources */,
 				01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */,
+				011785452C8BD99C00FA1052 /* FileViewModel.swift in Sources */,
+				011785442C8BD97B00FA1052 /* FileListViewModel.swift in Sources */,
 				01FC26762C77B6BB00039EDA /* SearchViewModel.swift in Sources */,
 				01FC266F2C77B4F900039EDA /* ContentViewSelection.swift in Sources */,
 				0172F71A2C79F779000F3CEB /* Http.swift in Sources */,
