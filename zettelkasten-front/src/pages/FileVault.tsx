@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getAllFiles } from "../api/files";
-import { sortCards } from "../utils";
+import { sortCards } from "../utils/cards";
 import { FileRenameModal } from "../components/files/FileRenameModal";
 import { FileListItem } from "../components/files/FileListItem";
 import { FilterInput } from "../components/FilterInput";

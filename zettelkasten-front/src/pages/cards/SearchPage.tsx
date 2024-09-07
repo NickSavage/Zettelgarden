@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards } from "../../api/cards";
 import { Card } from "../../models/Card";
-import { sortCards } from "../../utils";
+import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
 import { usePartialCardContext } from "../../contexts/CardContext";

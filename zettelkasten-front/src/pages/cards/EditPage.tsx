@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { isCardIdUnique } from "../../utils";
+import { isCardIdUnique } from "../../utils/cards";
 import { uploadFile } from "../../api/files";
 import { saveNewCard, saveExistingCard, getCard } from "../../api/cards";
 import { FileListItem } from "../../components/files/FileListItem";
