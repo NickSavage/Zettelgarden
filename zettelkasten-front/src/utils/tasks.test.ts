@@ -33,7 +33,7 @@ test("parse tags from title with only tags", () => {
 
 test("parse tags from title with tags and punctuation", () => {
   const title = "This is a title with #tags, and punctuation!";
-  expect(parseTags(title)).toEqual(["#tags"]);
+  expect(parseTags(title)).toEqual(["#tags,"]);
 });
 
 test("parse tags from title with mixed content", () => {
@@ -43,16 +43,11 @@ test("parse tags from title with mixed content", () => {
 
 test("parse tags from title with consecutive tags", () => {
   const title = "Some text #tag1#tag2 more text";
-  expect(parseTags(title)).toEqual(["#tag1", "#tag2"]);
+  expect(parseTags(title)).toEqual(["#tag1#tag2"]);
 });
 
-test("parse tags from title with consecutive tags", () => {
-  const title = "Some text #tag1#tag2 more text";
-  expect(parseTags(title)).toEqual(["#tag1", "#tag2"]);
-});
-
-// test("skip parsing tags from middle of words", () => {
-//   const title = "Some text#tag1#tag2 more text";
-//   expect(parseTags(title)).toEqual([#tag]);
+test("skip parsing tags from middle of words", () => {
+  const title = "Some text#tag1#tag2 more text";
+  expect(parseTags(title)).toEqual([]);
   
-// })
+})

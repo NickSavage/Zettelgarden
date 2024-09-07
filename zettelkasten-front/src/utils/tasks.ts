@@ -5,7 +5,7 @@ export function removeTagsFromTitle(title: string): string {
 }
 
 export function parseTags(title: string): string[] {
-  const tagPattern = /#[\w-]+/g;
+  const tagPattern = /(?<=\s|^)(#[\w-]+(?:[.,!?])?)+(?=\s|$)/g;
   const matches = title.match(tagPattern);
 
   return matches ? Array.from(matches) : [];
