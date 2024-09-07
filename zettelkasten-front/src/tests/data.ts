@@ -1,5 +1,5 @@
 import { Task } from "../models/Task";
-import { Card } from "../models/Card";
+import { Card, PartialCard } from "../models/Card";
 
 export function sampleTasks(): Task[] {
   return sampleTaskData;
@@ -32,7 +32,7 @@ const sampleTaskData: Task[] = [
     created_at: new Date(),
     updated_at: new Date(),
     completed_at: null,
-    title: "Weekly Sync-up #recurring",
+   title: "Weekly Sync-up #recurring",
     is_complete: false,
     is_deleted: false,
     card: null,
@@ -81,6 +81,28 @@ const sampleTaskData: Task[] = [
   },
 ];
 
+const samplePartialCardData: PartialCard[] = [
+    {
+    id: 1,
+    card_id: "1",
+    user_id: 1,
+    title: "hello world",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    parent_id: 1,
+  },
+  {
+    id: 2,
+    card_id: "1/A",
+    user_id: 1,
+    title: "update",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    parent_id: 2,
+  },
+
+]
+
 const sampleCardData: Card[] = [
   {
     id: 1,
@@ -89,12 +111,15 @@ const sampleCardData: Card[] = [
     title: "hello world",
     body: "this is a test of the emergency response system",
     link: "",
-    created_at: new Date(),
-    updated_at: new Date(),
-    parent: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    parent_id: 1,
+    parent: samplePartialCardData[0],
     children: [],
     references: [],
     files: [],
+    is_deleted: false,
+    keywords: [],
   },
   {
     id: 2,
@@ -103,11 +128,14 @@ const sampleCardData: Card[] = [
     title: "update",
     body: "this is another test of the emergency response system",
     link: "",
-    created_at: new Date(),
-    updated_at: new Date(),
-    parent: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    parent_id: 2,
+    parent: samplePartialCardData[1],
     children: [],
     references: [],
     files: [],
+    is_deleted: false,
+    keywords: [],
   },
 ];

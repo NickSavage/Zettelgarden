@@ -7,6 +7,7 @@ import { CreateTaskWindow } from './CreateTaskWindow';
 import { saveNewTask } from '../../api/tasks';
 import { describe, it, vi, expect, beforeEach, afterEach } from "vitest";
 import { renderWithProviders } from "../../tests/utils";
+import type { Mock } from 'vitest';
 
 // Mock the API call
 vi.mock('../../api/tasks', () => ({
@@ -37,7 +38,7 @@ describe('CreateTaskWindow', () => {
 
   it('should call saveNewTask API when the save button is clicked', async () => {
     // Mock the API response
-    saveNewTask.mockResolvedValue({ id: 1, title: 'Test Task' });
+    (saveNewTask as Mock).mockResolvedValue({ id: 1, title: 'Test Task' });
 
     renderWithProviders(<CreateTaskWindow {...defaultProps} />);
 
