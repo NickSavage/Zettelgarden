@@ -39,7 +39,7 @@ export function convertCardToPartialCard(card: Card): PartialCard {
   };
 }
 
-export function isCardIdUnique(cards, id) {
+export function isCardIdUnique(cards: Card[]|PartialCard[], id: string): boolean {
   return !cards.some((card) => card.card_id === id);
 }
 
