@@ -12,10 +12,13 @@ interface TaskContextType {
   getTasks: () => Promise<void>;
   existingTags: string[];
 }
+interface TaskProviderProps {
+  children: React.ReactNode;
+  testing?: boolean; // Add this line
+  testTasks?: Task[];
+}
 
-export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const TaskProvider: React.FC<TaskProviderProps> = ({ children, testing = false, testTasks=[] }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [refreshTasks, setRefreshTasks] = useState(false);
   const [existingTags, setExistingTags] = useState<string[]>([]);
@@ -44,6 +47,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
   useEffect(() => {
+    if (testing) {
+      setTasks(testTasks)
+      extractTags(testTasks);
+      return
+    }
     if (refreshTasks) {
       getTasks();
     }

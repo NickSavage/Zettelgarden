@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent } from "react";
 import { Task } from "../../models/Task";
-import { saveExistingTask } from "../../api/tasks";
 import { useTaskContext } from "../../contexts/TaskContext";
 
 interface AddTagMenuProps {
@@ -50,9 +49,9 @@ export function AddTagMenu({
       {existingTags &&
         existingTags.map((tag) =>
           task.title.includes(tag) ? (
-            <div></div>
+            <div key={tag}></div>
           ) : (
-            <button onClick={() => handleExistingTagClick(tag)}>{tag}</button>
+            <button key={tag} onClick={() => handleExistingTagClick(tag)}>{tag}</button>
           ),
         )}
     </div>
