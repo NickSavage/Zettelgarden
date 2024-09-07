@@ -9,6 +9,7 @@ export default defineConfig({
     'import.meta.env.VITE_URL': JSON.stringify(env.VITE_URL),
   },
   test: {
+    globals: true,
     environment: 'happy-dom'
 
   }

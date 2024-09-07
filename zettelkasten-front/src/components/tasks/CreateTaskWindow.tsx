@@ -97,9 +97,9 @@ export function CreateTaskWindow({
       >
         <div className="create-task-window">
           <div className="create-task-window-top">
-            <label className="block mb-2 font-bold text-gray-700">
+            <span className="block mb-2 font-bold text-gray-700">
               {"New Task"}
-            </label>
+            </span>
             <div className="flex mb-2">
               <input
                 className="
