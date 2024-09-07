@@ -12,7 +12,6 @@ export function SidebarLink({ to, children }: SidebarLinkProps) {
 
   // Conditionally apply 'active' class if the current path matches the link's path
   const linkClassName = `sidebar-nav-link ${currentPath === to ? "active" : ""}`;
-  console.log(location, to, currentPath, linkClassName)
 
   return (
     <div>

@@ -1,4 +1,4 @@
-import React, { useState, KeyboardEvent } from "react";
+import React, { useState, useEffect, KeyboardEvent } from "react";
 import { deleteTask, saveExistingTask } from "../../api/tasks";
 import { getTomorrow } from "../../utils/dates";
 
@@ -12,7 +12,7 @@ import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
 import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 import { TaskTagDisplay } from "../../components/tasks/TaskTagDisplay";
 import { TaskListOptionsMenu } from "../../components/tasks/TaskListOptionsMenu";
-import { removeTagsFromTitle } from "../../utils/tasks";
+import { removeTagsFromTitle, parseTags } from "../../utils/tasks";
 
 interface TaskListItemProps {
   task: Task;
@@ -28,6 +28,8 @@ export function TaskListItem({
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
+  const [tags, setTags] = useState<string[]>([]);
+
 
   async function handleTitleClick() {
     setNewTitle(task.title);
@@ -60,6 +62,11 @@ export function TaskListItem({
       setRefresh(true);
     }
   }
+
+  useEffect(() => {
+    console.log("refrsh task");
+    setTags(parseTags(task.title));
+  }, [task]);
   return (
     <div className="task-list-item">
       <div className="task-list-item-checkbox">
@@ -99,7 +106,7 @@ export function TaskListItem({
             setRefresh={setRefresh}
             saveOnChange={true}
           />
-          <TaskTagDisplay task={task} onTagClick={onTagClick} />
+          <TaskTagDisplay task={task} tags={tags} onTagClick={onTagClick} />
         </div>
       </div>
       <div className="task-list-item-card">
@@ -118,7 +125,13 @@ export function TaskListItem({
             </div>
           ))}
       </div>
-      <TaskListOptionsMenu task={task} setRefresh={setRefresh} showCardLink={showCardLink} setShowCardLink={setShowCardLink} />
+      <TaskListOptionsMenu
+        task={task}
+        tags={tags}
+        setRefresh={setRefresh}
+        showCardLink={showCardLink}
+        setShowCardLink={setShowCardLink}
+      />
     </div>
   );
 }

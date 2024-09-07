@@ -3,23 +3,12 @@ import { Task } from "../../models/Task";
 
 interface TaskTagDisplayProps {
   task: Task;
+  tags: string[];
   onTagClick: (tag: string) => void;
 }
 
-export function TaskTagDisplay({ task, onTagClick }: TaskTagDisplayProps) {
-  const [tags, setTags] = useState<string[]>([]);
+export function TaskTagDisplay({ task, tags, onTagClick }: TaskTagDisplayProps) {
 
-  function parseTags() {
-    const tagPattern = /#[\w-]+/g;
-    const matches = task.title.match(tagPattern);
-
-    // If there are matches, return them. Otherwise, return an empty array.
-    matches ? setTags(Array.from(matches) as string[]) : [];
-  }
-
-  useEffect(() => {
-    parseTags();
-  }, [task]);
   return (
     <span className="mr-1">
       {tags.length > 0 &&
