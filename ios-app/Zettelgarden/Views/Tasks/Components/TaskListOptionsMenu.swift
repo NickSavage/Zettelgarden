@@ -10,6 +10,7 @@ import ZettelgardenShared
 
 struct TaskListOptionsMenu: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
+    @Binding var showingFilter: Bool
 
     var body: some View {
         Menu {
@@ -43,6 +44,10 @@ struct TaskListOptionsMenu: View {
                 taskListViewModel.showCompleted ? "Hide Completed" : "Show Completed",
                 action: toggleCompletedAction
             )
+            Button(
+                showingFilter ? "Hide Filter" : "Show Filter",
+                action: toggleShowFilter
+            )
         } label: {
             Image(systemName: "gearshape")
                 .padding()
@@ -51,6 +56,10 @@ struct TaskListOptionsMenu: View {
 
     private func toggleCompletedAction() {
         taskListViewModel.showCompleted = !taskListViewModel.showCompleted
+    }
+
+    private func toggleShowFilter() {
+        showingFilter = !showingFilter
     }
 
     private func todayAction() {
@@ -68,10 +77,12 @@ struct TaskListOptionsMenu: View {
 
 struct TaskListOptionsMenu_Preview: PreviewProvider {
     static var mockViewModel: TaskListViewModel = getTestTaskListViewModel()
+    @State static var showingFilter = false
 
     static var previews: some View {
         TaskListOptionsMenu(
-            taskListViewModel: mockViewModel  // Use the static mockViewModel here
+            taskListViewModel: mockViewModel,
+            showingFilter: $showingFilter
         )
         .previewLayout(.sizeThatFits)
         .padding()  // Optional: improve appearance in the preview

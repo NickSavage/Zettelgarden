@@ -4,10 +4,25 @@ import ZettelgardenShared
 struct TaskListView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
     @State private var showingAddTaskView = false
+    @State private var showingFilter = false
 
     var body: some View {
         ZStack {
             VStack {
+                if showingFilter {
+                    TextField(
+                        "Filter",
+                        text: Binding(
+                            get: { taskListViewModel.filterText },
+                            set: { taskListViewModel.filterText = $0 }
+                        )
+                    )
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.horizontal)
+                    .padding(.top, 10)
+
+                }
+
                 if !taskListViewModel.filteredTasks.isEmpty {
                     List {
                         Section(header: Text("Tasks").font(.headline)) {
@@ -48,7 +63,7 @@ struct TaskListView: View {
             AddTaskView(taskListViewModel: taskListViewModel)
         }
         .toolbar {
-            TaskListOptionsMenu(taskListViewModel: taskListViewModel)
+            TaskListOptionsMenu(taskListViewModel: taskListViewModel, showingFilter: $showingFilter)
         }
         .onAppear {
             taskListViewModel.loadTasks()
