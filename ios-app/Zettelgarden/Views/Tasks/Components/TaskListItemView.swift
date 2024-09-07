@@ -24,7 +24,7 @@ struct TaskListItemView: View {
                     Image(systemName: task.is_complete ? "checkmark.circle" : "circle")
                     Spacer()
                     VStack(alignment: .leading) {
-                        Text(task.title)
+                        Text(taskViewModel.titleWithoutTags)
                         HStack {
                             TaskDateTextDisplay(taskViewModel: taskViewModel)
                             ForEach(taskViewModel.tags, id: \.self) { tag in

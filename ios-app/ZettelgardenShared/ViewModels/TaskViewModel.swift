@@ -33,6 +33,17 @@ public class TaskViewModel: ObservableObject {
             Range($0.range, in: title).map { String(title[$0]) }
         } ?? []
     }
+    public var titleWithoutTags: String {
+        guard let title = task?.title else { return "" }
+        let pattern = "#\\w+"  // Match #tags
+        let regex = try? NSRegularExpression(pattern: pattern)
+        let range = NSRange(title.startIndex..., in: title)
+
+        let cleanedTitle =
+            regex?.stringByReplacingMatches(in: title, options: [], range: range, withTemplate: "")
+            ?? title
+        return cleanedTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     public init() {}
     public func setTask(task: ZTask) {
         self.task = task
