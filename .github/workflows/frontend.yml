@@ -26,3 +26,7 @@ jobs:
       - name: Run TypeScript compiler
         run: npx tsc --noEmit
         working-directory: ./zettelkasten-front
+
+      - name: Run Tests
+        run: npm test
+        working-directory: ./zettelkasten-front
