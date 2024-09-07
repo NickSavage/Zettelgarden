@@ -1,8 +1,13 @@
 import { Task } from "../models/Task";
+import { Card } from "../models/Card";
 
 export function sampleTasks(): Task[] {
   return sampleTaskData;
 }
+export function sampleCards(): Card[] {
+  return sampleCardData;
+}
+
 const sampleTaskData: Task[] = [
   {
     id: 1,
@@ -33,7 +38,6 @@ const sampleTaskData: Task[] = [
     card: null,
   },
   {
-
     id: 3,
     card_pk: 103,
     user_id: 1002,
@@ -74,5 +78,36 @@ const sampleTaskData: Task[] = [
     is_complete: false,
     is_deleted: false,
     card: null,
+  },
+];
+
+const sampleCardData: Card[] = [
+  {
+    id: 1,
+    card_id: "1",
+    user_id: 1,
+    title: "hello world",
+    body: "this is a test of the emergency response system",
+    link: "",
+    created_at: new Date(),
+    updated_at: new Date(),
+    parent: null,
+    children: [],
+    references: [],
+    files: [],
+  },
+  {
+    id: 2,
+    card_id: "1/A",
+    user_id: 1,
+    title: "update",
+    body: "this is another test of the emergency response system",
+    link: "",
+    created_at: new Date(),
+    updated_at: new Date(),
+    parent: null,
+    children: [],
+    references: [],
+    files: [],
   },
 ];
