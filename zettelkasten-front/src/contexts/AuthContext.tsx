@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Added loading state
-  const [hasSubscription, setHasSubscription] = useState<boolean>(true);
+  const [hasSubscription, setHasSubscription] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -45,8 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const currentUser = await getCurrentUser();
         setCurrentUser(currentUser);
         console.log("user", currentUser)
-	// setHasSubscription(currentUser.stripe_subscription_status === "active");
-	setHasSubscription(true);
+	setHasSubscription(currentUser.stripe_subscription_status === "active");
       }
       setIsLoading(false);
     };
