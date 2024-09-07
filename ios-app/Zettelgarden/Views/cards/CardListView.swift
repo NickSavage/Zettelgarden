@@ -31,27 +31,3 @@ struct CardListView: View {
         }
     }
 }
-
-enum CardFilterOption: Int, CaseIterable, Identifiable {
-    case all = 1
-    case meeting = 2
-    case reference = 3
-    case work = 4
-    case unsorted = 5
-
-    var id: Int { self.rawValue }
-    var title: String {
-        switch self {
-        case .all:
-            return "All Cards"
-        case .meeting:
-            return "Meeting Cards"
-        case .reference:
-            return "Reference Cards"
-        case .work:
-            return "Work Cards"
-        case .unsorted:
-            return "Unsorted"
-        }
-    }
-}

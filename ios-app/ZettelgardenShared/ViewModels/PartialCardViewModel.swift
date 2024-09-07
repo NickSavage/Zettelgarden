@@ -1,19 +1,18 @@
 import Combine
 import Foundation
 import SwiftUI
-import ZettelgardenShared
 
-class PartialCardViewModel: ObservableObject {
-    @Published var cards: [PartialCard]?
+public class PartialCardViewModel: ObservableObject {
+    @Published public var cards: [PartialCard]?
 
-    @Published var isLoading: Bool = true
-    @Published var selectedFilter: CardFilterOption = .all
-    @Published var filterText: String = ""
+    @Published public var isLoading: Bool = true
+    @Published public var selectedFilter: CardFilterOption = .all
+    @Published public var filterText: String = ""
 
-    @Published var inactive: Bool = false
-    @Published var sort: String = ""
+    @Published public var inactive: Bool = false
+    @Published public var sort: String = ""
 
-    @Published var displayOnlyTopLevel: Bool = false
+    @Published public var displayOnlyTopLevel: Bool = false
 
     private var timer: Timer?
 
@@ -25,11 +24,11 @@ class PartialCardViewModel: ObservableObject {
         AppEnvironment(rawValue: currentEnvironment) ?? .production
     }
 
-    init() {
+    public init() {
         loadCards()
     }
 
-    var filteredCards: [PartialCard] {
+    public var filteredCards: [PartialCard] {
         let filteredByType: [PartialCard]
 
         switch selectedFilter {
@@ -65,7 +64,7 @@ class PartialCardViewModel: ObservableObject {
         }
     }
 
-    func loadCards() {
+    public func loadCards() {
         guard let token = token else {
             return
         }
@@ -84,7 +83,7 @@ class PartialCardViewModel: ObservableObject {
         }
     }
 
-    func createNewCard(card: Card) {
+    public func createNewCard(card: Card) {
         guard let token = token else {
             return
         }
@@ -101,7 +100,7 @@ class PartialCardViewModel: ObservableObject {
 
     }
 
-    func onScenePhaseChanged(to newPhase: ScenePhase) {
+    public func onScenePhaseChanged(to newPhase: ScenePhase) {
         if newPhase == .active {
             self.loadCards()
             startTimer()
@@ -121,5 +120,29 @@ class PartialCardViewModel: ObservableObject {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+}
+
+public enum CardFilterOption: Int, CaseIterable, Identifiable {
+    case all = 1
+    case meeting = 2
+    case reference = 3
+    case work = 4
+    case unsorted = 5
+
+    public var id: Int { self.rawValue }
+    public var title: String {
+        switch self {
+        case .all:
+            return "All Cards"
+        case .meeting:
+            return "Meeting Cards"
+        case .reference:
+            return "Reference Cards"
+        case .work:
+            return "Work Cards"
+        case .unsorted:
+            return "Unsorted"
+        }
     }
 }
