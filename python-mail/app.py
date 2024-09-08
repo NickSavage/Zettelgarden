@@ -31,7 +31,6 @@ def protected(func):
     return mail_wrapper
 
 @app.route("/api/send", methods=["POST"])
-@protected
 def send_mail():
     data = request.get_json()
     subject = data.get("subject")
