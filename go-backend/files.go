@@ -188,7 +188,7 @@ func (s *Server) GetFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
-	cardPK, err := strconv.Atoi(mux.Vars(r)["id"])
+	filePK, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -204,20 +204,20 @@ func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.queryFile(userID, cardPK)
+	_, err = s.queryFile(userID, filePK)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = s.db.Exec("UPDATE files SET name = $1 WHERE id = $2", data.Name, cardPK)
+	_, err = s.db.Exec("UPDATE files SET name = $1, card_pk = $2 WHERE id = $3", data.Name, data.CardPK, filePK)
 
 	if err != nil {
 		http.Error(w, "Failed to update file metadata", http.StatusInternalServerError)
 		return
 	}
 
-	file, err := s.queryFile(userID, cardPK)
+	file, err := s.queryFile(userID, filePK)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

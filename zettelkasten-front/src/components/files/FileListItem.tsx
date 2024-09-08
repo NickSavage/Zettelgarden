@@ -29,7 +29,7 @@ export function FileListItem({
     setShowEditName(!showEditName);
   }
   function handleTitleEdit() {
-    editFile(file["id"].toString(), { name: newName });
+    editFile(file["id"].toString(), { name: newName, card_pk: file.card_pk });
     toggleEditName();
     setRefreshFiles(true);
   }

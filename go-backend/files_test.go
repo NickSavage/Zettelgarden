@@ -131,7 +131,8 @@ func TestEditFileSuccess(t *testing.T) {
 	new_name := "new_name.txt"
 	token, _ := generateTestJWT(1)
 	fileData := models.EditFileMetadataParams{
-		Name: new_name,
+		Name:   new_name,
+		CardPK: 1,
 	}
 	body, err := json.Marshal(fileData)
 	if err != nil {
@@ -165,6 +166,47 @@ func TestEditFileSuccess(t *testing.T) {
 	}
 }
 
+func TestEditFileSuccessChangeCard(t *testing.T) {
+	setup()
+	defer teardown()
+
+	new_name := "new_name.txt"
+	token, _ := generateTestJWT(1)
+	fileData := models.EditFileMetadataParams{
+		Name:   new_name,
+		CardPK: 2,
+	}
+	body, err := json.Marshal(fileData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("PATCH", "/api/files/1", bytes.NewBuffer(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute))
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		log.Printf("%v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	var file models.File
+	parseJsonResponse(t, rr.Body.Bytes(), &file)
+	if file.Name != new_name {
+		t.Errorf("handler returned wrong file name, got %v want %v", file.Name, new_name)
+	}
+	if file.CardPK != 2 {
+		t.Errorf("handler returned wrong file, got id %v want %v", file.ID, 2)
+	}
+}
 func TestEditFileWrongUser(t *testing.T) {
 	setup()
 	defer teardown()

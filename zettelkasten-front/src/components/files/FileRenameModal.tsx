@@ -23,7 +23,7 @@ export function FileRenameModal({
       return;
     }
     console.log("handleRename");
-    editFile(file["id"].toString(), { name: newName })
+    editFile(file["id"].toString(), { name: newName, card_pk: file.card_pk })
       .then((updatedFile) => {
         onRename(file["id"], updatedFile);
       })

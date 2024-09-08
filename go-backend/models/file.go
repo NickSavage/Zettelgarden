@@ -19,7 +19,8 @@ type File struct {
 }
 
 type EditFileMetadataParams struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
+	CardPK int    `json:"card_pk"`
 }
 
 type UploadFileResponse struct {

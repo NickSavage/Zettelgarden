@@ -24,4 +24,5 @@ export interface UploadFileResponse {
 
 export interface EditFileMetadataParams {
   name: string;
+  card_pk: number;
 }
