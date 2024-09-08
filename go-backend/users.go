@@ -105,7 +105,6 @@ func (s *Server) CreateUserRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
-	log.Printf("params %v", params)
 	response := models.CreateUserResponse{
 		NewID:   0,
 		Message: "",
