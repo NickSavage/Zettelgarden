@@ -131,6 +131,7 @@ func (s *Server) SendEmail(subject, recipient, body string) error {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
+			log.Printf("error with email client: %s", err)
 			return
 		}
 		defer resp.Body.Close()
@@ -184,6 +185,7 @@ func main() {
 		Host:     os.Getenv("MAIL_HOST"),
 		Password: os.Getenv("MAIL_PASSWORD"),
 	}
+	log.Printf("email server: %v", s.mail)
 	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
 
 	r := mux.NewRouter()
