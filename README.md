@@ -17,3 +17,4 @@
 - `zettelkasten-front`: Frontend, using React and Typescript
 - `go-backend`: Backend, using Go with `net/http`
 - `ios-app`: Experimental iOS app. It's pretty ugly, I wouldn't recommend using it yet.
+- `python-mail`: Basic SMTP service. Written in python instead of Go because Go's SMTP services do not seem functional enough.
