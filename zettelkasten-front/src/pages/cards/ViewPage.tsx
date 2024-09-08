@@ -23,13 +23,13 @@ import { Button } from "../../components/Button";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { convertCardToPartialCard } from "../../utils/cards";
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
+import { FileUpload } from "../../components/files/FileUpload";
 
 import { usePartialCardContext } from "../../contexts/CardContext";
 
-interface ViewPageProps {
-}
+interface ViewPageProps {}
 
-export function ViewPage({  }: ViewPageProps) {
+export function ViewPage({}: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
@@ -114,7 +114,7 @@ export function ViewPage({  }: ViewPageProps) {
     <div>
       {error && (
         <div>
-          <h3>Unauthorized</h3>
+          // <h3>Unauthorized</h3>
           <div>{error}</div>
         </div>
       )}
@@ -181,9 +181,10 @@ export function ViewPage({  }: ViewPageProps) {
               </ul>
             </div>
           )}
+          <HeaderSubSection text="Files" />
+          <FileUpload setMessage={setError} card={viewingCard} />
           {viewingCard.files.length > 0 && (
             <div>
-              <HeaderSubSection text="Files" />
               <ul>
                 {viewingCard.files.map((file, index) => (
                   <FileListItem
