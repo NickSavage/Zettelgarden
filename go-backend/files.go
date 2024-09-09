@@ -272,8 +272,12 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cardPK := r.FormValue("card_pk")
-	if cardPK == "undefined" {
+	var cardPK int
+	cardPKForm := r.FormValue("card_pk")
+	if cardPKForm == "undefined" {
+		cardPK = -1
+	} else {
+		cardPK, err = strconv.Atoi(cardPKForm)
 		http.Error(w, "No PK given", http.StatusBadRequest)
 		return
 	}
