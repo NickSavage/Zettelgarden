@@ -128,6 +128,9 @@ export function ViewPage({}: ViewPageProps) {
                 </span>
                 <HeaderTop text=": " />
                 <HeaderTop text={viewingCard.title} />
+                {viewingCard.is_literature_card && (
+                  <span className="pl-2 text-purple-500 text-sm">{"Literature Card"}</span>
+                )}
               </h1>
             </div>
             <div className="p-2">

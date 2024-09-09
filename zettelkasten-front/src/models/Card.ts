@@ -9,6 +9,7 @@ export interface PartialCard {
   parent_id: number;
   created_at: string;
   updated_at: string;
+  is_literature_card: boolean;
 }
 
 export interface Keyword {
@@ -35,6 +36,7 @@ export interface Card {
   children: PartialCard[];
   references: PartialCard[];
   keywords: Keyword[];
+  is_literature_card: boolean;
 }
 
 export const defaultPartialCard: PartialCard = {
@@ -45,6 +47,7 @@ export const defaultPartialCard: PartialCard = {
   parent_id: -1,
   created_at: "",
   updated_at: "",
+  is_literature_card: false,
 };
 
 export const defaultCard: Card = {
@@ -63,6 +66,7 @@ export const defaultCard: Card = {
   children: [],
   references: [],
   keywords: [],
+  is_literature_card: false,
 };
 
 export interface NextIdResponse {
