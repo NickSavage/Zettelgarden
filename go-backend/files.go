@@ -278,8 +278,10 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 		cardPK = -1
 	} else {
 		cardPK, err = strconv.Atoi(cardPKForm)
-		http.Error(w, "No PK given", http.StatusBadRequest)
-		return
+		if err != nil {
+			http.Error(w, "No PK given", http.StatusBadRequest)
+			return
+		}
 	}
 
 	tempFile, err := os.CreateTemp("/tmp", "upload-*.tmp")
