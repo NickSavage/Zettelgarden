@@ -83,7 +83,6 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, card := range cards {
-		log.Printf("derp")
 		_, err := s.db.Exec(
 			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
 			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard,

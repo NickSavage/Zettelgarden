@@ -675,7 +675,7 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 	)
 	if err != nil {
 		log.Printf("asdas err %v", err)
-		return models.Card{}, fmt.Errorf("unable to access card: %v", err.Error())
+		return models.Card{}, fmt.Errorf("unable to access card")
 	}
 
 	s.logCardView(id, userID)
