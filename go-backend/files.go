@@ -24,12 +24,9 @@ func (s *Server) GetAllFilesRoute(w http.ResponseWriter, r *http.Request) {
 	SELECT
     f.id, f.user_id, f.name, f.type, f.path, f.filename, f.size,
     f.created_by, f.updated_by, f.card_pk, f.is_deleted,
-    f.created_at, f.updated_at,
-    c.id, c.card_id, c.title, c.created_at, c.updated_at
+    f.created_at, f.updated_at
 FROM
     files as f
-JOIN
-    cards as c ON f.card_pk = c.id
 	WHERE f.is_deleted = FALSE AND f.user_id = $1`, userID)
 
 	defer rows.Close()
@@ -41,7 +38,6 @@ JOIN
 		var partialCard models.PartialCard
 		if err := rows.Scan(
 			&file.ID,
-
 			&file.UserID,
 			&file.Name,
 			&file.Filetype,
@@ -54,16 +50,20 @@ JOIN
 			&file.IsDeleted,
 			&file.CreatedAt,
 			&file.UpdatedAt,
-			&partialCard.ID,
-			&partialCard.CardID,
-			&partialCard.Title,
-			&partialCard.CreatedAt,
-			&partialCard.UpdatedAt,
 		); err != nil {
+			log.Printf("sql err %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		file.Card = partialCard
+
+		partialCard, err := s.QueryPartialCardByID(userID, file.CardPK)
+		if err != nil {
+			log.Printf("card %v", partialCard)
+			file.Card = models.PartialCard{}
+
+		} else {
+			file.Card = partialCard
+		}
 		files = append(files, file)
 	}
 
@@ -114,15 +114,10 @@ FROM files
 	}
 	card, err := s.QueryPartialCardByID(userID, file.CardPK)
 	if err != nil {
-		file.Card = card
+		file.Card = models.PartialCard{}
 
 	} else {
-		file.Card = models.PartialCard{}
-	}
-	if file.CardPK != -1 && card.UserID != userID {
-		log.Printf("card id %v", file.CardPK)
-		log.Printf("card %v user %v", card.UserID, userID)
-		return models.File{}, errors.New("unable to access file")
+		file.Card = card
 	}
 	return file, nil
 }
