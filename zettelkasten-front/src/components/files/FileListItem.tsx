@@ -1,9 +1,12 @@
 import { File } from "../../models/File";
+import { PartialCard } from "../../models/Card";
 import { renderFile, deleteFile, editFile } from "../../api/files";
 import { Link } from "react-router-dom";
 import React, { useState, KeyboardEvent } from "react";
 import { FileIcon } from "../../assets/icons/FileIcon";
 import { FileRender } from "./FileRender";
+
+import { BacklinkInput } from "../cards/BacklinkInput";
 
 interface FileListItemProps {
   file: File;
@@ -21,12 +24,15 @@ export function FileListItem({
   const [showEditName, setShowEditName] = useState<boolean>(false);
   const [renderImage, setRenderImage] = useState<boolean>(false);
 
+  const [showCardLink, setShowCardLink] = useState<boolean>(false);
+
   function toggleMenu() {
     setShowMenu(!showMenu);
   }
   function toggleEditName() {
     setNewName(file.name);
     setShowEditName(!showEditName);
+    setShowMenu(false);
   }
   function handleTitleEdit() {
     editFile(file["id"].toString(), { name: newName, card_pk: file.card_pk });
@@ -58,6 +64,32 @@ export function FileListItem({
     }
     setShowMenu(false);
   };
+
+  async function handleBacklink(card: PartialCard) {
+    editFile(file["id"].toString(), { name: file.name, card_pk: card.id }).then(
+      (file) => {
+        setShowCardLink(false);
+        setShowMenu(false);
+        setRefreshFiles(true);
+      },
+    );
+  }
+
+  function toggleCardLink() {
+    setShowCardLink(!showCardLink);
+    setShowMenu(false);
+  }
+  async function handleCardUnlink() {
+    editFile(file["id"].toString(), { name: file.name, card_pk: -1 }).then(
+      (file) => {
+        setShowCardLink(false);
+        setShowMenu(false);
+        setRefreshFiles(true);
+      },
+    );
+    setShowMenu(false);
+  }
+
   return (
     <li key={file.id}>
       <div className="flex">
@@ -99,12 +131,23 @@ export function FileListItem({
 
         <div className="file-item-right">
           <div>
-            <Link
-              to={`/app/card/${file.card.id}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <span className="card-id">[{file.card.card_id}]</span>
-            </Link>
+            {file.card_pk > 0 && (
+              <Link
+                to={`/app/card/${file.card.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <span className="card-id">[{file.card.card_id}]</span>
+              </Link>
+            )}
+
+            {!file.card ||
+              (file.card.id == 0 && (
+                <div>
+                  {showCardLink && (
+                    <BacklinkInput addBacklink={handleBacklink} />
+                  )}
+                </div>
+              ))}
           </div>
           <div className="dropdown">
             <button onClick={toggleMenu} className="menu-button">
@@ -116,6 +159,14 @@ export function FileListItem({
                   Delete
                 </button>
                 <button onClick={() => toggleEditName()}>Rename</button>
+
+                {file.card_pk <= 1 ? (
+                  <button onClick={() => toggleCardLink()}>Link Card</button>
+                ) : (
+                  <button onClick={() => handleCardUnlink()}>
+                    Unlink Card
+                  </button>
+                )}
               </div>
             )}
           </div>
