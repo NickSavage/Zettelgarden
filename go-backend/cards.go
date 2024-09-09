@@ -603,7 +603,7 @@ func (s *Server) QueryPartialCardByID(userID, id int) (models.PartialCard, error
 
 	err := s.db.QueryRow(`
 	SELECT
-	id, card_id, user_id, title, parent_id, created_at, updated_at 
+	id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card 
 	FROM cards 
 	WHERE is_deleted = FALSE AND id = $1 AND user_id = $2
 	`, id, userID).Scan(
@@ -615,6 +615,7 @@ func (s *Server) QueryPartialCardByID(userID, id int) (models.PartialCard, error
 		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
+		&card.IsLiteratureCard,
 	)
 	if err != nil {
 		log.Printf("err %v", err)
@@ -629,7 +630,7 @@ func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard
 
 	err := s.db.QueryRow(`
 	SELECT
-	id, card_id, user_id, title, parent_id, created_at, updated_at 
+	id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card 
 	FROM cards 
 	WHERE is_deleted = FALSE AND card_id = $1 AND user_id = $2
 	`, cardID, userID).Scan(
@@ -640,6 +641,7 @@ func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard
 		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
+		&card.IsLiteratureCard,
 	)
 	if err != nil {
 		log.Printf("err %v", err)
@@ -654,7 +656,8 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 
 	err := s.db.QueryRow(`
 	SELECT 
-	id, card_id, user_id, title, body, link, parent_id, created_at, updated_at 
+	id, card_id, user_id, title, body, link, parent_id,
+        created_at, updated_at, is_literature_card
 	FROM 
 	cards
 	WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
@@ -668,9 +671,11 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
+		&card.IsLiteratureCard,
 	)
 	if err != nil {
-		return models.Card{}, fmt.Errorf("unable to access card")
+		log.Printf("asdas err %v", err)
+		return models.Card{}, fmt.Errorf("unable to access card: %v", err.Error())
 	}
 
 	s.logCardView(id, userID)
@@ -682,7 +687,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 	var cards []models.Card
 	query := `
     SELECT 
-		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at 
+		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at, is_literature_card 
     FROM 
         cards
     WHERE
@@ -714,6 +719,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 			&card.ParentID,
 			&card.CreatedAt,
 			&card.UpdatedAt,
+			&card.IsLiteratureCard,
 		); err != nil {
 			log.Printf("err %v", err)
 			return cards, err
@@ -728,7 +734,7 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 	cards := []models.PartialCard{}
 	query := `
     SELECT 
-        id, card_id, user_id, title, parent_id, created_at, updated_at 
+        id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card 
     FROM 
         cards
     WHERE
@@ -758,6 +764,7 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 			&card.ParentID,
 			&card.CreatedAt,
 			&card.UpdatedAt,
+			&card.IsLiteratureCard,
 		); err != nil {
 			log.Printf("err %v", err)
 			return cards, err
@@ -777,7 +784,7 @@ func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 	}
 	cards := []models.PartialCard{}
 	query := `
-	SELECT c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at
+	SELECT c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at, c.is_literature_card
 	FROM inactive_cards i
 	JOIN cards c on c.id = i.card_pk
 	WHERE i.user_id = $1 AND c.is_deleted = FALSE
@@ -803,6 +810,7 @@ func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 			&card.ParentID,
 			&card.CreatedAt,
 			&card.UpdatedAt,
+			&card.IsLiteratureCard,
 		); err != nil {
 			log.Printf("err %v", err)
 			return cards, err
@@ -825,11 +833,11 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 	log.Printf("setting parent id %v", parent_id)
 
 	query := `
-	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, updated_at = NOW(), card_id = $5
+	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, is_literature_card = $5, updated_at = NOW(), card_id = $6
 	WHERE
-	id = $6
+	id = $7
 	`
-	_, err = s.db.Exec(query, params.Title, params.Body, params.Link, parent_id, params.CardID, cardPK)
+	_, err = s.db.Exec(query, params.Title, params.Body, params.Link, parent_id, params.IsLiteratureCard, params.CardID, cardPK)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
@@ -849,12 +857,12 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 	query := `
 	INSERT INTO cards 
-	(title, body, link, user_id, card_id, parent_id, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+	(title, body, link, user_id, card_id, parent_id, is_literature_card, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
 	RETURNING id;
 	`
 	var id int
-	err = s.db.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID, parent.ID).Scan(&id)
+	err = s.db.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID, parent.ID, params.IsLiteratureCard).Scan(&id)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err

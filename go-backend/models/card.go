@@ -3,38 +3,41 @@ package models
 import "time"
 
 type Card struct {
-	ID         int           `json:"id"`
-	CardID     string        `json:"card_id"`
-	UserID     int           `json:"user_id"`
-	Title      string        `json:"title"`
-	Body       string        `json:"body"`
-	Link       string        `json:"link"`
-	IsDeleted  bool          `json:"is_deleted"`
-	CreatedAt  time.Time     `json:"created_at"`
-	UpdatedAt  time.Time     `json:"updated_at"`
-	ParentID   int           `json:"parent_id"`
-	Parent     PartialCard   `json:"parent"`
-	Files      []File        `json:"files"`
-	Children   []PartialCard `json:"children"`
-	References []PartialCard `json:"references"`
-	Keywords   []Keyword     `json:"keywords"`
+	ID               int           `json:"id"`
+	CardID           string        `json:"card_id"`
+	UserID           int           `json:"user_id"`
+	Title            string        `json:"title"`
+	Body             string        `json:"body"`
+	Link             string        `json:"link"`
+	IsDeleted        bool          `json:"is_deleted"`
+	CreatedAt        time.Time     `json:"created_at"`
+	UpdatedAt        time.Time     `json:"updated_at"`
+	ParentID         int           `json:"parent_id"`
+	Parent           PartialCard   `json:"parent"`
+	Files            []File        `json:"files"`
+	Children         []PartialCard `json:"children"`
+	References       []PartialCard `json:"references"`
+	Keywords         []Keyword     `json:"keywords"`
+	IsLiteratureCard bool          `json:"is_literature_card"`
 }
 
 type PartialCard struct {
-	ID        int       `json:"id"`
-	CardID    string    `json:"card_id"`
-	UserID    int       `json:"user_id"`
-	Title     string    `json:"title"`
-	ParentID  int       `json:"parent_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID               int       `json:"id"`
+	CardID           string    `json:"card_id"`
+	UserID           int       `json:"user_id"`
+	Title            string    `json:"title"`
+	ParentID         int       `json:"parent_id"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+	IsLiteratureCard bool      `json:"is_literature_card"`
 }
 
 type EditCardParams struct {
-	CardID string `json:"card_id"`
-	Title  string `json:"title"`
-	Body   string `json:"body"`
-	Link   string `json:"link"`
+	CardID           string `json:"card_id"`
+	Title            string `json:"title"`
+	Body             string `json:"body"`
+	Link             string `json:"link"`
+	IsLiteratureCard bool   `json:"is_literature_card"`
 }
 
 type NextIDParams struct {

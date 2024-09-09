@@ -73,7 +73,7 @@ func makeCardDeleteRequestSuccess(t *testing.T, id int) *httptest.ResponseRecord
 
 func TestGetCardSuccess(t *testing.T) {
 	setup()
-	//	defer teardown()
+	defer teardown()
 
 	var logCount int
 	_ = s.db.QueryRow("SELECT count(*) FROM card_views").Scan(&logCount)
