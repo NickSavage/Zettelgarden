@@ -3,9 +3,11 @@ import { getAllFiles } from "../api/files";
 import { sortCards } from "../utils/cards";
 import { FileRenameModal } from "../components/files/FileRenameModal";
 import { FileListItem } from "../components/files/FileListItem";
+import { FileUpload } from "../components/files/FileUpload";
 import { FilterInput } from "../components/FilterInput";
 
 import { File } from "../models/File";
+import { defaultCard } from "../models/Card";
 import { H6 } from "../components/Header";
 
 export function FileVault() {
@@ -53,6 +55,12 @@ export function FileVault() {
     <>
       <div className="bg-slate-200 p-2 border-slate-400 border">
         <FilterInput handleFilterHook={handleFilter} />
+
+        <FileUpload
+          setRefresh={setRefreshFiles}
+          setMessage={(message: string) => {}}
+          card={defaultCard}
+        />
       </div>
       <FileRenameModal
         isOpen={isRenameModalOpen}

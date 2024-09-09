@@ -5,11 +5,12 @@ import { uploadFile } from "../../api/files";
 import { Button } from "../../components/Button";
 
 interface FileUploadProps {
+  setRefresh: (refresh:boolean) => void;
   setMessage: (message: string) => void;
   card: Card;
 }
 
-export function FileUpload({ setMessage, card }: FileUploadProps) {
+export function FileUpload({ setRefresh, setMessage, card }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileSelect = async (
@@ -26,6 +27,7 @@ export function FileUpload({ setMessage, card }: FileUploadProps) {
             setMessage(
               "File uploaded successfully: " + response["file"]["name"],
             );
+	    setRefresh(true);
           }
         } catch (error) {
           setMessage("Error uploading file: " + error);

@@ -182,7 +182,11 @@ export function ViewPage({}: ViewPageProps) {
             </div>
           )}
           <HeaderSubSection text="Files" />
-          <FileUpload setMessage={setError} card={viewingCard} />
+          <FileUpload
+            setRefresh={(refresh: boolean) => {}}
+            setMessage={setError}
+            card={viewingCard}
+          />
           {viewingCard.files.length > 0 && (
             <div>
               <ul>
