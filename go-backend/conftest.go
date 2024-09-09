@@ -93,8 +93,8 @@ func (s *Server) importTestData() error {
 
 	for _, file := range files {
 		_, err := s.db.Exec(
-			"INSERT INTO files (name, type, path, filename, size, created_by, updated_by, card_pk, is_deleted, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
-			file.Name, file.Filetype, file.Path, file.Filename, file.Size, file.CreatedBy, file.UpdatedBy, file.CardPK, file.IsDeleted, file.CreatedAt, file.UpdatedAt,
+			"INSERT INTO files (name, user_id, type, path, filename, size, created_by, updated_by, card_pk, is_deleted, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
+			file.Name, file.UserID, file.Filetype, file.Path, file.Filename, file.Size, file.CreatedBy, file.UpdatedBy, file.CardPK, file.IsDeleted, file.CreatedAt, file.UpdatedAt,
 		)
 		if err != nil {
 			log.Printf("error %v", err)
@@ -276,6 +276,7 @@ func (s *Server) generateData() map[string]interface{} {
 	for i := 1; i <= 20; i++ {
 		files = append(files, models.File{
 			ID:        i,
+			UserID:    1,
 			Name:      randomString(20),
 			Filetype:  randomString(20),
 			Path:      randomString(20),

@@ -4,6 +4,7 @@ import "time"
 
 type File struct {
 	ID        int         `json:"id"`
+	UserID    int         `json:"user_id"`
 	Name      string      `json:"name"`
 	Filetype  string      `json:"filetype"`
 	Path      string      `json:"path"`

@@ -22,7 +22,7 @@ func (s *Server) GetAllFilesRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	rows, err := s.db.Query(`
 	SELECT
-    f.id, f.name, f.type, f.path, f.filename, f.size,
+    f.id, f.user_id, f.name, f.type, f.path, f.filename, f.size,
     f.created_by, f.updated_by, f.card_pk, f.is_deleted,
     f.created_at, f.updated_at,
     c.id, c.card_id, c.title, c.created_at, c.updated_at
@@ -30,7 +30,7 @@ FROM
     files as f
 JOIN
     cards as c ON f.card_pk = c.id
-	WHERE f.is_deleted = FALSE AND c.user_id = $1`, userID)
+	WHERE f.is_deleted = FALSE AND f.user_id = $1`, userID)
 
 	defer rows.Close()
 
@@ -41,6 +41,8 @@ JOIN
 		var partialCard models.PartialCard
 		if err := rows.Scan(
 			&file.ID,
+
+			&file.UserID,
 			&file.Name,
 			&file.Filetype,
 			&file.Path,
@@ -85,15 +87,16 @@ JOIN
 func (s *Server) queryFile(userID int, id int) (models.File, error) {
 
 	row := s.db.QueryRow(`
-	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.is_deleted, 
+	SELECT files.id, files.user_id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.is_deleted, 
 	files.created_at, files.updated_at
 FROM files
-	WHERE files.is_deleted = FALSE and files.id = $1`, id)
+	WHERE files.is_deleted = FALSE and files.id = $1 AND files.user_id = $2`, id, userID)
 
 	var file models.File
 
 	if err := row.Scan(
 		&file.ID,
+		&file.UserID,
 		&file.Name,
 		&file.Filetype,
 		&file.Path,
@@ -129,11 +132,11 @@ func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
 	files := []models.File{}
 	rows, err := s.db.Query(`
 	SELECT 
-	files.id, files.name, files.type, files.path, files.filename, 
+	files.id, files.user_id, files.name, files.type, files.path, files.filename, 
 	files.size, files.created_by, files.updated_by, files.card_pk,
 	files.is_deleted, files.created_at, files.updated_at
 	FROM files
-	WHERE files.is_deleted = FALSE and files.card_pk = $1`, cardPK)
+	WHERE files.is_deleted = FALSE and files.card_pk = $1 AND files.user_id = $2`, cardPK, userID)
 
 	if err != nil {
 		return files, err
@@ -145,6 +148,7 @@ func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
 		var file models.File
 		if err := rows.Scan(
 			&file.ID,
+			&file.UserID,
 			&file.Name,
 			&file.Filetype,
 			&file.Path,
@@ -315,11 +319,12 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var lastInsertId int
-	query := `INSERT INTO files (name, type, path, filename,
+	query := `INSERT INTO files (name, user_id, type, path, filename,
 		size, card_pk, created_by, updated_by, updated_at) VALUES
-		($1, $2, $3, $4, $5, $6, $7, $8, NOW()) RETURNING id;`
+		($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING id;`
 	err = s.db.QueryRow(query,
 		handler.Filename,
+		userID,
 		handler.Header.Get("Content-Type"),
 		s3Key,
 		s3Key,
