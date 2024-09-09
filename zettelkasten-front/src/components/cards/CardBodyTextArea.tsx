@@ -113,19 +113,13 @@ export function CardBodyTextArea({
           event.preventDefault(); // Prevent default only for images
           const file = item.getAsFile();
 
-          if (newCard) {
-            setMessage(
-              "Error: Cannot upload images for new cards, please save the card first",
-            );
-            return;
-          }
-
           try {
             const response = await uploadFile(file!, editingCard.id);
 
             if ("error" in response) {
               setMessage("Error uploading file: " + response["message"]);
             } else {
+              setFilesToUpdate([...filesToUpdate, response.file]);
               let append_text = "\n\n![](" + response["file"]["id"] + ")";
               setMessage(
                 `File uploaded successfully: ${response["file"]["name"]}`,
