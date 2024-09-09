@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../../utils/cards";
 import { uploadFile } from "../../api/files";
 import { saveNewCard, saveExistingCard, getCard } from "../../api/cards";
+import { editFile } from "../../api/files";
 import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { useNavigate, useParams } from "react-router-dom";
@@ -32,7 +33,9 @@ export function EditPage({ newCard }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
-  const { partialCards, setRefreshPartialCards, lastCard } = usePartialCardContext();
+  const { partialCards, setRefreshPartialCards, lastCard } =
+    usePartialCardContext();
+  const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -52,6 +55,13 @@ export function EditPage({ newCard }: EditPageProps) {
     }
 
     if (!("error" in response)) {
+      filesToUpdate.map((file) =>
+        editFile(file["id"].toString(), {
+          name: file.name,
+          card_pk: response.id,
+        }),
+      );
+
       navigate(`/app/card/${response.id}`);
     } else {
       setError("Unable to save card, something has gone wrong.");
@@ -138,6 +148,8 @@ export function EditPage({ newCard }: EditPageProps) {
             setEditingCard={setEditingCard}
             setMessage={setMessage}
             newCard={newCard}
+            filesToUpdate={filesToUpdate}
+            setFilesToUpdate={setFilesToUpdate}
           />
           <div>
             <BacklinkInput addBacklink={addBacklink} />

@@ -86,14 +86,11 @@ func (s *Server) queryFile(userID int, id int) (models.File, error) {
 
 	row := s.db.QueryRow(`
 	SELECT files.id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.is_deleted, 
-	files.created_at, files.updated_at, cards.id, cards.card_id, cards.title, cards.created_at, cards.updated_at
-
-	FROM files
-	JOIN cards ON files.card_pk = cards.id
-	WHERE files.is_deleted = FALSE and files.id = $1 and cards.user_id = $2`, id, userID)
+	files.created_at, files.updated_at
+FROM files
+	WHERE files.is_deleted = FALSE and files.id = $1`, id)
 
 	var file models.File
-	var partialCard models.PartialCard
 
 	if err := row.Scan(
 		&file.ID,
@@ -108,15 +105,22 @@ func (s *Server) queryFile(userID int, id int) (models.File, error) {
 		&file.IsDeleted,
 		&file.CreatedAt,
 		&file.UpdatedAt,
-		&partialCard.ID,
-		&partialCard.CardID,
-		&partialCard.Title,
-		&partialCard.CreatedAt,
-		&partialCard.UpdatedAt,
 	); err != nil {
+		log.Printf("err id %v %v", id, err)
 		return models.File{}, errors.New("unable to access file")
 	}
-	file.Card = partialCard
+	card, err := s.QueryPartialCardByID(userID, file.CardPK)
+	if err != nil {
+		file.Card = card
+
+	} else {
+		file.Card = models.PartialCard{}
+	}
+	if file.CardPK != -1 && card.UserID != userID {
+		log.Printf("card id %v", file.CardPK)
+		log.Printf("card %v user %v", card.UserID, userID)
+		return models.File{}, errors.New("unable to access file")
+	}
 	return file, nil
 }
 

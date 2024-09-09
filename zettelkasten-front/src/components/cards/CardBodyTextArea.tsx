@@ -1,5 +1,6 @@
 import React, { DragEventHandler, useState } from "react";
 import { PartialCard, Card } from "../../models/Card";
+import { File } from "../../models/File";
 import { uploadFile } from "../../api/files";
 import { findWordBoundaries } from "../../utils/strings";
 import { usePartialCardContext } from "../../contexts/CardContext";
@@ -11,6 +12,8 @@ interface CardBodyTextAreaProps {
   setEditingCard: (card: Card) => void;
   setMessage: (message: string) => void;
   newCard: boolean;
+  filesToUpdate: File[];
+  setFilesToUpdate: (files: File[]) => void;
 }
 
 export function CardBodyTextArea({
@@ -18,6 +21,8 @@ export function CardBodyTextArea({
   setEditingCard,
   setMessage,
   newCard,
+  filesToUpdate,
+  setFilesToUpdate,
 }: CardBodyTextAreaProps) {
   const [isLinkMode, setIsLinkMode] = useState<boolean>(false);
   const [linkText, setLinkText] = useState<string>("");
@@ -87,8 +92,9 @@ export function CardBodyTextArea({
             setMessage("Error uploading file: " + response["message"]);
           } else {
             setMessage(
-              "File uploaded successfully: " + response["file"]["name"]
+              "File uploaded successfully: " + response["file"]["name"],
             );
+            setFilesToUpdate([...filesToUpdate, response.file]);
           }
         } catch (error) {
           setMessage("Error uploading file: " + error);
@@ -98,7 +104,7 @@ export function CardBodyTextArea({
   };
 
   const handlePaste = async (
-    event: React.ClipboardEvent<HTMLTextAreaElement>
+    event: React.ClipboardEvent<HTMLTextAreaElement>,
   ) => {
     if (event.clipboardData && event.clipboardData.items) {
       const items = Array.from(event.clipboardData.items);
@@ -109,7 +115,7 @@ export function CardBodyTextArea({
 
           if (newCard) {
             setMessage(
-              "Error: Cannot upload images for new cards, please save the card first"
+              "Error: Cannot upload images for new cards, please save the card first",
             );
             return;
           }
@@ -122,7 +128,7 @@ export function CardBodyTextArea({
             } else {
               let append_text = "\n\n![](" + response["file"]["id"] + ")";
               setMessage(
-                `File uploaded successfully: ${response["file"]["name"]}`
+                `File uploaded successfully: ${response["file"]["name"]}`,
               );
 
               let prevEditingCard = {
