@@ -156,6 +156,7 @@ export function EditPage({ newCard }: EditPageProps) {
           </div>
 
           <label htmlFor="title">Source/URL:</label>
+
           <input
             style={{ display: "block", width: "100%", marginBottom: "10px" }}
             type="text"
@@ -166,6 +167,20 @@ export function EditPage({ newCard }: EditPageProps) {
             }
             placeholder="Title"
           />
+          <div className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              checked={editingCard.is_literature_card}
+              onChange={(e) =>
+                setEditingCard({
+                  ...editingCard,
+                  is_literature_card: e.target.checked,
+                })
+              }
+              className="mr-2 h-4 w-4"
+            />
+            <span className="text-sm text-gray-700">Literature Card</span>
+          </div>
           <Button onClick={handleSaveCard} children={"Save"} />
           <Button onClick={handleCancelButtonClick} children={"Cancel"} />
           {!newCard && (
