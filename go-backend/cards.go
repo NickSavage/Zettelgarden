@@ -621,8 +621,6 @@ func (s *Server) QueryPartialCardByID(userID, id int) (models.PartialCard, error
 		log.Printf("err %v", err)
 		return models.PartialCard{}, fmt.Errorf("something went wrong")
 	}
-	tags, _ := s.QueryTagsForCard(userID, card.ID)
-	card.Tags = tags
 	return card, nil
 
 }
@@ -649,8 +647,6 @@ func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard
 		log.Printf("err %v", err)
 		return models.PartialCard{}, fmt.Errorf("something went wrong")
 	}
-	tags, _ := s.QueryTagsForCard(userID, card.ID)
-	card.Tags = tags
 	return card, nil
 
 }
@@ -682,8 +678,6 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 		return models.Card{}, fmt.Errorf("unable to access card")
 	}
 
-	tags, _ := s.QueryTagsForCard(userID, card.ID)
-	card.Tags = tags
 	s.logCardView(id, userID)
 	return card, nil
 
@@ -730,8 +724,6 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 			log.Printf("err %v", err)
 			return cards, err
 		}
-		tags, _ := s.QueryTagsForCard(userID, card.ID)
-		card.Tags = tags
 		cards = append(cards, card)
 	}
 
@@ -777,8 +769,6 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 			log.Printf("err %v", err)
 			return cards, err
 		}
-		tags, _ := s.QueryTagsForCard(userID, card.ID)
-		card.Tags = tags
 		cards = append(cards, card)
 	}
 	return cards, nil
@@ -825,8 +815,6 @@ func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 			log.Printf("err %v", err)
 			return cards, err
 		}
-		tags, _ := s.QueryTagsForCard(userID, card.ID)
-		card.Tags = tags
 		cards = append(cards, card)
 	}
 	return cards, nil
