@@ -850,6 +850,7 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 	if !s.testing {
 		go s.UpdateCardKeywords(userID, card)
 	}
+	s.AddTagsFromCard(userID, cardPK)
 	return s.QueryFullCard(userID, cardPK)
 }
 
@@ -881,6 +882,7 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	if !s.testing {
 		go s.UpdateCardKeywords(userID, card)
 	}
+	s.AddTagsFromCard(userID, id)
 	return s.QueryFullCard(userID, id)
 }
 
