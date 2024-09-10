@@ -19,6 +19,7 @@ type Card struct {
 	References       []PartialCard `json:"references"`
 	Keywords         []Keyword     `json:"keywords"`
 	IsLiteratureCard bool          `json:"is_literature_card"`
+	Tags             []Tag         `json:"tags"`
 }
 
 type PartialCard struct {
@@ -30,6 +31,7 @@ type PartialCard struct {
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 	IsLiteratureCard bool      `json:"is_literature_card"`
+	Tags             []Tag     `json:"tags"`
 }
 
 type EditCardParams struct {
