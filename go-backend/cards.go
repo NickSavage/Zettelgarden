@@ -336,6 +336,15 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	card.Keywords = keywords
 
+	tags, err := s.QueryTagsForCard(userID, card.ID)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	card.Tags = tags
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
 }
