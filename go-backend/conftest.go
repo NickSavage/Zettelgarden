@@ -59,6 +59,7 @@ func (s *Server) importTestData() error {
 	backlinks := data["backlinks"].([]models.Backlink)
 	tasks := data["tasks"].([]models.Task)
 	keywords := data["keywords"].([]models.Keyword)
+	tags := data["tags"].([]models.Tag)
 
 	var userIDs []int
 	for _, user := range users {
@@ -148,6 +149,19 @@ func (s *Server) importTestData() error {
 		}
 	}
 
+	for _, tag := range tags {
+		_, err := s.db.Exec(
+			"INSERT INTO tags (name, color, user_id) VALUES ($1, $2, $3)",
+			tag.Name,
+			tag.Color,
+			tag.UserID,
+		)
+		if err != nil {
+			log.Printf("err %v", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -167,6 +181,20 @@ func (s *Server) generateData() map[string]interface{} {
 			}
 			keywords = append(keywords, keyword)
 		}
+	}
+
+	tags := []models.Tag{}
+	for i := 1; i <= 3; i++ {
+		tag := models.Tag{
+			Name:   randomString(10),
+			Color:  randomString(10),
+			UserID: 1,
+		}
+		if i == 1 {
+			tag.Name = "test"
+		}
+		tags = append(tags, tag)
+
 	}
 
 	users := []models.User{}
@@ -325,6 +353,7 @@ func (s *Server) generateData() map[string]interface{} {
 		"files":     files,
 		"tasks":     tasks,
 		"keywords":  keywords,
+		"tags":      tags,
 	}
 	return results
 }
