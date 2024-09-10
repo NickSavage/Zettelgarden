@@ -190,21 +190,20 @@ func TestAddTagToCard(t *testing.T) {
 
 }
 
-// query all cards for a specific tag
-
-func TestQueryTagsForCard(t *testing.T) {
-
+func TestAddTagsFromCardQuery(t *testing.T) {
 	setup()
+
 	defer teardown()
 
-	userID := 1
-	cardPK := 1
-	tagName := "test"
+	userID := 2
+
+	cardPK := 23
+	tagName := "to-read"
 
 	var count int
 	_ = s.db.QueryRow("SELECT count(*) FROM card_tags").Scan(&count)
 
-	err := s.AddTagToCard(userID, tagName, cardPK)
+	err := s.AddTagsFromCard(userID, cardPK)
 	if err != nil {
 		t.Errorf("handler returned error, %v", err.Error())
 	}
@@ -222,8 +221,31 @@ func TestQueryTagsForCard(t *testing.T) {
 	if len(tags) != 1 {
 		t.Errorf("handler returned wrong number of tags, got %v want %v", len(tags), 1)
 	}
+
 	if tags[0].Name != tagName {
 		t.Errorf("wrong tag attached to card, got %v want %v", tags[0].Name, tagName)
+	}
+
+}
+
+func TestParseTagsFromCardBody(t *testing.T) {
+	setup()
+	defer teardown()
+
+	body := "hello world \n\n#to-read #hello#world"
+
+	tags, err := s.ParseTagsFromCardBody(body)
+	if err != nil {
+		t.Errorf("handler returned error, %v", err.Error())
+	}
+	if len(tags) != 2 {
+		t.Errorf("handler returned wrong number of tags, got %v want %v", len(tags), 2)
+	}
+	if tags[0] != "to-read" {
+		t.Errorf("wrong tag returned, got %v want %v", tags[0], "to-read")
+	}
+	if tags[1] != "hello#world" {
+		t.Errorf("wrong tag returned, got %v want %v", tags[1], "hello#world")
 	}
 
 }

@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"go-backend/models"
 	"log"
+	"regexp"
+	"strings"
 )
 
 func (s *Server) GetTag(userID int, tagName string) (models.Tag, error) {
@@ -103,6 +105,7 @@ func (s *Server) AddTagToCard(userID int, tagName string, cardPK int) error {
         `
 	_ = s.db.QueryRow(countQuery, tagName, cardPK, userID).Scan(&count)
 	if count > 0 {
+		log.Printf("?")
 		return nil
 	}
 	query := `
@@ -152,6 +155,53 @@ func (s *Server) QueryTagsForCard(userID int, cardPK int) ([]models.Tag, error) 
 	}
 	return tags, nil
 
-	return []models.Tag{}, nil
+}
+
+func (s *Server) ParseTagsFromCardBody(body string) ([]string, error) {
+	if body == "" {
+		return []string{}, nil
+	}
+
+	// Regular expression to match hashtags
+	re := regexp.MustCompile(`#\S+`)
+	matches := re.FindAllString(body, -1)
+
+	// Process matched tags
+	var tags []string
+	for _, match := range matches {
+		tag := strings.TrimSpace(match)
+		if tag != "" {
+			tags = append(tags, strings.TrimPrefix(tag, "#"))
+		}
+	}
+
+	return tags, nil
+}
+
+func (s *Server) AddTagsFromCard(userID, cardPK int) error {
+	card, err := s.QueryFullCard(userID, cardPK)
+	if err != nil {
+		return err
+	}
+	tags, err := s.ParseTagsFromCardBody(card.Body)
+	if err != nil {
+		return err
+	}
+	for _, tagName := range tags {
+		log.Printf("tag %v", tagName)
+		params := models.EditTagParams{
+			Name:  tagName,
+			Color: "black",
+		}
+		_, err := s.CreateTag(userID, params)
+		if err != nil {
+			return err
+		}
+		err = s.AddTagToCard(userID, tagName, cardPK)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 
 }

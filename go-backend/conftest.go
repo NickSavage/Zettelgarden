@@ -276,7 +276,7 @@ func (s *Server) generateData() map[string]interface{} {
 		CardID:           "1",
 		UserID:           2,
 		Title:            "test card",
-		Body:             "hello world",
+		Body:             "hello world #to-read",
 		Link:             fmt.Sprintf("https://%s.com", randomString(10)),
 		CreatedAt:        randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
