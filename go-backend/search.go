@@ -29,17 +29,18 @@ func ParseSearchText(input string) SearchParams {
 
 	return searchParams
 }
-
 func BuildPartialCardSqlSearchTermString(searchString string) string {
 	searchParams := ParseSearchText(searchString)
 
-	var conditions []string
+	var result string
+	var termConditions []string
+	var tagConditions []string
 
 	// Add conditions for terms that search both card_id and title
 	for _, term := range searchParams.Terms {
 		// Use ILIKE for case-insensitive pattern matching
 		termCondition := fmt.Sprintf("(card_id ILIKE '%%%s%%' OR title ILIKE '%%%s%%')", term, term)
-		conditions = append(conditions, termCondition)
+		termConditions = append(termConditions, termCondition)
 	}
 
 	// Add conditions for tags
@@ -47,18 +48,27 @@ func BuildPartialCardSqlSearchTermString(searchString string) string {
 		tagCondition := fmt.Sprintf(`EXISTS (
             SELECT 1 FROM card_tags
             JOIN tags ON card_tags.tag_id = tags.id
-            WHERE card_tags.card_pk = cards.id AND tags.name ILIKE '%%%s%%' AND tags.is_deleted = FALSE
+            WHERE card_tags.card_pk = cards.id AND tags.name = '%s' AND tags.is_deleted = FALSE
         )`, tag)
-		conditions = append(conditions, tagCondition)
+		tagConditions = append(tagConditions, tagCondition)
 	}
 
-	// Join all conditions with OR
-	if len(conditions) > 0 {
-		result := " OR (" + strings.Join(conditions, " OR ") + ")"
-		log.Printf("query %v", result)
-		return result
+	if len(tagConditions) > 0 {
+		// If tags are present, ensure that one or more tag conditions are met
+		result = " AND (" + strings.Join(tagConditions, " AND ") + ")"
 	}
 
-	return ""
+	if len(termConditions) > 0 {
+		// Add term conditions if they exist
+		if result != "" {
+			// Combine with term conditions using an AND clause
+			result += " AND (" + strings.Join(termConditions, " OR ") + ")"
+		} else {
+			// If no tag conditions, start with term conditions
+			result = " AND (" + strings.Join(termConditions, " OR ") + ")"
+		}
+	}
+	log.Printf("result %v", result)
 
+	return result
 }
