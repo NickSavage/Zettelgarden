@@ -97,6 +97,10 @@ func getKeywordsFromLLM(db *sql.DB, userID int, input string) (KeywordsResponse,
 		},
 	}
 	resp, err := client.CreateChatCompletion(context.Background(), req)
+	var keywordsResponse KeywordsResponse
+	if len(resp.Choices) == 0 {
+		return keywordsResponse, nil
+	}
 	jsonOutput := resp.Choices[0].Message.Content
 	jsonOutput = strings.Replace(jsonOutput, "json```", "", -1)
 	jsonOutput = strings.Replace(jsonOutput, "```", "", -1)
@@ -104,7 +108,6 @@ func getKeywordsFromLLM(db *sql.DB, userID int, input string) (KeywordsResponse,
 	log.Printf("llm keywords - user %v tokens %v", userID, resp.Usage.TotalTokens)
 
 	// Unmarshal JSON into struct
-	var keywordsResponse KeywordsResponse
 	err = json.Unmarshal([]byte(jsonOutput), &keywordsResponse)
 	if err != nil {
 		return keywordsResponse, err
