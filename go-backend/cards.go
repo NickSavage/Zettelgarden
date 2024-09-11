@@ -749,6 +749,8 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
     WHERE
 		user_id = $1 AND is_deleted = FALSE`
 
+	query = query + BuildPartialCardSqlSearchTermString(searchTerm)
+	//	log.Printf(query)
 	// Add condition for searchTerm
 	var rows *sql.Rows
 	var err error
@@ -774,9 +776,6 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 			return cards, err
 		}
 		cards = append(cards, card)
-	}
-	if searchTerm != "" {
-		cards = SearchThroughPartialCards(cards, searchTerm)
 	}
 	return cards, nil
 }

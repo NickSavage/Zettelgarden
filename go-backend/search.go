@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go-backend/models"
 	"log"
 	"strings"
@@ -74,4 +75,35 @@ func SearchThroughPartialCards(cards []models.PartialCard, searchString string) 
 		}
 	}
 	return results
+}
+
+func BuildPartialCardSqlSearchTermString(searchString string) string {
+	searchParams := ParseSearchText(searchString)
+
+	var conditions []string
+
+	// Add conditions for terms that search both card_id and title
+	for _, term := range searchParams.Terms {
+		// Use ILIKE for case-insensitive pattern matching
+		termCondition := fmt.Sprintf("(card_id ILIKE '%%%s%%' OR title ILIKE '%%%s%%')", term, term)
+		conditions = append(conditions, termCondition)
+	}
+
+	// Add conditions for tags
+	for _, tag := range searchParams.Tags {
+		tagCondition := fmt.Sprintf(`EXISTS (
+            SELECT 1 FROM card_tags
+            JOIN tags ON card_tags.tag_id = tags.id
+            WHERE card_tags.card_pk = cards.id AND tags.name ILIKE '%%%s%%' AND tags.is_deleted = FALSE
+        )`, tag)
+		conditions = append(conditions, tagCondition)
+	}
+
+	// Join all conditions with OR
+	if len(conditions) > 0 {
+		return " AND (" + strings.Join(conditions, " OR ") + ")"
+	}
+
+	return ""
+
 }
