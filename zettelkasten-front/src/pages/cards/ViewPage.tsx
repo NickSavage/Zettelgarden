@@ -131,6 +131,11 @@ export function ViewPage({}: ViewPageProps) {
                 {viewingCard.is_literature_card && (
                   <span className="pl-2 text-purple-500 text-sm">{"Literature Card"}</span>
                 )}
+		{viewingCard.tags.length > 0 && (
+viewingCard.tags.map((tag) => 
+                  <span className="pl-2 text-purple-500 text-sm">#{tag.name}</span>)
+		  
+		)}
               </h1>
             </div>
             <div className="p-2">

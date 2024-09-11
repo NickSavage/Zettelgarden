@@ -1,4 +1,5 @@
 import { File } from "./File";
+import { Tag } from "./Tags";
 
 // src/models/PartialCard.ts
 export interface PartialCard {
@@ -10,6 +11,7 @@ export interface PartialCard {
   created_at: string;
   updated_at: string;
   is_literature_card: boolean;
+  tags: Tag[];
 }
 
 export interface Keyword {
@@ -19,6 +21,7 @@ export interface Keyword {
   keyword: string;
   
 }
+
 
 export interface Card {
   id: number;
@@ -37,6 +40,7 @@ export interface Card {
   references: PartialCard[];
   keywords: Keyword[];
   is_literature_card: boolean;
+  tags: Tag[];
 }
 
 export const defaultPartialCard: PartialCard = {
@@ -48,6 +52,7 @@ export const defaultPartialCard: PartialCard = {
   created_at: "",
   updated_at: "",
   is_literature_card: false,
+  tags: [],
 };
 
 export const defaultCard: Card = {
@@ -67,6 +72,7 @@ export const defaultCard: Card = {
   references: [],
   keywords: [],
   is_literature_card: false,
+  tags: [],
 };
 
 export interface NextIdResponse {
