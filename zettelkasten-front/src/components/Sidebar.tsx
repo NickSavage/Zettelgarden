@@ -17,6 +17,9 @@ import { Button } from "./Button";
 import { useShortcutContext } from "../contexts/ShortcutContext";
 import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
+import { PartialCard } from "../models/Card";
+import { fetchPartialCards } from "../api/cards";
+
 export function Sidebar() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
@@ -24,6 +27,7 @@ export function Sidebar() {
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
+  const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
   const {
     showCreateTaskWindow,
     setShowCreateTaskWindow,
@@ -36,26 +40,9 @@ export function Sidebar() {
     [partialCards],
   );
 
-  const filteredCards = useMemo(() => {
-    const isIdSearch = filter.startsWith("!");
-    const filteredResults = mainCards.filter((card) => {
-      const cardId = card.card_id.toString().toLowerCase();
-      const title = card.title.toLowerCase();
-      if (isIdSearch) {
-        return cardId.startsWith(filter.slice(1).trim().toLowerCase());
-      } else {
-        return filter.split(" ").every((keyword: string) => {
-          const cleanKeyword = keyword.trim().toLowerCase();
-          return (
-            cleanKeyword === "" ||
-            title.includes(cleanKeyword) ||
-            cardId.includes(cleanKeyword)
-          );
-        });
-      }
-    });
-    return filteredResults.slice(0, 100);
-  }, [mainCards, filter]);
+  useEffect(() => {
+    setFilteredCards(mainCards.slice(0, 100));
+  }, [mainCards]);
 
   function handleNewStandardCard() {
     toggleNewDropdown();
@@ -80,8 +67,14 @@ export function Sidebar() {
     [tasks],
   );
 
-  function handleFilter(text: string) {
+  async function handleFilter(text: string) {
     setFilter(text);
+    if (text == "") {
+      setFilteredCards(mainCards.slice(0, 100));
+    }
+    await fetchPartialCards(text, "date").then((data) => {
+      setFilteredCards(data.filter((card => !card.card_id.includes("/"))));
+    });
   }
 
   const handleKeyPress = (event: KeyboardEvent) => {
@@ -89,7 +82,7 @@ export function Sidebar() {
     if (event.metaKey) {
       return;
     }
-    
+
     // these should only work if there isn't an input selected
     const focusedElement = document.activeElement;
     if (!focusedElement || !focusedElement.tagName.match(/^INPUT|TEXTAREA$/i)) {

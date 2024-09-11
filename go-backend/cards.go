@@ -753,7 +753,7 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 	var rows *sql.Rows
 	var err error
 	if searchTerm != "" {
-		query += " AND title ILIKE $2 "
+		query += " AND (title ILIKE $2 OR card_id ILIKE $2) "
 		rows, err = s.db.Query(query, userID, "%"+searchTerm+"%")
 	} else {
 		rows, err = s.db.Query(query, userID)
