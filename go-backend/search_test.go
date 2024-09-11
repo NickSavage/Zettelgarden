@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -43,4 +44,30 @@ func TestParseSearchText(t *testing.T) {
 	if output.Tags[1] != "another" {
 		t.Errorf("wrong tag returned, got %v want %v", output.Tags[1], "another")
 	}
+}
+
+func TestBuildPartialCardSqlSearchTermString(t *testing.T) {
+	input := "hello world"
+	expectedOutput := " AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%') OR (card_id ILIKE '%world%' OR title ILIKE '%world%'))"
+	output := BuildPartialCardSqlSearchTermString(input)
+	if output != expectedOutput {
+		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
+	}
+
+	input = "hello #world"
+	expectedOutput = `
+AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%') OR EXISTS (   
+            SELECT 1 FROM card_tags                                                                  
+            JOIN tags ON card_tags.tag_id = tags.id                                              
+            WHERE card_tags.card_pk = cards.id AND tags.name ILIKE '%world%' AND tags.is_deleted = FALSE))
+`
+	expectedOutput = strings.ReplaceAll(expectedOutput, " ", "")
+	expectedOutput = strings.ReplaceAll(expectedOutput, "\n", "")
+	output = BuildPartialCardSqlSearchTermString(input)
+	output = strings.ReplaceAll(output, " ", "")
+	output = strings.ReplaceAll(output, "\n", "")
+	if output != expectedOutput {
+		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
+	}
+
 }

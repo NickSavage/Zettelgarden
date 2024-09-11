@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"go-backend/models"
 	"log"
 	"strings"
 )
@@ -31,52 +30,6 @@ func ParseSearchText(input string) SearchParams {
 	return searchParams
 }
 
-func matchCardTerm(card models.PartialCard, searchParams SearchParams) bool {
-	// Check if any term matches CardID or Title
-	for _, term := range searchParams.Terms {
-		if strings.Contains(strings.ToLower(card.CardID), strings.ToLower(term)) ||
-			strings.Contains(strings.ToLower(card.Title), strings.ToLower(term)) {
-			return true
-		}
-	}
-	return false
-
-}
-
-func matchCardTags(card models.PartialCard, searchParams SearchParams) bool {
-
-	// Check if any tag matches
-	for _, tag := range card.Tags {
-		for _, searchTag := range searchParams.Tags {
-			if searchTag == tag.Name {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-func SearchThroughPartialCards(cards []models.PartialCard, searchString string) []models.PartialCard {
-	searchParams := ParseSearchText(searchString)
-	var results []models.PartialCard
-	for _, card := range cards {
-		if matchCardTerm(card, searchParams) {
-			results = append(results, card)
-			continue
-		}
-		tags, err := s.QueryTagsForCard(card.UserID, card.ID)
-		if err == nil {
-			card.Tags = tags
-			log.Printf("card tags %v", tags)
-		}
-		if matchCardTags(card, searchParams) {
-			results = append(results, card)
-			continue
-		}
-	}
-	return results
-}
-
 func BuildPartialCardSqlSearchTermString(searchString string) string {
 	searchParams := ParseSearchText(searchString)
 
@@ -101,7 +54,9 @@ func BuildPartialCardSqlSearchTermString(searchString string) string {
 
 	// Join all conditions with OR
 	if len(conditions) > 0 {
-		return " AND (" + strings.Join(conditions, " OR ") + ")"
+		result := " OR (" + strings.Join(conditions, " OR ") + ")"
+		log.Printf("query %v", result)
+		return result
 	}
 
 	return ""
