@@ -91,6 +91,7 @@ const samplePartialCardData: PartialCard[] = [
     updated_at: new Date().toISOString(),
     parent_id: 1,
     is_literature_card: false,
+    tags: [],
   },
   {
     id: 2,
@@ -101,6 +102,7 @@ const samplePartialCardData: PartialCard[] = [
     updated_at: new Date().toISOString(),
     parent_id: 2,
     is_literature_card: false,
+    tags: [],
   },
 
 ]
@@ -123,6 +125,7 @@ const sampleCardData: Card[] = [
     is_deleted: false,
     keywords: [],
     is_literature_card: false,
+    tags: [],
   },
   {
     id: 2,
@@ -141,5 +144,6 @@ const sampleCardData: Card[] = [
     is_deleted: false,
     keywords: [],
     is_literature_card: false,
+    tags: [],
   },
 ];

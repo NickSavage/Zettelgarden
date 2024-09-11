@@ -36,7 +36,8 @@ export function convertCardToPartialCard(card: Card): PartialCard {
     parent_id: card.parent_id,
     created_at: card.created_at,
     updated_at: card.updated_at,
-    is_literature_card: false,
+    is_literature_card: card.is_literature_card,
+    tags: card.tags,
   };
 }
 
