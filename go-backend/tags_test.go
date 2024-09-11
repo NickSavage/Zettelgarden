@@ -2,6 +2,8 @@ package main
 
 import (
 	"go-backend/models"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -40,21 +42,31 @@ func TestGetTagNotFound(t *testing.T) {
 
 }
 
-// get all tags for a user
-func TestGetTags(t *testing.T) {
+func TestGetTagsRoute(t *testing.T) {
 	setup()
 	defer teardown()
 
-	userID := 1
+	token, _ := generateTestJWT(1)
 
-	tags, err := s.GetTags(userID)
+	req, err := http.NewRequest("GET", "/api/tags/cards/", nil)
 	if err != nil {
-		t.Errorf("handler returned error, %v", err.Error())
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.GetTagsRoute))
+	handler.ServeHTTP(rr, req)
+
+	var tags []models.Tag
+	parseJsonResponse(t, rr.Body.Bytes(), &tags)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	if len(tags) != 3 {
 		t.Errorf("handler returned wrong number of tags, got %v want %v", len(tags), 3)
 	}
-
 }
 
 // create new tag

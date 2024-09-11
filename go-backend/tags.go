@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"go-backend/models"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 )
@@ -59,6 +61,21 @@ func (s *Server) GetTags(userID int) ([]models.Tag, error) {
 		tags = append(tags, tag)
 	}
 	return tags, nil
+}
+
+func (s *Server) GetTagsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	tasks, err := s.GetTags(userID)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tasks)
+
 }
 
 func (s *Server) CreateTag(userID int, tagData models.EditTagParams) (models.Tag, error) {
