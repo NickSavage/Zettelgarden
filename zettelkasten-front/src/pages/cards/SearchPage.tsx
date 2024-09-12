@@ -1,6 +1,8 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards } from "../../api/cards";
+import { fetchUserTags } from "../../api/tags";
 import { Card } from "../../models/Card";
+import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
@@ -23,6 +25,7 @@ export function SearchPage({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
+  const [tags, setTags] = useState<Tag[]>([]);
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -31,10 +34,9 @@ export function SearchPage({
   function handleSearch() {
     fetchCards(searchTerm).then((data) => {
       if (data === null) {
-	setCards([]);
+        setCards([]);
       } else {
-      setCards(data);
-	
+        setCards(data);
       }
     });
   }
@@ -50,9 +52,18 @@ export function SearchPage({
     return sortedCards.slice(indexOfFirstItem, indexOfLastItem);
   }
 
+  async function fetchTags() {
+    fetchUserTags().then((data) => {
+      if (data !== null) {
+        setTags(data);
+      }
+    });
+  }
+
   useEffect(() => {
+    fetchTags();
     document.title = "Zettelgarden - Search";
-    handleSearch()
+    handleSearch();
   }, []);
 
   const currentItems = getSortedAndPagedCards();
@@ -85,7 +96,7 @@ export function SearchPage({
         </div>
         {currentItems.length > 0 ? (
           <div>
-          <CardList cards={currentItems} sort={false} showAddButton={false} />
+            <CardList cards={currentItems} sort={false} showAddButton={false} />
             <div>
               <Button
                 onClick={() => setCurrentPage(currentPage - 1)}
@@ -95,19 +106,28 @@ export function SearchPage({
               <span>
                 {" "}
                 Page {currentPage} of{" "}
-                {Math.ceil((cards.length > 0 ? cards.length : partialCards.length) / itemsPerPage)}{" "}
+                {Math.ceil(
+                  (cards.length > 0 ? cards.length : partialCards.length) /
+                    itemsPerPage,
+                )}{" "}
               </span>
               <Button
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={
-                  currentPage === Math.ceil((cards.length > 0 ? cards.length : partialCards.length) / itemsPerPage)
+                  currentPage ===
+                  Math.ceil(
+                    (cards.length > 0 ? cards.length : partialCards.length) /
+                      itemsPerPage,
+                  )
                 }
                 children={"Next"}
               />
             </div>
           </div>
         ) : (
-          <div className="flex justify-center w-full py-20">Search returned no results</div>
+          <div className="flex justify-center w-full py-20">
+            Search returned no results
+          </div>
         )}
       </div>
     </div>
