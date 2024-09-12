@@ -195,11 +195,18 @@ func (s *Server) ParseTagsFromCardBody(body string) ([]string, error) {
 	return tags, nil
 }
 
+func (s *Server) RemoveAllTagsFromCard(userID, cardPK int) error {
+	query := `DELETE FROM card_tags WHERE card_pk = $1`
+	_, err := s.db.Exec(query, cardPK)
+	return err
+}
+
 func (s *Server) AddTagsFromCard(userID, cardPK int) error {
 	card, err := s.QueryFullCard(userID, cardPK)
 	if err != nil {
 		return err
 	}
+	s.RemoveAllTagsFromCard(userID, cardPK)
 	tags, err := s.ParseTagsFromCardBody(card.Body)
 	if err != nil {
 		return err
