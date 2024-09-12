@@ -29,7 +29,7 @@ func ParseSearchText(input string) SearchParams {
 
 	return searchParams
 }
-func BuildPartialCardSqlSearchTermString(searchString string) string {
+func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) string {
 	searchParams := ParseSearchText(searchString)
 
 	var result string
@@ -39,7 +39,14 @@ func BuildPartialCardSqlSearchTermString(searchString string) string {
 	// Add conditions for terms that search both card_id and title
 	for _, term := range searchParams.Terms {
 		// Use ILIKE for case-insensitive pattern matching
-		termCondition := fmt.Sprintf("(card_id ILIKE '%%%s%%' OR title ILIKE '%%%s%%')", term, term)
+		var termCondition string
+		if fullText {
+			termCondition = fmt.Sprintf("(card_id ILIKE '%%%s%%' OR title ILIKE '%%%s%%' OR body ILIKE '%%%s%%')", term, term, term)
+
+		} else {
+			termCondition = fmt.Sprintf("(card_id ILIKE '%%%s%%' OR title ILIKE '%%%s%%')", term, term)
+
+		}
 		termConditions = append(termConditions, termCondition)
 	}
 

@@ -49,7 +49,7 @@ func TestParseSearchText(t *testing.T) {
 func TestBuildPartialCardSqlSearchTermString(t *testing.T) {
 	input := "hello world"
 	expectedOutput := " AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%') OR (card_id ILIKE '%world%' OR title ILIKE '%world%'))"
-	output := BuildPartialCardSqlSearchTermString(input)
+	output := BuildPartialCardSqlSearchTermString(input, false)
 	if output != expectedOutput {
 		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
 	}

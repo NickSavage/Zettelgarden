@@ -702,15 +702,11 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
     WHERE
 		user_id = $1 AND is_deleted = FALSE`
 
-	// Add condition for searchTerm
 	var rows *sql.Rows
 	var err error
-	if searchTerm != "" {
-		query += " AND (title ILIKE $2 OR body ILIKE $2) "
-		rows, err = s.db.Query(query, userID, "%"+searchTerm+"%")
-	} else {
-		rows, err = s.db.Query(query, userID)
-	}
+
+	query = query + BuildPartialCardSqlSearchTermString(searchTerm, true)
+	rows, err = s.db.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return cards, err
@@ -749,9 +745,7 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
     WHERE
 		user_id = $1 AND is_deleted = FALSE`
 
-	query = query + BuildPartialCardSqlSearchTermString(searchTerm)
-	//	log.Printf(query)
-	// Add condition for searchTerm
+	query = query + BuildPartialCardSqlSearchTermString(searchTerm, false)
 	var rows *sql.Rows
 	var err error
 	rows, err = s.db.Query(query, userID)
