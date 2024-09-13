@@ -4,7 +4,10 @@ import (
 	"go-backend/models"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 // get existing tag
@@ -293,4 +296,33 @@ func TestParseTagsFromCardBody(t *testing.T) {
 		t.Errorf("wrong tag returned, got %v want %v", tags[1], "hello#world")
 	}
 
+}
+
+func TestDeleteTag(t *testing.T) {
+	setup()
+	defer teardown()
+
+	id := 1
+	token, _ := generateTestJWT(1)
+
+	req, err := http.NewRequest("DELETE", "/api/tags/id/"+strconv.Itoa(id), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", strconv.Itoa(id))
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/tags/id/{id}", jwtMiddleware(s.DeleteTagRoute))
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusNoContent {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
+	}
+
+	_, err = s.GetTag(1, "test")
+	if err == nil {
+		t.Error("handler returned tag after it should have been deleted")
+	}
 }

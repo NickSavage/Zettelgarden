@@ -3,11 +3,15 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"go-backend/models"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 func (s *Server) GetTag(userID int, tagName string) (models.Tag, error) {
@@ -310,5 +314,35 @@ func (s *Server) QueryTagsForTask(userID int, taskPK int) ([]models.Tag, error) 
 		tags = append(tags, tag)
 	}
 	return tags, nil
-	return []models.Tag{}, nil
+}
+
+func (s *Server) DeleteTag(userID, id int) error {
+
+	_, err := s.db.Exec(`
+UPDATE tags SET is_deleted = TRUE, updated_at = NOW() WHERE id =  $1 AND user_id = $2
+`, id, userID)
+	return err
+}
+
+func (s *Server) DeleteTagRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+	var count int
+	_ = s.db.QueryRow("SELECT count(*) FROM card_tags WHERE tag_id = $1", id).Scan(&count)
+	if count > 0 {
+		http.Error(w, "unable to delete tag, cards exist", http.StatusBadRequest)
+	}
+	_ = s.db.QueryRow("SELECT count(*) FROM task_tags WHERE tag_id = $1", id).Scan(&count)
+	if count > 0 {
+		http.Error(w, "unable to delete tag, tasks exist", http.StatusBadRequest)
+	}
+	err = s.DeleteTag(userID, id)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("unable to delete tag: %v", err.Error()), http.StatusBadRequest)
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
