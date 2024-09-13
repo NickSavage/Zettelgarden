@@ -34,7 +34,7 @@ export function AddTagMenu({
 
 
   return (
-    <div className="w-24">
+    <div className="w-32">
       <input
         type="text"
         value={textInput}
