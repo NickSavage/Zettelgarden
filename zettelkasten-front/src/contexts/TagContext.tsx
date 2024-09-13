@@ -5,6 +5,7 @@ import { Tag } from "../models/Tags";
 
 interface TagContextType {
   tags: Tag[];
+  setRefreshTags: (refresh: boolean) => void;
 }
 
 const TagContext = createContext<TagContextType | undefined>(undefined);
@@ -14,19 +15,27 @@ export const TagProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [tags, setTags] = useState<Tag[]>([]);
 
+  const [refreshTags, setRefreshTags] = useState(true);
+
   const getTags = async () => {
     await fetchUserTags().then((data) => {
-      console.log("tags1")
-      console.log(data)
+      console.log("tags1");
+      console.log(data);
       setTags(data);
     });
   };
 
   useEffect(() => {
-    console.log("???")
-    getTags();
-  }, []);
-  return <TagContext.Provider value={{ tags }}>{children}</TagContext.Provider>;
+    if (refreshTags) {
+      getTags();
+      setRefreshTags(false);
+    }
+  }, [refreshTags]);
+  return (
+    <TagContext.Provider value={{ tags, setRefreshTags }}>
+      {children}
+    </TagContext.Provider>
+  );
 };
 
 export const useTagContext = () => {
