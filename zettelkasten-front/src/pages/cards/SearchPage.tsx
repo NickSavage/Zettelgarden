@@ -6,6 +6,7 @@ import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
+import { SearchTagMenu} from "../../components/cards/SearchTagMenu"
 import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface SearchPageProps {
@@ -25,6 +26,7 @@ export function SearchPage({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
+
   const [tags, setTags] = useState<Tag[]>([]);
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
@@ -55,11 +57,17 @@ export function SearchPage({
   async function fetchTags() {
     fetchUserTags().then((data) => {
       if (data !== null) {
+	console.log("tags")
+	console.log(data)
         setTags(data);
       }
     });
   }
 
+  function handleTagClick(tag: Tag) {
+    setSearchTerm(searchTerm + " #" + tag.name)
+  }
+  
   useEffect(() => {
     fetchTags();
     document.title = "Zettelgarden - Search";
@@ -86,6 +94,7 @@ export function SearchPage({
             }}
           />
 
+	  <div className="flex">
           <Button onClick={handleSearch} children={"Search"} />
           <select value={sortBy} onChange={handleSortChange}>
             <option value="sortNewOld">Newest</option>
@@ -93,6 +102,8 @@ export function SearchPage({
             <option value="sortBigSmall">A to Z</option>
             <option value="sortSmallBig">Z to A</option>
           </select>
+	  <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
+	  </div>
         </div>
         {currentItems.length > 0 ? (
           <div>
