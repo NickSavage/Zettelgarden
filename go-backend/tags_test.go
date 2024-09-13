@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-backend/models"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -292,8 +293,21 @@ func TestParseTagsFromCardBody(t *testing.T) {
 	if tags[0] != "to-read" {
 		t.Errorf("wrong tag returned, got %v want %v", tags[0], "to-read")
 	}
-	if tags[1] != "hello#world" {
-		t.Errorf("wrong tag returned, got %v want %v", tags[1], "hello#world")
+	if tags[1] != "hello" {
+		t.Errorf("wrong tag returned, got %v want %v", tags[1], "hello")
+	}
+
+	body = "hello world \n\nto-read#hello #world"
+	tags, err = s.ParseTagsFromCardBody(body)
+	if err != nil {
+		t.Errorf("handler returned error, %v", err.Error())
+	}
+	if len(tags) != 1 {
+		log.Printf("tags %v", tags)
+		t.Errorf("handler returned wrong number of tags, got %v want %v", len(tags), 1)
+	}
+	if tags[0] != "world" {
+		t.Errorf("wrong tag returned, got %v want %v", tags[0], "world")
 	}
 
 }

@@ -201,7 +201,7 @@ func (s *Server) ParseTagsFromCardBody(body string) ([]string, error) {
 	}
 
 	// Regular expression to match hashtags
-	re := regexp.MustCompile(`#\S+`)
+	re := regexp.MustCompile(`(?:^|\s)(#[\w-]+)`)
 	matches := re.FindAllString(body, -1)
 
 	// Process matched tags
