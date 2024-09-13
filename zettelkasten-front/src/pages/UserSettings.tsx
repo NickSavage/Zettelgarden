@@ -6,11 +6,12 @@ import { editUser } from "../api/users";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
+import { TagList } from "../components/tags/TagList";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<UserSubscription | null>(
-    null
+    null,
   );
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ export function UserSettingsPage() {
       // Now that we have the user, fetch their subscription using the user ID
       if (userResponse && userResponse["id"]) {
         let subscriptionResponse = await getUserSubscription(
-          userResponse["id"]
+          userResponse["id"],
         );
         console.log(subscriptionResponse);
         setSubscription(subscriptionResponse);
@@ -121,6 +122,8 @@ export function UserSettingsPage() {
             </div>
           )}
           <span onClick={handleLogout}>Logout</span>
+          <hr />
+          <TagList />
         </div>
       )}
     </div>

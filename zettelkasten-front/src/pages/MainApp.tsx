@@ -18,6 +18,7 @@ import { DashboardPage } from "./DashboardPage";
 import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
+import { TagProvider } from "../contexts/TagContext";
 import {
   PartialCardProvider,
   usePartialCardContext,
@@ -86,22 +87,15 @@ function MainAppContent() {
                       />
                     }
                   />
-                  <Route
-                    path="card/:id"
-                    element={<ViewPage />}
-                  />
+                  <Route path="card/:id" element={<ViewPage />} />
                   <Route
                     path="card/:id/edit"
-                    element={
-                      <EditPage newCard={false} />
-                    }
+                    element={<EditPage newCard={false} />}
                   />
 
                   <Route
                     path="card/new"
-                    element={
-                      <EditPage newCard={true} />
-                    }
+                    element={<EditPage newCard={true} />}
                   />
                   <Route path="settings" element={<UserSettingsPage />} />
                   <Route path="files" element={<FileVault />} />
@@ -124,13 +118,15 @@ function MainAppContent() {
 
 function MainApp() {
   return (
-    <PartialCardProvider>
-      <TaskProvider>
-        <ShortcutProvider>
-          <MainAppContent />
-        </ShortcutProvider>
-      </TaskProvider>
-    </PartialCardProvider>
+    <TagProvider>
+      <PartialCardProvider>
+        <TaskProvider>
+          <ShortcutProvider>
+            <MainAppContent />
+          </ShortcutProvider>
+        </TaskProvider>
+      </PartialCardProvider>
+    </TagProvider>
   );
 }
 
