@@ -343,6 +343,10 @@ func (s *Server) generateData() map[string]interface{} {
 			task.IsComplete = true
 			task.CompletedAt = randomMaybeNullDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC))
 		}
+
+		if i == 3 {
+			task.Title = "hello world #to-read"
+		}
 		tasks = append(tasks, task)
 	}
 

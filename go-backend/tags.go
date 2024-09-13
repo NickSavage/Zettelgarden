@@ -140,6 +140,23 @@ func (s *Server) AddTagToCard(userID int, tagName string, cardPK int) error {
 	return nil
 }
 
+func (s *Server) AddTagToTask(userID int, tagName string, taskPK int) error {
+
+	query := `
+        INSERT INTO task_tags (task_pk, tag_id)
+        SELECT $1, t.id
+        FROM tags t
+        WHERE t.name = $2 AND t.user_id = $3
+	`
+	_, err := s.db.Exec(query, taskPK, tagName, userID)
+	if err != nil {
+		log.Printf("add tag err %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func (s *Server) QueryTagsForCard(userID int, cardPK int) ([]models.Tag, error) {
 	tags := []models.Tag{}
 
@@ -200,6 +217,11 @@ func (s *Server) RemoveAllTagsFromCard(userID, cardPK int) error {
 	_, err := s.db.Exec(query, cardPK)
 	return err
 }
+func (s *Server) RemoveAllTagsFromTask(userID, taskPK int) error {
+	query := `DELETE FROM task_tags WHERE task_pk = $1`
+	_, err := s.db.Exec(query, taskPK)
+	return err
+}
 
 func (s *Server) AddTagsFromCard(userID, cardPK int) error {
 	card, err := s.QueryFullCard(userID, cardPK)
@@ -212,7 +234,6 @@ func (s *Server) AddTagsFromCard(userID, cardPK int) error {
 		return err
 	}
 	for _, tagName := range tags {
-		log.Printf("tag %v", tagName)
 		params := models.EditTagParams{
 			Name:  tagName,
 			Color: "black",
@@ -228,4 +249,66 @@ func (s *Server) AddTagsFromCard(userID, cardPK int) error {
 	}
 	return nil
 
+}
+
+func (s *Server) AddTagsFromTask(userID, taskPK int) error {
+	task, err := s.QueryTask(userID, taskPK)
+	if err != nil {
+		return err
+	}
+	s.RemoveAllTagsFromTask(userID, taskPK)
+
+	tags, err := s.ParseTagsFromCardBody(task.Title)
+	if err != nil {
+		return err
+	}
+	for _, tagName := range tags {
+		params := models.EditTagParams{
+			Name:  tagName,
+			Color: "black",
+		}
+		_, err := s.CreateTag(userID, params)
+		if err != nil {
+			return err
+		}
+		err = s.AddTagToTask(userID, tagName, taskPK)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Server) QueryTagsForTask(userID int, taskPK int) ([]models.Tag, error) {
+	tags := []models.Tag{}
+
+	query := `
+        SELECT t.id, t.name, t.user_id, t.color
+        FROM tags t
+        JOIN task_tags tt ON t.id = tt.tag_id
+        WHERE tt.task_pk = $1 AND t.user_id = $2;
+        `
+	var rows *sql.Rows
+	var err error
+
+	rows, err = s.db.Query(query, taskPK, userID)
+	if err != nil {
+		log.Printf("err %v", err)
+		return tags, err
+	}
+	for rows.Next() {
+		var tag models.Tag
+		if err := rows.Scan(
+			&tag.ID,
+			&tag.Name,
+			&tag.UserID,
+			&tag.Color,
+		); err != nil {
+			log.Printf("err %v", err)
+			return tags, err
+		}
+		tags = append(tags, tag)
+	}
+	return tags, nil
+	return []models.Tag{}, nil
 }

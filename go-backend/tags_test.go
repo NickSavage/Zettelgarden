@@ -204,7 +204,6 @@ func TestAddTagToCard(t *testing.T) {
 
 func TestAddTagsFromCardQuery(t *testing.T) {
 	setup()
-
 	defer teardown()
 
 	userID := 2
@@ -238,6 +237,40 @@ func TestAddTagsFromCardQuery(t *testing.T) {
 		t.Errorf("wrong tag attached to card, got %v want %v", tags[0].Name, tagName)
 	}
 
+}
+
+func TestAddTagsFromTaskQuery(t *testing.T) {
+	setup()
+
+	userID := 1
+	taskPK := 3
+	tagName := "to-read"
+
+	var count int
+	_ = s.db.QueryRow("SELECT count(*) FROM task_tags").Scan(&count)
+
+	err := s.AddTagsFromTask(userID, taskPK)
+	if err != nil {
+		t.Errorf("handler returned error, %v", err.Error())
+	}
+
+	var newCount int
+	_ = s.db.QueryRow("SELECT count(*) FROM task_tags").Scan(&newCount)
+	if newCount != (count + 1) {
+		t.Errorf("handler returned wrong number of task_tags, got %v want %v", newCount, count+1)
+	}
+
+	tags, err := s.QueryTagsForTask(userID, taskPK)
+	if err != nil {
+		t.Errorf("handler returned error, %v", err.Error())
+	}
+	if len(tags) != 1 {
+		t.Errorf("handler returned wrong number of tags, got %v want %v", len(tags), 1)
+	}
+
+	if tags[0].Name != tagName {
+		t.Errorf("wrong tag attached to card, got %v want %v", tags[0].Name, tagName)
+	}
 }
 
 func TestParseTagsFromCardBody(t *testing.T) {

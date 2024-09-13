@@ -162,6 +162,8 @@ func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
 		log.Printf("error: %v", err)
 		return fmt.Errorf("unable to update task")
 	}
+
+	s.AddTagsFromTask(userID, id)
 	return nil
 }
 
@@ -213,6 +215,7 @@ func (s *Server) CreateTask(task models.Task) (int, error) {
 		log.Printf("err %v", err)
 		return 0, fmt.Errorf("unable to create task")
 	}
+	s.AddTagsFromTask(task.UserID, taskID)
 	return taskID, nil
 }
 
