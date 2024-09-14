@@ -1,13 +1,14 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { Task } from "../../models/Task";
+import { Tag } from "../../models/Tags";
 import { saveExistingTask } from "../../api/tasks";
 import { useTaskContext } from "../../contexts/TaskContext";
 
 interface RemoveTagMenuProps {
   task: Task;
-  tags: string[];
+  tags: Tag[];
   setShowRemoveMenu: (showMenu: boolean) => void;
-  handleRemoveTag: (tag: string) => void;
+  handleRemoveTag: (tag: Tag) => void;
 }
 
 export function RemoveTagMenu({
@@ -16,7 +17,7 @@ export function RemoveTagMenu({
   setShowRemoveMenu,
   handleRemoveTag,
 }: RemoveTagMenuProps) {
-  function handleExistingTagClick(tag: string) {
+  function handleExistingTagClick(tag: Tag) {
     handleRemoveTag(tag);
   }
 
@@ -28,7 +29,7 @@ export function RemoveTagMenu({
     <div className="w-24">
       {tags &&
         tags.map((tag) => (
-          <button onClick={() => handleExistingTagClick(tag)}>{tag}</button>
+          <button onClick={() => handleExistingTagClick(tag)}>{tag.name}</button>
         ))}
     </div>
   );

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Task } from "../../models/Task";
+import { Tag } from "../../models/Tags";
 
 interface TaskTagDisplayProps {
   task: Task;
-  tags: string[];
+  tags: Tag[];
   onTagClick: (tag: string) => void;
 }
 
@@ -15,9 +16,9 @@ export function TaskTagDisplay({ task, tags, onTagClick }: TaskTagDisplayProps) 
         tags.map((tag) => (
           <span
             className="inline-block text-purple-500 text-xs px-2 cursor-pointer"
-            onClick={() => onTagClick(tag)}
+            onClick={() => onTagClick(tag.name)}
           >
-            {tag}
+            {tag.name}
           </span>
         ))}
     </span>

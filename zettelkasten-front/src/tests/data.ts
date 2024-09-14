@@ -22,6 +22,7 @@ const sampleTaskData: Task[] = [
     is_complete: false,
     is_deleted: false,
     card: null, // Or provide a mock PartialCard if needed
+    tags: [],
   },
   {
     id: 2,
@@ -36,6 +37,7 @@ const sampleTaskData: Task[] = [
     is_complete: false,
     is_deleted: false,
     card: null,
+    tags: [],
   },
   {
     id: 3,
@@ -50,6 +52,7 @@ const sampleTaskData: Task[] = [
     is_complete: false,
     is_deleted: false,
     card: null,
+    tags: [],
   },
   {
     id: 4,
@@ -64,6 +67,7 @@ const sampleTaskData: Task[] = [
     is_complete: true,
     is_deleted: false,
     card: null,
+    tags: [],
   },
   {
     id: 5,
@@ -78,6 +82,7 @@ const sampleTaskData: Task[] = [
     is_complete: false,
     is_deleted: false,
     card: null,
+    tags: [],
   },
 ];
 

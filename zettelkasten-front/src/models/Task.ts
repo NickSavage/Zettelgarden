@@ -1,4 +1,5 @@
 import { PartialCard } from "./Card";
+import { Tag } from "./Tags";
 
 export interface Task {
   id: number;
@@ -13,6 +14,7 @@ export interface Task {
   is_complete: boolean;
   is_deleted: boolean;
   card: PartialCard | null;
+  tags: Tag[];
 }
 
 export const emptyTask: Task = {
@@ -28,4 +30,5 @@ export const emptyTask: Task = {
   is_complete: false,
   is_deleted: false,
   card: null,
+  tags: [],
 };

@@ -1,12 +1,13 @@
 import React, { useState, ChangeEvent } from "react";
 import { Task } from "../../models/Task";
-import { useTaskContext } from "../../contexts/TaskContext";
+import { Tag } from "../../models/Tags";
+import { useTagContext } from "../../contexts/TagContext";
 
 interface AddTagMenuProps {
   task: Task;
   setRefresh: (refresh: boolean) => void;
   setShowTagMenu: (showMenu: boolean) => void;
-  handleAddTag: (tag: string) => void;
+  handleAddTag: (tagName: string) => void;
 }
 
 export function AddTagMenu({
@@ -16,10 +17,10 @@ export function AddTagMenu({
   handleAddTag,
 }: AddTagMenuProps) {
   const [textInput, setTextInput] = useState<string>("");
-  const { existingTags } = useTaskContext();
+  const { tags } = useTagContext();
 
-  function handleExistingTagClick(tag: string) {
-    handleAddTag(tag);
+  function handleExistingTagClick(tag: Tag) {
+    handleAddTag("#" + tag.name);
   }
 
   function handleInput(
@@ -31,7 +32,6 @@ export function AddTagMenu({
   async function handleEnter() {
     handleAddTag("#" + textInput);
   }
-
 
   return (
     <div className="w-32">
@@ -46,12 +46,14 @@ export function AddTagMenu({
           }
         }}
       />
-      {existingTags &&
-        existingTags.map((tag) =>
-          task.title.includes(tag) ? (
-            <div key={tag}></div>
+      {tags &&
+        tags.map((tag) =>
+          task.title.includes(tag.name) ? (
+            <div key={tag.id}></div>
           ) : (
-            <button key={tag} onClick={() => handleExistingTagClick(tag)}>{tag}</button>
+            <button key={tag.id} onClick={() => handleExistingTagClick(tag)}>
+              {tag.name}
+            </button>
           ),
         )}
     </div>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Task } from "../../models/Task";
+import { Tag } from "../../models/Tags";
 
 import { deleteTask, saveExistingTask } from "../../api/tasks";
 
@@ -8,7 +9,7 @@ import { RemoveTagMenu } from "../../components/tasks/RemoveTagMenu";
 
 interface TaskListOptionsMenuProps {
   task: Task;
-  tags: string[];
+  tags: Tag[];
   setRefresh: (refresh: boolean) => void;
   showCardLink: boolean;
   setShowCardLink: (show: boolean) => void;
@@ -47,8 +48,8 @@ export function TaskListOptionsMenu({
     setShowMenu(false);
   }
 
-  async function handleAddTag(tag: string) {
-    let editedTask = { ...task, title: task.title + " " + tag };
+  async function handleAddTag(tagName: string) {
+    let editedTask = { ...task, title: task.title + " " + tagName };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
       setRefresh(true);
@@ -56,8 +57,8 @@ export function TaskListOptionsMenu({
     }
   }
 
-  async function handleRemoveTag(tag: string) {
-    const tagRegex = new RegExp(`(?:^|\\s)${tag}(?=\\s|$)`, "g");
+  async function handleRemoveTag(tag: Tag) {
+    const tagRegex = new RegExp(`(?:^|\\s)${tag.name}(?=\\s|$)`, "g");
     let editedTitle = task.title.replace(tagRegex, "").trim();
     editedTitle = editedTitle.replace(/\s+/g, " ");
     let editedTask = { ...task, title: editedTitle };

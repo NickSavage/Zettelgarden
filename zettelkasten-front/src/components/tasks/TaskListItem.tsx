@@ -4,6 +4,7 @@ import { getTomorrow } from "../../utils/dates";
 
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Task } from "../../models/Task";
+import { Tag } from "../../models/Tags";
 import { Link } from "react-router-dom";
 import { PartialCard } from "../../models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
@@ -28,7 +29,7 @@ export function TaskListItem({
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
 
 
   async function handleTitleClick() {
@@ -65,7 +66,7 @@ export function TaskListItem({
 
   useEffect(() => {
     console.log("refrsh task");
-    setTags(parseTags(task.title));
+    setTags(task.tags);
   }, [task]);
   return (
     <div className="task-list-item">
