@@ -22,7 +22,10 @@ export function TagListItem({ tag }: TagListItemInterface) {
     let searchTerm = "#" + tag.name
     navigate(`/app/search?term=${encodeURIComponent(searchTerm)}`)
   }
-  function handleViewTasks() {}
+  function handleViewTasks() {
+    let searchTerm = "#" + tag.name
+    navigate(`/app/tasks?term=${encodeURIComponent(searchTerm)}`)
+  }
   async function handleDelete() {
     let _ = await deleteTag(tag.id)
       .then((data) => {
@@ -41,8 +44,8 @@ export function TagListItem({ tag }: TagListItemInterface) {
       <div className="w-full px-4 flex">
         <div className="flex-grow">{tag.name}</div>
 	<div className="flex">
-	<div className="px-4">{tag.task_count}</div>
-	<div className="px-4">{tag.card_count}</div>
+	<div className="px-4 cursor-pointer" onClick={handleViewTasks}>{tag.task_count}</div>
+	<div className="px-4 cursor-pointer" onClick={handleViewCards}>{tag.card_count}</div>
 	</div>
         <div className="dropdown">
           <button onClick={toggleMenu} className="menu-button">

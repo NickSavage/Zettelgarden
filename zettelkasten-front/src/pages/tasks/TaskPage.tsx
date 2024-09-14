@@ -12,6 +12,8 @@ import {
 import { Button } from "../../components/Button";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
 
+import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
+
 interface TaskListProps {}
 
 export function TaskPage({}: TaskListProps) {
@@ -131,10 +133,19 @@ export function TaskPage({}: TaskListProps) {
   useEffect(() => {
     document.title = "Zettelgarden - Tasks";
 
+    
+    const params = new URLSearchParams(location.search);
+    const term = params.get("term");
+    if (term) {
+      setFilterString(term);
+      //    handleSearch(term);
+    }
+    
     document.addEventListener("keydown", handleKeyPress);
     return () => {
       document.removeEventListener("keydown", handleKeyPress);
     };
+
   }, []);
   return (
     <div>
@@ -176,6 +187,7 @@ export function TaskPage({}: TaskListProps) {
           </div>
         </div>
         <Button onClick={toggleShowTaskWindow} children="Add Task" />
+
       </div>
       <div>
         {showCreateTaskWindow && (
