@@ -37,12 +37,20 @@ func (s *Server) GetTag(userID int, tagName string) (models.Tag, error) {
 
 func (s *Server) GetTags(userID int) ([]models.Tag, error) {
 	tags := []models.Tag{}
-
 	query := `
-            select id, name, user_id, color
-            from tags
-            where is_deleted = false and user_id = $1
-        `
+        SELECT 
+            t.id, 
+            t.name, 
+            t.user_id, 
+            t.color,
+            COUNT(DISTINCT tt.task_pk) AS task_count,
+            COUNT(DISTINCT ct.card_pk) AS card_count
+        FROM tags t
+        LEFT JOIN task_tags tt ON t.id = tt.tag_id
+        LEFT JOIN card_tags ct ON t.id = ct.tag_id
+        WHERE t.is_deleted = false AND t.user_id = $1
+        GROUP BY t.id, t.name, t.user_id, t.color
+    `
 	var rows *sql.Rows
 	var err error
 
@@ -58,6 +66,8 @@ func (s *Server) GetTags(userID int) ([]models.Tag, error) {
 			&tag.Name,
 			&tag.UserID,
 			&tag.Color,
+			&tag.TaskCount,
+			&tag.CardCount,
 		); err != nil {
 			log.Printf("err %v", err)
 			return tags, err

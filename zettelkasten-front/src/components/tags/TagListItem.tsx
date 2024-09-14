@@ -40,7 +40,10 @@ export function TagListItem({ tag }: TagListItemInterface) {
     <li>
       <div className="w-full px-4 flex">
         <div className="flex-grow">{tag.name}</div>
-
+	<div className="flex">
+	<div className="px-4">{tag.task_count}</div>
+	<div className="px-4">{tag.card_count}</div>
+	</div>
         <div className="dropdown">
           <button onClick={toggleMenu} className="menu-button">
             ⋮

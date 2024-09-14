@@ -52,7 +52,7 @@ func TestGetTagsRoute(t *testing.T) {
 
 	token, _ := generateTestJWT(1)
 
-	req, err := http.NewRequest("GET", "/api/tags/cards/", nil)
+	req, err := http.NewRequest("GET", "/api/tags", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

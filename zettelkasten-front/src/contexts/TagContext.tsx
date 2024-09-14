@@ -19,9 +19,11 @@ export const TagProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const getTags = async () => {
     await fetchUserTags().then((data) => {
-      console.log("tags1");
-      console.log(data);
-      setTags(data);
+      const sortedTags = data.sort((a, b) => {
+        return a.name.localeCompare(b.name);
+      });
+
+      setTags(sortedTags);
     });
   };
 

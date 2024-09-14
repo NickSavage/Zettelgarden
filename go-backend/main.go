@@ -225,7 +225,7 @@ func main() {
 	addProtectedRoute(r, "/api/tasks/{id}", s.UpdateTaskRoute, "PUT")
 	addProtectedRoute(r, "/api/tasks/{id}", s.DeleteTaskRoute, "DELETE")
 
-	addProtectedRoute(r, "/api/tags/card", s.GetTagsRoute, "GET")
+	addProtectedRoute(r, "/api/tags", s.GetTagsRoute, "GET")
 	addProtectedRoute(r, "/api/tags/id/{id}", s.DeleteTagRoute, "DELETE")
 
 	addRoute(r, "/api/billing/create_checkout_session", s.CreateCheckoutSession, "POST")

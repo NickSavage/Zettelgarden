@@ -6,4 +6,6 @@ export interface Tag {
   color: string;
   card_pk: number;
   user_id: number;
+  task_count: number;
+  card_count: number;
 }

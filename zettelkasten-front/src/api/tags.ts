@@ -5,7 +5,7 @@ const base_url = import.meta.env.VITE_URL;
 
 export function fetchUserTags(): Promise<Tag[]> {
   
-  const url = base_url + `/tags/card`;
+  const url = base_url + `/tags`;
 
   let token = localStorage.getItem("token");
 
