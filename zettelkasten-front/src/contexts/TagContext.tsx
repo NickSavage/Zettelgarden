@@ -8,10 +8,18 @@ interface TagContextType {
   setRefreshTags: (refresh: boolean) => void;
 }
 
+interface TagProviderProps {
+  children: React.ReactNode;
+  testing?: boolean;
+  testTags?: Tag[];
+}
+
 const TagContext = createContext<TagContextType | undefined>(undefined);
 
-export const TagProvider: React.FC<{ children: React.ReactNode }> = ({
+export const TagProvider: React.FC<TagProviderProps> = ({
   children,
+  testing = false,
+  testTags = [],
 }) => {
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -28,6 +36,10 @@ export const TagProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
+    if (testing) {
+      setTags(testTags)
+      return;
+    }
     if (refreshTags) {
       getTags();
       setRefreshTags(false);

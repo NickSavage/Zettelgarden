@@ -1,4 +1,5 @@
 import { Task } from "../models/Task";
+import { Tag } from "../models/Tags";
 import { Card, PartialCard } from "../models/Card";
 
 export function sampleTasks(): Task[] {
@@ -7,6 +8,21 @@ export function sampleTasks(): Task[] {
 export function sampleCards(): Card[] {
   return sampleCardData;
 }
+export function sampleTags(): Tag[] {
+  return sampleTagData;
+  
+}
+
+export const sampleTagData: Tag[] = [
+  {
+    id: 1,
+    name: "report",
+    color: "black",
+    user_id: 1,
+    task_count: 1,
+    card_count: 1,
+  }
+]
 
 const sampleTaskData: Task[] = [
   {

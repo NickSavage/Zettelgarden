@@ -52,7 +52,7 @@ export function AddTagMenu({
             <div key={tag.id}></div>
           ) : (
             <button key={tag.id} onClick={() => handleExistingTagClick(tag)}>
-              {tag.name}
+              {"#" +tag.name}
             </button>
           ),
         )}

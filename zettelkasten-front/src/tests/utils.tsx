@@ -2,16 +2,19 @@ import React, { ReactElement } from "react";
 import { render } from "@testing-library/react";
 import { PartialCardProvider } from "../contexts/CardContext";
 import { TaskProvider } from "../contexts/TaskContext";
+import { TagProvider } from "../contexts/TagContext";
 import { ShortcutProvider } from "../contexts/ShortcutContext";
-import { sampleTasks } from "../tests/data";
+import { sampleTasks, sampleTags } from "../tests/data";
 
 function AllTheProviders({ children }) {
   return (
-    <PartialCardProvider>
-      <TaskProvider testing={true} testTasks={sampleTasks()}>
-        <ShortcutProvider>{children}</ShortcutProvider>
-      </TaskProvider>
-    </PartialCardProvider>
+    <TagProvider testing={true} testTags={sampleTags()} >
+      <PartialCardProvider>
+        <TaskProvider testing={true} testTasks={sampleTasks()}>
+          <ShortcutProvider>{children}</ShortcutProvider>
+        </TaskProvider>
+      </PartialCardProvider>
+    </TagProvider>
   );
 }
 
