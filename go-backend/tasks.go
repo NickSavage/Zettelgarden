@@ -86,6 +86,10 @@ func (s *Server) QueryTasks(userID int) ([]models.Task, error) {
 				task.Card = card
 			}
 		}
+		tags, err := s.QueryTagsForTask(userID, task.ID)
+		if err == nil {
+			task.Tags = tags
+		}
 		tasks = append(tasks, task)
 	}
 	return tasks, nil

@@ -56,6 +56,7 @@ type Task struct {
 	IsComplete    bool        `json:"is_complete"`
 	IsDeleted     bool        `json:"is_deleted"`
 	Card          PartialCard `json:"card"`
+	Tags          []Tag       `json:"tags"`
 }
 
 type RecurringTask struct {
