@@ -5,7 +5,7 @@ import { Button } from "../../components/Button";
 
 interface SearchTagMenuProps {
   tags: Tag[];
-  handleTagClick: (tag: Tag) => void;
+  handleTagClick: (tag: string) => void;
 }
 export function SearchTagMenu({ tags, handleTagClick }: SearchTagMenuProps) {
   const [textTagInput, setTextTagInput] = useState<string>("");
@@ -17,7 +17,7 @@ export function SearchTagMenu({ tags, handleTagClick }: SearchTagMenuProps) {
 
   function handleTagClickHook(tag: Tag) {
     setShowTagMenu(false);
-    handleTagClick(tag);
+    handleTagClick(tag.name);
   }
 
   return (

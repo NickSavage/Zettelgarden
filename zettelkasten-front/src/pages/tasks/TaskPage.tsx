@@ -3,6 +3,8 @@ import { Task } from "../../models/Task";
 import { TaskList } from "../../components/tasks/TaskList";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
+import { useTagContext } from "../../contexts/TagContext";
+
 import {
   compareDates,
   getToday,
@@ -20,12 +22,12 @@ export function TaskPage({}: TaskListProps) {
   const { tasks, setRefreshTasks } = useTaskContext();
   const [dateView, setDateView] = useState<string>("today");
   const [refresh, setRefresh] = useState<boolean>(true);
-  const {
-    showCreateTaskWindow,
-    setShowCreateTaskWindow,
-  } = useShortcutContext();
+  const { showCreateTaskWindow, setShowCreateTaskWindow } =
+    useShortcutContext();
   const [filterString, setFilterString] = useState<string>("");
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
+
+  const { tags } = useTagContext();
 
   const [activeTab, setActiveTab] = useState("Open");
   const openTasksCount = tasks.filter((task) => !task.is_complete).length;
@@ -133,19 +135,17 @@ export function TaskPage({}: TaskListProps) {
   useEffect(() => {
     document.title = "Zettelgarden - Tasks";
 
-    
     const params = new URLSearchParams(location.search);
     const term = params.get("term");
     if (term) {
       setFilterString(term);
       //    handleSearch(term);
     }
-    
+
     document.addEventListener("keydown", handleKeyPress);
     return () => {
       document.removeEventListener("keydown", handleKeyPress);
     };
-
   }, []);
   return (
     <div>
@@ -186,8 +186,14 @@ export function TaskPage({}: TaskListProps) {
             />
           </div>
         </div>
-        <Button onClick={toggleShowTaskWindow} children="Add Task" />
+        <div className="flex">
+          <Button onClick={toggleShowTaskWindow} children="Add Task" />
 
+          <SearchTagMenu
+            tags={tags.filter((tag) => tag.task_count > 0)}
+            handleTagClick={handleTagClick}
+          />
+        </div>
       </div>
       <div>
         {showCreateTaskWindow && (

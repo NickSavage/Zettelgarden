@@ -66,8 +66,9 @@ export function SearchPage({
     });
   }
 
-  function handleTagClick(tag: Tag) {
-    setSearchTerm(searchTerm + " #" + tag.name);
+  function handleTagClick(tagName: string) {
+    setSearchTerm("#" + tagName);
+    handleSearch(tagName);
   }
 
   useEffect(() => {
@@ -110,7 +111,10 @@ export function SearchPage({
               <option value="sortBigSmall">A to Z</option>
               <option value="sortSmallBig">Z to A</option>
             </select>
-            <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
+            <SearchTagMenu
+              tags={tags.filter((tag) => tag.card_count > 0)}
+              handleTagClick={handleTagClick}
+            />
           </div>
         </div>
         {currentItems.length > 0 ? (
