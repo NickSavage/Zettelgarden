@@ -6,7 +6,7 @@ import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
-import { SearchTagMenu} from "../../components/cards/SearchTagMenu"
+import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface SearchPageProps {
@@ -33,8 +33,10 @@ export function SearchPage({
     setSearchTerm(e.target.value);
   }
 
-  function handleSearch() {
-    fetchCards(searchTerm).then((data) => {
+  function handleSearch(inputTerm = "") {
+    let term = inputTerm == "" ? searchTerm : inputTerm;
+
+    fetchCards(term).then((data) => {
       if (data === null) {
         setCards([]);
       } else {
@@ -57,18 +59,24 @@ export function SearchPage({
   async function fetchTags() {
     fetchUserTags().then((data) => {
       if (data !== null) {
-	console.log("tags")
-	console.log(data)
+        console.log("tags");
+        console.log(data);
         setTags(data);
       }
     });
   }
 
   function handleTagClick(tag: Tag) {
-    setSearchTerm(searchTerm + " #" + tag.name)
+    setSearchTerm(searchTerm + " #" + tag.name);
   }
-  
+
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const term = params.get("term");
+    if (term) {
+      setSearchTerm(term);
+      handleSearch(term);
+    }
     fetchTags();
     document.title = "Zettelgarden - Search";
     handleSearch();
@@ -94,16 +102,16 @@ export function SearchPage({
             }}
           />
 
-	  <div className="flex">
-          <Button onClick={handleSearch} children={"Search"} />
-          <select value={sortBy} onChange={handleSortChange}>
-            <option value="sortNewOld">Newest</option>
-            <option value="sortOldNew">Oldest</option>
-            <option value="sortBigSmall">A to Z</option>
-            <option value="sortSmallBig">Z to A</option>
-          </select>
-	  <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
-	  </div>
+          <div className="flex">
+            <Button onClick={handleSearch} children={"Search"} />
+            <select value={sortBy} onChange={handleSortChange}>
+              <option value="sortNewOld">Newest</option>
+              <option value="sortOldNew">Oldest</option>
+              <option value="sortBigSmall">A to Z</option>
+              <option value="sortSmallBig">Z to A</option>
+            </select>
+            <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
+          </div>
         </div>
         {currentItems.length > 0 ? (
           <div>

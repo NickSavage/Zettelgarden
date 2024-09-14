@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tag } from "../../models/Tags";
 import { deleteTag } from "../../api/tags";
 
@@ -12,10 +13,15 @@ export function TagListItem({ tag }: TagListItemInterface) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const { setRefreshTags } = useTagContext();
 
+  const navigate = useNavigate();
+
   function toggleMenu() {
     setShowMenu(!showMenu);
   }
-  function handleViewCards() {}
+  function handleViewCards() {
+    let searchTerm = "#" + tag.name
+    navigate(`/app/search?term=${encodeURIComponent(searchTerm)}`)
+  }
   function handleViewTasks() {}
   async function handleDelete() {
     let _ = await deleteTag(tag.id)
