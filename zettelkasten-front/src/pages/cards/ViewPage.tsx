@@ -25,6 +25,8 @@ import { convertCardToPartialCard } from "../../utils/cards";
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
 import { FileUpload } from "../../components/files/FileUpload";
 
+import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
+import { useTagContext } from "../../contexts/TagContext";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface ViewPageProps {}
@@ -45,6 +47,7 @@ export function ViewPage({}: ViewPageProps) {
   const navigate = useNavigate();
 
   const { setLastCard } = usePartialCardContext();
+  const { tags } = useTagContext();
 
   function onFileDelete(file_id: number) {}
   function handleViewCard(card_id: number) {}
@@ -63,6 +66,20 @@ export function ViewPage({}: ViewPageProps) {
     let editedCard = {
       ...viewingCard,
       body: viewingCard.body + text,
+    };
+    let response = await saveExistingCard(editedCard);
+    setViewCard(editedCard);
+    fetchCard(id!);
+  }
+
+  async function handleTagClick(tagName: string) {
+    if (viewingCard === null) {
+      return;
+    }
+    
+    let editedCard = {
+      ...viewingCard,
+      body: viewingCard.body + "\n\n#" + tagName,
     };
     let response = await saveExistingCard(editedCard);
     setViewCard(editedCard);
@@ -111,7 +128,7 @@ export function ViewPage({}: ViewPageProps) {
   }, [id, setRefreshTasks]);
 
   return (
-    <div>
+    <div className="px-20 py-4">
       {error && (
         <div>
           // <h3>Unauthorized</h3>
@@ -163,6 +180,7 @@ viewingCard.tags.map((tag) =>
           <div className="py-4">
             <div className="flex align-center pb-2 pr-2">
               <BacklinkInput addBacklink={handleAddBacklink} />
+            <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
             </div>
             <div className="text-xs">
               <span className="font-bold">Created At:</span>
