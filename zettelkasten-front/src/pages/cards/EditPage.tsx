@@ -12,6 +12,8 @@ import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
 import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
 import { CardBodyTextArea } from "../../components/cards/CardBodyTextArea";
+import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
+import { useTagContext } from "../../contexts/TagContext";
 
 interface EditPageProps {
   newCard: boolean;
@@ -36,6 +38,7 @@ export function EditPage({ newCard }: EditPageProps) {
   const { partialCards, setRefreshPartialCards, lastCard } =
     usePartialCardContext();
   const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
+  const { tags } = useTagContext();
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -111,6 +114,13 @@ export function EditPage({ newCard }: EditPageProps) {
       body: prevEditingCard.body + text,
     }));
   }
+  function handleTagClick(tagName: string) {
+    setEditingCard((prevEditingCard) => ({
+      ...prevEditingCard,
+      body: prevEditingCard.body + "\n\n#" + tagName,
+    }));
+    
+  }
 
   return (
     <div>
@@ -151,8 +161,9 @@ export function EditPage({ newCard }: EditPageProps) {
             filesToUpdate={filesToUpdate}
             setFilesToUpdate={setFilesToUpdate}
           />
-          <div>
+          <div className="flex">
             <BacklinkInput addBacklink={addBacklink} />
+            <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
           </div>
 
           <label htmlFor="title">Source/URL:</label>
