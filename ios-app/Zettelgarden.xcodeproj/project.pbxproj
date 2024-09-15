@@ -67,6 +67,8 @@
 		01C74F632C823EF300605719 /* TaskDateChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F622C823EF200605719 /* TaskDateChangeView.swift */; };
 		01C74F652C833C9300605719 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F642C833C9300605719 /* Strings.swift */; };
 		01C74F672C83413500605719 /* TaskAddTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F662C83413500605719 /* TaskAddTagView.swift */; };
+		01CE798A2C9774DB002F7000 /* ShareAddCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CE79882C9774DB002F7000 /* ShareAddCardView.swift */; };
+		01CE798B2C9774DB002F7000 /* ShareContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CE79892C9774DB002F7000 /* ShareContentView.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
 		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
 		01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00032C6CE1F600339760 /* Visit.swift */; };
@@ -226,6 +228,8 @@
 		01C74F622C823EF200605719 /* TaskDateChangeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskDateChangeView.swift; sourceTree = "<group>"; };
 		01C74F642C833C9300605719 /* Strings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		01C74F662C83413500605719 /* TaskAddTagView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAddTagView.swift; sourceTree = "<group>"; };
+		01CE79882C9774DB002F7000 /* ShareAddCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareAddCardView.swift; sourceTree = "<group>"; };
+		01CE79892C9774DB002F7000 /* ShareContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareContentView.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenShareDebug.entitlements; sourceTree = "<group>"; };
@@ -396,6 +400,8 @@
 		01953E792C7681B700F44FAD /* ZettelgardenShare */ = {
 			isa = PBXGroup;
 			children = (
+				01CE79882C9774DB002F7000 /* ShareAddCardView.swift */,
+				01CE79892C9774DB002F7000 /* ShareContentView.swift */,
 				01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */,
 				01953E7A2C7681B700F44FAD /* ShareViewController.swift */,
 				01953E7F2C7681B700F44FAD /* Info.plist */,
@@ -775,6 +781,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				01953E7B2C7681B700F44FAD /* ShareViewController.swift in Sources */,
+				01CE798A2C9774DB002F7000 /* ShareAddCardView.swift in Sources */,
+				01CE798B2C9774DB002F7000 /* ShareContentView.swift in Sources */,
 				01953EBF2C768B9100F44FAD /* ShareAddTaskView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

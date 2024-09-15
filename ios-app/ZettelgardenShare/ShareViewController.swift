@@ -16,7 +16,7 @@ class ShareViewController: UIViewController {
         let extensionAttachments = (self.extensionContext!.inputItems.first as! NSExtensionItem)
             .attachments
         let u = UIHostingController(
-            rootView: ShareAddTaskView(
+            rootView: ShareContentView(
                 extensionContext: self.extensionContext,
                 data: extensionAttachments
             )
