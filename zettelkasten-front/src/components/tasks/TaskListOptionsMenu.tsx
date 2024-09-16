@@ -57,9 +57,12 @@ export function TaskListOptionsMenu({
     }
   }
 
-  async function handleRemoveTag(tag: Tag) {
-    const tagRegex = new RegExp(`(?:^|\\s)${tag.name}(?=\\s|$)`, "g");
+  async function handleRemoveTag(tag: string) {
+    console.log("removing tag", tag)
+    const tagRegex = new RegExp(`(?:^|\\s)${tag}(?=\\s|$)`, "g");
+    console.log(task.title)
     let editedTitle = task.title.replace(tagRegex, "").trim();
+    console.log(editedTitle)
     editedTitle = editedTitle.replace(/\s+/g, " ");
     let editedTask = { ...task, title: editedTitle };
 

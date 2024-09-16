@@ -8,7 +8,7 @@ interface RemoveTagMenuProps {
   task: Task;
   tags: Tag[];
   setShowRemoveMenu: (showMenu: boolean) => void;
-  handleRemoveTag: (tag: Tag) => void;
+  handleRemoveTag: (tagName: string) => void;
 }
 
 export function RemoveTagMenu({
@@ -17,8 +17,8 @@ export function RemoveTagMenu({
   setShowRemoveMenu,
   handleRemoveTag,
 }: RemoveTagMenuProps) {
-  function handleExistingTagClick(tag: Tag) {
-    handleRemoveTag(tag);
+  function handleExistingTagClick(tag: string) {
+    handleRemoveTag("#" + tag);
   }
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function RemoveTagMenu({
     <div className="w-24">
       {tags &&
         tags.map((tag) => (
-          <button onClick={() => handleExistingTagClick(tag)}>{tag.name}</button>
+          <button onClick={() => handleExistingTagClick(tag.name)}>{tag.name}</button>
         ))}
     </div>
   );
