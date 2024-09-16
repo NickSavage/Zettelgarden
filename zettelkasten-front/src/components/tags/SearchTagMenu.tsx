@@ -24,14 +24,13 @@ export function SearchTagMenu({ tags, handleTagClick }: SearchTagMenuProps) {
   ) {
     setTextInput(e.target.value);
   }
-
   return (
     <div>
       <button onClick={toggleTagMenu}>Tags</button>
       {showTagMenu && (
         <div className="dropdown">
           <div className="popup-menu">
-            <div className="w-32">
+            <div className="w-32 overflow-y-auto max-h-64">
               <input
                 type="text"
                 value={textInput}

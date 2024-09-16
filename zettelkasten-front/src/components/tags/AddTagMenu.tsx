@@ -8,15 +8,13 @@ interface AddTagMenuProps {
   handleAddTag: (tagName: string) => void;
 }
 
-export function AddTagMenu({
-  task,
-  handleAddTag,
-}: AddTagMenuProps) {
+export function AddTagMenu({ task, handleAddTag }: AddTagMenuProps) {
   const [textInput, setTextInput] = useState<string>("");
-  const { tags } = useTagContext();
+  const { tags, setRefreshTags } = useTagContext();
 
   function handleExistingTagClick(tag: Tag) {
     handleAddTag("#" + tag.name);
+    setRefreshTags(true);
   }
 
   function handleInput(
@@ -27,10 +25,11 @@ export function AddTagMenu({
 
   async function handleEnter() {
     handleAddTag("#" + textInput);
+    setRefreshTags(true);
   }
 
   return (
-    <div className="w-32 overflow-y">
+    <div className="w-32 overflow-y-auto max-h-64">
       <input
         type="text"
         value={textInput}
@@ -48,7 +47,7 @@ export function AddTagMenu({
             <div key={tag.id}></div>
           ) : (
             <button key={tag.id} onClick={() => handleExistingTagClick(tag)}>
-              {"#" +tag.name}
+              {"#" + tag.name}
             </button>
           ),
         )}
