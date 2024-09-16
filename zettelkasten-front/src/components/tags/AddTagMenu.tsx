@@ -30,7 +30,7 @@ export function AddTagMenu({
   }
 
   return (
-    <div className="w-32">
+    <div className="w-32 overflow-y">
       <input
         type="text"
         value={textInput}

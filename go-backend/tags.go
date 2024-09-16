@@ -19,7 +19,7 @@ func (s *Server) GetTag(userID int, tagName string) (models.Tag, error) {
 	query := `
             select id, name, user_id, color
             from tags
-            where is_deleted = false and user_id = $1 and name = $2
+            where and user_id = $1 and name = $2
         `
 	err := s.db.QueryRow(query, userID, tagName).Scan(
 		&tag.ID,
@@ -112,7 +112,7 @@ func (s *Server) CreateTag(userID int, tagData models.EditTagParams) (models.Tag
 }
 func (s *Server) EditTag(userID int, tagName string, tagData models.EditTagParams) (models.Tag, error) {
 
-	query := `UPDATE tags SET name = $1, color = $2 WHERE user_id = $3 AND name = $4`
+	query := `UPDATE tags SET name = $1, color = $2, is_deleted = FALSE WHERE user_id = $3 AND name = $4`
 	_, err := s.db.Exec(query, tagData.Name, tagData.Color, userID, tagName)
 	if err != nil {
 		log.Printf("update tag err %v", err)
