@@ -14,8 +14,6 @@ describe("Add Tag Menu Component", () => {
     renderWithProviders(
       <AddTagMenu
         task={tasks[0]}
-        setRefresh={(refresh: boolean) => {}}
-        setShowTagMenu={(show: boolean) => {}}
         handleAddTag={(tag: string) => {}}
       />,
     );
