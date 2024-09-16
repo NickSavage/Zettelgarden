@@ -6,7 +6,7 @@ import { Card, PartialCard } from "../..//models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { Button } from "../Button";
-import { AddTagMenu } from "../../components/tasks/AddTagMenu";
+import { AddTagMenu } from "../../components/tags/AddTagMenu";
 
 interface CreateTaskWindowProps {
   currentCard: Card | PartialCard | null;

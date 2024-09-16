@@ -25,7 +25,7 @@ import { convertCardToPartialCard } from "../../utils/cards";
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
 import { FileUpload } from "../../components/files/FileUpload";
 
-import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
+import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { useTagContext } from "../../contexts/TagContext";
 import { usePartialCardContext } from "../../contexts/CardContext";
 

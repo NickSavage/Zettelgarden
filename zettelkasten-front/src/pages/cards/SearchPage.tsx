@@ -6,7 +6,7 @@ import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
-import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
+import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface SearchPageProps {

@@ -12,7 +12,7 @@ import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
 import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
 import { CardBodyTextArea } from "../../components/cards/CardBodyTextArea";
-import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
+import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { useTagContext } from "../../contexts/TagContext";
 
 interface EditPageProps {

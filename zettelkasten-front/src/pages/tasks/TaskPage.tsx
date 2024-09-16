@@ -14,7 +14,7 @@ import {
 import { Button } from "../../components/Button";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
 
-import { SearchTagMenu } from "../../components/cards/SearchTagMenu";
+import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 
 interface TaskListProps {}
 

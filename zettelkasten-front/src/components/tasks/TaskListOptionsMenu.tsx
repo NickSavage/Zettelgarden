@@ -4,7 +4,7 @@ import { Tag } from "../../models/Tags";
 
 import { deleteTask, saveExistingTask } from "../../api/tasks";
 
-import { AddTagMenu } from "../../components/tasks/AddTagMenu";
+import { AddTagMenu } from "../../components/tags/AddTagMenu";
 import { RemoveTagMenu } from "../../components/tasks/RemoveTagMenu";
 
 interface TaskListOptionsMenuProps {
