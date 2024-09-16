@@ -5,15 +5,11 @@ import { useTagContext } from "../../contexts/TagContext";
 
 interface AddTagMenuProps {
   task: Task;
-  setRefresh: (refresh: boolean) => void;
-  setShowTagMenu: (showMenu: boolean) => void;
   handleAddTag: (tagName: string) => void;
 }
 
 export function AddTagMenu({
   task,
-  setRefresh,
-  setShowTagMenu,
   handleAddTag,
 }: AddTagMenuProps) {
   const [textInput, setTextInput] = useState<string>("");

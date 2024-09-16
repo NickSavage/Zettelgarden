@@ -1,14 +1,13 @@
 import React, { useState, ChangeEvent } from "react";
 
 import { Tag } from "../../models/Tags";
-import { Button } from "../../components/Button";
 
 interface SearchTagMenuProps {
   tags: Tag[];
   handleTagClick: (tag: string) => void;
 }
 export function SearchTagMenu({ tags, handleTagClick }: SearchTagMenuProps) {
-  const [textTagInput, setTextTagInput] = useState<string>("");
+  const [textInput, setTextInput] = useState<string>("");
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
 
   function toggleTagMenu() {
@@ -20,6 +19,12 @@ export function SearchTagMenu({ tags, handleTagClick }: SearchTagMenuProps) {
     handleTagClick(tag.name);
   }
 
+  function handleInput(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) {
+    setTextInput(e.target.value);
+  }
+
   return (
     <div>
       <button onClick={toggleTagMenu}>Tags</button>
@@ -27,12 +32,25 @@ export function SearchTagMenu({ tags, handleTagClick }: SearchTagMenuProps) {
         <div className="dropdown">
           <div className="popup-menu">
             <div className="w-32">
+              <input
+                type="text"
+                value={textInput}
+                placeholder="Tag"
+                onChange={handleInput}
+              />
               {tags &&
-                tags.map((tag) => (
-                  <button key={tag.id} onClick={() => handleTagClickHook(tag)}>
-                    #{tag.name}
-                  </button>
-                ))}
+                tags
+                  .filter((tag) =>
+                    tag.name.toLowerCase().includes(textInput.toLowerCase()),
+                  )
+                  .map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => handleTagClickHook(tag)}
+                    >
+                      #{tag.name}
+                    </button>
+                  ))}
             </div>
           </div>
         </div>

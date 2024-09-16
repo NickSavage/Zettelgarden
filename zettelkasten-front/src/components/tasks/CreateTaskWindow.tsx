@@ -130,8 +130,6 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
                   <div className="popup-menu">
                     <AddTagMenu
                       task={newTask}
-                      setRefresh={setRefresh}
-                      setShowTagMenu={setShowTagMenu}
                       handleAddTag={handleAddTag}
                     />
                   </div>

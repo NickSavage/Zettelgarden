@@ -106,8 +106,6 @@ export function TaskListOptionsMenu({
           <div className="popup-menu">
             <AddTagMenu
               task={task}
-              setRefresh={setRefresh}
-              setShowTagMenu={setShowTagMenu}
               handleAddTag={handleAddTag}
             />
           </div>
