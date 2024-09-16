@@ -14,12 +14,33 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func (s *Server) GetTagMaybeDeleted(userID int, tagName string) (models.Tag, error) {
+
+	var tag models.Tag
+	query := `
+            select id, name, user_id, color
+            from tags
+            where user_id = $1 and name = $2
+        `
+	err := s.db.QueryRow(query, userID, tagName).Scan(
+		&tag.ID,
+		&tag.Name,
+		&tag.UserID,
+		&tag.Color,
+	)
+	if err != nil {
+		log.Printf("err %v", err)
+		return models.Tag{}, err
+	}
+	return tag, nil
+}
+
 func (s *Server) GetTag(userID int, tagName string) (models.Tag, error) {
 	var tag models.Tag
 	query := `
             select id, name, user_id, color
             from tags
-            where and user_id = $1 and name = $2
+            where is_deleted = FALSE AND user_id = $1 and name = $2
         `
 	err := s.db.QueryRow(query, userID, tagName).Scan(
 		&tag.ID,
@@ -94,7 +115,7 @@ func (s *Server) GetTagsRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) CreateTag(userID int, tagData models.EditTagParams) (models.Tag, error) {
 
-	_, err := s.GetTag(userID, tagData.Name)
+	_, err := s.GetTagMaybeDeleted(userID, tagData.Name)
 	if err == nil {
 		log.Printf("tag exists, going to edit it instead")
 		return s.EditTag(userID, tagData.Name, tagData)
