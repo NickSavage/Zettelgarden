@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
 import { CardItem } from "./cards/CardItem";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTaskContext } from "../contexts/TaskContext";
 import { isTodayOrPast } from "../utils/dates";
 import { usePartialCardContext } from "../contexts/CardContext";
@@ -17,13 +17,13 @@ import { Button } from "./Button";
 import { useShortcutContext } from "../contexts/ShortcutContext";
 import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
-import { PartialCard } from "../models/Card";
+import { PartialCard, Card } from "../models/Card";
 import { fetchPartialCards } from "../api/cards";
 
 export function Sidebar() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
-  const { partialCards } = usePartialCardContext();
+  const { partialCards, lastCard } = usePartialCardContext();
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
@@ -44,6 +44,15 @@ export function Sidebar() {
     setFilteredCards(mainCards.slice(0, 100));
   }, [mainCards]);
 
+  function getCurrentCard(): PartialCard | Card | null {
+    const location = useLocation();
+    const currentPath = location.pathname;
+    const isCardPage = /^\/app\/card\/\d+$/.test(currentPath);
+    if (isCardPage) {
+      return lastCard;
+    }
+    return null;
+  }
   function handleNewStandardCard() {
     toggleNewDropdown();
     navigate("/app/card/new", { state: { cardType: "standard" } });
@@ -73,7 +82,7 @@ export function Sidebar() {
       setFilteredCards(mainCards.slice(0, 100));
     }
     await fetchPartialCards(text, "date").then((data) => {
-      setFilteredCards(data.filter((card => !card.card_id.includes("/"))));
+      setFilteredCards(data.filter((card) => !card.card_id.includes("/")));
     });
   }
 
@@ -178,7 +187,7 @@ export function Sidebar() {
       <div>
         {showCreateTaskWindow && (
           <CreateTaskWindow
-            currentCard={null}
+            currentCard={getCurrentCard()}
             setRefresh={(refresh: boolean) => {}}
             setShowTaskWindow={setShowCreateTaskWindow}
           />
