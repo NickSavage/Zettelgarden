@@ -27,6 +27,15 @@ struct ShareAddCardView: View {
                 }
 
             }
+            // Check for Plain Text type
+            provider.loadItem(forTypeIdentifier: "public.plain-text", options: nil) {
+                (text, error) in
+                if let text = text as? String {
+                    DispatchQueue.main.async {
+                        newCard.body = text
+                    }
+                }
+            }
         }
     }
 
