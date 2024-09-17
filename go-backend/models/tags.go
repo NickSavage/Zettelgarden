@@ -16,6 +16,11 @@ type Tag struct {
 	CardCount int       `json:"card_count"`
 }
 
+type CardTag struct {
+	CardPK int `json:"card_pk"`
+	TagID  int `json:"tag_id"`
+}
+
 type EditTagParams struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`

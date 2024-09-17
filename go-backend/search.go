@@ -12,6 +12,14 @@ type SearchParams struct {
 	NegateTerms []string
 }
 
+func contains[T comparable](collection []T, target T) bool {
+	for _, v := range collection {
+		if v == target {
+			return true
+		}
+	}
+	return false
+}
 func ParseSearchText(input string) SearchParams {
 	var searchParams SearchParams
 

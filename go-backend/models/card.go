@@ -34,6 +34,20 @@ type PartialCard struct {
 	Tags             []Tag     `json:"tags"`
 }
 
+func ConvertCardToPartialCard(input Card) PartialCard {
+	return PartialCard{
+		ID:               input.ID,
+		CardID:           input.CardID,
+		UserID:           input.UserID,
+		Title:            input.Title,
+		ParentID:         input.ParentID,
+		CreatedAt:        input.CreatedAt,
+		UpdatedAt:        input.UpdatedAt,
+		IsLiteratureCard: input.IsLiteratureCard,
+		Tags:             input.Tags,
+	}
+}
+
 type EditCardParams struct {
 	CardID           string `json:"card_id"`
 	Title            string `json:"title"`

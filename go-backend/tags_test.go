@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -339,4 +341,82 @@ func TestDeleteTag(t *testing.T) {
 	if err == nil {
 		t.Error("handler returned tag after it should have been deleted")
 	}
+}
+
+func TestIdentifyParentTags(t *testing.T) {
+	setup()
+	defer teardown()
+
+	tag, err := s.getTagByID(1, 1)
+	if err != nil {
+		t.Errorf("handler returned error finding card: %v", err.Error())
+	}
+	expectedName := tag.Name
+
+	card, err := s.QueryPartialCardByID(1, 24)
+	if err != nil {
+		t.Errorf("handler returned error finding card: %v", err.Error())
+	}
+	parent_tags, err := s.IdentifyParentTags(1, card)
+	if err != nil {
+		t.Errorf("handler returned error: %v", err.Error())
+	}
+	log.Printf("%v", parent_tags)
+	if len(parent_tags) != 1 {
+		t.Errorf("handler returned wrong number of tags, got %v want %v", len(parent_tags), 1)
+	}
+	if len(parent_tags) > 0 && parent_tags[0].Name != expectedName {
+		t.Errorf("handler returned wrong tag, got %v want %v", parent_tags[0].Name, expectedName)
+	}
+}
+
+func TestCreateCardSuccessRecursiveTags(t *testing.T) {
+	setup()
+	defer teardown()
+
+	tag, err := s.getTagByID(1, 1)
+	if err != nil {
+		t.Errorf("handler returned error finding card: %v", err.Error())
+	}
+	expectedName := tag.Name
+
+	var card models.Card
+	token, _ := generateTestJWT(1)
+
+	expected := "asdfasdf"
+	data := models.EditCardParams{
+		Title:  expected,
+		Body:   expected,
+		CardID: "2/A.1/A",
+		Link:   expected,
+	}
+	jsonData, _ := json.Marshal(data)
+	req, err := http.NewRequest("POST", "/api/cards/", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	log.Printf("body %v", rr.Body.String())
+	parseJsonResponse(t, rr.Body.Bytes(), &card)
+
+	tags, err := s.QueryTagsForCard(1, card.ID)
+	if err != nil {
+		t.Errorf("handler returned error, %v", err.Error())
+	}
+	if len(tags) != 1 {
+		t.Errorf("handler returned wrong number of tags, got %v want %v", len(tags), 1)
+	}
+
+	if tags[0].Name != expectedName {
+		t.Errorf("wrong tag attached to card, got %v want %v", tags[0].Name, expectedName)
+	}
+
 }

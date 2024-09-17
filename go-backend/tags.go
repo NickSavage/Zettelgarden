@@ -14,6 +14,28 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// written for testing, not used elsewhere
+func (s *Server) getTagByID(userID int, tagID int) (models.Tag, error) {
+	var tag models.Tag
+	query := `
+            select id, name, user_id, color
+            from tags
+            where user_id = $1 and id = $2
+        `
+	err := s.db.QueryRow(query, userID, tagID).Scan(
+		&tag.ID,
+		&tag.Name,
+		&tag.UserID,
+		&tag.Color,
+	)
+	if err != nil {
+		log.Printf("err %v", err)
+		return models.Tag{}, err
+	}
+	return tag, nil
+
+}
+
 func (s *Server) GetTagMaybeDeleted(userID int, tagName string) (models.Tag, error) {
 
 	var tag models.Tag
@@ -258,17 +280,9 @@ func (s *Server) RemoveAllTagsFromTask(userID, taskPK int) error {
 	return err
 }
 
-func (s *Server) AddTagsFromCard(userID, cardPK int) error {
-	card, err := s.QueryFullCard(userID, cardPK)
-	if err != nil {
-		return err
-	}
-	s.RemoveAllTagsFromCard(userID, cardPK)
-	tags, err := s.ParseTagsFromCardBody(card.Body)
-	if err != nil {
-		return err
-	}
-	for _, tagName := range tags {
+func (s *Server) iterateCreateTagsForCard(userID int, cardPK int, tagNames []string) error {
+
+	for _, tagName := range tagNames {
 		params := models.EditTagParams{
 			Name:  tagName,
 			Color: "black",
@@ -283,7 +297,39 @@ func (s *Server) AddTagsFromCard(userID, cardPK int) error {
 		}
 	}
 	return nil
+}
 
+func (s *Server) AddTagsFromCard(userID, cardPK int) error {
+	card, err := s.QueryFullCard(userID, cardPK)
+	if err != nil {
+		return err
+	}
+	s.RemoveAllTagsFromCard(userID, cardPK)
+	tags, err := s.ParseTagsFromCardBody(card.Body)
+	if err != nil {
+		return err
+	}
+	err = s.iterateCreateTagsForCard(userID, cardPK, tags)
+	if err != nil {
+		return err
+	}
+	if card.ParentID == card.ID {
+		// card is its own parent, no need to go on
+		return nil
+	}
+	parent_tags, err := s.IdentifyParentTags(userID, models.ConvertCardToPartialCard(card))
+	for _, tag := range parent_tags {
+		if contains(tags, tag.Name) {
+			log.Printf("skip")
+			continue
+		}
+		err = s.AddTagToCard(userID, tag.Name, cardPK)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *Server) AddTagsFromTask(userID, taskPK int) error {
@@ -379,4 +425,28 @@ func (s *Server) DeleteTagRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) IdentifyParentTags(userID int, card models.PartialCard) ([]models.Tag, error) {
+	if card.ParentID == card.ID {
+		// card is its own parent, no further work needed
+		return s.QueryTagsForCard(userID, card.ID)
+	}
+	parent, err := s.QueryPartialCardByID(userID, card.ParentID)
+
+	parent_tags, err := s.IdentifyParentTags(userID, parent)
+	if err != nil {
+		return []models.Tag{}, err
+	}
+	tags, err := s.QueryTagsForCard(userID, card.ID)
+	if err != nil {
+		return []models.Tag{}, err
+	}
+
+	results := parent_tags
+	for _, tag := range tags {
+		results = append(results, tag)
+	}
+
+	return results, nil
 }

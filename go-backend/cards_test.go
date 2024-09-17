@@ -300,8 +300,8 @@ func TestGetCardsSuccess(t *testing.T) {
 	}
 	var cards []models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 22 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
+	if len(cards) != 23 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 23)
 	}
 }
 
@@ -316,8 +316,8 @@ func TestGetCardsSuccessSearch(t *testing.T) {
 	}
 	var cards []models.Card
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 1 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 1)
+	if len(cards) != 2 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 2)
 	}
 }
 
@@ -348,8 +348,8 @@ func TestGetCardsSuccessPartial(t *testing.T) {
 	}
 	var cards []models.PartialCard
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 22 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 22)
+	if len(cards) != 23 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 23)
 	}
 }
 func TestGetCardsSuccessPartialSearch(t *testing.T) {
@@ -363,8 +363,8 @@ func TestGetCardsSuccessPartialSearch(t *testing.T) {
 	}
 	var cards []models.PartialCard
 	parseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 1 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 1)
+	if len(cards) != 2 {
+		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 2)
 	}
 }
 func TestGetCardsSuccessInactive(t *testing.T) {

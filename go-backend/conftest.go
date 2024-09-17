@@ -37,8 +37,6 @@ func setup() {
 
 	s.runMigrations()
 	s.importTestData()
-
-	log.Printf("hi")
 }
 
 func teardown() {
@@ -60,6 +58,7 @@ func (s *Server) importTestData() error {
 	tasks := data["tasks"].([]models.Task)
 	keywords := data["keywords"].([]models.Keyword)
 	tags := data["tags"].([]models.Tag)
+	card_tags := data["card_tags"].([]models.CardTag)
 
 	var userIDs []int
 	for _, user := range users {
@@ -162,6 +161,18 @@ func (s *Server) importTestData() error {
 		}
 	}
 
+	for _, card_tag := range card_tags {
+		_, err := s.db.Exec(
+			"INSERT INTO card_tags (card_pk, tag_id) VALUES ($1, $2)",
+			card_tag.CardPK,
+			card_tag.TagID,
+		)
+		if err != nil {
+			log.Printf("err %v", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -196,6 +207,13 @@ func (s *Server) generateData() map[string]interface{} {
 		tags = append(tags, tag)
 
 	}
+
+	card_tags := []models.CardTag{}
+	card_tag := models.CardTag{
+		CardPK: 2,
+		TagID:  1,
+	}
+	card_tags = append(card_tags, card_tag)
 
 	users := []models.User{}
 	for i := 1; i <= 10; i++ {
@@ -283,6 +301,18 @@ func (s *Server) generateData() map[string]interface{} {
 		ParentID:         23,
 		IsLiteratureCard: false,
 	})
+	cards = append(cards, models.Card{
+		ID:               24,
+		CardID:           "2/A.1",
+		UserID:           1,
+		Title:            "another test card",
+		Body:             randomString(20) + "[1]",
+		Link:             fmt.Sprintf("https://%s.com", randomString(10)),
+		CreatedAt:        randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:         22,
+		IsLiteratureCard: false,
+	})
 
 	backlinks := []models.Backlink{}
 	for i := 1; i <= 30; i++ {
@@ -358,6 +388,7 @@ func (s *Server) generateData() map[string]interface{} {
 		"tasks":     tasks,
 		"keywords":  keywords,
 		"tags":      tags,
+		"card_tags": card_tags,
 	}
 	return results
 }
