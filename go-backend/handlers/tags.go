@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"database/sql"
@@ -15,14 +15,14 @@ import (
 )
 
 // written for testing, not used elsewhere
-func (s *Server) getTagByID(userID int, tagID int) (models.Tag, error) {
+func (s *Handler) getTagByID(userID int, tagID int) (models.Tag, error) {
 	var tag models.Tag
 	query := `
             select id, name, user_id, color
             from tags
             where user_id = $1 and id = $2
         `
-	err := s.db.QueryRow(query, userID, tagID).Scan(
+	err := s.DB.QueryRow(query, userID, tagID).Scan(
 		&tag.ID,
 		&tag.Name,
 		&tag.UserID,
@@ -36,7 +36,7 @@ func (s *Server) getTagByID(userID int, tagID int) (models.Tag, error) {
 
 }
 
-func (s *Server) GetTagMaybeDeleted(userID int, tagName string) (models.Tag, error) {
+func (s *Handler) GetTagMaybeDeleted(userID int, tagName string) (models.Tag, error) {
 
 	var tag models.Tag
 	query := `
@@ -44,7 +44,7 @@ func (s *Server) GetTagMaybeDeleted(userID int, tagName string) (models.Tag, err
             from tags
             where user_id = $1 and name = $2
         `
-	err := s.db.QueryRow(query, userID, tagName).Scan(
+	err := s.DB.QueryRow(query, userID, tagName).Scan(
 		&tag.ID,
 		&tag.Name,
 		&tag.UserID,
@@ -57,14 +57,14 @@ func (s *Server) GetTagMaybeDeleted(userID int, tagName string) (models.Tag, err
 	return tag, nil
 }
 
-func (s *Server) GetTag(userID int, tagName string) (models.Tag, error) {
+func (s *Handler) GetTag(userID int, tagName string) (models.Tag, error) {
 	var tag models.Tag
 	query := `
             select id, name, user_id, color
             from tags
             where is_deleted = FALSE AND user_id = $1 and name = $2
         `
-	err := s.db.QueryRow(query, userID, tagName).Scan(
+	err := s.DB.QueryRow(query, userID, tagName).Scan(
 		&tag.ID,
 		&tag.Name,
 		&tag.UserID,
@@ -78,7 +78,7 @@ func (s *Server) GetTag(userID int, tagName string) (models.Tag, error) {
 
 }
 
-func (s *Server) GetTags(userID int) ([]models.Tag, error) {
+func (s *Handler) GetTags(userID int) ([]models.Tag, error) {
 	tags := []models.Tag{}
 	query := `
         SELECT 
@@ -97,7 +97,7 @@ func (s *Server) GetTags(userID int) ([]models.Tag, error) {
 	var rows *sql.Rows
 	var err error
 
-	rows, err = s.db.Query(query, userID)
+	rows, err = s.DB.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return tags, err
@@ -120,7 +120,7 @@ func (s *Server) GetTags(userID int) ([]models.Tag, error) {
 	return tags, nil
 }
 
-func (s *Server) GetTagsRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetTagsRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 
 	tasks, err := s.GetTags(userID)
@@ -135,7 +135,7 @@ func (s *Server) GetTagsRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) CreateTag(userID int, tagData models.EditTagParams) (models.Tag, error) {
+func (s *Handler) CreateTag(userID int, tagData models.EditTagParams) (models.Tag, error) {
 
 	_, err := s.GetTagMaybeDeleted(userID, tagData.Name)
 	if err == nil {
@@ -144,7 +144,7 @@ func (s *Server) CreateTag(userID int, tagData models.EditTagParams) (models.Tag
 	}
 
 	query := `INSERT INTO tags (name, color, user_id, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())`
-	_, err = s.db.Exec(query, tagData.Name, tagData.Color, userID)
+	_, err = s.DB.Exec(query, tagData.Name, tagData.Color, userID)
 	if err != nil {
 		log.Printf("create tag err %v", err)
 		return models.Tag{}, nil
@@ -153,10 +153,10 @@ func (s *Server) CreateTag(userID int, tagData models.EditTagParams) (models.Tag
 
 	return tag, nil
 }
-func (s *Server) EditTag(userID int, tagName string, tagData models.EditTagParams) (models.Tag, error) {
+func (s *Handler) EditTag(userID int, tagName string, tagData models.EditTagParams) (models.Tag, error) {
 
 	query := `UPDATE tags SET name = $1, color = $2, is_deleted = FALSE WHERE user_id = $3 AND name = $4`
-	_, err := s.db.Exec(query, tagData.Name, tagData.Color, userID, tagName)
+	_, err := s.DB.Exec(query, tagData.Name, tagData.Color, userID, tagName)
 	if err != nil {
 		log.Printf("update tag err %v", err)
 		return models.Tag{}, nil
@@ -169,7 +169,7 @@ func (s *Server) EditTag(userID int, tagName string, tagData models.EditTagParam
 	return tag, nil
 }
 
-func (s *Server) AddTagToCard(userID int, tagName string, cardPK int) error {
+func (s *Handler) AddTagToCard(userID int, tagName string, cardPK int) error {
 	var count int
 	countQuery := `
         SELECT COUNT(*)
@@ -177,7 +177,7 @@ func (s *Server) AddTagToCard(userID int, tagName string, cardPK int) error {
         JOIN tags t ON ct.tag_id = t.id
         WHERE t.name = $1 AND ct.card_pk = $2 AND t.user_id = $3;
         `
-	_ = s.db.QueryRow(countQuery, tagName, cardPK, userID).Scan(&count)
+	_ = s.DB.QueryRow(countQuery, tagName, cardPK, userID).Scan(&count)
 	if count > 0 {
 		log.Printf("?")
 		return nil
@@ -188,7 +188,7 @@ func (s *Server) AddTagToCard(userID int, tagName string, cardPK int) error {
         FROM tags t
         WHERE t.name = $2 AND t.user_id = $3
 	`
-	_, err := s.db.Exec(query, cardPK, tagName, userID)
+	_, err := s.DB.Exec(query, cardPK, tagName, userID)
 	if err != nil {
 		log.Printf("add tag err %v", err)
 		return err
@@ -197,7 +197,7 @@ func (s *Server) AddTagToCard(userID int, tagName string, cardPK int) error {
 	return nil
 }
 
-func (s *Server) AddTagToTask(userID int, tagName string, taskPK int) error {
+func (s *Handler) AddTagToTask(userID int, tagName string, taskPK int) error {
 
 	query := `
         INSERT INTO task_tags (task_pk, tag_id)
@@ -205,7 +205,7 @@ func (s *Server) AddTagToTask(userID int, tagName string, taskPK int) error {
         FROM tags t
         WHERE t.name = $2 AND t.user_id = $3
 	`
-	_, err := s.db.Exec(query, taskPK, tagName, userID)
+	_, err := s.DB.Exec(query, taskPK, tagName, userID)
 	if err != nil {
 		log.Printf("add tag err %v", err)
 		return err
@@ -214,7 +214,7 @@ func (s *Server) AddTagToTask(userID int, tagName string, taskPK int) error {
 	return nil
 }
 
-func (s *Server) QueryTagsForCard(userID int, cardPK int) ([]models.Tag, error) {
+func (s *Handler) QueryTagsForCard(userID int, cardPK int) ([]models.Tag, error) {
 	tags := []models.Tag{}
 
 	query := `
@@ -226,7 +226,7 @@ func (s *Server) QueryTagsForCard(userID int, cardPK int) ([]models.Tag, error) 
 	var rows *sql.Rows
 	var err error
 
-	rows, err = s.db.Query(query, cardPK, userID)
+	rows, err = s.DB.Query(query, cardPK, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return tags, err
@@ -248,7 +248,7 @@ func (s *Server) QueryTagsForCard(userID int, cardPK int) ([]models.Tag, error) 
 
 }
 
-func (s *Server) ParseTagsFromCardBody(body string) ([]string, error) {
+func (s *Handler) ParseTagsFromCardBody(body string) ([]string, error) {
 	if body == "" {
 		return []string{}, nil
 	}
@@ -269,18 +269,18 @@ func (s *Server) ParseTagsFromCardBody(body string) ([]string, error) {
 	return tags, nil
 }
 
-func (s *Server) RemoveAllTagsFromCard(userID, cardPK int) error {
+func (s *Handler) RemoveAllTagsFromCard(userID, cardPK int) error {
 	query := `DELETE FROM card_tags WHERE card_pk = $1`
-	_, err := s.db.Exec(query, cardPK)
+	_, err := s.DB.Exec(query, cardPK)
 	return err
 }
-func (s *Server) RemoveAllTagsFromTask(userID, taskPK int) error {
+func (s *Handler) RemoveAllTagsFromTask(userID, taskPK int) error {
 	query := `DELETE FROM task_tags WHERE task_pk = $1`
-	_, err := s.db.Exec(query, taskPK)
+	_, err := s.DB.Exec(query, taskPK)
 	return err
 }
 
-func (s *Server) iterateCreateTagsForCard(userID int, cardPK int, tagNames []string) error {
+func (s *Handler) iterateCreateTagsForCard(userID int, cardPK int, tagNames []string) error {
 
 	for _, tagName := range tagNames {
 		params := models.EditTagParams{
@@ -299,7 +299,7 @@ func (s *Server) iterateCreateTagsForCard(userID int, cardPK int, tagNames []str
 	return nil
 }
 
-func (s *Server) AddTagsFromCard(userID, cardPK int) error {
+func (s *Handler) AddTagsFromCard(userID, cardPK int) error {
 	card, err := s.QueryFullCard(userID, cardPK)
 	if err != nil {
 		return err
@@ -332,7 +332,7 @@ func (s *Server) AddTagsFromCard(userID, cardPK int) error {
 	return nil
 }
 
-func (s *Server) AddTagsFromTask(userID, taskPK int) error {
+func (s *Handler) AddTagsFromTask(userID, taskPK int) error {
 	task, err := s.QueryTask(userID, taskPK)
 	if err != nil {
 		return err
@@ -360,7 +360,7 @@ func (s *Server) AddTagsFromTask(userID, taskPK int) error {
 	return nil
 }
 
-func (s *Server) QueryTagsForTask(userID int, taskPK int) ([]models.Tag, error) {
+func (s *Handler) QueryTagsForTask(userID int, taskPK int) ([]models.Tag, error) {
 	tags := []models.Tag{}
 
 	query := `
@@ -372,7 +372,7 @@ func (s *Server) QueryTagsForTask(userID int, taskPK int) ([]models.Tag, error) 
 	var rows *sql.Rows
 	var err error
 
-	rows, err = s.db.Query(query, taskPK, userID)
+	rows, err = s.DB.Query(query, taskPK, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return tags, err
@@ -393,15 +393,15 @@ func (s *Server) QueryTagsForTask(userID int, taskPK int) ([]models.Tag, error) 
 	return tags, nil
 }
 
-func (s *Server) DeleteTag(userID, id int) error {
+func (s *Handler) DeleteTag(userID, id int) error {
 
-	_, err := s.db.Exec(`
+	_, err := s.DB.Exec(`
 UPDATE tags SET is_deleted = TRUE, updated_at = NOW() WHERE id =  $1 AND user_id = $2
 `, id, userID)
 	return err
 }
 
-func (s *Server) DeleteTagRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) DeleteTagRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -409,12 +409,12 @@ func (s *Server) DeleteTagRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var count int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_tags WHERE tag_id = $1", id).Scan(&count)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_tags WHERE tag_id = $1", id).Scan(&count)
 	if count > 0 {
 		http.Error(w, "unable to delete tag, cards exist", http.StatusBadRequest)
 		return
 	}
-	_ = s.db.QueryRow("SELECT count(*) FROM task_tags WHERE tag_id = $1", id).Scan(&count)
+	_ = s.DB.QueryRow("SELECT count(*) FROM task_tags WHERE tag_id = $1", id).Scan(&count)
 	if count > 0 {
 		http.Error(w, "unable to delete tag, tasks exist", http.StatusBadRequest)
 		return
@@ -427,7 +427,7 @@ func (s *Server) DeleteTagRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *Server) IdentifyParentTags(userID int, card models.PartialCard) ([]models.Tag, error) {
+func (s *Handler) IdentifyParentTags(userID int, card models.PartialCard) ([]models.Tag, error) {
 	if card.ParentID == card.ID {
 		// card is its own parent, no further work needed
 		return s.QueryTagsForCard(userID, card.ID)

@@ -1,9 +1,10 @@
-package main
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
 	"go-backend/models"
+	"go-backend/tests"
 	//	"log"
 	"net/http"
 	"net/http/httptest"
@@ -13,15 +14,15 @@ import (
 )
 
 func TestGetCardKeywords(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.Keywords) != 9 {
 		t.Errorf("wrong number of keywords associated with card, got %v want %v", len(card.Keywords), 9)
 	}
@@ -29,10 +30,10 @@ func TestGetCardKeywords(t *testing.T) {
 }
 
 func TestSetCardKeywords(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	data := models.PutCardKeywordsParams{
 		Keywords: []string{"keyword1"},
@@ -49,19 +50,19 @@ func TestSetCardKeywords(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/keywords/{id}", jwtMiddleware(s.PutCardKeywordsRoute))
+	router.HandleFunc("/api/cards/keywords/{id}", s.JwtMiddleware(s.PutCardKeywordsRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	rr = makeCardRequestSuccess(t, 1)
+	rr = makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.Keywords) != 1 {
 		t.Errorf("wrong number of keywords associated with card, got %v want %v", len(card.Keywords), 1)
 	}

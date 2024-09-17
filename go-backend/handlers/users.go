@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *Server) GetUserAdminRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetUserAdminRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 
 	user, err := s.QueryUser(userID)
@@ -30,7 +30,7 @@ func (s *Server) GetUserAdminRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 // admin protected
-func (s *Server) GetUserRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetUserRoute(w http.ResponseWriter, r *http.Request) {
 	log.Printf("aoea")
 
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
@@ -48,7 +48,7 @@ func (s *Server) GetUserRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (s *Server) GetUsersRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetUsersRoute(w http.ResponseWriter, r *http.Request) {
 	users, err := s.QueryUsers()
 	log.Printf("users %v", users)
 	if err != nil {
@@ -61,7 +61,7 @@ func (s *Server) GetUsersRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) UpdateUserRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) UpdateUserRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -84,7 +84,7 @@ func (s *Server) UpdateUserRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
-	user, err = s.UpdateUser(id, params)
+	user, err = s.UpdateUser(id, user, params)
 	if err != nil {
 		log.Printf("?")
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -96,7 +96,7 @@ func (s *Server) UpdateUserRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) CreateUserRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) CreateUserRoute(w http.ResponseWriter, r *http.Request) {
 	var params models.CreateUserParams
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
@@ -143,7 +143,7 @@ func (s *Server) CreateUserRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func (s *Server) GetCurrentUserRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetCurrentUserRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 
@@ -158,7 +158,7 @@ func (s *Server) GetCurrentUserRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (s *Server) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request) {
 
 	var userSub models.UserSubscription
 
@@ -175,7 +175,7 @@ func (s *Server) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = s.db.QueryRow(`
+	err = s.DB.QueryRow(`
 	SELECT 
 	id, stripe_customer_id, stripe_subscription_id, 
 	stripe_subscription_status,
@@ -203,7 +203,7 @@ func (s *Server) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(userSub)
 }
 
-func (s *Server) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 
 	var response models.GenericResponse
@@ -235,7 +235,7 @@ func (s *Server) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(response)
 }
 
-func (s *Server) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 	var response models.GenericResponse
 	var params models.ValidateEmailParams
 
@@ -249,7 +249,7 @@ func (s *Server) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims, err := decodeToken(params.Token)
+	claims, err := s.decodeToken(params.Token)
 	if err != nil {
 		response.Error = true
 		response.Message = err.Error()
@@ -266,7 +266,7 @@ func (s *Server) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.db.Exec(`UPDATE users SET email_validated = TRUE WHERE id = $1`, user.ID)
+	_, err = s.DB.Exec(`UPDATE users SET email_validated = TRUE WHERE id = $1`, user.ID)
 	if err != nil {
 		response.Error = true
 		response.Message = err.Error()
@@ -280,10 +280,10 @@ func (s *Server) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func (s *Server) QueryUsers() ([]models.User, error) {
+func (s *Handler) QueryUsers() ([]models.User, error) {
 
 	users := []models.User{}
-	rows, err := s.db.Query(`
+	rows, err := s.DB.Query(`
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
@@ -325,10 +325,10 @@ func (s *Server) QueryUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (s *Server) QueryUserByEmail(email string) (models.User, error) {
+func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 
 	var user models.User
-	err := s.db.QueryRow(`
+	err := s.DB.QueryRow(`
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
@@ -360,9 +360,9 @@ func (s *Server) QueryUserByEmail(email string) (models.User, error) {
 	return user, nil
 
 }
-func (s *Server) QueryUser(id int) (models.User, error) {
+func (s *Handler) QueryUser(id int) (models.User, error) {
 	var user models.User
-	err := s.db.QueryRow(`
+	err := s.DB.QueryRow(`
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
@@ -394,8 +394,7 @@ func (s *Server) QueryUser(id int) (models.User, error) {
 	return user, nil
 }
 
-func (s *Server) UpdateUser(id int, params models.EditUserParams) (models.User, error) {
-	user, _ := s.QueryUser(id)
+func (s *Handler) UpdateUser(id int, user models.User, params models.EditUserParams) (models.User, error) {
 	oldEmail := user.Email
 
 	query := `
@@ -403,14 +402,14 @@ func (s *Server) UpdateUser(id int, params models.EditUserParams) (models.User, 
 	WHERE
 	id = $4
 	`
-	_, err := s.db.Exec(query, params.Username, params.Email, params.IsAdmin, id)
+	_, err := s.DB.Exec(query, params.Username, params.Email, params.IsAdmin, id)
 	if err != nil {
 		log.Printf("updateuser err %v", err)
 		return models.User{}, err
 	}
 	user, err = s.QueryUser(id)
 	if user.Email != oldEmail {
-		_, err := s.db.Exec(`UPDATE users SET email_validated = FALSE WHERE id = $1`, id)
+		_, err := s.DB.Exec(`UPDATE users SET email_validated = FALSE WHERE id = $1`, id)
 		if err != nil {
 			return models.User{}, err
 		}
@@ -421,7 +420,7 @@ func (s *Server) UpdateUser(id int, params models.EditUserParams) (models.User, 
 
 }
 
-func (s *Server) CreateUser(params models.CreateUserParams) (int, error) {
+func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 	if params.Email == "" {
 		return -1, fmt.Errorf("Email is blank.")
 	}
@@ -451,15 +450,15 @@ func (s *Server) CreateUser(params models.CreateUserParams) (int, error) {
 	VALUES ($1, $2, $3, NOW(), NOW(), '', '', '', '', '') RETURNING id
 	`
 
-	err = s.db.QueryRow(query, params.Username, params.Email, hashedPassword).Scan(&newID)
+	err = s.DB.QueryRow(query, params.Username, params.Email, hashedPassword).Scan(&newID)
 	user, _ := s.QueryUser(newID)
 	s.sendEmailValidation(user)
 	return newID, err
 }
 
-func (s *Server) sendEmailValidation(user models.User) error {
+func (s *Handler) sendEmailValidation(user models.User) error {
 	host := os.Getenv("ZETTEL_URL")
-	token, err := generateTempToken(user.ID)
+	token, err := s.generateTempToken(user.ID)
 	if err != nil {
 		return err
 	}
@@ -472,6 +471,7 @@ func (s *Server) sendEmailValidation(user models.User) error {
 
 	Thank you.
 	`, user.Username, url)
+	log.Printf("messagee %v", messageBody)
 
 	s.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
 	return nil

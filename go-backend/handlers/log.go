@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"go-backend/models"
@@ -15,7 +15,7 @@ func openLogFile(path string) (*os.File, error) {
 	return logFile, nil
 }
 
-func logRoute(next http.HandlerFunc) http.HandlerFunc {
+func LogRoute(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, ok := r.Context().Value("current_user").(int)
 		if !ok {
@@ -28,8 +28,8 @@ func logRoute(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (s *Server) logCardView(cardPK int, userID int) {
-	_, err := s.db.Exec(`
+func (s *Handler) logCardView(cardPK int, userID int) {
+	_, err := s.DB.Exec(`
    INSERT INTO 
    card_views 
    (card_pk, user_id, created_at) 
@@ -41,8 +41,8 @@ func (s *Server) logCardView(cardPK int, userID int) {
 	}
 }
 
-func (s *Server) LogLastLogin(user models.User) {
-	_, err := s.db.Exec(`UPDATE users SET last_login = NOW() WHERE id = $1`, user.ID)
+func (s *Handler) LogLastLogin(user models.User) {
+	_, err := s.DB.Exec(`UPDATE users SET last_login = NOW() WHERE id = $1`, user.ID)
 	if err != nil {
 		// Log the error
 		log.Printf("Error logging card view for userID %v: %v", user.ID, err)

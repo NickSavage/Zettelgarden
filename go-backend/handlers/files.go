@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"bytes"
@@ -18,9 +18,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *Server) GetAllFilesRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetAllFilesRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
-	rows, err := s.db.Query(`
+	rows, err := s.DB.Query(`
 	SELECT
     f.id, f.user_id, f.name, f.type, f.path, f.filename, f.size,
     f.created_by, f.updated_by, f.card_pk, f.is_deleted,
@@ -84,9 +84,9 @@ FROM
 	w.Write(jsonResponse)
 }
 
-func (s *Server) queryFile(userID int, id int) (models.File, error) {
+func (s *Handler) queryFile(userID int, id int) (models.File, error) {
 
-	row := s.db.QueryRow(`
+	row := s.DB.QueryRow(`
 	SELECT files.id, files.user_id, files.name, files.type, files.path, files.filename, files.size, files.created_by, files.updated_by, files.card_pk, files.is_deleted, 
 	files.created_at, files.updated_at
 FROM files
@@ -122,10 +122,10 @@ FROM files
 	return file, nil
 }
 
-func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
+func (s *Handler) getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
 
 	files := []models.File{}
-	rows, err := s.db.Query(`
+	rows, err := s.DB.Query(`
 	SELECT 
 	files.id, files.user_id, files.name, files.type, files.path, files.filename, 
 	files.size, files.created_by, files.updated_by, files.card_pk,
@@ -168,7 +168,7 @@ func getFilesFromCardPK(userID int, cardPK int) ([]models.File, error) {
 
 }
 
-func (s *Server) GetFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 
@@ -188,7 +188,7 @@ func (s *Server) GetFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(file)
 }
 
-func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	filePK, err := strconv.Atoi(mux.Vars(r)["id"])
@@ -213,7 +213,7 @@ func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.db.Exec("UPDATE files SET name = $1, card_pk = $2 WHERE id = $3", data.Name, data.CardPK, filePK)
+	_, err = s.DB.Exec("UPDATE files SET name = $1, card_pk = $2 WHERE id = $3", data.Name, data.CardPK, filePK)
 
 	if err != nil {
 		http.Error(w, "Failed to update file metadata", http.StatusInternalServerError)
@@ -231,7 +231,7 @@ func (s *Server) EditFileMetadataRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func userCanUploadFile(userID int, header *multipart.FileHeader) error {
+func (s *Handler) userCanUploadFile(userID int, header *multipart.FileHeader) error {
 	user, err := s.QueryUser(userID)
 	if err != nil {
 		return fmt.Errorf("unknown problem")
@@ -240,7 +240,7 @@ func userCanUploadFile(userID int, header *multipart.FileHeader) error {
 		return fmt.Errorf("user does not have permissions to upload files")
 	}
 	var alreadyUploaded int
-	err = s.db.QueryRow(`SELECT COALESCE(sum(size), 0) FROM files WHERE created_by = $1`, userID).Scan(&alreadyUploaded)
+	err = s.DB.QueryRow(`SELECT COALESCE(sum(size), 0) FROM files WHERE created_by = $1`, userID).Scan(&alreadyUploaded)
 	if err != nil {
 		return err
 	}
@@ -250,7 +250,7 @@ func userCanUploadFile(userID int, header *multipart.FileHeader) error {
 	return nil
 }
 
-func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 
@@ -267,7 +267,7 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	err = userCanUploadFile(userID, handler)
+	err = s.userCanUploadFile(userID, handler)
 	if err != nil {
 		log.Printf("e?")
 		log.Printf("err %v", err.Error())
@@ -306,7 +306,7 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 	uuidKey := uuid.New().String()
 	s3Key := fmt.Sprintf("%s/%s", strconv.Itoa(userID), uuidKey)
 
-	s.uploadObject(s.s3, s3Key, tempFile.Name())
+	s.uploadObject(s.Server.S3, s3Key, tempFile.Name())
 
 	fileSize, err := tempFile.Seek(0, io.SeekEnd)
 	if err != nil {
@@ -317,7 +317,7 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 	query := `INSERT INTO files (name, user_id, type, path, filename,
 		size, card_pk, created_by, updated_by, updated_at) VALUES
 		($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING id;`
-	err = s.db.QueryRow(query,
+	err = s.DB.QueryRow(query,
 		handler.Filename,
 		userID,
 		handler.Header.Get("Content-Type"),
@@ -345,7 +345,7 @@ func (s *Server) UploadFileRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(output)
 }
 
-func (s *Server) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	cardPK, err := strconv.Atoi(mux.Vars(r)["id"])
@@ -359,13 +359,13 @@ func (s *Server) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	s3Output, err := s.downloadObject(s.s3, file.Filename, "")
+	s3Output, err := s.downloadObject(s.Server.S3, file.Filename, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	w.Header().Set("Content-Type", "application/octet-stream")
-	if s.testing {
+	if s.Server.Testing {
 		return
 	}
 	// Copy the file content to the response
@@ -377,7 +377,7 @@ func (s *Server) DownloadFileRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) DeleteFileRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) DeleteFileRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	cardPK, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -390,15 +390,15 @@ func (s *Server) DeleteFileRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	query := `UPDATE files SET is_deleted = true WHERE id = $1`
-	_, err = s.db.Exec(query, cardPK)
+	_, err = s.DB.Exec(query, cardPK)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = s.deleteObject(s.s3, file.Path)
+	err = s.deleteObject(s.Server.S3, file.Path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		_, _ = s.db.Exec(`UPDATE files SET is_deleted = false WHERE id = $1`, cardPK)
+		_, _ = s.DB.Exec(`UPDATE files SET is_deleted = false WHERE id = $1`, cardPK)
 		return
 	}
 }

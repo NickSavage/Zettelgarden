@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"database/sql"
@@ -27,8 +27,8 @@ func ConnectToDatabase(dbConfig models.DatabaseConfig) (*sql.DB, error) {
 	return db, err
 }
 
-func (s *Server) resetDatabase() error {
-	_, err := s.db.Exec(`
+func ResetDatabase(S *Server) error {
+	_, err := S.DB.Exec(`
 			DROP TABLE IF EXISTS users CASCADE;
 			DROP TABLE IF EXISTS cards CASCADE;
 			DROP TABLE IF EXISTS backlinks CASCADE;
@@ -55,9 +55,9 @@ func (s *Server) resetDatabase() error {
 	return nil
 }
 
-func (s *Server) runMigrations() {
-	if s.testing {
-		if err := s.resetDatabase(); err != nil {
+func RunMigrations(S *Server) {
+	if S.Testing {
+		if err := ResetDatabase(S); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -65,7 +65,7 @@ func (s *Server) runMigrations() {
 	queryString := "SELECT applied_at FROM migrations WHERE migration_name = $1"
 	insertString := "INSERT INTO migrations (migration_name) VALUES ($1)"
 
-	files, err := ioutil.ReadDir("./schema")
+	files, err := ioutil.ReadDir(S.SchemaDir)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,15 +78,15 @@ func (s *Server) runMigrations() {
 
 	for _, fileName := range fileNames {
 		var result time.Time
-		err = s.db.QueryRow(queryString, fileName).Scan(&result)
+		err = S.DB.QueryRow(queryString, fileName).Scan(&result)
 
 		if err == sql.ErrNoRows {
-			content, err := ioutil.ReadFile("./schema/" + fileName)
+			content, err := ioutil.ReadFile(S.SchemaDir + "/" + fileName)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			tx, err := s.db.Begin()
+			tx, err := S.DB.Begin()
 			if err != nil {
 				log.Fatal(err)
 			}

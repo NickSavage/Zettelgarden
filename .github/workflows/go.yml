@@ -64,4 +64,4 @@ jobs:
         B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
       run: |
         cd go-backend
-        go test
+        go test ./handlers/

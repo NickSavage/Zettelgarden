@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	//	"database/sql"
@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *Server) PutCardKeywordsRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) PutCardKeywordsRoute(w http.ResponseWriter, r *http.Request) {
 
 	var params models.PutCardKeywordsParams
 	userID := r.Context().Value("current_user").(int)
@@ -40,8 +40,8 @@ func (s *Server) PutCardKeywordsRoute(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) UpdateCardKeywords(userID int, card models.Card) error {
-	keywords, err := llms.ComputeCardKeywords(s.db, userID, card)
+func (s *Handler) UpdateCardKeywords(userID int, card models.Card) error {
+	keywords, err := llms.ComputeCardKeywords(s.DB, userID, card)
 	if err != nil {
 		log.Printf("err %v", err)
 		return err
@@ -50,9 +50,9 @@ func (s *Server) UpdateCardKeywords(userID int, card models.Card) error {
 	return err
 }
 
-func (s *Server) replaceCardKeywords(userID int, card models.Card, keywords []string) error {
+func (s *Handler) replaceCardKeywords(userID int, card models.Card, keywords []string) error {
 	log.Printf("replacing keywords")
-	tx, err := s.db.Begin()
+	tx, err := s.DB.Begin()
 	_, err = tx.Exec("DELETE FROM keywords WHERE card_pk = $1 AND user_id = $2", card.ID, userID)
 	if err != nil {
 		log.Printf("err2 %v", err)

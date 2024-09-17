@@ -1,9 +1,10 @@
-package main
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
 	"go-backend/models"
+	"go-backend/tests"
 	"io"
 	"log"
 	"mime/multipart"
@@ -12,15 +13,30 @@ import (
 	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
-func TestGetAllFiles(t *testing.T) {
-	setup()
-	defer teardown()
+func uploadTestFile(s *Handler) {
+	testFile, err := os.Open("../testdata/test.txt")
+	if err != nil {
+		log.Fatal("unable to open test file")
+		return
+	}
+	uuidKey := uuid.New().String()
 
-	token, _ := generateTestJWT(1)
+	s.uploadObject(s.Server.S3, uuidKey, testFile.Name())
+
+	query := `UPDATE files SET path = $1, filename = $2 WHERE id = 1`
+	s.DB.QueryRow(query, uuidKey, uuidKey)
+}
+
+func TestGetAllFiles(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("GET", "/api/files", nil)
 	if err != nil {
@@ -29,7 +45,7 @@ func TestGetAllFiles(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetAllFilesRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.GetAllFilesRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -37,14 +53,14 @@ func TestGetAllFiles(t *testing.T) {
 	}
 
 	var files []models.File
-	parseJsonResponse(t, rr.Body.Bytes(), &files)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &files)
 	if len(files) != 20 {
 		t.Fatalf("wrong length of results, got %v want %v", len(files), 20)
 	}
 }
 func TestGetAllFilesNoToken(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	token := ""
 	req, err := http.NewRequest("GET", "/api/files", nil)
@@ -54,7 +70,7 @@ func TestGetAllFilesNoToken(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetAllFilesRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.GetAllFilesRoute))
 	handler.ServeHTTP(rr, req)
 
 	//	print("%v", rr.Code)
@@ -67,10 +83,10 @@ func TestGetAllFilesNoToken(t *testing.T) {
 }
 
 func TestGetFileSuccess(t *testing.T) {
-	setup()
-	//	defer teardown()
+	s := setup()
+	//	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("GET", "/api/files/1", nil)
 	if err != nil {
@@ -81,7 +97,7 @@ func TestGetFileSuccess(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/files/{id}", jwtMiddleware((s.GetFileMetadataRoute)))
+	router.HandleFunc("/api/files/{id}", s.JwtMiddleware((s.GetFileMetadataRoute)))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -89,7 +105,7 @@ func TestGetFileSuccess(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var file models.File
-	parseJsonResponse(t, rr.Body.Bytes(), &file)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &file)
 	if file.ID != 1 {
 		t.Errorf("handler returned wrong file, got %v want %v", file.ID, 1)
 	}
@@ -98,10 +114,10 @@ func TestGetFileSuccess(t *testing.T) {
 
 func TestGetFileWrongUser(t *testing.T) {
 
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(2)
+	token, _ := tests.GenerateTestJWT(2)
 
 	req, err := http.NewRequest("GET", "/api/files/1", nil)
 	if err != nil {
@@ -112,7 +128,7 @@ func TestGetFileWrongUser(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/files/{id}", jwtMiddleware((s.GetFileMetadataRoute)))
+	router.HandleFunc("/api/files/{id}", s.JwtMiddleware((s.GetFileMetadataRoute)))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -125,11 +141,11 @@ func TestGetFileWrongUser(t *testing.T) {
 }
 
 func TestEditFileSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	new_name := "new_name.txt"
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	fileData := models.EditFileMetadataParams{
 		Name:   new_name,
 		CardPK: 1,
@@ -149,7 +165,7 @@ func TestEditFileSuccess(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute))
+	router.HandleFunc("/api/files/{id}", s.JwtMiddleware(s.EditFileMetadataRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -157,7 +173,7 @@ func TestEditFileSuccess(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var file models.File
-	parseJsonResponse(t, rr.Body.Bytes(), &file)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &file)
 	if file.Name != new_name {
 		t.Errorf("handler returned wrong file name, got %v want %v", file.Name, new_name)
 	}
@@ -167,11 +183,11 @@ func TestEditFileSuccess(t *testing.T) {
 }
 
 func TestEditFileSuccessChangeCard(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	new_name := "new_name.txt"
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	fileData := models.EditFileMetadataParams{
 		Name:   new_name,
 		CardPK: 2,
@@ -191,7 +207,7 @@ func TestEditFileSuccessChangeCard(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute))
+	router.HandleFunc("/api/files/{id}", s.JwtMiddleware(s.EditFileMetadataRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -199,7 +215,7 @@ func TestEditFileSuccessChangeCard(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var file models.File
-	parseJsonResponse(t, rr.Body.Bytes(), &file)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &file)
 	if file.Name != new_name {
 		t.Errorf("handler returned wrong file name, got %v want %v", file.Name, new_name)
 	}
@@ -208,10 +224,10 @@ func TestEditFileSuccessChangeCard(t *testing.T) {
 	}
 }
 func TestEditFileWrongUser(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 	new_name := "new_name.txt"
-	token, _ := generateTestJWT(2)
+	token, _ := tests.GenerateTestJWT(2)
 	fileData := models.EditFileMetadataParams{
 		Name: new_name,
 	}
@@ -230,7 +246,7 @@ func TestEditFileWrongUser(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.EditFileMetadataRoute))
+	router.HandleFunc("/api/files/{id}", s.JwtMiddleware(s.EditFileMetadataRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
@@ -274,8 +290,8 @@ func createTestFile(t *testing.T, buffer bytes.Buffer, writer *multipart.Writer)
 }
 
 func TestUploadFileSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	// Create a buffer to write our multipart form data
 	var buffer bytes.Buffer
@@ -283,7 +299,7 @@ func TestUploadFileSuccess(t *testing.T) {
 
 	createTestFile(t, buffer, writer)
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
 	if err != nil {
 		t.Fatal(err)
@@ -292,7 +308,7 @@ func TestUploadFileSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -313,10 +329,10 @@ func TestUploadFileSuccess(t *testing.T) {
 }
 
 func TestUploadFileNoFile(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	req, err := http.NewRequest("POST", "/api/files/upload", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -324,7 +340,7 @@ func TestUploadFileNoFile(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -334,14 +350,14 @@ func TestUploadFileNoFile(t *testing.T) {
 }
 
 func TestUploadFileNotAllowed(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	var buffer bytes.Buffer
 	writer := multipart.NewWriter(&buffer)
 
 	var count int
-	err := s.db.QueryRow("SELECT count(*) FROM files").Scan(&count)
+	err := s.DB.QueryRow("SELECT count(*) FROM files").Scan(&count)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -374,7 +390,7 @@ func TestUploadFileNotAllowed(t *testing.T) {
 	// Close the writer to finalize the multipart form
 	writer.Close()
 
-	token, _ := generateTestJWT(2)
+	token, _ := tests.GenerateTestJWT(2)
 	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
 	if err != nil {
 		t.Fatal(err)
@@ -383,7 +399,7 @@ func TestUploadFileNotAllowed(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
@@ -391,7 +407,7 @@ func TestUploadFileNotAllowed(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusForbidden)
 	}
 	var newCount int
-	err = s.db.QueryRow("SELECT count(*) FROM files").Scan(&newCount)
+	err = s.DB.QueryRow("SELECT count(*) FROM files").Scan(&newCount)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -402,11 +418,11 @@ func TestUploadFileNotAllowed(t *testing.T) {
 }
 
 func TestDownloadFile(t *testing.T) {
-	setup()
-	defer teardown()
-	s.uploadTestFile()
+	s := setup()
+	defer tests.Teardown()
+	uploadTestFile(s)
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	req, err := http.NewRequest("POST", "/api/files/download/1", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -417,7 +433,7 @@ func TestDownloadFile(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/files/download/{id}", jwtMiddleware((s.DownloadFileRoute)))
+	router.HandleFunc("/api/files/download/{id}", s.JwtMiddleware((s.DownloadFileRoute)))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -426,11 +442,11 @@ func TestDownloadFile(t *testing.T) {
 }
 
 func TestDeleteFile(t *testing.T) {
-	setup()
-	defer teardown()
-	s.uploadTestFile()
+	s := setup()
+	defer tests.Teardown()
+	uploadTestFile(s)
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("DELETE", "/api/files/1", nil)
 	if err != nil {
@@ -442,7 +458,7 @@ func TestDeleteFile(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.DeleteFileRoute))
+	router.HandleFunc("/api/files/{id}", s.JwtMiddleware(s.DeleteFileRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -458,7 +474,7 @@ func TestDeleteFile(t *testing.T) {
 
 	rr = httptest.NewRecorder()
 	router = mux.NewRouter()
-	router.HandleFunc("/api/files/{id}", jwtMiddleware(s.GetFileMetadataRoute))
+	router.HandleFunc("/api/files/{id}", s.JwtMiddleware(s.GetFileMetadataRoute))
 	router.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)

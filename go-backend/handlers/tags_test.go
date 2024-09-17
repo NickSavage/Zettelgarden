@@ -1,9 +1,10 @@
-package main
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
 	"go-backend/models"
+	"go-backend/tests"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -15,8 +16,8 @@ import (
 
 // get existing tag
 func TestGetTag(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	userID := 1
 	tagName := "test"
@@ -32,8 +33,8 @@ func TestGetTag(t *testing.T) {
 }
 
 func TestGetTagNotFound(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	userID := 1
 	tagName := "no tag by this name"
@@ -49,10 +50,10 @@ func TestGetTagNotFound(t *testing.T) {
 }
 
 func TestGetTagsRoute(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("GET", "/api/tags", nil)
 	if err != nil {
@@ -61,11 +62,11 @@ func TestGetTagsRoute(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetTagsRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.GetTagsRoute))
 	handler.ServeHTTP(rr, req)
 
 	var tags []models.Tag
-	parseJsonResponse(t, rr.Body.Bytes(), &tags)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &tags)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -78,8 +79,8 @@ func TestGetTagsRoute(t *testing.T) {
 // create new tag
 
 func TestCreateTag(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	userID := 1
 	tagData := models.EditTagParams{
@@ -106,8 +107,8 @@ func TestCreateTag(t *testing.T) {
 // update tag (set new colour)
 
 func TestEditTag(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	userID := 1
 
@@ -142,8 +143,8 @@ func TestEditTag(t *testing.T) {
 }
 
 func TestCreateTagOverExisting(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	userID := 1
 
@@ -185,15 +186,15 @@ func TestCreateTagOverExisting(t *testing.T) {
 
 func TestAddTagToCard(t *testing.T) {
 
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	userID := 1
 	cardPK := 1
 	tagName := "test"
 
 	var count int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_tags").Scan(&count)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_tags").Scan(&count)
 
 	err := s.AddTagToCard(userID, tagName, cardPK)
 	if err != nil {
@@ -201,7 +202,7 @@ func TestAddTagToCard(t *testing.T) {
 	}
 
 	var newCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_tags").Scan(&newCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_tags").Scan(&newCount)
 	if newCount != (count + 1) {
 		t.Errorf("handler returned wrong number of card_tags, got %v want %v", newCount, count+1)
 	}
@@ -209,8 +210,8 @@ func TestAddTagToCard(t *testing.T) {
 }
 
 func TestAddTagsFromCardQuery(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	userID := 2
 
@@ -218,7 +219,7 @@ func TestAddTagsFromCardQuery(t *testing.T) {
 	tagName := "to-read"
 
 	var count int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_tags").Scan(&count)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_tags").Scan(&count)
 
 	err := s.AddTagsFromCard(userID, cardPK)
 	if err != nil {
@@ -226,7 +227,7 @@ func TestAddTagsFromCardQuery(t *testing.T) {
 	}
 
 	var newCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_tags").Scan(&newCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_tags").Scan(&newCount)
 	if newCount != (count + 1) {
 		t.Errorf("handler returned wrong number of card_tags, got %v want %v", newCount, count+1)
 	}
@@ -246,14 +247,14 @@ func TestAddTagsFromCardQuery(t *testing.T) {
 }
 
 func TestAddTagsFromTaskQuery(t *testing.T) {
-	setup()
+	s := setup()
 
 	userID := 1
 	taskPK := 3
 	tagName := "to-read"
 
 	var count int
-	_ = s.db.QueryRow("SELECT count(*) FROM task_tags").Scan(&count)
+	_ = s.DB.QueryRow("SELECT count(*) FROM task_tags").Scan(&count)
 
 	err := s.AddTagsFromTask(userID, taskPK)
 	if err != nil {
@@ -261,7 +262,7 @@ func TestAddTagsFromTaskQuery(t *testing.T) {
 	}
 
 	var newCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM task_tags").Scan(&newCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM task_tags").Scan(&newCount)
 	if newCount != (count + 1) {
 		t.Errorf("handler returned wrong number of task_tags, got %v want %v", newCount, count+1)
 	}
@@ -280,8 +281,8 @@ func TestAddTagsFromTaskQuery(t *testing.T) {
 }
 
 func TestParseTagsFromCardBody(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	body := "hello world \n\n#to-read #hello#world"
 
@@ -315,11 +316,11 @@ func TestParseTagsFromCardBody(t *testing.T) {
 }
 
 func TestDeleteTag(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	id := 1
-	token, _ := generateTestJWT(1)
+	id := 2
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("DELETE", "/api/tags/id/"+strconv.Itoa(id), nil)
 	if err != nil {
@@ -330,22 +331,23 @@ func TestDeleteTag(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/tags/id/{id}", jwtMiddleware(s.DeleteTagRoute))
+	router.HandleFunc("/api/tags/id/{id}", s.JwtMiddleware(s.DeleteTagRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNoContent {
+		log.Printf("body %v", rr.Body)
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
 	}
 
-	_, err = s.GetTag(1, "test")
+	_, err = s.GetTag(2, "test")
 	if err == nil {
 		t.Error("handler returned tag after it should have been deleted")
 	}
 }
 
 func TestIdentifyParentTags(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	tag, err := s.getTagByID(1, 1)
 	if err != nil {
@@ -371,8 +373,8 @@ func TestIdentifyParentTags(t *testing.T) {
 }
 
 func TestCreateCardSuccessRecursiveTags(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	tag, err := s.getTagByID(1, 1)
 	if err != nil {
@@ -381,7 +383,7 @@ func TestCreateCardSuccessRecursiveTags(t *testing.T) {
 	expectedName := tag.Name
 
 	var card models.Card
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	expected := "asdfasdf"
 	data := models.EditCardParams{
@@ -398,14 +400,14 @@ func TestCreateCardSuccessRecursiveTags(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	log.Printf("body %v", rr.Body.String())
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 
 	tags, err := s.QueryTagsForCard(1, card.ID)
 	if err != nil {

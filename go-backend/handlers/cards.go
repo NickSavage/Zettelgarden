@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"database/sql"
@@ -50,12 +50,12 @@ func getParentIdAlternating(cardID string) string {
 	return parentID
 }
 
-func (s *Server) checkIsCardIDUnique(userID int, cardID string) bool {
+func (s *Handler) checkIsCardIDUnique(userID int, cardID string) bool {
 	if cardID == "" {
 		return true
 	}
 	var count int
-	err := s.db.QueryRow(`SELECT count(*) FROM cards 
+	err := s.DB.QueryRow(`SELECT count(*) FROM cards 
 		WHERE user_id = $1 AND card_id = $2 AND is_deleted = FALSE`, userID, cardID).Scan(&count)
 	log.Printf("count %v", count)
 	if err != nil {
@@ -86,8 +86,8 @@ func extractBacklinks(text string) []string {
 	return backlinks
 }
 
-func updateBacklinks(cardPK int, backlinks []string) error {
-	tx, _ := s.db.Begin()
+func (s *Handler) updateBacklinks(cardPK int, backlinks []string) error {
+	tx, _ := s.DB.Begin()
 	_, err := tx.Exec("DELETE FROM backlinks WHERE source_id = $1", cardPK)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -120,7 +120,7 @@ FROM target_id;
 
 }
 
-func getDirectlinks(userID int, card models.Card) []models.PartialCard {
+func (s *Handler) getDirectlinks(userID int, card models.Card) []models.PartialCard {
 	backlinks := extractBacklinks(card.Body)
 	var directLinks []models.PartialCard
 
@@ -135,7 +135,7 @@ func getDirectlinks(userID int, card models.Card) []models.PartialCard {
 	return directLinks
 }
 
-func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
+func (s *Handler) getChildren(userID int, cardID string) ([]models.PartialCard, error) {
 
 	query := `
 	SELECT
@@ -143,7 +143,7 @@ func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
 	FROM cards 
 	WHERE is_deleted = FALSE AND user_id = $1 and (card_id like $2 or card_id like $3)
 	`
-	rows, err := s.db.Query(query, userID, cardID+".%", cardID+"/%")
+	rows, err := s.DB.Query(query, userID, cardID+".%", cardID+"/%")
 	if err != nil {
 		log.Printf("err %v", err)
 	}
@@ -171,7 +171,7 @@ func getChildren(userID int, cardID string) ([]models.PartialCard, error) {
 	return cards, nil
 }
 
-func getBacklinks(userID int, cardID string) ([]models.PartialCard, error) {
+func (s *Handler) getBacklinks(userID int, cardID string) ([]models.PartialCard, error) {
 
 	query := `
 	SELECT
@@ -186,7 +186,7 @@ JOIN cards ON backlinks.source_id_int = cards.id
 JOIN cards target_card ON backlinks.target_id_int = target_card.id
 WHERE target_card.card_id = $1 AND cards.user_id = $2 AND cards.is_deleted = FALSE;`
 
-	rows, err := s.db.Query(query, cardID, userID)
+	rows, err := s.DB.Query(query, cardID, userID)
 	if err != nil {
 		log.Printf("cardid %v", cardID)
 		log.Printf("err %v", err)
@@ -242,11 +242,11 @@ func getUniqueCards(input []models.PartialCard) []models.PartialCard {
 	return u
 }
 
-func (s *Server) getCardKeywords(userID int, cardPK int) ([]models.Keyword, error) {
+func (s *Handler) getCardKeywords(userID int, cardPK int) ([]models.Keyword, error) {
 
 	query := "SELECT id, user_id, card_pk, keyword FROM keywords WHERE user_id = $1 AND card_pk = $2"
 
-	rows, err := s.db.Query(query, userID, cardPK)
+	rows, err := s.DB.Query(query, userID, cardPK)
 	var keywords []models.Keyword
 	if err != nil {
 		log.Printf("err4 %v", err)
@@ -268,9 +268,9 @@ func (s *Server) getCardKeywords(userID int, cardPK int) ([]models.Keyword, erro
 	return keywords, nil
 }
 
-func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
-	directLinks := getDirectlinks(userID, card)
-	backlinks, _ := getBacklinks(userID, card.CardID)
+func (s *Handler) getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
+	directLinks := s.getDirectlinks(userID, card)
+	backlinks, _ := s.getBacklinks(userID, card.CardID)
 	links := append(directLinks, backlinks...)
 	if len(links) == 0 {
 		return []models.PartialCard{}, nil
@@ -282,7 +282,7 @@ func getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
 	return links, nil
 }
 
-func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -304,7 +304,7 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	card.Parent = parent
 	//card.DirectLinks = getDirectlinks(userID, card)
-	files, err := getFilesFromCardPK(userID, card.ID)
+	files, err := s.getFilesFromCardPK(userID, card.ID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -312,7 +312,7 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	card.Files = files
 
-	children, err := getChildren(userID, card.CardID)
+	children, err := s.getChildren(userID, card.CardID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -320,7 +320,7 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	card.Children = children
 
-	references, err := getReferences(userID, card)
+	references, err := s.getReferences(userID, card)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -349,7 +349,7 @@ func (s *Server) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
-func (s *Server) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 
 	var cards []models.Card
 	var partialCards []models.PartialCard
@@ -415,7 +415,7 @@ func (s *Server) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
@@ -450,7 +450,7 @@ func (s *Server) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
-func (s *Server) CreateCardRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) CreateCardRoute(w http.ResponseWriter, r *http.Request) {
 	var params models.EditCardParams
 	var err error
 	userID := r.Context().Value("current_user").(int)
@@ -478,7 +478,7 @@ func (s *Server) CreateCardRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
-func (s *Server) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -490,18 +490,18 @@ func (s *Server) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	backlinks, _ := getBacklinks(userID, card.CardID)
+	backlinks, _ := s.getBacklinks(userID, card.CardID)
 	if len(backlinks) > 0 {
 		http.Error(w, "card has backlinks, cannot be deleted", http.StatusBadRequest)
 		return
 	}
-	children, _ := getChildren(userID, card.CardID)
+	children, _ := s.getChildren(userID, card.CardID)
 	if len(children) > 0 {
 		http.Error(w, "card has children, cannot be deleted", http.StatusBadRequest)
 		return
 	}
 
-	_, err = s.db.Exec(`
+	_, err = s.DB.Exec(`
 	UPDATE cards SET is_deleted = TRUE, updated_at = NOW()
 	WHERE
 	id = $1 AND user_id = $2
@@ -515,7 +515,7 @@ func (s *Server) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *Server) getNextIDReference(userID int) string {
+func (s *Handler) getNextIDReference(userID int) string {
 	var result string
 
 	query := `
@@ -525,7 +525,7 @@ func (s *Server) getNextIDReference(userID int) string {
         ORDER BY CAST(SUBSTRING(card_id FROM 'REF(.*)$') AS INTEGER) DESC
         LIMIT 1
 	`
-	err := s.db.QueryRow(query, userID).Scan(&result)
+	err := s.DB.QueryRow(query, userID).Scan(&result)
 	if err != nil && err != sql.ErrNoRows {
 		log.Fatal(err)
 		return ""
@@ -546,14 +546,14 @@ func (s *Server) getNextIDReference(userID int) string {
 	return newCardID
 }
 
-func (s *Server) getNextIDMeeting(userID int) string {
+func (s *Handler) getNextIDMeeting(userID int) string {
 	var result string
 	query := `
         SELECT card_id FROM cards WHERE card_id LIKE 'MM%' AND is_deleted = FALSE
         ORDER BY CAST(SUBSTRING(card_id FROM 'MM(.*)$') AS INTEGER) DESC
         LIMIT 1`
 
-	err := s.db.QueryRow(query).Scan(&result)
+	err := s.DB.QueryRow(query).Scan(&result)
 	if err != nil && err != sql.ErrNoRows {
 		log.Fatal(err)
 	}
@@ -573,7 +573,7 @@ func (s *Server) getNextIDMeeting(userID int) string {
 	return newCardID
 }
 
-func (s *Server) NextIDRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) NextIDRoute(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var response models.NextIDResponse
@@ -607,10 +607,10 @@ func (s *Server) NextIDRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) QueryPartialCardByID(userID, id int) (models.PartialCard, error) {
+func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, error) {
 	var card models.PartialCard
 
-	err := s.db.QueryRow(`
+	err := s.DB.QueryRow(`
 	SELECT
 	id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card 
 	FROM cards 
@@ -634,10 +634,10 @@ func (s *Server) QueryPartialCardByID(userID, id int) (models.PartialCard, error
 
 }
 
-func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard, error) {
+func (s *Handler) QueryPartialCard(userID int, cardID string) (models.PartialCard, error) {
 	var card models.PartialCard
 
-	err := s.db.QueryRow(`
+	err := s.DB.QueryRow(`
 	SELECT
 	id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card 
 	FROM cards 
@@ -660,10 +660,10 @@ func (s *Server) QueryPartialCard(userID int, cardID string) (models.PartialCard
 
 }
 
-func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
+func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 	var card models.Card
 
-	err := s.db.QueryRow(`
+	err := s.DB.QueryRow(`
 	SELECT 
 	id, card_id, user_id, title, body, link, parent_id,
         created_at, updated_at, is_literature_card
@@ -692,7 +692,7 @@ func (s *Server) QueryFullCard(userID int, id int) (models.Card, error) {
 
 }
 
-func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, error) {
+func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, error) {
 	var cards []models.Card
 	query := `
     SELECT 
@@ -706,7 +706,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 	var err error
 
 	query = query + BuildPartialCardSqlSearchTermString(searchTerm, true)
-	rows, err = s.db.Query(query, userID)
+	rows, err = s.DB.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return cards, err
@@ -735,7 +735,7 @@ func (s *Server) QueryFullCards(userID int, searchTerm string) ([]models.Card, e
 	return cards, nil
 }
 
-func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.PartialCard, error) {
+func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.PartialCard, error) {
 	cards := []models.PartialCard{}
 	query := `
     SELECT 
@@ -748,7 +748,7 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 	query = query + BuildPartialCardSqlSearchTermString(searchTerm, false)
 	var rows *sql.Rows
 	var err error
-	rows, err = s.db.Query(query, userID)
+	rows, err = s.DB.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return cards, err
@@ -774,10 +774,10 @@ func (s *Server) QueryPartialCards(userID int, searchTerm string) ([]models.Part
 	return cards, nil
 }
 
-func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
+func (s *Handler) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 
 	var count int
-	_ = s.db.QueryRow("SELECT count(*) FROM inactive_cards WHERE user_id = $1", userID).Scan(&count)
+	_ = s.DB.QueryRow("SELECT count(*) FROM inactive_cards WHERE user_id = $1", userID).Scan(&count)
 	if count == 0 {
 		log.Printf("derp")
 		s.GenerateInactiveCards(userID)
@@ -794,7 +794,7 @@ func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 	var rows *sql.Rows
 	var err error
 
-	rows, err = s.db.Query(query, userID)
+	rows, err = s.DB.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return cards, err
@@ -820,7 +820,7 @@ func (s *Server) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 	return cards, nil
 }
 
-func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {
+func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {
 	var parent_id int
 	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 
@@ -837,7 +837,7 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 	WHERE
 	id = $7
 	`
-	_, err = s.db.Exec(query, params.Title, params.Body, params.Link, parent_id, params.IsLiteratureCard, params.CardID, cardPK)
+	_, err = s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.IsLiteratureCard, params.CardID, cardPK)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
@@ -845,16 +845,16 @@ func (s *Server) UpdateCard(userID int, cardPK int, params models.EditCardParams
 
 	card, err := s.QueryFullCard(userID, cardPK)
 	backlinks := extractBacklinks(card.Body)
-	updateBacklinks(card.ID, backlinks)
+	s.updateBacklinks(card.ID, backlinks)
 
-	if !s.testing {
+	if !s.Server.Testing {
 		go s.UpdateCardKeywords(userID, card)
 	}
 	s.AddTagsFromCard(userID, cardPK)
 	return s.QueryFullCard(userID, cardPK)
 }
 
-func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Card, error) {
+func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.Card, error) {
 	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 	query := `
 	INSERT INTO cards 
@@ -863,7 +863,7 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 	RETURNING id;
 	`
 	var id int
-	err = s.db.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID, parent.ID, params.IsLiteratureCard).Scan(&id)
+	err = s.DB.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID, parent.ID, params.IsLiteratureCard).Scan(&id)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
@@ -872,22 +872,22 @@ func (s *Server) CreateCard(userID int, params models.EditCardParams) (models.Ca
 
 	// set parent id to id if there's no parent
 	if parent.ID == 0 {
-		_, err = s.db.Exec("UPDATE cards SET parent_id = $1 WHERE id = $1", id)
+		_, err = s.DB.Exec("UPDATE cards SET parent_id = $1 WHERE id = $1", id)
 		if err != nil {
 			return models.Card{}, err
 		}
 	}
 	backlinks := extractBacklinks(card.Body)
-	updateBacklinks(card.ID, backlinks)
-	if !s.testing {
+	s.updateBacklinks(card.ID, backlinks)
+	if !s.Server.Testing {
 		go s.UpdateCardKeywords(userID, card)
 	}
 	s.AddTagsFromCard(userID, id)
 	return s.QueryFullCard(userID, id)
 }
 
-func (s *Server) GenerateInactiveCards(userID int) error {
-	tx, _ := s.db.Begin()
+func (s *Handler) GenerateInactiveCards(userID int) error {
+	tx, _ := s.DB.Begin()
 	_, err := tx.Exec("DELETE FROM inactive_cards WHERE user_id = $1", userID)
 	if err != nil {
 		log.Fatal(err.Error())

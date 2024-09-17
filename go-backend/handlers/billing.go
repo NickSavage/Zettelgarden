@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"database/sql"
@@ -21,17 +21,17 @@ type StripeClient struct {
 	testing bool
 }
 
-func (s *Server) createStripeClient() *StripeClient {
+func (s *Handler) createStripeClient() *StripeClient {
 	client := &StripeClient{
-		testing: s.testing,
+		testing: s.Server.Testing,
 	}
 
 	return client
 }
 
-func (s *Server) syncStripePlans() error {
+func (s *Handler) syncStripePlans() error {
 	log.Printf("start")
-	stripe.Key = s.stripe_key
+	stripe.Key = s.Server.StripeKey
 
 	params := &stripe.PriceListParams{
 		Active: stripe.Bool(true),
@@ -76,7 +76,7 @@ func (s *Server) syncStripePlans() error {
 			updated_at = CURRENT_TIMESTAMP;
 		`
 
-		_, err = s.db.Exec(query,
+		_, err = s.DB.Exec(query,
 			product.ID,
 			p.ID,
 			product.Name,
@@ -101,12 +101,12 @@ func (s *Server) syncStripePlans() error {
 	return nil
 }
 
-func (s *Server) fetchPlanInformation(interval string) (models.StripePlan, error) {
+func (s *Handler) fetchPlanInformation(interval string) (models.StripePlan, error) {
 	if interval != "month" && interval != "year" {
 		return models.StripePlan{}, fmt.Errorf("Interval must be either month or year")
 	}
 
-	stmt, err := s.db.Prepare("SELECT id, stripe_price_id, name, unit_amount, currency, interval FROM stripe_plans WHERE interval = $1")
+	stmt, err := s.DB.Prepare("SELECT id, stripe_price_id, name, unit_amount, currency, interval FROM stripe_plans WHERE interval = $1")
 	if err != nil {
 		return models.StripePlan{}, err
 	}
@@ -129,7 +129,7 @@ func (s *Server) fetchPlanInformation(interval string) (models.StripePlan, error
 	return plan, nil
 }
 
-func (s *Server) CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 
 	var params models.CreateCheckoutSessionParams
 
@@ -178,7 +178,7 @@ func (s *Server) CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-func (s *Server) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Request) {
 	var response models.GetSuccessfulSessionDataResponse
 	sessionID := r.URL.Query().Get("session_id")
 
@@ -203,8 +203,8 @@ func (s *Server) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(customer)
 }
 
-func (s *Server) handleCheckoutSessionComplete(event stripe.Event) error {
-	stripe.Key = s.stripe_key
+func (s *Handler) handleCheckoutSessionComplete(event stripe.Event) error {
+	stripe.Key = s.Server.StripeKey
 	var subscription stripe.Subscription
 	err := json.Unmarshal(event.Data.Raw, &subscription)
 	if err != nil {
@@ -232,7 +232,7 @@ func (s *Server) handleCheckoutSessionComplete(event stripe.Event) error {
 
 	status := "active"
 
-	_, err = s.db.Exec(`
+	_, err = s.DB.Exec(`
 		UPDATE users SET
 			stripe_customer_id = $1,
 			stripe_subscription_id = $2, 
@@ -248,7 +248,7 @@ func (s *Server) handleCheckoutSessionComplete(event stripe.Event) error {
 	return nil
 }
 
-func (s *Server) HandleWebhook(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)
 	bodyReader := http.MaxBytesReader(w, r.Body, MaxBodyBytes)
 	payload, err := ioutil.ReadAll(bodyReader)

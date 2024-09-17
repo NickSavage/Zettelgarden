@@ -1,9 +1,10 @@
-package main
+package tests
 
 import (
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
+	"go-backend/server"
 	"log"
 	"math/rand"
 	"os"
@@ -15,7 +16,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func setup() {
+var S *server.Server
+
+func Setup() *server.Server {
+	log.Printf("setup")
 	var err error
 	dbConfig := models.DatabaseConfig{}
 	dbConfig.Host = os.Getenv("DB_HOST")
@@ -24,33 +28,34 @@ func setup() {
 	dbConfig.Password = os.Getenv("DB_PASS")
 	dbConfig.DatabaseName = "zettelkasten_testing"
 
-	db, err := ConnectToDatabase(dbConfig)
+	db, err := server.ConnectToDatabase(dbConfig)
 	if err != nil {
 		log.Fatalf("Unable to connect to the database: %v\n", err)
 	}
-	s = &Server{}
-	s.db = db
-	s.testing = true
+	S = &server.Server{}
+	S.DB = db
+	S.Testing = true
+	S.SchemaDir = "../schema"
 
-	s.s3 = s.createS3Client()
-	s.TestInspector = &TestInspector{}
+	S.TestInspector = &server.TestInspector{}
 
-	s.runMigrations()
-	s.importTestData()
+	server.RunMigrations(S)
+	importTestData(S)
+	return S
 }
 
-func teardown() {
-	s.resetDatabase()
+func Teardown() {
+	server.ResetDatabase(S)
 }
 
-func parseJsonResponse(t *testing.T, body []byte, x interface{}) {
+func ParseJsonResponse(t *testing.T, body []byte, x interface{}) {
 	err := json.Unmarshal(body, &x)
 	if err != nil {
 		t.Fatalf("could not unmarshal response: %v", err)
 	}
 }
-func (s *Server) importTestData() error {
-	data := s.generateData()
+func importTestData(s *server.Server) error {
+	data := generateData()
 	users := data["users"].([]models.User)
 	cards := data["cards"].([]models.Card)
 	files := data["files"].([]models.File)
@@ -63,7 +68,7 @@ func (s *Server) importTestData() error {
 	var userIDs []int
 	for _, user := range users {
 		var id int
-		err := s.db.QueryRow(`
+		err := s.DB.QueryRow(`
 			INSERT INTO users 
 			(username, email, password, created_at, updated_at, can_upload_files, 
 			stripe_subscription_status, stripe_customer_id, stripe_current_plan, stripe_subscription_frequency, stripe_subscription_id,
@@ -83,7 +88,7 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, card := range cards {
-		_, err := s.db.Exec(
+		_, err := s.DB.Exec(
 			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
 			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard,
 		)
@@ -94,7 +99,7 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, file := range files {
-		_, err := s.db.Exec(
+		_, err := s.DB.Exec(
 			"INSERT INTO files (name, user_id, type, path, filename, size, created_by, updated_by, card_pk, is_deleted, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
 			file.Name, file.UserID, file.Filetype, file.Path, file.Filename, file.Size, file.CreatedBy, file.UpdatedBy, file.CardPK, file.IsDeleted, file.CreatedAt, file.UpdatedAt,
 		)
@@ -104,13 +109,13 @@ func (s *Server) importTestData() error {
 		}
 	}
 
-	_, err := s.db.Exec("UPDATE users SET is_admin = TRUE WHERE id = 1")
+	_, err := s.DB.Exec("UPDATE users SET is_admin = TRUE WHERE id = 1")
 	if err != nil {
 		return err
 	}
 
 	for _, backlink := range backlinks {
-		_, err := s.db.Exec("INSERT INTO backlinks (source_id_int, target_id_int, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceIDInt, backlink.TargetIDInt, backlink.CreatedAt, backlink.UpdatedAt)
+		_, err := s.DB.Exec("INSERT INTO backlinks (source_id_int, target_id_int, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceIDInt, backlink.TargetIDInt, backlink.CreatedAt, backlink.UpdatedAt)
 		if err != nil {
 			log.Printf("err %v", err)
 			return err
@@ -118,7 +123,7 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, task := range tasks {
-		_, err := s.db.Exec(
+		_, err := s.DB.Exec(
 			"INSERT INTO tasks (card_pk, user_id, created_at, updated_at, due_date, scheduled_date, title, is_complete) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
 			task.CardPK,
 			task.UserID,
@@ -136,7 +141,7 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, keyword := range keywords {
-		_, err := s.db.Exec(
+		_, err := s.DB.Exec(
 			"INSERT INTO keywords (card_pk, user_id, keyword) VALUES ($1, $2, $3)",
 			keyword.CardPK,
 			keyword.UserID,
@@ -149,7 +154,7 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, tag := range tags {
-		_, err := s.db.Exec(
+		_, err := s.DB.Exec(
 			"INSERT INTO tags (name, color, user_id) VALUES ($1, $2, $3)",
 			tag.Name,
 			tag.Color,
@@ -162,7 +167,7 @@ func (s *Server) importTestData() error {
 	}
 
 	for _, card_tag := range card_tags {
-		_, err := s.db.Exec(
+		_, err := s.DB.Exec(
 			"INSERT INTO card_tags (card_pk, tag_id) VALUES ($1, $2)",
 			card_tag.CardPK,
 			card_tag.TagID,
@@ -176,7 +181,7 @@ func (s *Server) importTestData() error {
 	return nil
 }
 
-func (s *Server) generateData() map[string]interface{} {
+func generateData() map[string]interface{} {
 	rand.Seed(time.Now().UnixNano())
 
 	keywords := []models.Keyword{}
@@ -416,7 +421,7 @@ func randomMaybeNullDate(start, end time.Time) *time.Time {
 	return &date
 }
 
-func generateTestJWT(userID int) (string, error) {
+func GenerateTestJWT(userID int) (string, error) {
 	var jwtKey = []byte(os.Getenv("SECRET_KEY"))
 	now := time.Now()
 
@@ -438,18 +443,4 @@ func generateTestJWT(userID int) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
-}
-
-func (s *Server) uploadTestFile() {
-	testFile, err := os.Open("./testdata/test.txt")
-	if err != nil {
-		log.Fatal("unable to open test file")
-		return
-	}
-	uuidKey := uuid.New().String()
-
-	s.uploadObject(s.s3, uuidKey, testFile.Name())
-
-	query := `UPDATE files SET path = $1, filename = $2 WHERE id = 1`
-	s.db.QueryRow(query, uuidKey, uuidKey)
 }

@@ -1,20 +1,34 @@
-package main
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
 	"go-backend/models"
+	"go-backend/tests"
+
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
+func setup() *Handler {
+	S := tests.Setup()
+	s := &Handler{
+		DB:     S.DB,
+		Server: S,
+	}
+
+	S.S3 = s.CreateS3Client()
+	return s
+
+}
+
 func TestAuthDecodeToken(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	password := "testest"
-	token, err := generateResetToken(2)
+	token, err := s.generateResetToken(2)
 
 	data := models.ResetPasswordParams{
 		Token:       token + "asdas",
@@ -29,7 +43,7 @@ func TestAuthDecodeToken(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.ResetPasswordRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.ResetPasswordRoute))
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -37,11 +51,11 @@ func TestAuthDecodeToken(t *testing.T) {
 
 }
 func TestAuthResetPasswordAndLoginSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	password := "testest"
-	token, err := generateResetToken(2)
+	token, err := s.generateResetToken(2)
 
 	data := models.ResetPasswordParams{
 		Token:       token,
@@ -53,7 +67,7 @@ func TestAuthResetPasswordAndLoginSuccess(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.ResetPasswordRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.ResetPasswordRoute))
 	handler.ServeHTTP(rr, req)
 
 	loginData := models.LoginParams{
@@ -71,7 +85,7 @@ func TestAuthResetPasswordAndLoginSuccess(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	var response models.LoginResponse
-	parseJsonResponse(t, rr.Body.Bytes(), &response)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
@@ -81,8 +95,8 @@ func TestAuthResetPasswordAndLoginSuccess(t *testing.T) {
 }
 
 func TestAuthLoginFailure(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	loginData := models.LoginParams{
 		Email:    "test@test.com",
@@ -98,7 +112,7 @@ func TestAuthLoginFailure(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	var response models.LoginResponse
-	parseJsonResponse(t, rr.Body.Bytes(), &response)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
@@ -116,15 +130,16 @@ func TestAuthLoginFailure(t *testing.T) {
 }
 
 func TestAuthSuccess(t *testing.T) {
-	setup()
-	defer teardown()
-	token, _ := generateResetToken(1)
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := s.generateResetToken(1)
 
 	req, _ := http.NewRequest("GET", "/api/reset-password", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.CheckTokenRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.CheckTokenRoute))
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -133,10 +148,10 @@ func TestAuthSuccess(t *testing.T) {
 }
 
 func TestRequestPasswordResetSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	sent := s.TestInspector.EmailsSent
+	sent := s.Server.TestInspector.EmailsSent
 	params := models.RequestPasswordResetParams{
 		Email: "test@test.com",
 	}
@@ -153,19 +168,19 @@ func TestRequestPasswordResetSuccess(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	if s.TestInspector.EmailsSent == sent {
+	if s.Server.TestInspector.EmailsSent == sent {
 		t.Errorf("no email was sent when one email should have been sent")
 	}
-	if s.TestInspector.EmailsSent > sent+1 {
+	if s.Server.TestInspector.EmailsSent > sent+1 {
 		t.Errorf("more than one email was sent when one email should have been sent")
 	}
 }
 
 func TestRequestPasswordResetWrongEmail(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	sent := s.TestInspector.EmailsSent
+	sent := s.Server.TestInspector.EmailsSent
 	params := models.RequestPasswordResetParams{
 		Email: "wrongemail@test.com",
 	}
@@ -182,7 +197,7 @@ func TestRequestPasswordResetWrongEmail(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	if s.TestInspector.EmailsSent != sent {
+	if s.Server.TestInspector.EmailsSent != sent {
 		t.Errorf("email sent when no email should have been sent")
 	}
 }

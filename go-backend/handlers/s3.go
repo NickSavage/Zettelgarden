@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -18,7 +18,7 @@ const (
 
 var bucketName = os.Getenv("B2_BUCKET_NAME")
 
-func (s *Server) createS3Client() *s3.Client {
+func (s *Handler) CreateS3Client() *s3.Client {
 
 	accessKeyID := os.Getenv("B2_ACCESS_KEY_ID")
 	secretAccessKey := os.Getenv("B2_SECRET_ACCESS_KEY")
@@ -49,7 +49,7 @@ func (s *Server) createS3Client() *s3.Client {
 	return client
 }
 
-func (s *Server) listObjects(client *s3.Client) {
+func (s *Handler) listObjects(client *s3.Client) {
 	// List the objects in the bucket
 	resp, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(bucketName),
@@ -62,15 +62,15 @@ func (s *Server) listObjects(client *s3.Client) {
 		fmt.Printf("Name: %s, Size: %d\n", *item.Key, item.Size)
 	}
 }
-func (s *Server) uploadObject(client *s3.Client, key, filePath string) {
+func (s *Handler) uploadObject(client *s3.Client, key, filePath string) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatalf("unable to open file %q, %v", filePath, err)
 	}
 	defer file.Close()
 
-	if s.testing {
-		s.TestInspector.FilesUploaded += 1
+	if s.Server.Testing {
+		s.Server.TestInspector.FilesUploaded += 1
 		return
 	}
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
@@ -83,9 +83,9 @@ func (s *Server) uploadObject(client *s3.Client, key, filePath string) {
 	}
 }
 
-func (s *Server) downloadObject(client *s3.Client, key, filePath string) (*s3.GetObjectOutput, error) {
+func (s *Handler) downloadObject(client *s3.Client, key, filePath string) (*s3.GetObjectOutput, error) {
 
-	if s.testing {
+	if s.Server.Testing {
 		return nil, nil
 	}
 	result, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
@@ -110,9 +110,9 @@ func (s *Server) downloadObject(client *s3.Client, key, filePath string) (*s3.Ge
 
 	// fmt.Printf("Successfully downloaded %q to %q\n", key, filePath)
 }
-func (s *Server) deleteObject(client *s3.Client, key string) error {
-	if s.testing {
-		s.TestInspector.FilesUploaded -= 1
+func (s *Handler) deleteObject(client *s3.Client, key string) error {
+	if s.Server.Testing {
+		s.Server.TestInspector.FilesUploaded -= 1
 		return nil
 	}
 	_, err := client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{

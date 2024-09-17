@@ -1,6 +1,7 @@
-package main
+package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
@@ -22,7 +23,59 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func generateResetToken(id int) (string, error) {
+func (s *Handler) Admin(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID := r.Context().Value("current_user").(int)
+		user, err := s.QueryUser(userID)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusBadRequest)
+			return
+		}
+		if !user.IsAdmin {
+			http.Error(w, "Access denied", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+}
+
+func (s *Handler) JwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tokenStr := r.Header.Get("Authorization")
+
+		if tokenStr == "" {
+			http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+			return
+		}
+
+		tokenStr = tokenStr[len("Bearer "):]
+
+		claims := &models.Claims{}
+
+		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+			return s.Server.JwtSecretKey, nil
+		})
+
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				http.Error(w, "Invalid token signature", http.StatusUnauthorized)
+				return
+			}
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		if !token.Valid {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		// Add the claims to the request context
+		ctx := context.WithValue(r.Context(), "current_user", claims.Sub)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+func (s *Handler) generateResetToken(id int) (string, error) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 
 	claims := models.Claims{
@@ -38,17 +91,17 @@ func generateResetToken(id int) (string, error) {
 	// Create the token with the claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Sign the token with the secret key
-	tokenString, err := token.SignedString(s.jwt_secret_key)
+	tokenString, err := token.SignedString(s.Server.JwtSecretKey)
 	if err != nil {
 		return "", err
 	}
 
 	return tokenString, nil
 }
-func decodeToken(tokenStr string) (*models.Claims, error) {
+func (s *Handler) decodeToken(tokenStr string) (*models.Claims, error) {
 	claims := &models.Claims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return s.jwt_secret_key, nil
+		return s.Server.JwtSecretKey, nil
 	})
 
 	if err != nil {
@@ -62,7 +115,7 @@ func decodeToken(tokenStr string) (*models.Claims, error) {
 	return claims, nil
 }
 
-func generateAccessToken(userID int) (string, error) {
+func (s *Handler) generateAccessToken(userID int) (string, error) {
 	expirationTime := time.Now().Add(15 * 24 * time.Hour)
 
 	claims := &models.Claims{
@@ -76,7 +129,7 @@ func generateAccessToken(userID int) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(s.jwt_secret_key)
+	tokenString, err := token.SignedString(s.Server.JwtSecretKey)
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +137,7 @@ func generateAccessToken(userID int) (string, error) {
 	return tokenString, nil
 }
 
-func generateTempToken(userID int) (string, error) {
+func (s *Handler) generateTempToken(userID int) (string, error) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 
 	claims := &models.Claims{
@@ -98,7 +151,7 @@ func generateTempToken(userID int) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(s.jwt_secret_key) // assuming s.jwt_secret_key is defined in your scope
+	tokenString, err := token.SignedString(s.Server.JwtSecretKey)
 	if err != nil {
 		return "", err
 	}
@@ -106,7 +159,7 @@ func generateTempToken(userID int) (string, error) {
 	return tokenString, nil
 }
 
-func (s *Server) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
 
 	var params models.ResetPasswordParams
 
@@ -117,7 +170,7 @@ func (s *Server) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	claims, err := decodeToken(params.Token)
+	claims, err := s.decodeToken(params.Token)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -135,7 +188,7 @@ func (s *Server) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.db.Exec("UPDATE users SET password = $1 WHERE id = $2", hashedPassword, user.ID)
+	_, err = s.DB.Exec("UPDATE users SET password = $1 WHERE id = $2", hashedPassword, user.ID)
 	if err != nil {
 		http.Error(w, "Error updating password", http.StatusInternalServerError)
 		return
@@ -149,7 +202,7 @@ func (s *Server) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) LoginRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) LoginRoute(w http.ResponseWriter, r *http.Request) {
 
 	var params models.LoginParams
 	var response models.LoginResponse
@@ -175,7 +228,7 @@ func (s *Server) LoginRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := generateAccessToken(user.ID)
+	accessToken, err := s.generateAccessToken(user.ID)
 	if err != nil {
 		http.Error(w, "Error generating token", http.StatusInternalServerError)
 		return
@@ -190,11 +243,11 @@ func (s *Server) LoginRoute(w http.ResponseWriter, r *http.Request) {
 	s.LogLastLogin(user)
 }
 
-func (s *Server) CheckTokenRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) CheckTokenRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request) {
 	var params models.RequestPasswordResetParams
 	var response models.GenericResponse
 
@@ -216,7 +269,7 @@ func (s *Server) RequestPasswordResetRoute(w http.ResponseWriter, r *http.Reques
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	token, err := generateTempToken(user.ID)
+	token, err := s.generateTempToken(user.ID)
 	if err != nil {
 		log.Printf("err %v", err.Error())
 		response.Error = true
@@ -227,6 +280,7 @@ func (s *Server) RequestPasswordResetRoute(w http.ResponseWriter, r *http.Reques
 	}
 	url := fmt.Sprintf("%s/reset?token=%s", os.Getenv("ZETTEL_URL"), token)
 	messageBody := fmt.Sprintf("Please go to this link to reset your password: %s", url)
+	log.Printf("messag %v", messageBody)
 
 	s.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
 	json.NewEncoder(w).Encode(response)

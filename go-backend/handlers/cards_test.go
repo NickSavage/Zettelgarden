@@ -1,9 +1,10 @@
-package main
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
 	"go-backend/models"
+	"go-backend/tests"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -15,9 +16,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func makeCardRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
+func makeCardRequestSuccess(s *Handler, t *testing.T, id int) *httptest.ResponseRecorder {
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("GET", "/api/cards/"+strconv.Itoa(id), nil)
 	if err != nil {
@@ -28,15 +29,15 @@ func makeCardRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.GetCardRoute))
+	router.HandleFunc("/api/cards/{id}", s.JwtMiddleware(s.GetCardRoute))
 	router.ServeHTTP(rr, req)
 
 	return rr
 }
 
-func makeCardsRequestSuccess(t *testing.T, params string) *httptest.ResponseRecorder {
+func makeCardsRequestSuccess(s *Handler, t *testing.T, params string) *httptest.ResponseRecorder {
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("GET", "/api/cards/?"+params, nil)
 	if err != nil {
@@ -46,14 +47,14 @@ func makeCardsRequestSuccess(t *testing.T, params string) *httptest.ResponseReco
 	req.SetPathValue("id", "1")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetCardsRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.GetCardsRoute))
 	handler.ServeHTTP(rr, req)
 
 	return rr
 }
 
-func makeCardDeleteRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
-	token, _ := generateTestJWT(1)
+func makeCardDeleteRequestSuccess(s *Handler, t *testing.T, id int) *httptest.ResponseRecorder {
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("DELETE", "/api/cards/"+strconv.Itoa(id), nil)
 	if err != nil {
@@ -64,7 +65,7 @@ func makeCardDeleteRequestSuccess(t *testing.T, id int) *httptest.ResponseRecord
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.DeleteCardRoute))
+	router.HandleFunc("/api/cards/{id}", s.JwtMiddleware(s.DeleteCardRoute))
 	router.ServeHTTP(rr, req)
 
 	return rr
@@ -72,27 +73,27 @@ func makeCardDeleteRequestSuccess(t *testing.T, id int) *httptest.ResponseRecord
 }
 
 func TestGetCardSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	var logCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_views").Scan(&logCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_views").Scan(&logCount)
 	if logCount != 0 {
 		t.Errorf("wrong log count, got %v want %v", logCount, 0)
 	}
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		log.Printf("err %v", rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	_ = s.db.QueryRow("SELECT count(*) FROM card_views").Scan(&logCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_views").Scan(&logCount)
 	if logCount != 1 {
 		t.Errorf("wrong log count, got %v want %v", logCount, 1)
 	}
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if card.ID != 1 {
 		t.Errorf("handler returned wrong card, got %v want %v", card.ID, 1)
 	}
@@ -103,10 +104,10 @@ func TestGetCardSuccess(t *testing.T) {
 }
 
 func TestGetCardWrongUser(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(2)
+	token, _ := tests.GenerateTestJWT(2)
 
 	req, err := http.NewRequest("GET", "/api/cards/1", nil)
 	if err != nil {
@@ -116,7 +117,7 @@ func TestGetCardWrongUser(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.GetCardRoute))
+	router.HandleFunc("/api/cards/{id}", s.JwtMiddleware(s.GetCardRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -126,7 +127,7 @@ func TestGetCardWrongUser(t *testing.T) {
 		t.Errorf("handler returned wrong body, got %v want %v", rr.Body.String(), "unable to access card\n")
 	}
 	var logCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_views").Scan(&logCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_views").Scan(&logCount)
 	if logCount != 0 {
 		t.Errorf("wrong log count, got %v want %v", logCount, 0)
 	}
@@ -150,16 +151,16 @@ func TestGetParentCardId(t *testing.T) {
 }
 
 func TestGetCardSuccessParent(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if card.Parent.CardID != card.CardID {
 		t.Errorf("wrong card parent returned. got %v want %v", card.Parent.CardID, card.CardID)
 	}
@@ -177,17 +178,17 @@ func TestExtractBacklinks(t *testing.T) {
 }
 
 func TestGetCardSuccessChildren(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		log.Printf("err %v", rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.Children) == 0 {
 		t.Errorf("children was empty. got %v want %v", len(card.Children), 1)
 	}
@@ -202,15 +203,15 @@ func TestGetCardSuccessChildren(t *testing.T) {
 }
 
 func TestGetCardSuccessFiles(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.Files) != 1 {
 		t.Errorf("wrong number of files associated with card, got %v want %v", len(card.Files), 1)
 	}
@@ -218,7 +219,7 @@ func TestGetCardSuccessFiles(t *testing.T) {
 	writer := multipart.NewWriter(&buffer)
 	createTestFile(t, buffer, writer)
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
 	if err != nil {
 		t.Fatal(err)
@@ -227,21 +228,21 @@ func TestGetCardSuccessFiles(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	rr = httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.UploadFileRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.UploadFileRoute))
 
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
-	if s.TestInspector.FilesUploaded != 1 {
+	if s.Server.TestInspector.FilesUploaded != 1 {
 		t.Errorf("test inspector wrong number of files associated with card, got %v want %v", len(card.Files), 2)
 	}
-	rr = makeCardRequestSuccess(t, 1)
+	rr = makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.Files) != 2 {
 		t.Errorf("wrong number of files associated with card, got %v want %v", len(card.Files), 2)
 	}
@@ -249,15 +250,15 @@ func TestGetCardSuccessFiles(t *testing.T) {
 }
 
 func TestGetCardReferencesSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.References) != 2 {
 		t.Errorf("wrong number of references associated with card, got %v want %v", len(card.References), 2)
 	}
@@ -271,15 +272,15 @@ func TestGetCardReferencesSuccess(t *testing.T) {
 }
 
 func TestGetCardReferencesDuplicateLinks(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(t, 4)
+	rr := makeCardRequestSuccess(s, t, 4)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if len(card.References) != 1 {
 		if len(card.References) == 2 && (card.References[0].CardID == card.References[1].CardID) {
 			t.Errorf("returned duplicate references to the same card")
@@ -290,115 +291,115 @@ func TestGetCardReferencesDuplicateLinks(t *testing.T) {
 }
 
 func TestGetCardsSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardsRequestSuccess(t, "")
+	rr := makeCardsRequestSuccess(s, t, "")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var cards []models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 23 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 23)
 	}
 }
 
 func TestGetCardsSuccessSearch(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardsRequestSuccess(t, "search_term=test")
+	rr := makeCardsRequestSuccess(s, t, "search_term=test")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var cards []models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 2 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 2)
 	}
 }
 
 func TestGetCardsOtherUsersBodyNoResults(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardsRequestSuccess(t, "search_term=hello")
+	rr := makeCardsRequestSuccess(s, t, "search_term=hello")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var cards []models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 0 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 0)
 	}
 }
 
 func TestGetCardsSuccessPartial(t *testing.T) {
-	setup()
-	//defer teardown()
+	s := setup()
+	//defer tests.Teardown()
 
-	rr := makeCardsRequestSuccess(t, "partial=true")
+	rr := makeCardsRequestSuccess(s, t, "partial=true")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var cards []models.PartialCard
-	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 23 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 23)
 	}
 }
 func TestGetCardsSuccessPartialSearch(t *testing.T) {
-	setup()
-	//defer teardown()
+	s := setup()
+	//defer tests.Teardown()
 
-	rr := makeCardsRequestSuccess(t, "partial=true&search_term=test")
+	rr := makeCardsRequestSuccess(s, t, "partial=true&search_term=test")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var cards []models.PartialCard
-	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 2 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 2)
 	}
 }
 func TestGetCardsSuccessInactive(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardsRequestSuccess(t, "inactive=true")
+	rr := makeCardsRequestSuccess(s, t, "inactive=true")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var cards []models.PartialCard
-	parseJsonResponse(t, rr.Body.Bytes(), &cards)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
 	if len(cards) != 20 {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 20)
 	}
 }
 
 func TestUpdateCardSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	var linkCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_views").Scan(&linkCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_views").Scan(&linkCount)
 	log.Printf("count %v", linkCount)
 	if linkCount != 0 {
 		t.Errorf("wrong log count, got %v want %v", linkCount, 0)
 	}
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	var card models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	expected := "asdfasdf"
 	newData := map[string]interface{}{
@@ -419,25 +420,25 @@ func TestUpdateCardSuccess(t *testing.T) {
 
 	rr = httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.UpdateCardRoute))
+	router.HandleFunc("/api/cards/{id}", s.JwtMiddleware(s.UpdateCardRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	rr = makeCardRequestSuccess(t, 1)
+	rr = makeCardRequestSuccess(s, t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 	if card.Title != expected {
 		t.Errorf("handler return wrong title, ot %v want %v", card.Title, expected)
 	}
 	var newLinkCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM card_views").Scan(&newLinkCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM card_views").Scan(&newLinkCount)
 	log.Printf("new count %v", newLinkCount)
 	if newLinkCount == linkCount {
 		t.Errorf("wrong log count, got %v want %v", linkCount, 1)
@@ -445,10 +446,10 @@ func TestUpdateCardSuccess(t *testing.T) {
 }
 
 func TestUpdateCardUnauthorized(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(2)
+	token, _ := tests.GenerateTestJWT(2)
 
 	expected := "asdfasdf"
 	newData := map[string]interface{}{
@@ -470,7 +471,7 @@ func TestUpdateCardUnauthorized(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.UpdateCardRoute))
+	router.HandleFunc("/api/cards/{id}", s.JwtMiddleware(s.UpdateCardRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -480,12 +481,12 @@ func TestUpdateCardUnauthorized(t *testing.T) {
 }
 
 func TestCreateCardSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	var card models.Card
 	var newCard models.Card
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	expected := "asdfasdf"
 	data := models.EditCardParams{
@@ -502,27 +503,27 @@ func TestCreateCardSuccess(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 
-	rr = makeCardRequestSuccess(t, card.ID)
+	rr = makeCardRequestSuccess(s, t, card.ID)
 
-	parseJsonResponse(t, rr.Body.Bytes(), &newCard)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &newCard)
 	if newCard.Title != expected {
 		t.Errorf("handler returned wrong card: got %v want %v", newCard.Title, expected)
 	}
 }
 
 func TestCreateCardDuplicateCardID(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	expected := "asdfasdf"
 	data := models.EditCardParams{
@@ -538,7 +539,7 @@ func TestCreateCardDuplicateCardID(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -551,7 +552,7 @@ func TestCreateCardDuplicateCardID(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
+	handler = http.HandlerFunc(s.JwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
@@ -563,22 +564,22 @@ func TestCreateCardDuplicateCardID(t *testing.T) {
 }
 
 func TestDeleteCardSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	id := 3
-	rr := makeCardDeleteRequestSuccess(t, id)
+	rr := makeCardDeleteRequestSuccess(s, t, id)
 
 	if status := rr.Code; status != http.StatusNoContent {
 		log.Printf(rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
 	}
 
-	rr = makeCardRequestSuccess(t, id)
+	rr = makeCardRequestSuccess(s, t, id)
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
-	rr = makeCardDeleteRequestSuccess(t, id)
+	rr = makeCardDeleteRequestSuccess(s, t, id)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
@@ -586,10 +587,10 @@ func TestDeleteCardSuccess(t *testing.T) {
 }
 
 func TestDeleteCardWrongUser(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(2)
+	token, _ := tests.GenerateTestJWT(2)
 
 	req, err := http.NewRequest("DELETE", "/api/cards/"+strconv.Itoa(1), nil)
 	if err != nil {
@@ -600,7 +601,7 @@ func TestDeleteCardWrongUser(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/{id}", jwtMiddleware(s.DeleteCardRoute))
+	router.HandleFunc("/api/cards/{id}", s.JwtMiddleware(s.DeleteCardRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -609,10 +610,10 @@ func TestDeleteCardWrongUser(t *testing.T) {
 }
 
 func TestGenerateNextIDReference(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	data := models.NextIDParams{
 		CardType: "reference",
 	}
@@ -624,14 +625,14 @@ func TestGenerateNextIDReference(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.NextIDRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.NextIDRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var response models.NextIDResponse
-	parseJsonResponse(t, rr.Body.Bytes(), &response)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
 	if response.NextID != "REF002" {
 		t.Errorf("wrong id returned, got %v want %v", response.NextID, "REF002")
 
@@ -639,10 +640,10 @@ func TestGenerateNextIDReference(t *testing.T) {
 }
 
 func TestGenerateNextIDMeeting(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	data := models.NextIDParams{
 		CardType: "meeting",
 	}
@@ -654,14 +655,14 @@ func TestGenerateNextIDMeeting(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.NextIDRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.NextIDRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var response models.NextIDResponse
-	parseJsonResponse(t, rr.Body.Bytes(), &response)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
 	if response.NextID != "MM002" {
 		t.Errorf("wrong id returned, got %v want %v", response.NextID, "MM002")
 
@@ -669,41 +670,41 @@ func TestGenerateNextIDMeeting(t *testing.T) {
 }
 
 func TestGenerateInactiveCards(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	var count int
 	cards := 20
 
-	_ = s.db.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&count)
+	_ = s.DB.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&count)
 	if count != 0 {
 		t.Errorf("wrong number of initial inactive cards, got %v want 0", count)
 	}
 	s.GenerateInactiveCards(1)
 	var newCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&newCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&newCount)
 	if newCount != cards {
 		t.Errorf("wrong number of post-run inactive cards, got %v want %v", newCount, cards)
 	}
 }
 func TestCreateCardLinkedParentId(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(t, 4)
+	rr := makeCardRequestSuccess(s, t, 4)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 		log.Printf("err %v", rr.Body.String())
 	}
 	var parentCard models.Card
-	parseJsonResponse(t, rr.Body.Bytes(), &parentCard)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &parentCard)
 	if parentCard.CardID != "REF001" {
 		t.Errorf("handler returned wrong card: got %v want %v", parentCard.CardID, "REF001")
 	}
 
 	var card models.Card
 	var newCard models.Card
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	data := models.EditCardParams{
 		Title:  "asdasd",
@@ -719,17 +720,17 @@ func TestCreateCardLinkedParentId(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr = httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.CreateCardRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.CreateCardRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	parseJsonResponse(t, rr.Body.Bytes(), &card)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 
-	rr = makeCardRequestSuccess(t, card.ID)
+	rr = makeCardRequestSuccess(s, t, card.ID)
 	log.Printf("%v", rr.Body.String())
-	parseJsonResponse(t, rr.Body.Bytes(), &newCard)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &newCard)
 	if newCard.ParentID != parentCard.ID {
 		t.Errorf("handler returned wrong parent: got %v want %v", newCard.ParentID, parentCard.ID)
 	}

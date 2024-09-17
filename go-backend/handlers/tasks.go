@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -14,10 +14,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *Server) QueryTask(userID int, id int) (models.Task, error) {
+func (s *Handler) QueryTask(userID int, id int) (models.Task, error) {
 	var task models.Task
 
-	err := s.db.QueryRow(`
+	err := s.DB.QueryRow(`
 	SELECT id, card_pk, user_id, scheduled_date, due_date,
 	created_at, updated_at, completed_at, title, is_complete
 	FROM
@@ -48,7 +48,7 @@ func (s *Server) QueryTask(userID int, id int) (models.Task, error) {
 	return task, nil
 }
 
-func (s *Server) QueryTasks(userID int) ([]models.Task, error) {
+func (s *Handler) QueryTasks(userID int) ([]models.Task, error) {
 	var tasks []models.Task
 	query := `
 	SELECT id, card_pk, user_id, scheduled_date, due_date,
@@ -58,7 +58,7 @@ func (s *Server) QueryTasks(userID int) ([]models.Task, error) {
 	WHERE user_id = $1 AND is_deleted = FALSE
 	`
 
-	rows, err := s.db.Query(query, userID)
+	rows, err := s.DB.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return []models.Task{}, err
@@ -95,7 +95,7 @@ func (s *Server) QueryTasks(userID int) ([]models.Task, error) {
 	return tasks, nil
 }
 
-func (s *Server) GetTaskRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetTaskRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
@@ -115,7 +115,7 @@ func (s *Server) GetTaskRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (s *Server) GetTasksRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) GetTasksRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 
 	tasks, err := s.QueryTasks(userID)
@@ -130,7 +130,7 @@ func (s *Server) GetTasksRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
+func (s *Handler) UpdateTask(userID int, id int, task models.Task) error {
 	oldTask, err := s.QueryTask(userID, id)
 	if err != nil {
 		return fmt.Errorf("unable to query task: %v", err)
@@ -140,7 +140,7 @@ func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
 	if task.IsComplete && !oldTask.IsComplete {
 		now := time.Now()
 		completedAt = &now
-		err = checkRecurringTasks(task)
+		err = s.checkRecurringTasks(task)
 		if err != nil {
 			log.Printf("err %v", err)
 		}
@@ -151,7 +151,7 @@ func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
 	}
 
 	log.Printf("completed_at: %v", completedAt)
-	_, err = s.db.Exec(`
+	_, err = s.DB.Exec(`
 		UPDATE tasks SET
 			card_pk = $1,
 			scheduled_date = $2,
@@ -171,7 +171,7 @@ func (s *Server) UpdateTask(userID int, id int, task models.Task) error {
 	return nil
 }
 
-func (s *Server) UpdateTaskRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) UpdateTaskRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -205,11 +205,11 @@ func (s *Server) UpdateTaskRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func (s *Server) CreateTask(task models.Task) (int, error) {
+func (s *Handler) CreateTask(task models.Task) (int, error) {
 	var taskID int
 
 	log.Printf("user %v", task.UserID)
-	err := s.db.QueryRow(`
+	err := s.DB.QueryRow(`
 	INSERT INTO tasks (card_pk, user_id, scheduled_date, due_date, created_at, updated_at, completed_at, title, is_complete, is_deleted)
 	VALUES ($1, $2, $3, $4, NOW(), NOW(), $5, $6, $7, FALSE)
 	RETURNING id
@@ -223,7 +223,7 @@ func (s *Server) CreateTask(task models.Task) (int, error) {
 	return taskID, nil
 }
 
-func (s *Server) CreateTaskRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) CreateTaskRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 
 	var task models.Task
@@ -248,8 +248,8 @@ func (s *Server) CreateTaskRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"id": taskID})
 }
 
-func (s *Server) DeleteTask(userID int, id int) error {
-	_, err := s.db.Exec(`
+func (s *Handler) DeleteTask(userID int, id int) error {
+	_, err := s.DB.Exec(`
 	UPDATE tasks SET is_deleted = TRUE
 	WHERE id = $1 AND user_id = $2
 	`, id, userID)
@@ -261,7 +261,7 @@ func (s *Server) DeleteTask(userID int, id int) error {
 	return nil
 }
 
-func (s *Server) DeleteTaskRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) DeleteTaskRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -342,7 +342,7 @@ func parseRecurringTasks(title string) (models.RecurringTask, bool) {
 
 	return models.RecurringTask{}, false
 }
-func checkRecurringTasks(task models.Task) error {
+func (s *Handler) checkRecurringTasks(task models.Task) error {
 	recurringTask, found := parseRecurringTasks(task.Title)
 	if !found {
 		return nil

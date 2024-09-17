@@ -1,9 +1,10 @@
-package main
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
 	"go-backend/models"
+	"go-backend/tests"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -15,9 +16,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func makeTaskRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
+func makeTaskRequestSuccess(s *Handler, t *testing.T, id int) *httptest.ResponseRecorder {
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("GET", "/api/tasks/"+strconv.Itoa(id), nil)
 	if err != nil {
@@ -28,15 +29,15 @@ func makeTaskRequestSuccess(t *testing.T, id int) *httptest.ResponseRecorder {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.GetTaskRoute))
+	router.HandleFunc("/api/tasks/{id}", s.JwtMiddleware(s.GetTaskRoute))
 	router.ServeHTTP(rr, req)
 
 	return rr
 }
 
-func makeTasksRequestSuccess(t *testing.T, params string) *httptest.ResponseRecorder {
+func makeTasksRequestSuccess(s *Handler, t *testing.T, params string) *httptest.ResponseRecorder {
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	req, err := http.NewRequest("GET", "/api/tasks/?"+params, nil)
 	if err != nil {
@@ -45,23 +46,23 @@ func makeTasksRequestSuccess(t *testing.T, params string) *httptest.ResponseReco
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.GetTasksRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.GetTasksRoute))
 	handler.ServeHTTP(rr, req)
 
 	return rr
 }
 func TestGetTaskSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeTaskRequestSuccess(t, 1)
+	rr := makeTaskRequestSuccess(s, t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var task models.Task
 	log.Printf("%v", rr.Body.String())
-	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 	if task.ID != 1 {
 		t.Errorf("handler returned wrong task, got %v want %v", task.ID, 1)
 	}
@@ -71,10 +72,10 @@ func TestGetTaskSuccess(t *testing.T) {
 }
 
 func TestGetTaskWrongUser(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(2)
+	token, _ := tests.GenerateTestJWT(2)
 
 	req, err := http.NewRequest("GET", "/api/tasks/1", nil)
 	if err != nil {
@@ -84,7 +85,7 @@ func TestGetTaskWrongUser(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.GetTaskRoute))
+	router.HandleFunc("/api/tasks/{id}", s.JwtMiddleware(s.GetTaskRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -98,31 +99,31 @@ func TestGetTaskWrongUser(t *testing.T) {
 
 func TestGetTasksSuccess(t *testing.T) {
 
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	rr := makeTasksRequestSuccess(t, "")
+	rr := makeTasksRequestSuccess(s, t, "")
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var tasks []models.Task
-	parseJsonResponse(t, rr.Body.Bytes(), &tasks)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &tasks)
 	if len(tasks) != 20 {
 		t.Errorf("wrong number of tasks returned, got %v want %v", len(tasks), 20)
 	}
 }
 
 func TestUpdateTaskSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 	expected := "ooga booga"
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	var task models.Task
-	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 
 	if task.Title == expected {
 		t.Errorf("something is wrong, title has changed already")
@@ -138,34 +139,34 @@ func TestUpdateTaskSuccess(t *testing.T) {
 
 	rr = httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute))
+	router.HandleFunc("/api/tasks/{id}", s.JwtMiddleware(s.UpdateTaskRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	rr = makeTaskRequestSuccess(t, 1)
+	rr = makeTaskRequestSuccess(s, t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 	if task.Title != expected {
 		t.Errorf("handler return wrong title, got %v want %v", task.Title, expected)
 	}
 }
 
 func TestUpdateTaskCompleteTask(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	var task models.Task
-	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 
 	if task.IsComplete {
 		t.Errorf("something is wrong, task already complete")
@@ -181,20 +182,20 @@ func TestUpdateTaskCompleteTask(t *testing.T) {
 
 	rr = httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute))
+	router.HandleFunc("/api/tasks/{id}", s.JwtMiddleware(s.UpdateTaskRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	rr = makeTaskRequestSuccess(t, 1)
+	rr = makeTaskRequestSuccess(s, t, 1)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 	if !task.IsComplete {
 		t.Errorf("task should be complete, is not")
 	}
@@ -204,12 +205,12 @@ func TestUpdateTaskCompleteTask(t *testing.T) {
 }
 
 func TestCreateTaskSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	var task models.Task
 	var newTask models.Task
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	expectedTitle := "Test Task"
 	expectedScheduledDate := time.Date(2024, 7, 5, 10, 0, 0, 0, time.UTC)
@@ -229,20 +230,20 @@ func TestCreateTaskSuccess(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(jwtMiddleware(s.CreateTaskRoute))
+	handler := http.HandlerFunc(s.JwtMiddleware(s.CreateTaskRoute))
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
-	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 
-	rr = makeTaskRequestSuccess(t, task.ID)
+	rr = makeTaskRequestSuccess(s, t, task.ID)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	parseJsonResponse(t, rr.Body.Bytes(), &newTask)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &newTask)
 	if newTask.Title != expectedTitle {
 		t.Errorf("handler returned wrong task title: got %v want %v", newTask.Title, expectedTitle)
 	}
@@ -255,10 +256,10 @@ func TestCreateTaskSuccess(t *testing.T) {
 }
 
 func TestDeleteTaskSuccess(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
 	// Now, delete the created task
 	deleteReq, err := http.NewRequest("DELETE", "/api/tasks/"+strconv.Itoa(1), nil)
@@ -269,7 +270,7 @@ func TestDeleteTaskSuccess(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.DeleteTaskRoute))
+	router.HandleFunc("/api/tasks/{id}", s.JwtMiddleware(s.DeleteTaskRoute))
 	router.ServeHTTP(rr, deleteReq)
 
 	if status := rr.Code; status != http.StatusNoContent {
@@ -283,7 +284,7 @@ func TestDeleteTaskSuccess(t *testing.T) {
 	}
 	getReq.Header.Set("Authorization", "Bearer "+token)
 
-	rr = makeTaskRequestSuccess(t, 1)
+	rr = makeTaskRequestSuccess(s, t, 1)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
@@ -291,8 +292,8 @@ func TestDeleteTaskSuccess(t *testing.T) {
 }
 
 func TestParseRecurringTasks(t *testing.T) {
-	setup()
-	defer teardown()
+	_ = setup()
+	defer tests.Teardown()
 
 	testCases := []struct {
 		name     string
@@ -363,20 +364,20 @@ func TestParseRecurringTasks(t *testing.T) {
 	}
 }
 func TestUpdateTaskCompleteRecurringTask(t *testing.T) {
-	setup()
-	defer teardown()
+	s := setup()
+	defer tests.Teardown()
 
 	var taskCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM tasks").Scan(&taskCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM tasks").Scan(&taskCount)
 	if taskCount <= 0 {
 		t.Errorf("wrong task count, got %v", taskCount)
 	}
 
-	token, _ := generateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
-	rr := makeCardRequestSuccess(t, 1)
+	rr := makeCardRequestSuccess(s, t, 1)
 	var task models.Task
-	parseJsonResponse(t, rr.Body.Bytes(), &task)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 
 	if task.IsComplete {
 		t.Errorf("something is wrong, task already complete")
@@ -393,7 +394,7 @@ func TestUpdateTaskCompleteRecurringTask(t *testing.T) {
 
 	rr = httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/tasks/{id}", jwtMiddleware(s.UpdateTaskRoute))
+	router.HandleFunc("/api/tasks/{id}", s.JwtMiddleware(s.UpdateTaskRoute))
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -401,7 +402,7 @@ func TestUpdateTaskCompleteRecurringTask(t *testing.T) {
 	}
 
 	var newTaskCount int
-	_ = s.db.QueryRow("SELECT count(*) FROM tasks").Scan(&newTaskCount)
+	_ = s.DB.QueryRow("SELECT count(*) FROM tasks").Scan(&newTaskCount)
 	if taskCount+1 != newTaskCount {
 		t.Errorf("wrong task count, got %v want %v", taskCount+1, newTaskCount)
 	}

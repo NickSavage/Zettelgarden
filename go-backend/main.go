@@ -1,48 +1,29 @@
 package main
 
 import (
-	"bytes"
+	//	"bytes"
 	"context"
-	"database/sql"
-	"encoding/json"
+	//"encoding/json"
+	"go-backend/handlers"
 	"go-backend/models"
+	"go-backend/server"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/stripe/stripe-go"
 )
 
-var s *Server
-
-type Server struct {
-	db             *sql.DB
-	s3             *s3.Client
-	testing        bool
-	jwt_secret_key []byte
-	stripe_key     string
-	mail           *MailClient
-	TestInspector  *TestInspector
-}
-
-type MailClient struct {
-	Host     string
-	Password string
-}
-
-type TestInspector struct {
-	EmailsSent    int
-	FilesUploaded int
-}
+var s *server.Server
+var h *handlers.Handler
 
 func admin(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := r.Context().Value("current_user").(int)
-		user, err := s.QueryUser(userID)
+		user, err := h.QueryUser(userID)
 		if err != nil {
 			http.Error(w, "User not found", http.StatusBadRequest)
 			return
@@ -69,7 +50,7 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		claims := &models.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-			return s.jwt_secret_key, nil
+			return s.JwtSecretKey, nil
 		})
 
 		if err != nil {
@@ -92,66 +73,13 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-type Email struct {
-	Subject   string `json:"subject"`
-	Recipient string `json:"recipient"`
-	Body      string `json:"body"`
-}
-
-func (s *Server) SendEmail(subject, recipient, body string) error {
-	if s.testing {
-		s.TestInspector.EmailsSent += 1
-		return nil
-	}
-	email := Email{
-		Subject:   subject,
-		Recipient: recipient,
-		Body:      body,
-	}
-
-	// Convert email struct to JSON
-
-	emailJSON, err := json.Marshal(email)
-	if err != nil {
-		return err
-	}
-	go func() {
-
-		// Create a new request
-		req, err := http.NewRequest("POST", s.mail.Host+"/api/send", bytes.NewBuffer(emailJSON))
-		if err != nil {
-			return
-		}
-
-		// Set headers
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", s.mail.Password)
-
-		// Send the request
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			log.Printf("error with email client: %s", err)
-			return
-		}
-		defer resp.Body.Close()
-
-		// Check the response status code
-		if resp.StatusCode != http.StatusOK {
-			log.Printf("failed to send email: %s", resp.Status)
-			return
-		}
-	}()
-	return nil
-}
-
 func addProtectedRoute(r *mux.Router, path string, handler http.HandlerFunc, method string) *mux.Route {
-	return r.HandleFunc(path, jwtMiddleware(logRoute(handler))).Methods(method)
+	return r.HandleFunc(path, jwtMiddleware(handlers.LogRoute(handler))).Methods(method)
 
 }
 
 func addRoute(r *mux.Router, path string, handler http.HandlerFunc, method string) *mux.Route {
-	return r.HandleFunc(path, logRoute(handler)).Methods(method)
+	return r.HandleFunc(path, handlers.LogRoute(handler)).Methods(method)
 }
 
 func main() {
@@ -160,7 +88,7 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 	// log.SetOutput(file)
-	s = &Server{}
+	s = &server.Server{}
 
 	dbConfig := models.DatabaseConfig{}
 	dbConfig.Host = os.Getenv("DB_HOST")
@@ -169,68 +97,75 @@ func main() {
 	dbConfig.Password = os.Getenv("DB_PASS")
 	dbConfig.DatabaseName = os.Getenv("DB_NAME")
 
-	db, err := ConnectToDatabase(dbConfig)
+	db, err := server.ConnectToDatabase(dbConfig)
 
 	if err != nil {
 		log.Fatalf("Unable to connect to the database: %v\n", err)
 	}
-	s.db = db
-	s.runMigrations()
-	s.s3 = s.createS3Client()
+	s.DB = db
+	s.SchemaDir = "./schema"
+	server.RunMigrations(s)
 
-	s.stripe_key = os.Getenv("STRIPE_SECRET_KEY")
+	h = &handlers.Handler{
+		Server: s,
+		DB:     s.DB,
+	}
+
+	s.S3 = h.CreateS3Client()
+
+	s.StripeKey = os.Getenv("STRIPE_SECRET_KEY")
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
-	s.mail = &MailClient{
+	s.Mail = &server.MailClient{
 		Host:     os.Getenv("MAIL_HOST"),
 		Password: os.Getenv("MAIL_PASSWORD"),
 	}
-	log.Printf("email server: %v", s.mail)
-	s.jwt_secret_key = []byte(os.Getenv("SECRET_KEY"))
+	log.Printf("email server: %v", s.Mail)
+	s.JwtSecretKey = []byte(os.Getenv("SECRET_KEY"))
 
 	r := mux.NewRouter()
-	addProtectedRoute(r, "/api/auth", s.CheckTokenRoute, "GET")
-	addRoute(r, "/api/login", s.LoginRoute, "POST")
-	addRoute(r, "/api/reset-password", s.ResetPasswordRoute, "POST")
-	addRoute(r, "/api/email-validate", s.ValidateEmailRoute, "POST")
-	addRoute(r, "/api/request-reset", s.RequestPasswordResetRoute, "POST")
+	addProtectedRoute(r, "/api/auth", h.CheckTokenRoute, "GET")
+	addRoute(r, "/api/login", h.LoginRoute, "POST")
+	addRoute(r, "/api/reset-password", h.ResetPasswordRoute, "POST")
+	addRoute(r, "/api/email-validate", h.ValidateEmailRoute, "POST")
+	addRoute(r, "/api/request-reset", h.RequestPasswordResetRoute, "POST")
 
-	addProtectedRoute(r, "/api/files", s.GetAllFilesRoute, "GET")
-	addProtectedRoute(r, "/api/files/upload", s.UploadFileRoute, "POST")
-	addProtectedRoute(r, "/api/files/{id}", s.GetFileMetadataRoute, "GET")
-	addProtectedRoute(r, "/api/files/{id}", s.EditFileMetadataRoute, "PATCH")
-	addProtectedRoute(r, "/api/files/{id}", s.DeleteFileRoute, "DELETE")
-	addProtectedRoute(r, "/api/files/download/{id}", s.DownloadFileRoute, "GET")
+	addProtectedRoute(r, "/api/files", h.GetAllFilesRoute, "GET")
+	addProtectedRoute(r, "/api/files/upload", h.UploadFileRoute, "POST")
+	addProtectedRoute(r, "/api/files/{id}", h.GetFileMetadataRoute, "GET")
+	addProtectedRoute(r, "/api/files/{id}", h.EditFileMetadataRoute, "PATCH")
+	addProtectedRoute(r, "/api/files/{id}", h.DeleteFileRoute, "DELETE")
+	addProtectedRoute(r, "/api/files/download/{id}", h.DownloadFileRoute, "GET")
 
-	addProtectedRoute(r, "/api/cards", s.GetCardsRoute, "GET")
-	addProtectedRoute(r, "/api/cards", s.CreateCardRoute, "POST")
-	addProtectedRoute(r, "/api/next", s.NextIDRoute, "POST")
-	addProtectedRoute(r, "/api/cards/{id}", s.GetCardRoute, "GET")
-	addProtectedRoute(r, "/api/cards/{id}", s.UpdateCardRoute, "PUT")
-	addProtectedRoute(r, "/api/cards/{id}", s.DeleteCardRoute, "DELETE")
+	addProtectedRoute(r, "/api/cards", h.GetCardsRoute, "GET")
+	addProtectedRoute(r, "/api/cards", h.CreateCardRoute, "POST")
+	addProtectedRoute(r, "/api/next", h.NextIDRoute, "POST")
+	addProtectedRoute(r, "/api/cards/{id}", h.GetCardRoute, "GET")
+	addProtectedRoute(r, "/api/cards/{id}", h.UpdateCardRoute, "PUT")
+	addProtectedRoute(r, "/api/cards/{id}", h.DeleteCardRoute, "DELETE")
 
-	addProtectedRoute(r, "/api/cards/keywords/{id}", s.PutCardKeywordsRoute, "PUT")
+	addProtectedRoute(r, "/api/cards/keywords/{id}", h.PutCardKeywordsRoute, "PUT")
 
-	addProtectedRoute(r, "/api/users/{id}", s.GetUserRoute, "GET")
-	addProtectedRoute(r, "/api/users/{id}", s.UpdateUserRoute, "PUT")
-	addProtectedRoute(r, "/api/users", s.GetUsersRoute, "GET")
-	addRoute(r, "/api/users", s.CreateUserRoute, "POST")
-	addProtectedRoute(r, "/api/users/{id}/subscription", s.GetUserSubscriptionRoute, "GET")
-	addProtectedRoute(r, "/api/current", s.GetCurrentUserRoute, "GET")
-	addProtectedRoute(r, "/api/admin", s.GetUserAdminRoute, "GET")
+	addProtectedRoute(r, "/api/users/{id}", h.GetUserRoute, "GET")
+	addProtectedRoute(r, "/api/users/{id}", h.UpdateUserRoute, "PUT")
+	addProtectedRoute(r, "/api/users", h.GetUsersRoute, "GET")
+	addRoute(r, "/api/users", h.CreateUserRoute, "POST")
+	addProtectedRoute(r, "/api/users/{id}/subscription", h.GetUserSubscriptionRoute, "GET")
+	addProtectedRoute(r, "/api/current", h.GetCurrentUserRoute, "GET")
+	addProtectedRoute(r, "/api/admin", h.GetUserAdminRoute, "GET")
 
-	addProtectedRoute(r, "/api/tasks/{id}", s.GetTaskRoute, "GET")
-	addProtectedRoute(r, "/api/tasks", s.GetTasksRoute, "GET")
-	addProtectedRoute(r, "/api/tasks", s.CreateTaskRoute, "POST")
-	addProtectedRoute(r, "/api/tasks/{id}", s.UpdateTaskRoute, "PUT")
-	addProtectedRoute(r, "/api/tasks/{id}", s.DeleteTaskRoute, "DELETE")
+	addProtectedRoute(r, "/api/tasks/{id}", h.GetTaskRoute, "GET")
+	addProtectedRoute(r, "/api/tasks", h.GetTasksRoute, "GET")
+	addProtectedRoute(r, "/api/tasks", h.CreateTaskRoute, "POST")
+	addProtectedRoute(r, "/api/tasks/{id}", h.UpdateTaskRoute, "PUT")
+	addProtectedRoute(r, "/api/tasks/{id}", h.DeleteTaskRoute, "DELETE")
 
-	addProtectedRoute(r, "/api/tags", s.GetTagsRoute, "GET")
-	addProtectedRoute(r, "/api/tags/id/{id}", s.DeleteTagRoute, "DELETE")
+	addProtectedRoute(r, "/api/tags", h.GetTagsRoute, "GET")
+	addProtectedRoute(r, "/api/tags/id/{id}", h.DeleteTagRoute, "DELETE")
 
-	addRoute(r, "/api/billing/create_checkout_session", s.CreateCheckoutSession, "POST")
-	addRoute(r, "/api/billing/success", s.GetSuccessfulSessionData, "GET")
-	addRoute(r, "/api/webhook", s.HandleWebhook, "POST")
+	addRoute(r, "/api/billing/create_checkout_session", h.CreateCheckoutSession, "POST")
+	addRoute(r, "/api/billing/success", h.GetSuccessfulSessionData, "GET")
+	addRoute(r, "/api/webhook", h.HandleWebhook, "POST")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},
