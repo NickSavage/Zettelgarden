@@ -905,7 +905,7 @@ LEFT JOIN (
 ) cv ON c.id = cv.card_pk
 WHERE c.user_id = $1 AND c.is_deleted = FALSE AND
  c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
-ORDER BY cv.recent_view DESC, RANDOM()
+ORDER BY c.created_at ASC, RANDOM()
 LIMIT 20;
 	`
 	_, err = tx.Exec(query, userID)
