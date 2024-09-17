@@ -26,7 +26,7 @@ struct LoginView: View {
             }
             else {
                 Button(action: {
-                    SwiftUI.Task {
+                    Task {
                         await viewModel.doLogin()
                     }
                 }) {

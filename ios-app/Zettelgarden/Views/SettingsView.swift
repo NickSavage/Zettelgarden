@@ -19,7 +19,7 @@ struct SettingsView: View {
             }
         }
         Button(action: {
-            SwiftUI.Task {
+            Task {
                 doLogout()
             }
         }) {
