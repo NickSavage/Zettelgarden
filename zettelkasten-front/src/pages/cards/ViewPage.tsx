@@ -5,6 +5,7 @@ import { CardList } from "../../components/cards/CardList";
 import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { getCard, saveExistingCard } from "../../api/cards";
+import { compareCardIds } from "../../utils/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -76,7 +77,7 @@ export function ViewPage({}: ViewPageProps) {
     if (viewingCard === null) {
       return;
     }
-    
+
     let editedCard = {
       ...viewingCard,
       body: viewingCard.body + "\n\n#" + tagName,
@@ -146,13 +147,16 @@ export function ViewPage({}: ViewPageProps) {
                 <HeaderTop text=": " />
                 <HeaderTop text={viewingCard.title} />
                 {viewingCard.is_literature_card && (
-                  <span className="pl-2 text-purple-500 text-sm">{"Literature Card"}</span>
+                  <span className="pl-2 text-purple-500 text-sm">
+                    {"Literature Card"}
+                  </span>
                 )}
-		{viewingCard.tags.length > 0 && (
-viewingCard.tags.map((tag) => 
-                  <span className="pl-2 text-purple-500 text-sm">#{tag.name}</span>)
-		  
-		)}
+                {viewingCard.tags.length > 0 &&
+                  viewingCard.tags.map((tag) => (
+                    <span className="pl-2 text-purple-500 text-sm">
+                      #{tag.name}
+                    </span>
+                  ))}
               </h1>
             </div>
             <div className="p-2">
@@ -180,7 +184,7 @@ viewingCard.tags.map((tag) =>
           <div className="py-4">
             <div className="flex align-center pb-2 pr-2">
               <BacklinkInput addBacklink={handleAddBacklink} />
-            <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
+              <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
             </div>
             <div className="text-xs">
               <span className="font-bold">Created At:</span>
@@ -249,9 +253,7 @@ viewingCard.tags.map((tag) =>
             <div>
               <HeaderSubSection text="Children" />
               <ChildrenCards
-                allChildren={viewingCard.children.sort((a, b) =>
-                  a.card_id.localeCompare(b.card_id),
-                )}
+                allChildren={viewingCard.children.sort((a, b) => compareCardIds(a.card_id, b.card_id))}
                 card={viewingCard}
               />
             </div>

@@ -84,3 +84,46 @@ export function sortCards(cards, value) {
   }
   return temp;
 }
+
+export function compareCardIds(a: string, b: string): number {
+      const parseCardId = (cardId: string): (string | number)[] => {
+        // Split ID on separators '/' and '.' and parse numbers
+        return cardId.split(/[/\.]/).map((part, index) => {
+            return index % 2 === 0 ? parseInt(part) : part;
+        });
+    };
+
+    const aParts = parseCardId(a);
+    const bParts = parseCardId(b);
+
+    const length = Math.min(aParts.length, bParts.length);
+
+    for (let i = 0; i < length; i++) {
+        const aPart = aParts[i];
+        const bPart = bParts[i];
+
+        // Compare numbers and strings accordingly
+        if (typeof aPart === 'number' && typeof bPart === 'number') {
+            if (aPart !== bPart) {
+                return aPart - bPart;
+            }
+        } else if (typeof aPart === 'string' && typeof bPart === 'string') {
+            if (aPart !== bPart) {
+                return aPart.localeCompare(bPart);
+            }
+        } else {
+            // Unequal types should never occur if input format is valid, but handle gracefully
+            throw new Error('Unexpected card ID format');
+        }
+    }
+
+    // If all parts match, the shorter ID comes first
+    return aParts.length - bParts.length;
+}
+
+export function sortCardIds(input: string[]): string[] {
+  let results = input.sort(compareCardIds)
+  console.log(results)
+  return results
+  
+}
