@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
 type SearchParams struct {
-	Tags  []string
-	Terms []string
+	Tags        []string
+	Terms       []string
+	NegateTags  []string
+	NegateTerms []string
 }
 
 func ParseSearchText(input string) SearchParams {
@@ -19,8 +20,13 @@ func ParseSearchText(input string) SearchParams {
 
 	for _, part := range parts {
 		if strings.HasPrefix(part, "#") {
-			// Remove the "#" and add to tags
 			searchParams.Tags = append(searchParams.Tags, strings.TrimPrefix(part, "#"))
+		} else if strings.HasPrefix(part, "!#") {
+			searchParams.NegateTags = append(searchParams.NegateTags, strings.TrimPrefix(part, "!#"))
+
+		} else if strings.HasPrefix(part, "!") {
+
+			searchParams.NegateTerms = append(searchParams.NegateTerms, strings.TrimPrefix(part, "!"))
 		} else {
 			// Add to terms
 			searchParams.Terms = append(searchParams.Terms, part)
@@ -35,6 +41,8 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 	var result string
 	var termConditions []string
 	var tagConditions []string
+	var negateTagsConditions []string
+	var excludeTerms []string
 
 	// Add conditions for terms that search both card_id and title
 	for _, term := range searchParams.Terms {
@@ -50,6 +58,16 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 		termConditions = append(termConditions, termCondition)
 	}
 
+	for _, term := range searchParams.NegateTerms {
+		var excludeCondition string
+		if fullText {
+			excludeCondition = fmt.Sprintf("NOT (card_id ILIKE '%%%s%%' OR title ILIKE '%%%s%%' OR body ILIKE '%%%s%%')", term, term, term)
+		} else {
+			excludeCondition = fmt.Sprintf("NOT (card_id ILIKE '%%%s%%' OR title ILIKE '%%%s%%')", term, term)
+		}
+		excludeTerms = append(excludeTerms, excludeCondition)
+	}
+
 	// Add conditions for tags
 	for _, tag := range searchParams.Tags {
 		tagCondition := fmt.Sprintf(`EXISTS (
@@ -59,23 +77,30 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
         )`, tag)
 		tagConditions = append(tagConditions, tagCondition)
 	}
+	// Build SQL for tags that should NOT exist
+	for _, tag := range searchParams.NegateTags {
+		tagCondition := fmt.Sprintf(`NOT EXISTS (
+            SELECT 1 FROM card_tags
+            JOIN tags ON card_tags.tag_id = tags.id
+            WHERE card_tags.card_pk = cards.id AND tags.name = '%s' AND tags.is_deleted = FALSE
+        )`, tag)
+		negateTagsConditions = append(negateTagsConditions, tagCondition)
+	}
 
 	if len(tagConditions) > 0 {
-		// If tags are present, ensure that one or more tag conditions are met
 		result = " AND (" + strings.Join(tagConditions, " AND ") + ")"
 	}
 
 	if len(termConditions) > 0 {
-		// Add term conditions if they exist
-		if result != "" {
-			// Combine with term conditions using an AND clause
-			result += " AND (" + strings.Join(termConditions, " OR ") + ")"
-		} else {
-			// If no tag conditions, start with term conditions
-			result = " AND (" + strings.Join(termConditions, " OR ") + ")"
-		}
+		result += " AND (" + strings.Join(termConditions, " OR ") + ")"
 	}
-	log.Printf("result %v", result)
-
+	if len(excludeTerms) > 0 {
+		excludeClause := strings.Join(excludeTerms, " AND ")
+		result += " AND (" + excludeClause + ")"
+	}
+	if len(negateTagsConditions) > 0 {
+		negateTagClause := strings.Join(negateTagsConditions, " AND ")
+		result += " AND (" + negateTagClause + ")"
+	}
 	return result
 }

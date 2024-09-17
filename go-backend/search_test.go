@@ -1,7 +1,7 @@
 package main
 
 import (
-	//	"strings"
+	"strings"
 	"testing"
 )
 
@@ -54,21 +54,50 @@ func TestBuildPartialCardSqlSearchTermString(t *testing.T) {
 		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
 	}
 
-	// 	input = "hello #world"
-	// 	expectedOutput = `
-	// AND (EXISTS (
-	//             SELECT 1 FROM card_tags
-	//             JOIN tags ON card_tags.tag_id = tags.id
-	//             WHERE card_tags.card_pk = cards.id AND tags.name = 'world' AND tags.is_deleted = FALSE
-	//         )) AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%'))
-	// 	`
-	// 	expectedOutput = strings.ReplaceAll(expectedOutput, " ", "")
-	// 	expectedOutput = strings.ReplaceAll(expectedOutput, "\n", "")
-	// 	output = BuildPartialCardSqlSearchTermString(input)
-	// 	output = strings.ReplaceAll(output, " ", "")
-	// 	output = strings.ReplaceAll(output, "\n", "")
-	// 	if output != expectedOutput {
-	// 		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
-	// 	}
+	input = "hello #world"
+	expectedOutput = `
+	AND (EXISTS (
+	            SELECT 1 FROM card_tags
+	            JOIN tags ON card_tags.tag_id = tags.id
+	            WHERE card_tags.card_pk = cards.id AND tags.name = 'world' AND tags.is_deleted = FALSE
+	        )) AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%'))
+			`
+	expectedOutput = strings.ReplaceAll(expectedOutput, " ", "")
+	expectedOutput = strings.ReplaceAll(expectedOutput, "\n", "")
+	expectedOutput = strings.ReplaceAll(expectedOutput, "\t", "")
+	output = BuildPartialCardSqlSearchTermString(input, false)
+	output = strings.ReplaceAll(output, " ", "")
+	output = strings.ReplaceAll(output, "\n", "")
+	if output != expectedOutput {
+		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
+	}
 
+}
+
+func TestBuildPartialCardSqlSearchTermStringNegate(t *testing.T) {
+
+	input := "hello !world"
+	expectedOutput := " AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%')) AND (NOT (card_id ILIKE '%world%' OR title ILIKE '%world%'))"
+	output := BuildPartialCardSqlSearchTermString(input, false)
+	if output != expectedOutput {
+		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
+	}
+
+	input = "hello !#world"
+	expectedOutput = `
+AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%')) AND (NOT EXISTS (
+            SELECT 1 FROM card_tags
+            JOIN tags ON card_tags.tag_id = tags.id
+            WHERE card_tags.card_pk = cards.id AND tags.name = 'world' AND tags.is_deleted = FALSE
+        ))
+`
+	expectedOutput = strings.ReplaceAll(expectedOutput, " ", "")
+	expectedOutput = strings.ReplaceAll(expectedOutput, "\n", "")
+	expectedOutput = strings.ReplaceAll(expectedOutput, "\t", "")
+	output = BuildPartialCardSqlSearchTermString(input, false)
+	output = strings.ReplaceAll(output, " ", "")
+	output = strings.ReplaceAll(output, "\n", "")
+	if output != expectedOutput {
+		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
+	}
 }
