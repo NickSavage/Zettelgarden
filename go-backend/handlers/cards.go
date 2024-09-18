@@ -825,7 +825,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 
 	// set parent id to id if there's no parent
-	if parent.ID == 0 {
+	if parent.ID == 0 || params.CardID == "" {
 		parent_id = cardPK
 	} else {
 		parent_id = parent.ID
@@ -871,7 +871,7 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	card, err := s.QueryFullCard(userID, id)
 
 	// set parent id to id if there's no parent
-	if parent.ID == 0 {
+	if parent.ID == 0 || params.CardID == "" {
 		_, err = s.DB.Exec("UPDATE cards SET parent_id = $1 WHERE id = $1", id)
 		if err != nil {
 			return models.Card{}, err
