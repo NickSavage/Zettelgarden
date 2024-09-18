@@ -40,6 +40,7 @@ public class CardViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.card = fetchedCard
                     print("loaded card \(cardPK)")
+                    print(fetchedCard)
                 }
             case .failure(let error):
                 print("Unable to load card: \(error.localizedDescription)")

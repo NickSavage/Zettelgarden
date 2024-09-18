@@ -5,6 +5,11 @@ public func getTestNavigationViewModel() -> NavigationViewModel {
     return result
 }
 
+public func getTestCardViewModel() -> CardViewModel {
+    let result = CardViewModel()
+    result.card = Card.sampleData[0]
+    return result
+}
 public func getTestTaskListViewModel() -> TaskListViewModel {
     let viewModel = TaskListViewModel()
     viewModel.loadTestTasks(tasks: ZTask.sampleData)
