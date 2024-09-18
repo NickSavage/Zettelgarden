@@ -2,6 +2,7 @@ import SwiftUI
 import ZettelgardenShared
 
 struct CardDisplayView: View {
+    @ObservedObject var cardListViewModel: PartialCardViewModel
     @ObservedObject var cardViewModel: CardViewModel
     @ObservedObject var navigationViewModel: NavigationViewModel
     @State private var isPresentingEditView = false
@@ -112,18 +113,24 @@ struct CardDisplayView: View {
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
-            EditCardView(cardViewModel: cardViewModel)
+            EditCardView(
+                cardListViewModel: cardListViewModel,
+                cardViewModel: cardViewModel,
+                navigationViewModel: navigationViewModel
+            )
         }
     }
 }
 
 struct CardDisplayView_Previews: PreviewProvider {
     static var previews: some View {
+        let mockViewModel = PartialCardViewModel()
         let mockCardViewModel = getTestCardViewModel()
         let mockNavigationViewModel = getTestNavigationViewModel()
 
         // Return a preview of the CardListItem with the mock data
         return CardDisplayView(
+            cardListViewModel: mockViewModel,
             cardViewModel: mockCardViewModel,
             navigationViewModel: mockNavigationViewModel
         )

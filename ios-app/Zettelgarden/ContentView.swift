@@ -42,6 +42,7 @@ struct ContentView: View {
                 }
                 else if navigationViewModel.selection == .card {
                     CardDisplayView(
+                        cardListViewModel: partialViewModel,
                         cardViewModel: cardViewModel,
                         navigationViewModel: navigationViewModel
                     )

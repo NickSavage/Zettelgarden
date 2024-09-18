@@ -2,10 +2,12 @@ import SwiftUI
 import ZettelgardenShared
 
 struct EditCardView: View {
-    //    @ObservedObject var cardListViewModel: PartialCardViewModel
+    @ObservedObject var cardListViewModel: PartialCardViewModel
     @ObservedObject var cardViewModel: CardViewModel
+    @ObservedObject var navigationViewModel: NavigationViewModel
     @State private var cardCopy: Card = Card.emptyCard
     @State private var showAlert = false
+    @State private var isBacklinkInputPresented = false
 
     @State private var message: String = ""
 
@@ -13,57 +15,75 @@ struct EditCardView: View {
 
         Text(message)
         if let card = cardViewModel.card {
-            Form {
-                Section(header: Text("Card Details")) {
-                    TextField("Card ID", text: $cardCopy.card_id)
-                    TextField("Title", text: $cardCopy.title)
-                    TextEditor(text: $cardCopy.body)
-                        .frame(height: 200)
-                    TextField("Link", text: $cardCopy.link)
+            VStack {
+                Form {
+                    Section(header: Text("Card Details")) {
+                        TextField("Card ID", text: $cardCopy.card_id)
+                        TextField("Title", text: $cardCopy.title)
+                        TextEditor(text: $cardCopy.body)
+                            .frame(height: 200)
+                        TextField("Link", text: $cardCopy.link)
+                    }
+                }
+                Button(action: {
+                    isBacklinkInputPresented.toggle()
+                }) {
+                    Text("Add Backlink")
+                }
+                Button(action: {
+                    cardViewModel.card = cardCopy
+                    cardViewModel.saveCard()
+                    message = "Card Updated"
+
+                }) {
+                    Text("Save")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                .padding()
+                Button(action: {
+                    showAlert = true
+
+                }) {
+                    Text("Delete")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.red)
+                        .cornerRadius(10)
+                }
+                .padding()
+                .alert(isPresented: $showAlert) {
+                    Alert(
+                        title: Text("Warning"),
+                        message: Text(
+                            "Are you sure you want to delete this card? This action cannot be undone."
+                        ),
+                        primaryButton: .destructive(Text("Delete")) {
+                            cardViewModel.sendDeleteCard()
+                            message = "Card Deleted"
+                        },
+                        secondaryButton: .cancel()
+                    )
+                }
+
+                .onAppear {
+                    cardCopy = card
                 }
             }
-            Button(action: {
-                cardViewModel.card = cardCopy
-                cardViewModel.saveCard()
-                message = "Card Updated"
-
-            }) {
-                Text("Save")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .padding()
-            Button(action: {
-                showAlert = true
-
-            }) {
-                Text("Delete")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.red)
-                    .cornerRadius(10)
-            }
-            .padding()
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("Warning"),
-                    message: Text(
-                        "Are you sure you want to delete this card? This action cannot be undone."
-                    ),
-                    primaryButton: .destructive(Text("Delete")) {
-                        cardViewModel.sendDeleteCard()
-                        message = "Card Deleted"
-                    },
-                    secondaryButton: .cancel()
+            .sheet(isPresented: $isBacklinkInputPresented) {
+                BacklinkInputView(
+                    card: $cardCopy,
+                    viewModel: cardListViewModel,
+                    navigationViewModel: navigationViewModel,
+                    onCardSelect: { selectedCard in
+                        cardCopy.body = cardCopy.body + "\n\n[\(selectedCard.card_id)]"
+                    }
                 )
-            }
-
-            .onAppear {
-                cardCopy = card
+                .presentationDetents([.medium, .large])
             }
 
         }
@@ -76,12 +96,18 @@ struct EditCardView_Previews: PreviewProvider {
         //     let mockViewModel = PartialCardViewModel()
         let mockCard = CardViewModel()
         mockCard.loadTestCard(card: Card.sampleData[0])
+        let mockNavigationViewModel = getTestNavigationViewModel()
+        let mockViewModel = PartialCardViewModel()
 
         // Return a preview of the CardListItem with the mock data
         //return EditCardView(cardListViewModel: mockViewModel, cardViewModel: mockCard)
-        return EditCardView(cardViewModel: mockCard)
-            .previewLayout(.sizeThatFits)
-            .padding()  // Add some padding for better appearance in the preview
+        return EditCardView(
+            cardListViewModel: mockViewModel,
+            cardViewModel: mockCard,
+            navigationViewModel: mockNavigationViewModel
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()  // Add some padding for better appearance in the preview
     }
 
 }
