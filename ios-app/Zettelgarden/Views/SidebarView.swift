@@ -93,7 +93,10 @@ struct SidebarView: View {
                     AddTaskView(taskListViewModel: taskListViewModel)
                 }
                 .sheet(isPresented: $showingAddCardView) {
-                    AddCardView(cardListViewModel: partialViewModel)
+                    AddCardView(
+                        cardListViewModel: partialViewModel,
+                        navigationViewModel: navigationViewModel
+                    )
                 }
                 .sheet(isPresented: $showingAddRecordingView) {
                     AddRecordingView(cardListViewModel: partialViewModel)

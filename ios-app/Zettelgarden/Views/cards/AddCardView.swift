@@ -3,12 +3,11 @@ import ZettelgardenShared
 
 struct AddCardView: View {
     @ObservedObject var cardListViewModel: PartialCardViewModel
+    @ObservedObject var navigationViewModel: NavigationViewModel
+
+    @State private var isBacklinkInputPresented = false
 
     @State private var newCard: Card = Card.emptyCard
-    @State private var cardID: String = ""
-    @State private var title: String = ""
-    @State private var bodyText: String = ""
-    @State private var link: String = ""
     @State private var message: String = ""
 
     private func saveCard() {
@@ -16,39 +15,64 @@ struct AddCardView: View {
         cardListViewModel.loadCards()
         self.message = "card created"
     }
+
+    private func addBacklink(card: PartialCard) {
+
+    }
     var body: some View {
-        Text(message)
-        Form {
-            Section(header: Text("Card Details")) {
-                TextField("Card ID", text: $newCard.card_id)
-                TextField("Title", text: $newCard.title)
-                TextEditor(text: $newCard.body)
-                    .frame(height: 200)
-                TextField("Link", text: $newCard.link)
+        VStack {
+            Text(message)
+            Form {
+                Section(header: Text("Card Details")) {
+                    TextField("Card ID", text: $newCard.card_id)
+                    TextField("Title", text: $newCard.title)
+                    TextEditor(text: $newCard.body)
+                        .frame(height: 200)
+                    TextField("Link", text: $newCard.link)
+                }
             }
+            Button(action: {
+                isBacklinkInputPresented.toggle()
+            }) {
+                Text("Add Backlink")
+            }
+            Button(action: {
+                saveCard()
+            }) {
+                Text("Save")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
+            .padding()
         }
-        Button(action: {
-            saveCard()
-        }) {
-            Text("Save")
-                .frame(maxWidth: .infinity)
-                .padding()
-                .foregroundColor(.white)
-                .background(Color.blue)
-                .cornerRadius(10)
+        .sheet(isPresented: $isBacklinkInputPresented) {
+            BacklinkInputView(
+                card: $newCard,
+                viewModel: cardListViewModel,
+                navigationViewModel: navigationViewModel,
+                onCardSelect: { selectedCard in
+                    newCard.body = newCard.body + "\n\n[\(selectedCard.card_id)]"
+                }
+            )
+            .presentationDetents([.medium, .large])
         }
-        .padding()
     }
 }
 
 struct AddCardView_Previews: PreviewProvider {
     static var previews: some View {
         let mockViewModel = PartialCardViewModel()
+        let mockNavigationViewModel = getTestNavigationViewModel()
 
-        // Return a preview of the CardListItem with the mock data
-        return AddCardView(cardListViewModel: mockViewModel)
-            .previewLayout(.sizeThatFits)
-            .padding()  // Add some padding for better appearance in the preview
+        return AddCardView(
+            cardListViewModel: mockViewModel,
+            navigationViewModel: mockNavigationViewModel
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()
     }
 
 }

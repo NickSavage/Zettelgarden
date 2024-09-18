@@ -5,6 +5,11 @@ public func getTestNavigationViewModel() -> NavigationViewModel {
     return result
 }
 
+public func getTestPartialCardViewModel() -> PartialCardViewModel {
+    let result = PartialCardViewModel()
+    result.loadTestCards(cards: PartialCard.sampleData)
+    return result
+}
 public func getTestCardViewModel() -> CardViewModel {
     let result = CardViewModel()
     result.card = Card.sampleData[0]

@@ -83,6 +83,10 @@ public class PartialCardViewModel: ObservableObject {
         }
     }
 
+    public func loadTestCards(cards: [PartialCard]) {
+        self.cards = cards
+    }
+
     public func createNewCard(card: Card) {
         guard let token = token else {
             return
