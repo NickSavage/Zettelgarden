@@ -83,7 +83,7 @@ func addRoute(r *mux.Router, path string, handler http.HandlerFunc, method strin
 }
 
 func main() {
-	file, err := openLogFile(os.Getenv("ZETTEL_BACKEND_LOG_LOCATION"))
+	file, err := handlers.OpenLogFile(os.Getenv("ZETTEL_BACKEND_LOG_LOCATION"))
 	if err != nil {
 		log.Fatal(err)
 	}
