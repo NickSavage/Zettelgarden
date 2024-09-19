@@ -13,7 +13,7 @@ struct ContentView: View {
     @State var isMenuOpen: Bool = false
     @Environment(\.scenePhase) private var scenePhase
     @StateObject var cardViewModel = CardViewModel()
-    @StateObject var partialViewModel = PartialCardViewModel()
+    @StateObject var partialCardViewModel = PartialCardViewModel()
     @StateObject var navigationViewModel: NavigationViewModel
     @StateObject var taskListViewModel = TaskListViewModel()
     @StateObject var tagViewModel = TagViewModel()
@@ -31,21 +31,13 @@ struct ContentView: View {
             VStack {
 
                 if navigationViewModel.selection == .tasks {
-                    TaskListView(taskListViewModel: taskListViewModel)
+                    TaskListView()
                 }
                 else if navigationViewModel.selection == .home {
-                    HomeView(
-                        cardViewModel: cardViewModel,
-                        navigationViewModel: navigationViewModel,
-                        partialViewModel: partialViewModel
-                    )
+                    CardListView()
                 }
                 else if navigationViewModel.selection == .card {
-                    CardDisplayView(
-                        cardListViewModel: partialViewModel,
-                        cardViewModel: cardViewModel,
-                        navigationViewModel: navigationViewModel
-                    )
+                    CardDisplayView()
                 }
                 else if navigationViewModel.selection == .files {
                     FileListView()
@@ -56,7 +48,7 @@ struct ContentView: View {
             }
             .environmentObject(tagViewModel)
             .environmentObject(cardViewModel)
-            .environmentObject(partialViewModel)
+            .environmentObject(partialCardViewModel)
             .environmentObject(navigationViewModel)
             .environmentObject(taskListViewModel)
             .overlay {
@@ -64,7 +56,7 @@ struct ContentView: View {
                     isMenuOpen: $isMenuOpen,
                     cardViewModel: cardViewModel,
                     navigationViewModel: navigationViewModel,
-                    partialViewModel: partialViewModel,
+                    partialViewModel: partialCardViewModel,
                     taskListViewModel: taskListViewModel
                 )
             }
@@ -101,13 +93,13 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            partialViewModel.displayOnlyTopLevel = true
-            partialViewModel.loadCards()
+            partialCardViewModel.displayOnlyTopLevel = true
+            partialCardViewModel.loadCards()
             navigationViewModel.visit(page: .tasks)
 
         }
         .onChange(of: scenePhase) { newPhase in
-            partialViewModel.onScenePhaseChanged(to: newPhase)
+            partialCardViewModel.onScenePhaseChanged(to: newPhase)
             taskListViewModel.onScenePhaseChanged(to: newPhase)
         }
     }

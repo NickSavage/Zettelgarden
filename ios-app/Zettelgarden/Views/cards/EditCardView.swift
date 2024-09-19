@@ -2,9 +2,9 @@ import SwiftUI
 import ZettelgardenShared
 
 struct EditCardView: View {
-    @ObservedObject var cardListViewModel: PartialCardViewModel
-    @ObservedObject var cardViewModel: CardViewModel
-    @ObservedObject var navigationViewModel: NavigationViewModel
+    @EnvironmentObject var cardListViewModel: PartialCardViewModel
+    @EnvironmentObject var cardViewModel: CardViewModel
+    @EnvironmentObject var navigationViewModel: NavigationViewModel
 
     @EnvironmentObject var tagViewModel: TagViewModel
     @State private var cardCopy: Card = Card.emptyCard
@@ -121,13 +121,9 @@ struct EditCardView_Previews: PreviewProvider {
 
         // Return a preview of the CardListItem with the mock data
         //return EditCardView(cardListViewModel: mockViewModel, cardViewModel: mockCard)
-        return EditCardView(
-            cardListViewModel: mockViewModel,
-            cardViewModel: mockCard,
-            navigationViewModel: mockNavigationViewModel
-        )
-        .previewLayout(.sizeThatFits)
-        .padding()  // Add some padding for better appearance in the preview
+        return EditCardView()
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
     }
 
 }

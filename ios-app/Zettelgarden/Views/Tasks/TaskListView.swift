@@ -2,7 +2,7 @@ import SwiftUI
 import ZettelgardenShared
 
 struct TaskListView: View {
-    @ObservedObject var taskListViewModel: TaskListViewModel
+    @EnvironmentObject var taskListViewModel: TaskListViewModel
     @State private var showingAddTaskView = false
     @State private var showingFilter = false
 
@@ -75,10 +75,8 @@ struct TaskListView_Preview: PreviewProvider {
     static var mockViewModel: TaskListViewModel = getTestTaskListViewModel()
 
     static var previews: some View {
-        TaskListView(
-            taskListViewModel: mockViewModel  // Use the static mockViewModel here
-        )
-        .previewLayout(.sizeThatFits)
-        .padding()  // Optional: improve appearance in the preview
+        TaskListView()
+            .previewLayout(.sizeThatFits)
+            .padding()
     }
 }

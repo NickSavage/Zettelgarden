@@ -2,9 +2,9 @@ import SwiftUI
 import ZettelgardenShared
 
 struct CardDisplayView: View {
-    @ObservedObject var cardListViewModel: PartialCardViewModel
-    @ObservedObject var cardViewModel: CardViewModel
-    @ObservedObject var navigationViewModel: NavigationViewModel
+    @EnvironmentObject var partialCardViewModel: PartialCardViewModel
+    @EnvironmentObject var cardViewModel: CardViewModel
+    @EnvironmentObject var navigationViewModel: NavigationViewModel
     @State private var isPresentingEditView = false
     @State private var showChildren = false
     @State private var showReferences = false
@@ -124,29 +124,18 @@ struct CardDisplayView: View {
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
-            EditCardView(
-                cardListViewModel: cardListViewModel,
-                cardViewModel: cardViewModel,
-                navigationViewModel: navigationViewModel
-            )
+            EditCardView()
         }
     }
 }
 
 struct CardDisplayView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockViewModel = PartialCardViewModel()
-        let mockCardViewModel = getTestCardViewModel()
-        let mockNavigationViewModel = getTestNavigationViewModel()
 
         // Return a preview of the CardListItem with the mock data
-        return CardDisplayView(
-            cardListViewModel: mockViewModel,
-            cardViewModel: mockCardViewModel,
-            navigationViewModel: mockNavigationViewModel
-        )
-        .previewLayout(.sizeThatFits)
-        .padding()  // Add some padding for better appearance in the preview
+        return CardDisplayView()
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
     }
 
 }
