@@ -101,7 +101,7 @@ struct ContentView: View {
         .onChange(of: scenePhase) { newPhase in
             partialCardViewModel.onScenePhaseChanged(to: newPhase)
             taskListViewModel.onScenePhaseChanged(to: newPhase)
-        }
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
