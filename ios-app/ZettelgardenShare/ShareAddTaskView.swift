@@ -51,7 +51,8 @@ struct ShareAddTaskView: View {
             title: title,
             is_complete: false,
             is_deleted: false,
-            card: nil
+            card: nil,
+            tags: []
         )
         taskListViewModel.createNewTask(newTask: newTask)
         extensionContext!.completeRequest(returningItems: nil, completionHandler: nil)

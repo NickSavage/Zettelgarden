@@ -48,7 +48,8 @@ struct AddTaskView: View {
             title: title,
             is_complete: false,
             is_deleted: false,
-            card: nil
+            card: nil,
+            tags: []
         )
         taskListViewModel.createNewTask(newTask: newTask)
         taskListViewModel.loadTasks()  // Assuming this refreshes the tasks list
