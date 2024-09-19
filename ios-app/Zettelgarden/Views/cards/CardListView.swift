@@ -19,8 +19,7 @@ struct CardListView: View {
                 List {
                     ForEach(viewModel.cards ?? [], id: \.card_id) { card in
                         CardListItem(
-                            card: card,
-                            navigationViewModel: navigationViewModel
+                            card: card
                         )
                     }
                 }

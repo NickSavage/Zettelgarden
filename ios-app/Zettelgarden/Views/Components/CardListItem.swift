@@ -10,7 +10,7 @@ import ZettelgardenShared
 
 struct CardListItem: View {
     let card: PartialCard
-    @ObservedObject var navigationViewModel: NavigationViewModel
+    @EnvironmentObject var navigationViewModel: NavigationViewModel
 
     var body: some View {
         VStack {
@@ -34,7 +34,7 @@ struct CardListItem_Previews: PreviewProvider {
         let mockNavigationViewModel = getTestNavigationViewModel()
 
         // Return a preview of the CardListItem with the mock data
-        return CardListItem(card: mockCard, navigationViewModel: mockNavigationViewModel)
+        return CardListItem(card: mockCard)
             .previewLayout(.sizeThatFits)
             .padding()  // Add some padding for better appearance in the preview
     }

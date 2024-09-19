@@ -38,8 +38,7 @@ struct CardDisplayView: View {
                                 if let parentCard = card.parent {
                                     Text("Parent").bold()
                                     CardListItem(
-                                        card: parentCard,
-                                        navigationViewModel: navigationViewModel
+                                        card: parentCard
                                     )
                                 }
                             }.padding()
@@ -73,8 +72,7 @@ struct CardDisplayView: View {
                                 LazyVStack(alignment: .leading) {
                                     ForEach(card.references.reversed()) { childCard in
                                         CardListItem(
-                                            card: childCard,
-                                            navigationViewModel: navigationViewModel
+                                            card: childCard
                                         )
                                         .padding()
                                     }
@@ -90,8 +88,7 @@ struct CardDisplayView: View {
                                 LazyVStack(alignment: .leading) {
                                     ForEach(card.children.reversed()) { childCard in
                                         CardListItem(
-                                            card: childCard,
-                                            navigationViewModel: navigationViewModel
+                                            card: childCard
                                         )
                                         .padding()
                                     }

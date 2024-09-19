@@ -83,7 +83,6 @@
 		01FC26722C77B59000039EDA /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888192BFB5F7D00B3ACF1 /* File.swift */; };
 		01FC26732C77B5BD00039EDA /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
 		01FC26752C77B5D000039EDA /* Cards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC26742C77B5D000039EDA /* Cards.swift */; };
-		01FC26762C77B6BB00039EDA /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
 		01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1D2C3E958100918E10 /* TaskViewModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -222,7 +221,6 @@
 		01953ED82C769FE900F44FAD /* ZTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZTask.swift; sourceTree = "<group>"; };
 		01953EDA2C76A10700F44FAD /* PartialCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCard.swift; sourceTree = "<group>"; };
 		01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
-		01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
 		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
@@ -490,7 +488,6 @@
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
 				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
 				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
-				01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */,
 				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
 				01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */,
 				016D00012C6CE0EF00339760 /* NavigationViewModel.swift */,
@@ -820,7 +817,6 @@
 				01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */,
 				011785452C8BD99C00FA1052 /* FileViewModel.swift in Sources */,
 				011785442C8BD97B00FA1052 /* FileListViewModel.swift in Sources */,
-				01FC26762C77B6BB00039EDA /* SearchViewModel.swift in Sources */,
 				01FC266F2C77B4F900039EDA /* ContentViewSelection.swift in Sources */,
 				0172F71A2C79F779000F3CEB /* Http.swift in Sources */,
 				01953ED62C769FD500F44FAD /* Tasks.swift in Sources */,

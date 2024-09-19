@@ -13,7 +13,6 @@ struct ContentView: View {
     @State var isMenuOpen: Bool = false
     @Environment(\.scenePhase) private var scenePhase
     @StateObject var cardViewModel = CardViewModel()
-    @StateObject var searchViewModel = SearchViewModel()
     @StateObject var partialViewModel = PartialCardViewModel()
     @StateObject var navigationViewModel: NavigationViewModel
     @StateObject var taskListViewModel = TaskListViewModel()
@@ -56,6 +55,10 @@ struct ContentView: View {
                 }
             }
             .environmentObject(tagViewModel)
+            .environmentObject(cardViewModel)
+            .environmentObject(partialViewModel)
+            .environmentObject(navigationViewModel)
+            .environmentObject(taskListViewModel)
             .overlay {
                 SidebarView(
                     isMenuOpen: $isMenuOpen,
