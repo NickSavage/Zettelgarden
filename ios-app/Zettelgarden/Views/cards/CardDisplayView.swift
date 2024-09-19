@@ -45,6 +45,20 @@ struct CardDisplayView: View {
                             }.padding()
 
                             VStack(alignment: .leading) {
+
+                                HStack {
+                                    ForEach(card.tags, id: \.id) { tag in
+                                        Button(action: {
+                                        }) {
+                                            Text(tag.name)
+                                                .padding(8)
+                                                .background(Color.purple.opacity(0.2))
+                                                .foregroundColor(.purple)
+                                                .cornerRadius(8)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                    }
+                                }
                                 Text("Created at: \(card.created_at, style: .date)")
                                 Text("Updated at: \(card.updated_at, style: .date)")
                             }
