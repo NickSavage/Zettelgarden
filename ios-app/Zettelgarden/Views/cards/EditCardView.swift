@@ -5,9 +5,12 @@ struct EditCardView: View {
     @ObservedObject var cardListViewModel: PartialCardViewModel
     @ObservedObject var cardViewModel: CardViewModel
     @ObservedObject var navigationViewModel: NavigationViewModel
+
+    @EnvironmentObject var tagViewModel: TagViewModel
     @State private var cardCopy: Card = Card.emptyCard
     @State private var showAlert = false
     @State private var isBacklinkInputPresented = false
+    @State private var showAddTagsSheet = false
 
     @State private var message: String = ""
 
@@ -38,7 +41,8 @@ struct EditCardView: View {
                     .contextMenu {
                         EditCardContextMenu(
                             showDeleteAlert: $showAlert,
-                            isBacklinkInputPresented: $isBacklinkInputPresented
+                            isBacklinkInputPresented: $isBacklinkInputPresented,
+                            showAddTagsSheet: $showAddTagsSheet
                         )
                     }
                 }
@@ -80,6 +84,26 @@ struct EditCardView: View {
                     }
                 )
                 .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showAddTagsSheet) {
+                VStack {
+                    if let tags = tagViewModel.tags {  // Unwrap optional tags safely
+                        ForEach(tags, id: \.id) { tag in  // Use tag.id since Tag already conforms to Identifiable
+                            Button(action: {
+                                cardCopy.body = cardCopy.body + "\n\n#" + tag.name
+                                showAddTagsSheet = false
+                            }) {
+                                Text(tag.name)
+                            }
+                            .padding(.vertical, 2)  // Add some vertical padding between buttons
+                        }
+                    }
+                    else {
+                        Text("No Tags Available")  // Default view when tags are nil
+                            .padding()
+                    }
+                }
+
             }
 
         }

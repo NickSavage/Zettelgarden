@@ -17,6 +17,7 @@ struct ContentView: View {
     @StateObject var partialViewModel = PartialCardViewModel()
     @StateObject var navigationViewModel: NavigationViewModel
     @StateObject var taskListViewModel = TaskListViewModel()
+    @StateObject var tagViewModel = TagViewModel()
 
     init() {
         let cardViewModel = CardViewModel()
@@ -54,6 +55,7 @@ struct ContentView: View {
                     SettingsView()
                 }
             }
+            .environmentObject(tagViewModel)
             .overlay {
                 SidebarView(
                     isMenuOpen: $isMenuOpen,

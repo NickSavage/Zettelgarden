@@ -44,6 +44,9 @@
 		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
 		018523F72C9AD3CE00B3002D /* BacklinkInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */; };
 		018523F92C9BA50A00B3002D /* EditCardContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */; };
+		018523FC2C9BA86F00B3002D /* TagViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FB2C9BA86F00B3002D /* TagViewModel.swift */; };
+		018523FE2C9BA8B100B3002D /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FD2C9BA8B100B3002D /* Tags.swift */; };
+		018524002C9BA8B900B3002D /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FF2C9BA8B900B3002D /* Tag.swift */; };
 		01953E732C72040A00F44FAD /* FloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E722C72040A00F44FAD /* FloatingButton.swift */; };
 		01953E7B2C7681B700F44FAD /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E7A2C7681B700F44FAD /* ShareViewController.swift */; };
 		01953E822C7681B700F44FAD /* ZettelgardenShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 01953E782C7681B700F44FAD /* ZettelgardenShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -203,6 +206,9 @@
 		01759F232C3F666C00918E10 /* EditTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTaskView.swift; sourceTree = "<group>"; };
 		018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklinkInputView.swift; sourceTree = "<group>"; };
 		018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCardContextMenu.swift; sourceTree = "<group>"; };
+		018523FB2C9BA86F00B3002D /* TagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViewModel.swift; sourceTree = "<group>"; };
+		018523FD2C9BA8B100B3002D /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
+		018523FF2C9BA8B900B3002D /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		01953E722C72040A00F44FAD /* FloatingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingButton.swift; sourceTree = "<group>"; };
 		01953E782C7681B700F44FAD /* ZettelgardenShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ZettelgardenShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		01953E7A2C7681B700F44FAD /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
@@ -439,6 +445,7 @@
 		01953ECB2C7696AE00F44FAD /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				018523FF2C9BA8B900B3002D /* Tag.swift */,
 				0172F7192C79F779000F3CEB /* Http.swift */,
 				01201F862BF2BBCE00DF973E /* Card.swift */,
 				010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */,
@@ -466,6 +473,7 @@
 		01953ED42C769FCB00F44FAD /* Api */ = {
 			isa = PBXGroup;
 			children = (
+				018523FD2C9BA8B100B3002D /* Tags.swift */,
 				0172F71B2C7A0C6E000F3CEB /* Files.swift */,
 				01953ED52C769FD500F44FAD /* Tasks.swift */,
 				01FC26742C77B5D000039EDA /* Cards.swift */,
@@ -476,6 +484,7 @@
 		01953ED72C769FDD00F44FAD /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				018523FB2C9BA86F00B3002D /* TagViewModel.swift */,
 				01C74F5E2C7F393D00605719 /* AuthViewModel.swift */,
 				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
@@ -823,6 +832,7 @@
 				01FC26712C77B52C00039EDA /* Card.swift in Sources */,
 				0172F7102C793668000F3CEB /* Test.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
+				018523FE2C9BA8B100B3002D /* Tags.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				0172F7202C7D0382000F3CEB /* SpeechRecognizer.swift in Sources */,
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
@@ -830,8 +840,10 @@
 				01953ED32C769EBD00F44FAD /* HttpRequests.swift in Sources */,
 				01C74F5F2C7F393E00605719 /* AuthViewModel.swift in Sources */,
 				0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */,
+				018523FC2C9BA86F00B3002D /* TagViewModel.swift in Sources */,
 				01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */,
 				01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */,
+				018524002C9BA8B900B3002D /* Tag.swift in Sources */,
 				01C74F652C833C9300605719 /* Strings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
