@@ -40,7 +40,6 @@ struct ShareAddCardView: View {
     }
 
     private func saveCard() {
-        var newCard = Card.emptyCard
         cardListViewModel.createNewCard(card: newCard)
         extensionContext!.completeRequest(returningItems: nil, completionHandler: nil)
     }

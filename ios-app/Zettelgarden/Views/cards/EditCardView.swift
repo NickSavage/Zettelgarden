@@ -16,6 +16,32 @@ struct EditCardView: View {
         Text(message)
         if let card = cardViewModel.card {
             VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {}) {
+                        Image(systemName: "line.3.horizontal.circle")
+                    }
+                    .padding()
+                    .alert(isPresented: $showAlert) {
+                        Alert(
+                            title: Text("Warning"),
+                            message: Text(
+                                "Are you sure you want to delete this card? This action cannot be undone."
+                            ),
+                            primaryButton: .destructive(Text("Delete")) {
+                                cardViewModel.sendDeleteCard()
+                                message = "Card Deleted"
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+                    .contextMenu {
+                        EditCardContextMenu(
+                            showDeleteAlert: $showAlert,
+                            isBacklinkInputPresented: $isBacklinkInputPresented
+                        )
+                    }
+                }
                 Form {
                     Section(header: Text("Card Details")) {
                         TextField("Card ID", text: $cardCopy.card_id)
@@ -24,11 +50,6 @@ struct EditCardView: View {
                             .frame(height: 200)
                         TextField("Link", text: $cardCopy.link)
                     }
-                }
-                Button(action: {
-                    isBacklinkInputPresented.toggle()
-                }) {
-                    Text("Add Backlink")
                 }
                 Button(action: {
                     cardViewModel.card = cardCopy
@@ -44,31 +65,6 @@ struct EditCardView: View {
                         .cornerRadius(10)
                 }
                 .padding()
-                Button(action: {
-                    showAlert = true
-
-                }) {
-                    Text("Delete")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.red)
-                        .cornerRadius(10)
-                }
-                .padding()
-                .alert(isPresented: $showAlert) {
-                    Alert(
-                        title: Text("Warning"),
-                        message: Text(
-                            "Are you sure you want to delete this card? This action cannot be undone."
-                        ),
-                        primaryButton: .destructive(Text("Delete")) {
-                            cardViewModel.sendDeleteCard()
-                            message = "Card Deleted"
-                        },
-                        secondaryButton: .cancel()
-                    )
-                }
 
                 .onAppear {
                     cardCopy = card

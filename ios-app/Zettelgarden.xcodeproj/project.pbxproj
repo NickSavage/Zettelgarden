@@ -43,6 +43,7 @@
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
 		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
 		018523F72C9AD3CE00B3002D /* BacklinkInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */; };
+		018523F92C9BA50A00B3002D /* EditCardContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */; };
 		01953E732C72040A00F44FAD /* FloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E722C72040A00F44FAD /* FloatingButton.swift */; };
 		01953E7B2C7681B700F44FAD /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E7A2C7681B700F44FAD /* ShareViewController.swift */; };
 		01953E822C7681B700F44FAD /* ZettelgardenShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 01953E782C7681B700F44FAD /* ZettelgardenShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -201,6 +202,7 @@
 		01759F212C3F38CF00918E10 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		01759F232C3F666C00918E10 /* EditTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTaskView.swift; sourceTree = "<group>"; };
 		018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklinkInputView.swift; sourceTree = "<group>"; };
+		018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCardContextMenu.swift; sourceTree = "<group>"; };
 		01953E722C72040A00F44FAD /* FloatingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingButton.swift; sourceTree = "<group>"; };
 		01953E782C7681B700F44FAD /* ZettelgardenShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ZettelgardenShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		01953E7A2C7681B700F44FAD /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 		0172F7222C7D1024000F3CEB /* cards */ = {
 			isa = PBXGroup;
 			children = (
+				018523FA2C9BA51200B3002D /* components */,
 				01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */,
 				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
 				01C74F5B2C7EA20000605719 /* EditCardView.swift */,
@@ -397,6 +400,14 @@
 				0172F7212C7D1024000F3CEB /* AddCardView.swift */,
 			);
 			path = cards;
+			sourceTree = "<group>";
+		};
+		018523FA2C9BA51200B3002D /* components */ = {
+			isa = PBXGroup;
+			children = (
+				018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */,
+			);
+			path = components;
 			sourceTree = "<group>";
 		};
 		01953E792C7681B700F44FAD /* ZettelgardenShare */ = {
@@ -741,6 +752,7 @@
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
 				0172F7232C7D1024000F3CEB /* AddCardView.swift in Sources */,
+				018523F92C9BA50A00B3002D /* EditCardContextMenu.swift in Sources */,
 				01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */,
 				0172F7252C7D4A7B000F3CEB /* AddRecordingView.swift in Sources */,
 				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,
