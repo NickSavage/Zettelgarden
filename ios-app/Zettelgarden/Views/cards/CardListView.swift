@@ -26,5 +26,6 @@ struct CardListView: View {
                 }
             }
         }
+        .toolbar { CardListOptionsMenu() }
     }
 }

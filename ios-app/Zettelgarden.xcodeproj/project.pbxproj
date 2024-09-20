@@ -62,6 +62,7 @@
 		01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDA2C76A10700F44FAD /* PartialCard.swift */; };
 		01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */; };
 		019AF16C2C9D7F9F00A99FFA /* AddCardTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */; };
+		019AF16E2C9E0EF000A99FFA /* CardListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019AF16D2C9E0EF000A99FFA /* CardListOptionsMenu.swift */; };
 		01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */; };
 		01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */; };
 		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
@@ -223,6 +224,7 @@
 		01953EDA2C76A10700F44FAD /* PartialCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCard.swift; sourceTree = "<group>"; };
 		01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
 		019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardTagsView.swift; sourceTree = "<group>"; };
+		019AF16D2C9E0EF000A99FFA /* CardListOptionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListOptionsMenu.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
 		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
@@ -411,6 +413,7 @@
 		018523FA2C9BA51200B3002D /* components */ = {
 			isa = PBXGroup;
 			children = (
+				019AF16D2C9E0EF000A99FFA /* CardListOptionsMenu.swift */,
 				019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */,
 				018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */,
 			);
@@ -776,6 +779,7 @@
 				013C75E72C6EA7A100838E7B /* TaskListContextMenu.swift in Sources */,
 				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
 				018523F72C9AD3CE00B3002D /* BacklinkInputView.swift in Sources */,
+				019AF16E2C9E0EF000A99FFA /* CardListOptionsMenu.swift in Sources */,
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
 				01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */,
 				0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */,

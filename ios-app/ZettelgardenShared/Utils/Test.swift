@@ -28,3 +28,9 @@ public func getTestTaskViewModel() -> TaskViewModel {
     return viewModel
 
 }
+
+public func getTestTagViewModel() -> TagViewModel {
+    let viewModel = TagViewModel()
+    viewModel.tags = Tag.sampleData
+    return viewModel
+}
