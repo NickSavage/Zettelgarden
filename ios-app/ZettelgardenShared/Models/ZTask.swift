@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
+public struct ZTask: Identifiable, Decodable, Encodable {
     public var id: Int
     public var card_pk: Int
     public var user_id: Int
@@ -19,6 +19,7 @@ public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
     public var is_complete: Bool
     public var is_deleted: Bool
     public var card: PartialCard?
+    public var tags: [Tag]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -32,6 +33,7 @@ public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         case is_complete
         case is_deleted
         case card
+        case tags
     }
 
     public init(from decoder: Decoder) throws {
@@ -56,6 +58,7 @@ public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         )
         completed_at = parseDate(input: completedAtString)
         card = try container.decodeIfPresent(PartialCard.self, forKey: .card)
+        tags = try container.decodeIfPresent([Tag].self, forKey: .tags) ?? []
     }
 
     public init(
@@ -69,7 +72,8 @@ public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         title: String,
         is_complete: Bool,
         is_deleted: Bool,
-        card: PartialCard?
+        card: PartialCard?,
+        tags: [Tag]
     ) {
         self.id = id
         self.card_pk = card_pk
@@ -82,6 +86,7 @@ public struct ZTask: Identifiable, Decodable, Encodable, Equatable {
         self.is_complete = is_complete
         self.is_deleted = is_deleted
         self.card = card
+        self.tags = tags
     }
 }
 
@@ -126,7 +131,8 @@ extension ZTask {
                 title: "Daily Standup Meeting #is #hi http://google.com",
                 is_complete: false,
                 is_deleted: false,
-                card: nil  // Or provide a mock PartialCard if needed
+                card: nil,
+                tags: []
             ),
             ZTask(
                 id: 2,
@@ -139,7 +145,8 @@ extension ZTask {
                 title: "Weekly Sync-up #recurring",
                 is_complete: false,
                 is_deleted: false,
-                card: nil
+                card: nil,
+                tags: []
             ),
             ZTask(
                 id: 3,
@@ -152,7 +159,8 @@ extension ZTask {
                 title: "Write Quarterly Report #report",
                 is_complete: false,
                 is_deleted: false,
-                card: nil
+                card: nil,
+                tags: []
             ),
             ZTask(
                 id: 4,
@@ -165,7 +173,8 @@ extension ZTask {
                 title: "Submit Expense Reports #task",
                 is_complete: true,
                 is_deleted: false,
-                card: nil
+                card: nil,
+                tags: []
             ),
             ZTask(
                 id: 5,
@@ -178,7 +187,8 @@ extension ZTask {
                 title: "Brainstorm Session #work #todo",
                 is_complete: false,
                 is_deleted: false,
-                card: nil
+                card: nil,
+                tags: []
             ),
         ]
     }

@@ -8,6 +8,7 @@ func cardToPartialCard(card: Card) -> PartialCard {
         user_id: card.user_id,
         title: card.title,
         created_at: card.created_at,
-        updated_at: card.updated_at
+        updated_at: card.updated_at,
+        tags: card.tags
     )
 }

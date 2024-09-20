@@ -43,6 +43,10 @@
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
 		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
 		018523F72C9AD3CE00B3002D /* BacklinkInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */; };
+		018523F92C9BA50A00B3002D /* EditCardContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */; };
+		018523FC2C9BA86F00B3002D /* TagViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FB2C9BA86F00B3002D /* TagViewModel.swift */; };
+		018523FE2C9BA8B100B3002D /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FD2C9BA8B100B3002D /* Tags.swift */; };
+		018524002C9BA8B900B3002D /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FF2C9BA8B900B3002D /* Tag.swift */; };
 		01953E732C72040A00F44FAD /* FloatingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E722C72040A00F44FAD /* FloatingButton.swift */; };
 		01953E7B2C7681B700F44FAD /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953E7A2C7681B700F44FAD /* ShareViewController.swift */; };
 		01953E822C7681B700F44FAD /* ZettelgardenShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 01953E782C7681B700F44FAD /* ZettelgardenShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -57,6 +61,7 @@
 		01953ED92C769FE900F44FAD /* ZTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953ED82C769FE900F44FAD /* ZTask.swift */; };
 		01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDA2C76A10700F44FAD /* PartialCard.swift */; };
 		01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */; };
+		019AF16C2C9D7F9F00A99FFA /* AddCardTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */; };
 		01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */; };
 		01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */; };
 		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
@@ -79,7 +84,6 @@
 		01FC26722C77B59000039EDA /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888192BFB5F7D00B3ACF1 /* File.swift */; };
 		01FC26732C77B5BD00039EDA /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */; };
 		01FC26752C77B5D000039EDA /* Cards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC26742C77B5D000039EDA /* Cards.swift */; };
-		01FC26762C77B6BB00039EDA /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */; };
 		01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F1D2C3E958100918E10 /* TaskViewModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -201,6 +205,10 @@
 		01759F212C3F38CF00918E10 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		01759F232C3F666C00918E10 /* EditTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTaskView.swift; sourceTree = "<group>"; };
 		018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklinkInputView.swift; sourceTree = "<group>"; };
+		018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCardContextMenu.swift; sourceTree = "<group>"; };
+		018523FB2C9BA86F00B3002D /* TagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViewModel.swift; sourceTree = "<group>"; };
+		018523FD2C9BA8B100B3002D /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
+		018523FF2C9BA8B900B3002D /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		01953E722C72040A00F44FAD /* FloatingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingButton.swift; sourceTree = "<group>"; };
 		01953E782C7681B700F44FAD /* ZettelgardenShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ZettelgardenShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		01953E7A2C7681B700F44FAD /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
@@ -214,7 +222,7 @@
 		01953ED82C769FE900F44FAD /* ZTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZTask.swift; sourceTree = "<group>"; };
 		01953EDA2C76A10700F44FAD /* PartialCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCard.swift; sourceTree = "<group>"; };
 		01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
-		01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardTagsView.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
 		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
@@ -390,6 +398,7 @@
 		0172F7222C7D1024000F3CEB /* cards */ = {
 			isa = PBXGroup;
 			children = (
+				018523FA2C9BA51200B3002D /* components */,
 				01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */,
 				01201F8C2BF2C9AB00DF973E /* CardListView.swift */,
 				01C74F5B2C7EA20000605719 /* EditCardView.swift */,
@@ -397,6 +406,15 @@
 				0172F7212C7D1024000F3CEB /* AddCardView.swift */,
 			);
 			path = cards;
+			sourceTree = "<group>";
+		};
+		018523FA2C9BA51200B3002D /* components */ = {
+			isa = PBXGroup;
+			children = (
+				019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */,
+				018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */,
+			);
+			path = components;
 			sourceTree = "<group>";
 		};
 		01953E792C7681B700F44FAD /* ZettelgardenShare */ = {
@@ -428,6 +446,7 @@
 		01953ECB2C7696AE00F44FAD /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				018523FF2C9BA8B900B3002D /* Tag.swift */,
 				0172F7192C79F779000F3CEB /* Http.swift */,
 				01201F862BF2BBCE00DF973E /* Card.swift */,
 				010F155D2BFF459000AD2F66 /* ContentViewSelection.swift */,
@@ -455,6 +474,7 @@
 		01953ED42C769FCB00F44FAD /* Api */ = {
 			isa = PBXGroup;
 			children = (
+				018523FD2C9BA8B100B3002D /* Tags.swift */,
 				0172F71B2C7A0C6E000F3CEB /* Files.swift */,
 				01953ED52C769FD500F44FAD /* Tasks.swift */,
 				01FC26742C77B5D000039EDA /* Cards.swift */,
@@ -465,12 +485,12 @@
 		01953ED72C769FDD00F44FAD /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				018523FB2C9BA86F00B3002D /* TagViewModel.swift */,
 				01C74F5E2C7F393D00605719 /* AuthViewModel.swift */,
 				01B888232BFB907F00B3ACF1 /* FileListViewModel.swift */,
 				01B888272BFC02BA00B3ACF1 /* PartialCardViewModel.swift */,
 				0111A7352BFD640400DDED68 /* FileViewModel.swift */,
 				01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */,
-				01B888092BF6CA9900B3ACF1 /* SearchViewModel.swift */,
 				01759F1D2C3E958100918E10 /* TaskViewModel.swift */,
 				01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */,
 				016D00012C6CE0EF00339760 /* NavigationViewModel.swift */,
@@ -741,6 +761,8 @@
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
 				0172F7232C7D1024000F3CEB /* AddCardView.swift in Sources */,
+				019AF16C2C9D7F9F00A99FFA /* AddCardTagsView.swift in Sources */,
+				018523F92C9BA50A00B3002D /* EditCardContextMenu.swift in Sources */,
 				01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */,
 				0172F7252C7D4A7B000F3CEB /* AddRecordingView.swift in Sources */,
 				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,
@@ -799,7 +821,6 @@
 				01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */,
 				011785452C8BD99C00FA1052 /* FileViewModel.swift in Sources */,
 				011785442C8BD97B00FA1052 /* FileListViewModel.swift in Sources */,
-				01FC26762C77B6BB00039EDA /* SearchViewModel.swift in Sources */,
 				01FC266F2C77B4F900039EDA /* ContentViewSelection.swift in Sources */,
 				0172F71A2C79F779000F3CEB /* Http.swift in Sources */,
 				01953ED62C769FD500F44FAD /* Tasks.swift in Sources */,
@@ -811,6 +832,7 @@
 				01FC26712C77B52C00039EDA /* Card.swift in Sources */,
 				0172F7102C793668000F3CEB /* Test.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
+				018523FE2C9BA8B100B3002D /* Tags.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				0172F7202C7D0382000F3CEB /* SpeechRecognizer.swift in Sources */,
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
@@ -818,8 +840,10 @@
 				01953ED32C769EBD00F44FAD /* HttpRequests.swift in Sources */,
 				01C74F5F2C7F393E00605719 /* AuthViewModel.swift in Sources */,
 				0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */,
+				018523FC2C9BA86F00B3002D /* TagViewModel.swift in Sources */,
 				01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */,
 				01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */,
+				018524002C9BA8B900B3002D /* Tag.swift in Sources */,
 				01C74F652C833C9300605719 /* Strings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

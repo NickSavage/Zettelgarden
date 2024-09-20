@@ -22,6 +22,7 @@ public struct Card: Identifiable, Codable {
     public var children: [PartialCard]
     public var references: [PartialCard]
     public var files: [File]
+    public var tags: [Tag]
 
     public enum CodingKeys: String, CodingKey {
         case id
@@ -36,6 +37,7 @@ public struct Card: Identifiable, Codable {
         case children
         case references
         case files
+        case tags
     }
     public init(from decoder: Decoder) throws {
         let container: KeyedDecodingContainer<Card.CodingKeys> = try decoder.container(
@@ -61,6 +63,7 @@ public struct Card: Identifiable, Codable {
         children = try container.decodeIfPresent([PartialCard].self, forKey: .children) ?? []
         references = try container.decodeIfPresent([PartialCard].self, forKey: .references) ?? []
         files = try container.decodeIfPresent([File].self, forKey: .files) ?? []
+        tags = try container.decodeIfPresent([Tag].self, forKey: .tags) ?? []
     }
     public init(
         id: Int,
@@ -74,7 +77,8 @@ public struct Card: Identifiable, Codable {
         parent: PartialCard?,
         children: [PartialCard],
         references: [PartialCard],
-        files: [File]
+        files: [File],
+        tags: [Tag]
     ) {
         self.id = id
         self.card_id = card_id
@@ -88,6 +92,7 @@ public struct Card: Identifiable, Codable {
         self.children = children
         self.references = references
         self.files = files
+        self.tags = tags
     }
 }
 
@@ -106,7 +111,8 @@ extension Card {
                 parent: nil,
                 children: [],
                 references: [],
-                files: []
+                files: [],
+                tags: []
             ),
             Card(
                 id: 1,
@@ -120,7 +126,8 @@ extension Card {
                 parent: nil,
                 children: [],
                 references: [],
-                files: []
+                files: [],
+                tags: []
             ),
         ]
 
@@ -137,7 +144,8 @@ extension Card {
             parent: nil,
             children: [],
             references: [],
-            files: []
+            files: [],
+            tags: []
         )
     }
 }

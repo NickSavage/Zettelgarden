@@ -1,12 +1,12 @@
 import Combine
 import SwiftUI
 
-public class SearchViewModel: ObservableObject {
-    @Published public var searchString: String = ""
-    @Published public var searchResults: [Card] = []
-    @Published public var isLoading: Bool = false
+public class TagViewModel:
+    ObservableObject
+{
+    @Published public var tags: [Tag]?
+    @Published var isLoading: Bool = true
 
-    private var cancellable: AnyCancellable?
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var token: String?
 
@@ -15,26 +15,29 @@ public class SearchViewModel: ObservableObject {
     var environment: AppEnvironment {
         AppEnvironment(rawValue: currentEnvironment) ?? .production
     }
-    public init() {}
-    public func search() {
+    public init() {
+        loadTags()
+    }
+
+    public func loadTags() {
+
         guard let token = token else {
             print("Token is missing")
             return
         }
-
-        DispatchQueue.main.async {
-            self.isLoading = true
-        }
         let session = openSession(token: token, environment: environment)
-        fetchCards(session: session, searchTerm: searchString) { [weak self] result in
+        fetchTags(session: session) { result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let cards):
-                    self?.searchResults = cards
+                case .success(let fetchedTags):
+                    self.tags = fetchedTags
+                    print(self.tags)
+
                 case .failure(let error):
-                    print("Error fetching cards: \(error.localizedDescription)")
+                    print(error)
+                    print("Unable to load tasks: \(error.localizedDescription)")
                 }
-                self?.isLoading = false
+                self.isLoading = false
             }
         }
     }

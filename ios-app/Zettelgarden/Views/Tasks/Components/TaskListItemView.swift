@@ -69,9 +69,6 @@ struct TaskListItemView: View {
             taskViewModel.setTask(task: inputTask)
             taskViewModel.setListViewModel(taskListViewModel: taskListViewModel)
         }
-        .onChange(of: inputTask) { newTask in
-            taskViewModel.setTask(task: newTask)
-        }
         .sheet(isPresented: $showingDetailView) {
             DisplayTaskView(
                 taskViewModel: taskViewModel,

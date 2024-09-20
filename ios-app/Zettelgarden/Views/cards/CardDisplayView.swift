@@ -2,13 +2,17 @@ import SwiftUI
 import ZettelgardenShared
 
 struct CardDisplayView: View {
-    @ObservedObject var cardListViewModel: PartialCardViewModel
-    @ObservedObject var cardViewModel: CardViewModel
-    @ObservedObject var navigationViewModel: NavigationViewModel
-    @State private var isPresentingEditView = false
+    @EnvironmentObject var partialCardViewModel: PartialCardViewModel
+    @EnvironmentObject var cardViewModel: CardViewModel
+    @EnvironmentObject var navigationViewModel: NavigationViewModel
+
     @State private var showChildren = false
     @State private var showReferences = false
     @State private var showFiles = false
+
+    @State private var isPresentingEditView = false
+    @State private var isBacklinkInputPresented = false
+    @State private var showAddTagsSheet = false
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -19,123 +23,170 @@ struct CardDisplayView: View {
                     Text(" - ")
                     Text(card.title)
                     Spacer()
-                    Button(action: {
-                        isPresentingEditView = true
-                    }) {
-                        Image(systemName: "pencil")
+                    Menu {
+                        Button(action: {
+                            isBacklinkInputPresented.toggle()
+
+                        }) {
+                            Text("Add Backlink")
+                        }
+                        Button(action: {
+                            showAddTagsSheet.toggle()
+                        }) {
+                            Text("Add Tags")
+                        }
+                        Button(action: {
+                            isPresentingEditView = true
+                        }) {
+                            Text("Edit Card")
+                        }
+
+                    } label: {
+                        Text("Actions")
                     }
                 }
                 .bold()
                 .padding()
-                TabView {
+                ScrollView {
 
-                    ScrollView {
+                    VStack(alignment: .leading) {
+                        Text(card.body).padding()
+                        Spacer()
+                        VStack {
+                            if let parentCard = card.parent {
+                                Text("Parent").bold()
+                                CardListItem(
+                                    card: parentCard
+                                )
+                            }
+                        }.padding()
 
                         VStack(alignment: .leading) {
-                            Text(card.body).padding()
-                            Spacer()
-                            VStack {
-                                if let parentCard = card.parent {
-                                    Text("Parent").bold()
-                                    CardListItem(
-                                        card: parentCard,
-                                        navigationViewModel: navigationViewModel
-                                    )
-                                }
-                            }.padding()
 
-                            VStack(alignment: .leading) {
-                                Text("Created at: \(card.created_at, style: .date)")
-                                Text("Updated at: \(card.updated_at, style: .date)")
-                            }
-                            .padding()
-                            Button(action: {
-                                showReferences.toggle()
-                            }) {
-                                Text("References (\(card.references.count))").bold()
-                                    .foregroundColor(.primary)
-                            }
-                            if showReferences {
-                                LazyVStack(alignment: .leading) {
-                                    ForEach(card.references.reversed()) { childCard in
-                                        CardListItem(
-                                            card: childCard,
-                                            navigationViewModel: navigationViewModel
-                                        )
-                                        .padding()
+                            HStack {
+                                ForEach(card.tags, id: \.id) { tag in
+                                    Button(action: {
+                                    }) {
+                                        Text(tag.name)
+                                            .padding(8)
+                                            .background(Color.purple.opacity(0.2))
+                                            .foregroundColor(.purple)
+                                            .cornerRadius(8)
                                     }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                             }
-                            Button(action: {
-                                showChildren.toggle()
-                            }) {
-                                Text("Children (\(card.children.count))").bold()
-                                    .foregroundColor(.primary)
-                            }
-                            if showChildren {
-                                LazyVStack(alignment: .leading) {
-                                    ForEach(card.children.reversed()) { childCard in
-                                        CardListItem(
-                                            card: childCard,
-                                            navigationViewModel: navigationViewModel
-                                        )
-                                        .padding()
-                                    }
-                                }
-                            }
-                            Button(action: {
-                                showFiles.toggle()
-                            }) {
-                                Text("Files (\(card.files.count))").bold()
-                                    .foregroundColor(.primary)
-                            }
-                            if showFiles {
-                                LazyVStack(alignment: .leading) {
-                                    ForEach(card.files) { file in
-                                        FileCardListItem(file: file)
-                                            .padding()
-                                    }
+                            Text("Created at: \(card.created_at, style: .date)")
+                            Text("Updated at: \(card.updated_at, style: .date)")
+                        }
+                        .padding()
+                        Button(action: {
+                            showReferences.toggle()
+                        }) {
+                            Text("References (\(card.references.count))").bold()
+                                .foregroundColor(.primary)
+                        }
+                        if showReferences {
+                            LazyVStack(alignment: .leading) {
+                                ForEach(card.references.reversed()) { childCard in
+                                    CardListItem(
+                                        card: childCard
+                                    )
+                                    .padding()
                                 }
                             }
                         }
-                    }
-                    VStack {
-                        Text("Files").bold()
-                        List(card.files) { file in
-                            FileCardListItem(file: file)
+                        Button(action: {
+                            showChildren.toggle()
+                        }) {
+                            Text("Children (\(card.children.count))").bold()
+                                .foregroundColor(.primary)
+                        }
+                        if showChildren {
+                            LazyVStack(alignment: .leading) {
+                                ForEach(card.children.reversed()) { childCard in
+                                    CardListItem(
+                                        card: childCard
+                                    )
+                                    .padding()
+                                }
+                            }
+                        }
+                        Button(action: {
+                            showFiles.toggle()
+                        }) {
+                            Text("Files (\(card.files.count))").bold()
+                                .foregroundColor(.primary)
+                        }
+                        if showFiles {
+                            LazyVStack(alignment: .leading) {
+                                ForEach(card.files) { file in
+                                    FileCardListItem(file: file)
+                                        .padding()
+                                }
+                            }
                         }
                     }
                 }
-                .tabViewStyle(PageTabViewStyle())
+                .sheet(isPresented: $isBacklinkInputPresented) {
+                    if let unwrappedCard = cardViewModel.card {
+                        BacklinkInputView(
+                            card: .constant(unwrappedCard),
+                            viewModel: partialCardViewModel,
+                            navigationViewModel: navigationViewModel,
+                            onCardSelect: { selectedCard in
+                                var editedCard = unwrappedCard
+                                editedCard.body = editedCard.body + "\n\n[\(selectedCard.card_id)]"
+                                cardViewModel.card = editedCard
+                                cardViewModel.saveCard()
+                                isBacklinkInputPresented = false
+                            }
+                        )
+                        .presentationDetents([.medium, .large])
+                    }
+                }
+                .sheet(isPresented: $showAddTagsSheet) {
+
+                    if let unwrappedCard = cardViewModel.card {
+                        AddCardTagsView(
+                            onTagSelect: { tag in
+                                var editedCard = unwrappedCard
+                                editedCard.body = editedCard.body + "\n\n#\(tag.name)"
+                                cardViewModel.card = editedCard
+                                cardViewModel.saveCard()
+                                showAddTagsSheet = false
+                            }
+                        )
+                        .presentationDetents([.medium, .large])
+
+                    }
+                }
             }
             else {
                 Text("No card available")
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
-            EditCardView(
-                cardListViewModel: cardListViewModel,
-                cardViewModel: cardViewModel,
-                navigationViewModel: navigationViewModel
-            )
+            EditCardView()
         }
     }
 }
 
 struct CardDisplayView_Previews: PreviewProvider {
+    static var mockCardViewModel: CardViewModel {
+        let card = Card.sampleData[0]
+        let viewModel = CardViewModel()
+        viewModel.card = card  // Assign sample card to your viewModel
+        return viewModel
+    }
+
     static var previews: some View {
-        let mockViewModel = PartialCardViewModel()
-        let mockCardViewModel = getTestCardViewModel()
-        let mockNavigationViewModel = getTestNavigationViewModel()
 
         // Return a preview of the CardListItem with the mock data
-        return CardDisplayView(
-            cardListViewModel: mockViewModel,
-            cardViewModel: mockCardViewModel,
-            navigationViewModel: mockNavigationViewModel
-        )
-        .previewLayout(.sizeThatFits)
-        .padding()  // Add some padding for better appearance in the preview
+        return CardDisplayView()
+            .previewLayout(.sizeThatFits)
+            .padding()  // Add some padding for better appearance in the preview
+            .environmentObject(mockCardViewModel)
     }
 
 }

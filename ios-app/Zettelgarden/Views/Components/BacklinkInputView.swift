@@ -35,7 +35,7 @@ struct BacklinkInputView: View {
                 .autocapitalization(.none)
 
             List(filteredCards) { card in  // Assuming Card conforms to Identifiable
-                CardListItem(card: card, navigationViewModel: navigationViewModel).onTapGesture {
+                CardListItem(card: card).onTapGesture {
                     cardSelected(selectedCard: card)
                 }
             }

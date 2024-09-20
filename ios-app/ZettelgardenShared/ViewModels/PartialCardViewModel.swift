@@ -7,7 +7,11 @@ public class PartialCardViewModel: ObservableObject {
 
     @Published public var isLoading: Bool = true
     @Published public var selectedFilter: CardFilterOption = .all
-    @Published public var filterText: String = ""
+    @Published public var filterText: String = "" {
+        didSet {
+            loadCards(searchTerm: filterText)
+        }
+    }
 
     @Published public var inactive: Bool = false
     @Published public var sort: String = ""
@@ -28,53 +32,17 @@ public class PartialCardViewModel: ObservableObject {
         loadCards()
     }
 
-    public var filteredCards: [PartialCard] {
-        let filteredByType: [PartialCard]
-
-        switch selectedFilter {
-        case .all:
-            filteredByType = cards ?? []
-        case .reference:
-            filteredByType = cards?.filter { $0.card_id.hasPrefix("REF") } ?? []
-        case .meeting:
-            filteredByType = cards?.filter { $0.card_id.hasPrefix("MM") } ?? []
-        case .work:
-            filteredByType = cards?.filter { $0.card_id.hasPrefix("SP") } ?? []
-        case .unsorted:
-            filteredByType = cards?.filter { $0.card_id == "" } ?? []
-        }
-
-        var result = filteredByType
-
-        if displayOnlyTopLevel {
-            result = result.filter { !$0.card_id.contains("/") }
-        }
-
-        if filterText.isEmpty {
-            return result
-        }
-        else if filterText.hasPrefix("!") {
-            return result.filter { $0.card_id.hasPrefix(filterText) }
-        }
-        else {
-            return result.filter {
-                $0.card_id.lowercased().contains(filterText.lowercased())
-                    || $0.title.lowercased().contains(filterText.lowercased())
-            }
-        }
-    }
-
-    public func loadCards() {
+    public func loadCards(searchTerm: String = "") {
         guard let token = token else {
             return
         }
         let session = openSession(token: token, environment: environment)
-        fetchPartialCards(session: session, sort: sort, inactive: inactive) { result in
+        fetchPartialCards(session: session, searchTerm: searchTerm, sort: sort, inactive: inactive)
+        { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCards):
                     self.cards = fetchedCards
-                    print("loaded")
                 case .failure(let error):
                     print("Unable to load card: \(error.localizedDescription)")
                 }

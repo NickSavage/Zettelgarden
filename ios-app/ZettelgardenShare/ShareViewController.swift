@@ -13,17 +13,24 @@ import UIKit
 class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        let extensionAttachments = (self.extensionContext!.inputItems.first as! NSExtensionItem)
-            .attachments
-        let u = UIHostingController(
+
+        guard let extensionItems = extensionContext?.inputItems.first as? NSExtensionItem,
+            let attachments = extensionItems.attachments
+        else {
+            return
+        }
+
+        let hostingController = UIHostingController(
             rootView: ShareContentView(
-                extensionContext: self.extensionContext,
-                data: extensionAttachments
+                extensionContext: extensionContext,
+                data: attachments
             )
         )
-        u.view.frame = (self.view.bounds)
-        self.view.addSubview(u.view)
-        self.addChild(u)
-    }
 
+        addChild(hostingController)
+        hostingController.view.frame = view.bounds
+        hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(hostingController.view)
+        hostingController.didMove(toParent: self)
+    }
 }

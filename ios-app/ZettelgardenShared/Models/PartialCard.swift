@@ -7,13 +7,14 @@
 
 import Foundation
 
-public struct PartialCard: Identifiable, Codable, Equatable {
+public struct PartialCard: Identifiable, Codable {
     public var id: Int
     public var card_id: String
     public var user_id: Int
     public var title: String
     public var created_at: Date
     public var updated_at: Date
+    public var tags: [Tag]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -22,6 +23,7 @@ public struct PartialCard: Identifiable, Codable, Equatable {
         case title
         case created_at
         case updated_at
+        case tags
     }
     public init(from decoder: Decoder) throws {
         let container: KeyedDecodingContainer<PartialCard.CodingKeys> = try decoder.container(
@@ -41,6 +43,7 @@ public struct PartialCard: Identifiable, Codable, Equatable {
             forKey: .updated_at
         )
         updated_at = parseDate(input: updatedAtString) ?? Date()
+        tags = try container.decodeIfPresent([Tag].self, forKey: .tags) ?? []
     }
 
     public init(
@@ -49,7 +52,8 @@ public struct PartialCard: Identifiable, Codable, Equatable {
         user_id: Int,
         title: String,
         created_at: Date,
-        updated_at: Date
+        updated_at: Date,
+        tags: [Tag]
     ) {
         self.id = id
         self.card_id = card_id
@@ -57,6 +61,7 @@ public struct PartialCard: Identifiable, Codable, Equatable {
         self.title = title
         self.created_at = created_at
         self.updated_at = updated_at
+        self.tags = tags
     }
 }
 
@@ -68,7 +73,8 @@ extension PartialCard {
             user_id: 1,
             title: "hello world",
             created_at: Date(),
-            updated_at: Date()
+            updated_at: Date(),
+            tags: []
         ),
         PartialCard(
             id: 1,
@@ -76,7 +82,8 @@ extension PartialCard {
             user_id: 1,
             title: "update",
             created_at: Date(),
-            updated_at: Date()
+            updated_at: Date(),
+            tags: []
         ),
     ]
 }
