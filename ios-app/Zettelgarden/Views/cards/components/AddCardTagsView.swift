@@ -18,7 +18,7 @@ struct AddCardTagsView: View {
 
             if let tags = tagViewModel.tags {
                 ScrollView {
-                    ForEach(tags, id: \.id) { tag in
+                    ForEach(tags.sorted { $0.name < $1.name }, id: \.id) { tag in
                         Button(action: {
                             tagSelected(selectedTag: tag)
                         }) {
