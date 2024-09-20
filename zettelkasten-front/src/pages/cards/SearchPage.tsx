@@ -77,10 +77,11 @@ export function SearchPage({
     if (term) {
       setSearchTerm(term);
       handleSearch(term);
-    }
-    fetchTags();
-    document.title = "Zettelgarden - Search";
+    } else {
+      fetchTags();
     handleSearch();
+    }
+    document.title = "Zettelgarden - Search";
   }, []);
 
   const currentItems = getSortedAndPagedCards();
@@ -104,7 +105,7 @@ export function SearchPage({
           />
 
           <div className="flex">
-            <Button onClick={handleSearch} children={"Search"} />
+            <Button onClick={() => handleSearch()} children={"Search"} />
             <select value={sortBy} onChange={handleSortChange}>
               <option value="sortNewOld">Newest</option>
               <option value="sortOldNew">Oldest</option>
