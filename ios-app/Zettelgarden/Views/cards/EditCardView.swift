@@ -8,7 +8,7 @@ struct EditCardView: View {
 
     @EnvironmentObject var tagViewModel: TagViewModel
     @State private var cardCopy: Card = Card.emptyCard
-    @State private var showAlert = false
+    @State private var showDeleteAlert = false
     @State private var isBacklinkInputPresented = false
     @State private var showAddTagsSheet = false
 
@@ -21,11 +21,28 @@ struct EditCardView: View {
             VStack {
                 HStack {
                     Spacer()
-                    Button(action: {}) {
+                    Menu {
+
+                        Button(action: {
+                            isBacklinkInputPresented.toggle()
+                        }) {
+                            Text("Add Backlink")
+                        }
+                        Button(action: {
+                            showAddTagsSheet.toggle()
+                        }) {
+                            Text("Add Tags")
+                        }
+                        Button(action: {
+                            showDeleteAlert = true
+                        }) {
+                            Text("Delete Card")
+                        }
+                    } label: {
                         Image(systemName: "line.3.horizontal.circle")
+                            .font(.largeTitle)  // Optional: Adjust the size as needed
                     }
-                    .padding()
-                    .alert(isPresented: $showAlert) {
+                    .alert(isPresented: $showDeleteAlert) {
                         Alert(
                             title: Text("Warning"),
                             message: Text(
@@ -36,13 +53,6 @@ struct EditCardView: View {
                                 message = "Card Deleted"
                             },
                             secondaryButton: .cancel()
-                        )
-                    }
-                    .contextMenu {
-                        EditCardContextMenu(
-                            showDeleteAlert: $showAlert,
-                            isBacklinkInputPresented: $isBacklinkInputPresented,
-                            showAddTagsSheet: $showAddTagsSheet
                         )
                     }
                 }
