@@ -8,8 +8,10 @@ struct CardListOptionsMenu: View {
     var body: some View {
         Menu {
             if let tags = tagViewModel.tags {
+                let filteredTags = tags.filter { $0.card_count > 0 }
+                    .sorted(by: { $0.name < $1.name })
                 Menu("Filter By Tag") {
-                    ForEach(tags, id: \.id) { tag in
+                    ForEach(filteredTags, id: \.id) { tag in
 
                         Button(action: {
                             partialCardViewModel.filterText = "#" + tag.name
@@ -25,8 +27,12 @@ struct CardListOptionsMenu: View {
                     "Remove Filter",
                     action: { partialCardViewModel.filterText = "" }
                 )
-
             }
+            Button(
+                partialCardViewModel.displayOnlyTopLevel
+                    ? "Show All Cards" : "Show Top Level Cards",
+                action: { partialCardViewModel.displayOnlyTopLevel.toggle() }
+            )
 
         } label: {
             Image(systemName: "gearshape")

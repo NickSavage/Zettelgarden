@@ -18,6 +18,18 @@ public class PartialCardViewModel: ObservableObject {
 
     @Published public var displayOnlyTopLevel: Bool = false
 
+    public var filteredCards: [PartialCard]? {
+        guard let cards = cards else { return nil }
+        if displayOnlyTopLevel {
+            return cards.filter { card in
+                !(card.card_id.contains("/") || card.card_id.contains("."))
+            }
+        }
+        else {
+            return cards
+        }
+    }
+
     private var timer: Timer?
 
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private

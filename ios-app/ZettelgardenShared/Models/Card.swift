@@ -17,6 +17,7 @@ public struct Card: Identifiable, Codable {
     public var link: String
     public var created_at: Date
     public var updated_at: Date
+    public var parent_id: Int
     public var parent: PartialCard?
     //var card_links: [PartialCard]
     public var children: [PartialCard]
@@ -33,6 +34,7 @@ public struct Card: Identifiable, Codable {
         case link
         case created_at
         case updated_at
+        case parent_id
         case parent
         case children
         case references
@@ -59,6 +61,7 @@ public struct Card: Identifiable, Codable {
             forKey: .updated_at
         )
         updated_at = parseDate(input: updatedAtString) ?? Date()
+        parent_id = try container.decode(Int.self, forKey: .parent_id)
         parent = try container.decodeIfPresent(PartialCard.self, forKey: .parent)
         children = try container.decodeIfPresent([PartialCard].self, forKey: .children) ?? []
         references = try container.decodeIfPresent([PartialCard].self, forKey: .references) ?? []
@@ -74,6 +77,7 @@ public struct Card: Identifiable, Codable {
         link: String,
         created_at: Date,
         updated_at: Date,
+        parent_id: Int,
         parent: PartialCard?,
         children: [PartialCard],
         references: [PartialCard],
@@ -88,6 +92,7 @@ public struct Card: Identifiable, Codable {
         self.link = link
         self.created_at = created_at
         self.updated_at = updated_at
+        self.parent_id = parent_id
         self.parent = parent
         self.children = children
         self.references = references
@@ -108,6 +113,7 @@ extension Card {
                 link: "",
                 created_at: Date(),
                 updated_at: Date(),
+                parent_id: 0,
                 parent: nil,
                 children: [],
                 references: [],
@@ -123,6 +129,8 @@ extension Card {
                 link: "",
                 created_at: Date(),
                 updated_at: Date(),
+
+                parent_id: 1,
                 parent: nil,
                 children: [],
                 references: [],
@@ -141,6 +149,7 @@ extension Card {
             link: "",
             created_at: Date(),
             updated_at: Date(),
+            parent_id: -1,
             parent: nil,
             children: [],
             references: [],

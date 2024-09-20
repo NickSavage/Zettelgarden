@@ -15,7 +15,7 @@ struct CardListView: View {
             else if let _ = partialCardViewModel.cards {
 
                 List {
-                    ForEach(partialCardViewModel.cards ?? [], id: \.id) { card in
+                    ForEach(partialCardViewModel.filteredCards ?? [], id: \.id) { card in
                         CardListItem(
                             card: card
                         )

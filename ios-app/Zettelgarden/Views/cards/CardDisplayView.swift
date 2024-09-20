@@ -99,12 +99,16 @@ struct CardDisplayView: View {
                         Button(action: {
                             showChildren.toggle()
                         }) {
-                            Text("Children (\(card.children.count))").bold()
+                            Text(
+                                "Children (\(card.children.filter { $0.parent_id == card.id }.count))"
+                            ).bold()
                                 .foregroundColor(.primary)
                         }
                         if showChildren {
                             LazyVStack(alignment: .leading) {
-                                ForEach(card.children.reversed()) { childCard in
+                                ForEach(card.children.filter { $0.parent_id == card.id }.reversed())
+                                {
+                                    childCard in
                                     CardListItem(
                                         card: childCard
                                     )
