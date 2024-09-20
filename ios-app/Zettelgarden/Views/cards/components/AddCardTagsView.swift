@@ -11,21 +11,52 @@ struct AddCardTagsView: View {
     }
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
+            Text("Select a Tag")
+                .font(.headline)
+                .padding(.bottom, 10)
+
             if let tags = tagViewModel.tags {
-                ForEach(tags, id: \.id) { tag in
-                    Button(action: {
-                        tagSelected(selectedTag: tag)
-                    }) {
-                        Text(tag.name)
+                ScrollView {
+                    ForEach(tags, id: \.id) { tag in
+                        Button(action: {
+                            tagSelected(selectedTag: tag)
+                        }) {
+                            Text(tag.name)
+                                .padding(8)
+                                .background(Color.purple.opacity(0.2))
+                                .foregroundColor(.purple)
+                                .cornerRadius(8)
+                        }
+                        .buttonStyle(PlainButtonStyle())  // Removes default button behavior
                     }
-                    .padding(.vertical, 2)
                 }
+                .frame(maxWidth: .infinity)
             }
             else {
                 Text("No Tags Available")
+                    .foregroundColor(.gray)
                     .padding()
             }
         }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 5).frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct AddCardTagsView_Previews: PreviewProvider {
+    static var mockTagViewModel: TagViewModel {
+        let viewModel = TagViewModel()
+        viewModel.tags = Tag.sampleData
+        return viewModel
+    }
+    static var previews: some View {
+        return AddCardTagsView(onTagSelect: { tag in })
+            .previewLayout(.sizeThatFits)
+            .padding()
+            .environmentObject(mockTagViewModel)
+
     }
 }
