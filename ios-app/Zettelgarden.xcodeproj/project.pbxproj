@@ -61,6 +61,7 @@
 		01953ED92C769FE900F44FAD /* ZTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953ED82C769FE900F44FAD /* ZTask.swift */; };
 		01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDA2C76A10700F44FAD /* PartialCard.swift */; };
 		01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */; };
+		019AF16C2C9D7F9F00A99FFA /* AddCardTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */; };
 		01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */; };
 		01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */; };
 		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
@@ -221,6 +222,7 @@
 		01953ED82C769FE900F44FAD /* ZTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZTask.swift; sourceTree = "<group>"; };
 		01953EDA2C76A10700F44FAD /* PartialCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialCard.swift; sourceTree = "<group>"; };
 		01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
+		019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardTagsView.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
 		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
@@ -409,6 +411,7 @@
 		018523FA2C9BA51200B3002D /* components */ = {
 			isa = PBXGroup;
 			children = (
+				019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */,
 				018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */,
 			);
 			path = components;
@@ -758,6 +761,7 @@
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
 				0172F7232C7D1024000F3CEB /* AddCardView.swift in Sources */,
+				019AF16C2C9D7F9F00A99FFA /* AddCardTagsView.swift in Sources */,
 				018523F92C9BA50A00B3002D /* EditCardContextMenu.swift in Sources */,
 				01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */,
 				0172F7252C7D4A7B000F3CEB /* AddRecordingView.swift in Sources */,

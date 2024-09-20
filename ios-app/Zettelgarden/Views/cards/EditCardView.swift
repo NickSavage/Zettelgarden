@@ -96,23 +96,12 @@ struct EditCardView: View {
                 .presentationDetents([.medium, .large])
             }
             .sheet(isPresented: $showAddTagsSheet) {
-                VStack {
-                    if let tags = tagViewModel.tags {  // Unwrap optional tags safely
-                        ForEach(tags, id: \.id) { tag in  // Use tag.id since Tag already conforms to Identifiable
-                            Button(action: {
-                                cardCopy.body = cardCopy.body + "\n\n#" + tag.name
-                                showAddTagsSheet = false
-                            }) {
-                                Text(tag.name)
-                            }
-                            .padding(.vertical, 2)  // Add some vertical padding between buttons
-                        }
+                AddCardTagsView(
+                    onTagSelect: { tag in
+                        cardCopy.body = cardCopy.body + "\n\n#" + tag.name
+                        showAddTagsSheet = false
                     }
-                    else {
-                        Text("No Tags Available")  // Default view when tags are nil
-                            .padding()
-                    }
-                }
+                )
 
             }
 

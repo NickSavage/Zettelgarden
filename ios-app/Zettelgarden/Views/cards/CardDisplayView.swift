@@ -5,7 +5,6 @@ struct CardDisplayView: View {
     @EnvironmentObject var partialCardViewModel: PartialCardViewModel
     @EnvironmentObject var cardViewModel: CardViewModel
     @EnvironmentObject var navigationViewModel: NavigationViewModel
-    @EnvironmentObject var tagViewModel: TagViewModel
 
     @State private var showChildren = false
     @State private var showReferences = false
@@ -149,26 +148,17 @@ struct CardDisplayView: View {
                 .sheet(isPresented: $showAddTagsSheet) {
 
                     if let unwrappedCard = cardViewModel.card {
-                        VStack {
-                            if let tags = tagViewModel.tags {
-                                ForEach(tags, id: \.id) { tag in
-                                    Button(action: {
-                                        var editedCard = unwrappedCard
-                                        editedCard.body = editedCard.body + "\n\n#\(tag.name)"
-                                        cardViewModel.card = editedCard
-                                        cardViewModel.saveCard()
-                                        showAddTagsSheet = false
-                                    }) {
-                                        Text(tag.name)
-                                    }
-                                    .padding(.vertical, 2)
-                                }
+                        AddCardTagsView(
+                            onTagSelect: { tag in
+                                var editedCard = unwrappedCard
+                                editedCard.body = editedCard.body + "\n\n#\(tag.name)"
+                                cardViewModel.card = editedCard
+                                cardViewModel.saveCard()
+                                showAddTagsSheet = false
                             }
-                            else {
-                                Text("No Tags Available")
-                                    .padding()
-                            }
-                        }
+                        )
+                        .presentationDetents([.medium, .large])
+
                     }
                 }
             }
