@@ -76,6 +76,8 @@
 		01C74F672C83413500605719 /* TaskAddTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C74F662C83413500605719 /* TaskAddTagView.swift */; };
 		01CE798A2C9774DB002F7000 /* ShareAddCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CE79882C9774DB002F7000 /* ShareAddCardView.swift */; };
 		01CE798B2C9774DB002F7000 /* ShareContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CE79892C9774DB002F7000 /* ShareContentView.swift */; };
+		01CF0C382C9E430A00B7DD32 /* CardUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CF0C372C9E430700B7DD32 /* CardUtils.swift */; };
+		01CF0C3A2C9E441400B7DD32 /* CardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CF0C392C9E440F00B7DD32 /* CardTests.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
 		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
 		01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00032C6CE1F600339760 /* Visit.swift */; };
@@ -242,6 +244,8 @@
 		01C74F662C83413500605719 /* TaskAddTagView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskAddTagView.swift; sourceTree = "<group>"; };
 		01CE79882C9774DB002F7000 /* ShareAddCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareAddCardView.swift; sourceTree = "<group>"; };
 		01CE79892C9774DB002F7000 /* ShareContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareContentView.swift; sourceTree = "<group>"; };
+		01CF0C372C9E430700B7DD32 /* CardUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardUtils.swift; sourceTree = "<group>"; };
+		01CF0C392C9E440F00B7DD32 /* CardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardTests.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenShareDebug.entitlements; sourceTree = "<group>"; };
@@ -384,6 +388,7 @@
 		0170E42A2C7927BE007DBA95 /* ZettelgardenShared */ = {
 			isa = PBXGroup;
 			children = (
+				01CF0C392C9E440F00B7DD32 /* CardTests.swift */,
 				0172F7112C796C51000F3CEB /* DateTests.swift */,
 				0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */,
 			);
@@ -464,6 +469,7 @@
 		01953ECC2C7696CE00F44FAD /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				01CF0C372C9E430700B7DD32 /* CardUtils.swift */,
 				01C74F642C833C9300605719 /* Strings.swift */,
 				0172F71F2C7D0382000F3CEB /* SpeechRecognizer.swift */,
 				0172F71D2C7A1007000F3CEB /* Auth.swift */,
@@ -794,6 +800,7 @@
 				01201F6D2BF2BB6400DF973E /* ZettelgardenTests.swift in Sources */,
 				0172F7122C796C51000F3CEB /* DateTests.swift in Sources */,
 				0170E42C2C7927D1007DBA95 /* PartialCardTests.swift in Sources */,
+				01CF0C3A2C9E441400B7DD32 /* CardTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -831,6 +838,7 @@
 				01FC26702C77B50E00039EDA /* NavigationViewModel.swift in Sources */,
 				01953ED12C76970300F44FAD /* Dates.swift in Sources */,
 				011785432C8BD77000FA1052 /* PartialCardViewModel.swift in Sources */,
+				01CF0C382C9E430A00B7DD32 /* CardUtils.swift in Sources */,
 				01953ED92C769FE900F44FAD /* ZTask.swift in Sources */,
 				01FC26732C77B5BD00039EDA /* CardViewModel.swift in Sources */,
 				01FC26712C77B52C00039EDA /* Card.swift in Sources */,
