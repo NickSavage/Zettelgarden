@@ -248,7 +248,7 @@ export function ViewPage({}: ViewPageProps) {
           ))}
 
           <HeaderSubSection text="References" />
-          <CardList cards={viewingCard.references} />
+          <CardList cards={viewingCard.references.sort((a, b) => compareCardIds(a.card_id, b.card_id))} />
           {viewingCard.children.length > 0 && (
             <div>
               <HeaderSubSection text="Children" />
