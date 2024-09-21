@@ -6,6 +6,7 @@
 //
 
 import XCTest
+
 @testable import ZettelgardenShared
 
 class PartialCardTests: XCTestCase {
@@ -17,7 +18,8 @@ class PartialCardTests: XCTestCase {
                 "user_id": 1,
                 "title": "Appoeaoeao",
                 "created_at": "2023-09-25T12:55:01Z",
-                "updated_at": "2023-10-05T20:27:04Z"
+                "updated_at": "2023-10-05T20:27:04Z",
+                "parent_id": 1
             }
             """
 
