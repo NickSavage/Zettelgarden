@@ -14,6 +14,7 @@ struct SidebarView: View {
     @ObservedObject var navigationViewModel: NavigationViewModel
     @ObservedObject var partialViewModel: PartialCardViewModel
     @ObservedObject var taskListViewModel: TaskListViewModel
+    @ObservedObject var fileListViewModel: FileListViewModel
 
     @State private var showingAddTaskView = false
     @State private var showingAddCardView = false
@@ -119,7 +120,11 @@ struct SidebarView: View {
                 .sheet(
                     isPresented: $showDocumentPicker,
 
-                    onDismiss: {}
+                    onDismiss: {
+                        if let url = fileURL {
+                            fileListViewModel.uploadFile(url: url, cardPK: -1)
+                        }
+                    }
                 ) {
                     DocumentPicker(fileURL: $fileURL)
                 }

@@ -12,6 +12,7 @@ public enum NetworkError: Error {
     case unexpectedResponse
     case noDataReceived
     case decodingError(Error)
+    case requestFailed
 }
 
 public func performRequest<T: Decodable>(

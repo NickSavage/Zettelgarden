@@ -17,6 +17,7 @@ struct ContentView: View {
     @StateObject var navigationViewModel: NavigationViewModel
     @StateObject var taskListViewModel = TaskListViewModel()
     @StateObject var tagViewModel = TagViewModel()
+    @StateObject var fileListViewModel = FileListViewModel()
 
     init() {
         let cardViewModel = CardViewModel()
@@ -57,7 +58,8 @@ struct ContentView: View {
                     cardViewModel: cardViewModel,
                     navigationViewModel: navigationViewModel,
                     partialViewModel: partialCardViewModel,
-                    taskListViewModel: taskListViewModel
+                    taskListViewModel: taskListViewModel,
+                    fileListViewModel: fileListViewModel
                 )
             }
             .toolbar {

@@ -124,3 +124,7 @@ extension File {
         ),
     ]
 }
+public struct UploadFileResponse: Codable {
+    public var message: String
+    public var file: File
+}

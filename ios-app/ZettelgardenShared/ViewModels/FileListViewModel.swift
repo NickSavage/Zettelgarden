@@ -34,7 +34,7 @@ public class FileListViewModel: ObservableObject {
                 switch results {
                 case .success(let fetchedFiles):
                     self.files = self.sortFiles(fetchedFiles)
-                //   print(self.files)
+                //   pint(self.files)
                 case .failure(let error):
                     print("Unable to load files: \(error.localizedDescription)")
                 }
@@ -45,5 +45,22 @@ public class FileListViewModel: ObservableObject {
     }
     private func sortFiles(_ files: [File]) -> [File] {
         return files.sorted { $0.id > $1.id }
+    }
+
+    public func uploadFile(url: URL, cardPK: Int) {
+        print("?")
+
+        let session = openSession(token: token, environment: environment)
+        uploadFileImplementation(fileURL: url, cardPK: cardPK, session: session) { result in
+            switch result {
+            case .success(let response):
+                print("Upload successful: \(response.message)")
+            // Handle success, maybe update your UI or notify user
+
+            case .failure(let error):
+                print("Upload failed: \(error.localizedDescription)")
+            // Handle error, show an alert or notify user
+            }
+        }
     }
 }
