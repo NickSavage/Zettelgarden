@@ -19,7 +19,7 @@ func parseCardId(_ cardId: String) -> [Any] {
     }
 }
 
-func compareCardIds(_ a: String, _ b: String) -> Bool {
+public func compareCardIds(_ a: String, _ b: String) -> Bool {
     let aParts = parseCardId(a)
     let bParts = parseCardId(b)
 

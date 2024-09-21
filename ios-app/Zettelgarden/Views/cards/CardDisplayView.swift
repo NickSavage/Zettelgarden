@@ -88,7 +88,10 @@ struct CardDisplayView: View {
                         }
                         if showReferences {
                             LazyVStack(alignment: .leading) {
-                                ForEach(card.references.reversed()) { childCard in
+                                ForEach(
+                                    card.references
+                                        .sorted { compareCardIds($0.card_id, $1.card_id) }
+                                ) { childCard in
                                     CardListItem(
                                         card: childCard
                                     )
@@ -106,9 +109,10 @@ struct CardDisplayView: View {
                         }
                         if showChildren {
                             LazyVStack(alignment: .leading) {
-                                ForEach(card.children.filter { $0.parent_id == card.id }.reversed())
-                                {
-                                    childCard in
+                                ForEach(
+                                    card.children.filter { $0.parent_id == card.id }
+                                        .sorted { compareCardIds($0.card_id, $1.card_id) }
+                                ) { childCard in
                                     CardListItem(
                                         card: childCard
                                     )
