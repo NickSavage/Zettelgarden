@@ -78,6 +78,8 @@
 		01CE798B2C9774DB002F7000 /* ShareContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CE79892C9774DB002F7000 /* ShareContentView.swift */; };
 		01CF0C382C9E430A00B7DD32 /* CardUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CF0C372C9E430700B7DD32 /* CardUtils.swift */; };
 		01CF0C3A2C9E441400B7DD32 /* CardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CF0C392C9E440F00B7DD32 /* CardTests.swift */; };
+		01CF0C3C2C9EE84100B7DD32 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CF0C3B2C9EE84100B7DD32 /* DocumentPicker.swift */; };
+		01CF0C3E2C9EE98000B7DD32 /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CF0C3D2C9EE98000B7DD32 /* PhotoPicker.swift */; };
 		01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5102BF43B4D00691C07 /* LoginView.swift */; };
 		01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECE5122BF4C75A00691C07 /* SettingsView.swift */; };
 		01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016D00032C6CE1F600339760 /* Visit.swift */; };
@@ -246,6 +248,8 @@
 		01CE79892C9774DB002F7000 /* ShareContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareContentView.swift; sourceTree = "<group>"; };
 		01CF0C372C9E430700B7DD32 /* CardUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardUtils.swift; sourceTree = "<group>"; };
 		01CF0C392C9E440F00B7DD32 /* CardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardTests.swift; sourceTree = "<group>"; };
+		01CF0C3B2C9EE84100B7DD32 /* DocumentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPicker.swift; sourceTree = "<group>"; };
+		01CF0C3D2C9EE98000B7DD32 /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
 		01ECE5102BF43B4D00691C07 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		01ECE5122BF4C75A00691C07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		01FC266D2C76BD9900039EDA /* ZettelgardenShareDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZettelgardenShareDebug.entitlements; sourceTree = "<group>"; };
@@ -546,6 +550,8 @@
 		01C74F5D2C7F381B00605719 /* Files */ = {
 			isa = PBXGroup;
 			children = (
+				01CF0C3D2C9EE98000B7DD32 /* PhotoPicker.swift */,
+				01CF0C3B2C9EE84100B7DD32 /* DocumentPicker.swift */,
 				01B8881D2BFB67ED00B3ACF1 /* FileDetailView.swift */,
 				01B888212BFB8FE400B3ACF1 /* FileListView.swift */,
 			);
@@ -776,6 +782,7 @@
 				0172F7252C7D4A7B000F3CEB /* AddRecordingView.swift in Sources */,
 				0111A7342BFD597300DDED68 /* HomeView.swift in Sources */,
 				01C74F612C7F9BF300605719 /* DisplayTaskView.swift in Sources */,
+				01CF0C3E2C9EE98000B7DD32 /* PhotoPicker.swift in Sources */,
 				01ECE5112BF43B4D00691C07 /* LoginView.swift in Sources */,
 				01C74F672C83413500605719 /* TaskAddTagView.swift in Sources */,
 				01759F192C3E092D00918E10 /* TaskListView.swift in Sources */,
@@ -789,6 +796,7 @@
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
 				01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */,
 				0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */,
+				01CF0C3C2C9EE84100B7DD32 /* DocumentPicker.swift in Sources */,
 				016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

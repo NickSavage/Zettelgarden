@@ -19,6 +19,11 @@ struct SidebarView: View {
     @State private var showingAddCardView = false
     @State private var showingAddRecordingView = false
 
+    @State private var fileURL: URL?
+    @State private var showDocumentPicker = false
+    @State private var selectedImage: UIImage?
+    @State private var showPhotoPicker = false
+
     var body: some View {
 
         ZStack {
@@ -42,6 +47,16 @@ struct SidebarView: View {
                                     showingAddTaskView.toggle()
                                 }) {
                                     Text("New Task")
+                                }
+                                Button(action: {
+                                    showPhotoPicker.toggle()
+                                }) {
+                                    Text("New Photo")
+                                }
+                                Button(action: {
+                                    showDocumentPicker.toggle()
+                                }) {
+                                    Text("New File")
                                 }
 
                             }
@@ -100,6 +115,20 @@ struct SidebarView: View {
                 }
                 .sheet(isPresented: $showingAddRecordingView) {
                     AddRecordingView(cardListViewModel: partialViewModel)
+                }
+                .sheet(
+                    isPresented: $showDocumentPicker,
+
+                    onDismiss: {}
+                ) {
+                    DocumentPicker(fileURL: $fileURL)
+                }
+                .sheet(
+                    isPresented: $showPhotoPicker,
+                    onDismiss: {
+                    }
+                ) {
+                    PhotoPicker(image: $selectedImage)
                 }
             }
         }
