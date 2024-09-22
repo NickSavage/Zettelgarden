@@ -46,10 +46,26 @@ public class FileListViewModel: ObservableObject {
     private func sortFiles(_ files: [File]) -> [File] {
         return files.sorted { $0.id > $1.id }
     }
+    public func uploadImage(image: UIImage, cardPK: Int) {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("Failed to convert image to data.")
+            return
+        }
+
+        // Save image data to a temporary file URL
+        let tempDirectory = FileManager.default.temporaryDirectory
+        let imageURL = tempDirectory.appendingPathComponent("tempImage.jpg")
+
+        do {
+            try imageData.write(to: imageURL, options: .atomic)
+            uploadFile(url: imageURL, cardPK: cardPK)  // Call the upload function
+        }
+        catch {
+            print("Failed to write image data to file: \(error)")
+        }
+    }
 
     public func uploadFile(url: URL, cardPK: Int) {
-        print("?")
-
         let session = openSession(token: token, environment: environment)
         uploadFileImplementation(fileURL: url, cardPK: cardPK, session: session) { result in
             switch result {

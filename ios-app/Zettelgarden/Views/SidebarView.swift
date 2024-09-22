@@ -131,6 +131,9 @@ struct SidebarView: View {
                 .sheet(
                     isPresented: $showPhotoPicker,
                     onDismiss: {
+                        if let image = selectedImage {
+                            fileListViewModel.uploadImage(image: image, cardPK: -1)
+                        }
                     }
                 ) {
                     PhotoPicker(image: $selectedImage)

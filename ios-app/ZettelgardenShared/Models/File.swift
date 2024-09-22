@@ -128,3 +128,9 @@ public struct UploadFileResponse: Codable {
     public var message: String
     public var file: File
 }
+
+public struct UploadingFile: Identifiable {
+    public var id: Int
+    public var url: URL
+    public var cardPK: Int
+}

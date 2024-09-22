@@ -54,6 +54,7 @@ public func uploadFileImplementation(
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    print(request)
 
     // Create the boundary and Content-Type
     let boundary = UUID().uuidString
@@ -92,17 +93,27 @@ public func uploadFileImplementation(
     // Perform the request
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
         if let error = error {
+            print(error)
             completion(.failure(error))
             return
         }
 
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("something has failed")
             completion(.failure(NetworkError.requestFailed))
             return
         }
 
+        if let data = data, let responseBody = String(data: data, encoding: .utf8) {
+            // Print the body for debugging
+            print("Response Body: \(responseBody)")
+        }
+        else {
+            print("No response data or failed to decode data")
+        }
         // Check for a successful HTTP status code.
         if (200...299).contains(httpResponse.statusCode) {
+            print(httpResponse)
             // Expect data when the request succeeds
             guard let data = data else {
                 completion(.failure(NetworkError.requestFailed))
@@ -118,6 +129,7 @@ public func uploadFileImplementation(
             }
         }
         else {
+            print(httpResponse)
             // Attempt to parse server-provided error information
             if let data = data,
                 let serverError = try? JSONSerialization.jsonObject(with: data, options: [])
