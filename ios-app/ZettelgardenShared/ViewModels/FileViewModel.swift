@@ -10,11 +10,12 @@ import ZettelgardenShared
 
 public class FileViewModel: ObservableObject {
     public var file: File
-    @AppStorage("jwt") private var token: String?
     @Published public var identifiableFileURL: IdentifiableURL?
     @Published public var isDownloading = false
     @Published public var downloadError: Error?
 
+    @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
+        var token: String?
     @AppStorage("currentEnvironment") private var currentEnvironment: String = AppEnvironment
         .production.rawValue
     var environment: AppEnvironment {
@@ -26,11 +27,7 @@ public class FileViewModel: ObservableObject {
     public func downloadFile() {
 
         guard let token = token else {
-            self.downloadError = NSError(
-                domain: "",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey: "No token found"]
-            )
+            print("Token is missing")
             return
         }
 
@@ -43,6 +40,7 @@ public class FileViewModel: ObservableObject {
                 case .success(let url):
                     self.identifiableFileURL = IdentifiableURL(url: url)
                 case .failure(let error):
+                    print(error)
                     self.downloadError = error
                 }
             }
