@@ -52,6 +52,7 @@ struct ContentView: View {
             .environmentObject(partialCardViewModel)
             .environmentObject(navigationViewModel)
             .environmentObject(taskListViewModel)
+            .environmentObject(fileListViewModel)
             .overlay {
                 SidebarView(
                     isMenuOpen: $isMenuOpen,

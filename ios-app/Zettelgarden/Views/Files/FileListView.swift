@@ -9,27 +9,38 @@ import SwiftUI
 import ZettelgardenShared
 
 struct FileListView: View {
-    @ObservedObject var viewModel = FileListViewModel()
+    @EnvironmentObject var fileListViewModel: FileListViewModel
 
     var body: some View {
         VStack {
-            if viewModel.isLoading {
+            if fileListViewModel.isLoading {
                 ProgressView("Loading")
             }
-            else if let files = viewModel.files {
+            else if let files = fileListViewModel.files {
                 List {
                     ForEach(files) { file in
                         FileCardListItem(file: file)
                     }
                 }
-                .refreshable { viewModel.loadFiles() }
+                .refreshable { fileListViewModel.loadFiles() }
 
             }
         }
-        .onAppear { viewModel.loadFiles() }
+        .onAppear { fileListViewModel.loadFiles() }
     }
 }
 
-#Preview {
-    FileListView()
+struct FileListView_Previews: PreviewProvider {
+    static var mockFileListViewModel: FileListViewModel {
+        let viewModel = FileListViewModel()
+        viewModel.files = File.sampleData
+        return viewModel
+    }
+
+    static var previews: some View {
+        return FileListView()
+            .previewLayout(.sizeThatFits)
+            .padding()
+            .environmentObject(mockFileListViewModel)
+    }
 }
