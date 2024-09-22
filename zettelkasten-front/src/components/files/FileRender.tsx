@@ -24,7 +24,7 @@ export const FileRender = ({ file }: FileRenderProps) => {
   return (
     <div className="file-render-popup-overlay">
       <div className="file-render-popup-content">
-        {(file.filetype === "image/png" || file.filetype === "image/jpeg") && (
+      {(file.filetype === "image/png" || file.filetype === "image/jpeg" || file.filetype === "image/jpg") && (
           <img src={imageSrc} style={{ maxWidth: "100%", height: "auto" }} />
         )}
       </div>
