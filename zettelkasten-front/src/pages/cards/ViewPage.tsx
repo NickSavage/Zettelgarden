@@ -86,6 +86,21 @@ export function ViewPage({}: ViewPageProps) {
     setViewCard(editedCard);
     fetchCard(id!);
   }
+
+  async function handleDisplayFileOnCardClick(file: File) {
+    if (viewingCard === null) {
+      return;
+    }
+
+    let editedCard = {
+      ...viewingCard,
+      body: viewingCard.body + "\n\n![](" + file.id + ")",
+    };
+    let response = await saveExistingCard(editedCard);
+    setViewCard(editedCard);
+    fetchCard(id!);
+  }
+  
   function handleEditCard() {
     if (viewingCard === null) {
       return;
@@ -225,6 +240,10 @@ export function ViewPage({}: ViewPageProps) {
                     file={file}
                     onDelete={onFileDelete}
                     setRefreshFiles={(refresh: boolean) => {}}
+
+		    displayFileOnCard={(file: File) => {
+		      handleDisplayFileOnCardClick(file);
+		    }}
                   />
                 ))}
               </ul>

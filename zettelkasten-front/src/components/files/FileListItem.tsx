@@ -12,12 +12,14 @@ interface FileListItemProps {
   file: File;
   onDelete: (file_id: number) => void;
   setRefreshFiles: (refresh: boolean) => void;
+  displayFileOnCard?: (file: File) => void;
 }
 
 export function FileListItem({
   file,
   onDelete,
   setRefreshFiles,
+  displayFileOnCard,
 }: FileListItemProps) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>("");
@@ -87,6 +89,15 @@ export function FileListItem({
         setRefreshFiles(true);
       },
     );
+    setShowMenu(false);
+  }
+
+  async function handleDisplayCardClick() {
+    if (!displayFileOnCard) {
+      return
+    }
+    displayFileOnCard(file)
+    setRefreshFiles(true);
     setShowMenu(false);
   }
 
@@ -167,6 +178,9 @@ export function FileListItem({
                     Unlink Card
                   </button>
                 )}
+		{displayFileOnCard && file.filetype.includes("image") && (
+		  <button onClick={() => handleDisplayCardClick()}>Display File on Card</button>
+		)}
               </div>
             )}
           </div>

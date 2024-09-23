@@ -122,6 +122,13 @@ export function EditPage({ newCard }: EditPageProps) {
     
   }
 
+  async function handleDisplayFileOnCardClick(file: File) {
+    setEditingCard((prevEditingCard) => ({
+      ...prevEditingCard,
+      body: prevEditingCard.body + "\n\n![](" + file.id + ")",
+    }));
+  }
+
   return (
     <div className="px-20 py-4">
       {editingCard && (
@@ -207,6 +214,7 @@ export function EditPage({ newCard }: EditPageProps) {
                     file={file}
                     onDelete={onFileDelete}
                     setRefreshFiles={(refresh: boolean) => {}}
+		    displayFileOnCard={(file: File) => handleDisplayFileOnCardClick(file)}
                   />
                 ))}
               </ul>
