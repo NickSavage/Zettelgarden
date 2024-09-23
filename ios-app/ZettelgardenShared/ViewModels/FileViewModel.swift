@@ -73,4 +73,19 @@ public class FileViewModel: ObservableObject {
         }
 
     }
+
+    public func deleteFile() {
+        guard let token = token else {
+            print("Token is missing")
+            return
+        }
+        let session = openSession(token: token, environment: environment)
+
+        deleteFileImplementation(session: session, file: file) { result in
+            DispatchQueue.main.async {
+            }
+
+        }
+
+    }
 }

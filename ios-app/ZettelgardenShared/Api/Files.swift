@@ -211,3 +211,20 @@ public func uploadFileImplementation(
 
     task.resume()
 }
+
+public func deleteFileImplementation(
+    session: HttpSession,
+    file: File,
+    completion: @escaping (Result<[File], Error>) -> Void
+) {
+
+    let urlString = "\(session.environment)/files/\(file.id)"
+    let token = session.token ?? ""
+
+    guard let url = URL(string: urlString) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+
+    performRequest(with: url, token: token, httpMethod: "DELETE", completion: completion)
+}

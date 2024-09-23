@@ -4,6 +4,7 @@ import ZettelgardenShared
 struct FileCardListItem: View {
     let file: File
     @StateObject private var viewModel: FileViewModel
+    @EnvironmentObject private var fileListViewModel: FileListViewModel
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var jwt: String?
     @State private var identifiableFileURL: IdentifiableURL?
@@ -106,6 +107,19 @@ struct FileCardListItem: View {
                     }
                 }
             }
+        }
+        .alert(isPresented: $isPresentingDeleteFile) {
+
+            Alert(
+                title: Text("Warning"),
+                message: Text(
+                    "Are you sure you want to delete this file? This action cannot be undone."
+                ),
+                primaryButton: .destructive(Text("Delete")) {
+                    viewModel.deleteFile()
+                },
+                secondaryButton: .cancel()
+            )
         }
     }
 
