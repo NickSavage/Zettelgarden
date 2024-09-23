@@ -67,6 +67,7 @@ public class FileListViewModel: ObservableObject {
 
     public func uploadFile(url: URL, cardPK: Int) {
         let session = openSession(token: token, environment: environment)
+        print("?")
         uploadFileImplementation(fileURL: url, cardPK: cardPK, session: session) { result in
             switch result {
             case .success(let response):

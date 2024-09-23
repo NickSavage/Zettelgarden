@@ -122,6 +122,7 @@ struct SidebarView: View {
 
                     onDismiss: {
                         if let url = fileURL {
+                            print("asdas")
                             fileListViewModel.uploadFile(url: url, cardPK: -1)
                         }
                     }

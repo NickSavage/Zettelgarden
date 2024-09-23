@@ -1,5 +1,14 @@
 import Foundation
 import SwiftUI
+import UniformTypeIdentifiers
+
+func mimeTypeForFile(at url: URL) -> String {
+    let fileExtension = url.pathExtension
+    if let utType = UTType(filenameExtension: fileExtension) {
+        return utType.preferredMIMEType ?? "application/octet-stream"
+    }
+    return "application/octet-stream"
+}
 
 public func fetchFile(
     session: HttpSession,
@@ -34,6 +43,38 @@ public func fetchFiles(
 
     performRequest(with: url, token: token, completion: completion)
 
+}
+
+public func editFileImplementation(
+    session: HttpSession,
+    file: File,
+    completion: @escaping (Result<File, Error>) -> Void
+) {
+
+    let baseUrl: String = session.environment
+    let token = session.token ?? ""
+    let urlString = "\(baseUrl)/files/\(file.id)"
+
+    guard let url = URL(string: urlString) else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+
+    do {
+        let requestData = try JSONEncoder().encode(file)
+        print(requestData)
+        performRequest(
+            with: url,
+            token: token,
+            httpMethod: "PATCH",
+            requestBody: requestData,
+            completion: completion
+        )
+    }
+    catch {
+        print(error)
+        completion(.failure(NetworkError.decodingError(error)))
+    }
 }
 
 public func uploadFileImplementation(
@@ -78,7 +119,8 @@ public func uploadFileImplementation(
             "Content-Disposition: form-data; name=\"file\"; filename=\"\(fileURL.lastPathComponent)\"\r\n"
                 .data(using: .utf8)!
         )
-        body.append("Content-Type: application/octet-stream\r\n\r\n".data(using: .utf8)!)
+        let mimeType = mimeTypeForFile(at: fileURL)
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
         body.append(fileData)
 
         // Append card_pk
@@ -97,6 +139,7 @@ public func uploadFileImplementation(
             completion(.failure(error))
             return
         }
+        print(response)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             print("something has failed")

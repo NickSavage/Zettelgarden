@@ -14,6 +14,12 @@ struct CardDisplayView: View {
     @State private var isBacklinkInputPresented = false
     @State private var showAddTagsSheet = false
 
+    @EnvironmentObject var fileListViewModel: FileListViewModel
+    @State private var fileURL: URL?
+    @State private var isPresentingUploadFileView = false
+    @State private var selectedImage: UIImage?
+    @State private var isPresentingUploadPhotoView = false
+
     var body: some View {
         VStack(alignment: .leading) {
 
@@ -39,6 +45,16 @@ struct CardDisplayView: View {
                             isPresentingEditView = true
                         }) {
                             Text("Edit Card")
+                        }
+                        Button(action: {
+                            isPresentingUploadFileView = true
+                        }) {
+                            Text("Upload File To Card")
+                        }
+                        Button(action: {
+                            isPresentingUploadPhotoView = true
+                        }) {
+                            Text("Upload Photo To Card")
                         }
 
                     } label: {
@@ -169,6 +185,28 @@ struct CardDisplayView: View {
 
                     }
                 }
+                .sheet(
+                    isPresented: $isPresentingUploadFileView,
+
+                    onDismiss: {
+                        if let url = fileURL {
+                            fileListViewModel.uploadFile(url: url, cardPK: card.id)
+                        }
+                    }
+                ) {
+                    DocumentPicker(fileURL: $fileURL)
+                }
+                .sheet(
+                    isPresented: $isPresentingUploadPhotoView,
+                    onDismiss: {
+                        if let image = selectedImage {
+                            fileListViewModel.uploadImage(image: image, cardPK: card.id)
+                        }
+                    }
+                ) {
+                    PhotoPicker(image: $selectedImage)
+                }
+
             }
             else {
                 Text("No card available")

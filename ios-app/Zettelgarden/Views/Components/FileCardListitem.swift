@@ -10,8 +10,15 @@ struct FileCardListItem: View {
     @State private var isDownloading = false
     @State private var downloadError: Error?
 
+    @State private var isPresentingRenameFile = false
+    @State private var newFileName: String = ""
+
+    @State private var isPresentingDeleteFile = false
+    @State private var isPresentingLinkFile = false
+
     init(file: File) {
         self.file = file
+        self.newFileName = self.file.name
         _viewModel = StateObject(wrappedValue: FileViewModel(file: file))
     }
 
@@ -33,9 +40,6 @@ struct FileCardListItem: View {
                             .bold()
 
                     }
-                    // NavigationLink(destination: CardDisplayView(cardPK: card.id)) {
-                    //     CardListItem(card: card)
-                    // }
                 }
             }
             Spacer()
@@ -54,6 +58,54 @@ struct FileCardListItem: View {
                 message: Text(viewModel.downloadError?.localizedDescription ?? "Unknown error"),
                 dismissButton: .default(Text("OK"))
             )
+        }
+        .alert(
+            "Rename File",
+            isPresented: $isPresentingRenameFile,
+            actions: {
+
+                TextField("Rename File", text: $newFileName)
+
+                Button("Cancel", role: .cancel, action: {})
+                Button(
+                    "Save",
+                    action: {
+                        viewModel.renameFile(newName: newFileName)
+                    }
+                )
+            }
+        )
+        .contextMenu {
+            Group {
+                Button(action: {
+                    isPresentingRenameFile = true
+                }) {
+                    Text("Rename File")
+                }
+                Button(action: {
+                    isPresentingDeleteFile = true
+                }) {
+                    Text("Delete File")
+                }
+
+                if file.card_pk > 0 {
+                    Button(action: {
+                        //                        fileViewModel.unlinkCard()
+
+                    }) {
+                        Text("Unlink Card")
+                    }
+
+                }
+                else {
+
+                    Button(action: {
+
+                    }) {
+                        Text("Link Card")
+                    }
+                }
+            }
         }
     }
 

@@ -46,4 +46,31 @@ public class FileViewModel: ObservableObject {
             }
         }
     }
+
+    public func renameFile(newName: String) {
+        var editedFile = file
+        editedFile.name = newName
+        print("new nane \(newName)")
+        editFile(editedFile: editedFile)
+
+    }
+
+    public func editFile(editedFile: File) {
+        guard let token = token else {
+            print("Token is missing")
+            return
+        }
+        let session = openSession(token: token, environment: environment)
+        file = editedFile
+        print("?")
+        editFileImplementation(session: session, file: editedFile) { result in
+            switch result {
+            case .success(let savedFile):
+                print("success!")
+            case .failure(let error):
+                print("Failed to save existing file: \(error)")
+            }
+        }
+
+    }
 }
