@@ -20,6 +20,7 @@ type Card struct {
 	Keywords         []Keyword     `json:"keywords"`
 	IsLiteratureCard bool          `json:"is_literature_card"`
 	Tags             []Tag         `json:"tags"`
+	IsFlashcard      bool          `json:"is_flashcard"`
 }
 
 type PartialCard struct {
@@ -32,6 +33,7 @@ type PartialCard struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 	IsLiteratureCard bool      `json:"is_literature_card"`
 	Tags             []Tag     `json:"tags"`
+	IsFlashcard      bool      `json:"is_flashcard"`
 }
 
 func ConvertCardToPartialCard(input Card) PartialCard {
@@ -45,6 +47,7 @@ func ConvertCardToPartialCard(input Card) PartialCard {
 		UpdatedAt:        input.UpdatedAt,
 		IsLiteratureCard: input.IsLiteratureCard,
 		Tags:             input.Tags,
+		IsFlashcard:      input.IsFlashcard,
 	}
 }
 
@@ -54,6 +57,7 @@ type EditCardParams struct {
 	Body             string `json:"body"`
 	Link             string `json:"link"`
 	IsLiteratureCard bool   `json:"is_literature_card"`
+	IsFlashcard      bool   `json:"is_flashcard"`
 }
 
 type NextIDParams struct {

@@ -16,6 +16,7 @@ public struct PartialCard: Identifiable, Codable {
     public var created_at: Date
     public var updated_at: Date
     public var tags: [Tag]
+    public var is_flashcard: Bool
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -26,6 +27,7 @@ public struct PartialCard: Identifiable, Codable {
         case created_at
         case updated_at
         case tags
+        case is_flashcard
     }
     public init(from decoder: Decoder) throws {
         let container: KeyedDecodingContainer<PartialCard.CodingKeys> = try decoder.container(
@@ -47,6 +49,8 @@ public struct PartialCard: Identifiable, Codable {
         )
         updated_at = parseDate(input: updatedAtString) ?? Date()
         tags = try container.decodeIfPresent([Tag].self, forKey: .tags) ?? []
+
+        is_flashcard = try container.decodeIfPresent(Bool.self, forKey: .is_flashcard) ?? false
     }
 
     public init(
@@ -57,7 +61,8 @@ public struct PartialCard: Identifiable, Codable {
         parent_id: Int,
         created_at: Date,
         updated_at: Date,
-        tags: [Tag]
+        tags: [Tag],
+        is_flashcard: Bool
     ) {
         self.id = id
         self.card_id = card_id
@@ -67,6 +72,7 @@ public struct PartialCard: Identifiable, Codable {
         self.created_at = created_at
         self.updated_at = updated_at
         self.tags = tags
+        self.is_flashcard = is_flashcard
     }
 }
 
@@ -80,7 +86,8 @@ extension PartialCard {
             parent_id: 0,
             created_at: Date(),
             updated_at: Date(),
-            tags: []
+            tags: [],
+            is_flashcard: false
         ),
         PartialCard(
             id: 1,
@@ -90,7 +97,8 @@ extension PartialCard {
             parent_id: 1,
             created_at: Date(),
             updated_at: Date(),
-            tags: []
+            tags: [],
+            is_flashcard: false
         ),
     ]
 }

@@ -12,6 +12,7 @@ export interface PartialCard {
   updated_at: string;
   is_literature_card: boolean;
   tags: Tag[];
+  is_flashcard: boolean;
 }
 
 export interface Keyword {
@@ -41,6 +42,7 @@ export interface Card {
   keywords: Keyword[];
   is_literature_card: boolean;
   tags: Tag[];
+  is_flashcard: boolean;
 }
 
 export const defaultPartialCard: PartialCard = {
@@ -53,6 +55,7 @@ export const defaultPartialCard: PartialCard = {
   updated_at: "",
   is_literature_card: false,
   tags: [],
+  is_flashcard: false,
 };
 
 export const defaultCard: Card = {
@@ -73,6 +76,7 @@ export const defaultCard: Card = {
   keywords: [],
   is_literature_card: false,
   tags: [],
+  is_flashcard: false,
 };
 
 export interface NextIdResponse {

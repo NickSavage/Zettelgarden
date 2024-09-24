@@ -38,6 +38,7 @@ export function convertCardToPartialCard(card: Card): PartialCard {
     updated_at: card.updated_at,
     is_literature_card: card.is_literature_card,
     tags: card.tags,
+    is_flashcard: card.is_flashcard,
   };
 }
 

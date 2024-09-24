@@ -10,7 +10,6 @@ export function sampleCards(): Card[] {
 }
 export function sampleTags(): Tag[] {
   return sampleTagData;
-  
 }
 
 export const sampleTagData: Tag[] = [
@@ -21,8 +20,8 @@ export const sampleTagData: Tag[] = [
     user_id: 1,
     task_count: 1,
     card_count: 1,
-  }
-]
+  },
+];
 
 const sampleTaskData: Task[] = [
   {
@@ -49,7 +48,7 @@ const sampleTaskData: Task[] = [
     created_at: new Date(),
     updated_at: new Date(),
     completed_at: null,
-   title: "Weekly Sync-up #recurring",
+    title: "Weekly Sync-up #recurring",
     is_complete: false,
     is_deleted: false,
     card: null,
@@ -103,7 +102,7 @@ const sampleTaskData: Task[] = [
 ];
 
 const samplePartialCardData: PartialCard[] = [
-    {
+  {
     id: 1,
     card_id: "1",
     user_id: 1,
@@ -113,6 +112,7 @@ const samplePartialCardData: PartialCard[] = [
     parent_id: 1,
     is_literature_card: false,
     tags: [],
+    is_flashcard: false,
   },
   {
     id: 2,
@@ -124,9 +124,9 @@ const samplePartialCardData: PartialCard[] = [
     parent_id: 2,
     is_literature_card: false,
     tags: [],
+    is_flashcard: false,
   },
-
-]
+];
 
 const sampleCardData: Card[] = [
   {
@@ -147,6 +147,7 @@ const sampleCardData: Card[] = [
     keywords: [],
     is_literature_card: false,
     tags: [],
+    is_flashcard: false,
   },
   {
     id: 2,
@@ -166,5 +167,6 @@ const sampleCardData: Card[] = [
     keywords: [],
     is_literature_card: false,
     tags: [],
+    is_flashcard: false,
   },
 ];
