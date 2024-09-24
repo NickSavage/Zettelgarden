@@ -78,3 +78,8 @@ type InactiveCard struct {
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
+
+type FlashcardRecordNextParams struct {
+	CardPK int    `json:"id"`
+	Rating string `json:"rating"`
+}

@@ -65,10 +65,11 @@ func importTestData(s *server.Server) error {
 	tags := data["tags"].([]models.Tag)
 	card_tags := data["card_tags"].([]models.CardTag)
 
+	tx, _ := s.DB.Begin()
 	var userIDs []int
 	for _, user := range users {
 		var id int
-		err := s.DB.QueryRow(`
+		err := tx.QueryRow(`
 			INSERT INTO users 
 			(username, email, password, created_at, updated_at, can_upload_files, 
 			stripe_subscription_status, stripe_customer_id, stripe_current_plan, stripe_subscription_frequency, stripe_subscription_id,
@@ -88,9 +89,9 @@ func importTestData(s *server.Server) error {
 	}
 
 	for _, card := range cards {
-		_, err := s.DB.Exec(
-			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard,
+		_, err := tx.Exec(
+			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card, is_flashcard) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard, card.IsFlashcard,
 		)
 		if err != nil {
 			log.Printf("something went wrong inserting rows: %v", err)
@@ -99,7 +100,7 @@ func importTestData(s *server.Server) error {
 	}
 
 	for _, file := range files {
-		_, err := s.DB.Exec(
+		_, err := tx.Exec(
 			"INSERT INTO files (name, user_id, type, path, filename, size, created_by, updated_by, card_pk, is_deleted, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
 			file.Name, file.UserID, file.Filetype, file.Path, file.Filename, file.Size, file.CreatedBy, file.UpdatedBy, file.CardPK, file.IsDeleted, file.CreatedAt, file.UpdatedAt,
 		)
@@ -109,13 +110,13 @@ func importTestData(s *server.Server) error {
 		}
 	}
 
-	_, err := s.DB.Exec("UPDATE users SET is_admin = TRUE WHERE id = 1")
+	_, err := tx.Exec("UPDATE users SET is_admin = TRUE WHERE id = 1")
 	if err != nil {
 		return err
 	}
 
 	for _, backlink := range backlinks {
-		_, err := s.DB.Exec("INSERT INTO backlinks (source_id_int, target_id_int, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceIDInt, backlink.TargetIDInt, backlink.CreatedAt, backlink.UpdatedAt)
+		_, err := tx.Exec("INSERT INTO backlinks (source_id_int, target_id_int, created_at, updated_at) VALUES ($1, $2, $3, $4)", backlink.SourceIDInt, backlink.TargetIDInt, backlink.CreatedAt, backlink.UpdatedAt)
 		if err != nil {
 			log.Printf("err %v", err)
 			return err
@@ -123,7 +124,7 @@ func importTestData(s *server.Server) error {
 	}
 
 	for _, task := range tasks {
-		_, err := s.DB.Exec(
+		_, err := tx.Exec(
 			"INSERT INTO tasks (card_pk, user_id, created_at, updated_at, due_date, scheduled_date, title, is_complete) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
 			task.CardPK,
 			task.UserID,
@@ -141,7 +142,7 @@ func importTestData(s *server.Server) error {
 	}
 
 	for _, keyword := range keywords {
-		_, err := s.DB.Exec(
+		_, err := tx.Exec(
 			"INSERT INTO keywords (card_pk, user_id, keyword) VALUES ($1, $2, $3)",
 			keyword.CardPK,
 			keyword.UserID,
@@ -154,7 +155,7 @@ func importTestData(s *server.Server) error {
 	}
 
 	for _, tag := range tags {
-		_, err := s.DB.Exec(
+		_, err := tx.Exec(
 			"INSERT INTO tags (name, color, user_id) VALUES ($1, $2, $3)",
 			tag.Name,
 			tag.Color,
@@ -167,7 +168,7 @@ func importTestData(s *server.Server) error {
 	}
 
 	for _, card_tag := range card_tags {
-		_, err := s.DB.Exec(
+		_, err := tx.Exec(
 			"INSERT INTO card_tags (card_pk, tag_id) VALUES ($1, $2)",
 			card_tag.CardPK,
 			card_tag.TagID,
@@ -178,6 +179,7 @@ func importTestData(s *server.Server) error {
 		}
 	}
 
+	tx.Commit()
 	return nil
 }
 
@@ -257,6 +259,7 @@ func generateData() map[string]interface{} {
 			UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 			ParentID:         i,
 			IsLiteratureCard: false,
+			IsFlashcard:      false,
 		}
 		if i == 1 {
 			card.Body = card.Body + "\n[" + strconv.Itoa(i+1) + "]"
@@ -267,6 +270,15 @@ func generateData() map[string]interface{} {
 		}
 		if i == 5 {
 			card.CardID = "MM001"
+		}
+		if i == 6 {
+			card.IsFlashcard = true
+		}
+		if i == 7 {
+			card.IsFlashcard = true
+		}
+		if i == 8 {
+			card.IsFlashcard = true
 		}
 		cards = append(cards, card)
 	}
