@@ -113,8 +113,6 @@ struct FileCardListItem: View {
         }
         .sheet(isPresented: $isPresentingLinkFile) {
             BacklinkInputView(
-                viewModel: partialCardViewModel,
-                navigationViewModel: navigationViewModel,
                 onCardSelect: { selectedCard in
                     viewModel.linkFileToCard(card: selectedCard)
                     isPresentingLinkFile = false

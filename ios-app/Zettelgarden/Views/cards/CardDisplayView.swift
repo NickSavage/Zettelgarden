@@ -155,8 +155,6 @@ struct CardDisplayView: View {
                 .sheet(isPresented: $isBacklinkInputPresented) {
                     if let unwrappedCard = cardViewModel.card {
                         BacklinkInputView(
-                            viewModel: partialCardViewModel,
-                            navigationViewModel: navigationViewModel,
                             onCardSelect: { selectedCard in
                                 var editedCard = unwrappedCard
                                 editedCard.body = editedCard.body + "\n\n[\(selectedCard.card_id)]"

@@ -2,13 +2,13 @@ import SwiftUI
 import ZettelgardenShared
 
 struct BacklinkInputView: View {
-    @ObservedObject var viewModel: PartialCardViewModel
-    @ObservedObject var navigationViewModel: NavigationViewModel
+    @EnvironmentObject var partialCardViewModel: PartialCardViewModel
+    @EnvironmentObject var navigationViewModel: NavigationViewModel
     @State private var searchText: String = ""
     var onCardSelect: (PartialCard) -> Void
 
     var filteredCards: [PartialCard] {
-        guard let cards = viewModel.cards else {
+        guard let cards = partialCardViewModel.cards else {
             return []  // Return an empty array if `cards` is nil
         }
 
@@ -46,15 +46,16 @@ struct BacklinkInputView: View {
 
 struct BacklinkInputView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockCardViewModel = getTestCardViewModel()
-        let mockPartialCardViewModel = getTestPartialCardViewModel()
-        let mockNavigationViewModel = getTestNavigationViewModel()
+        let partialCardViewModel = getTestPartialCardViewModel()
+        let navigationViewModel = getTestNavigationViewModel()
         return BacklinkInputView(
-            viewModel: mockPartialCardViewModel,
-            navigationViewModel: mockNavigationViewModel,
             onCardSelect: { selectedCard in
                 // Example logic for demonstration
             }
-        ).previewLayout(.sizeThatFits).padding()
+        ).previewLayout(.sizeThatFits)
+            .padding()
+            .environmentObject(partialCardViewModel)
+            .environmentObject(navigationViewModel)
     }
+
 }
