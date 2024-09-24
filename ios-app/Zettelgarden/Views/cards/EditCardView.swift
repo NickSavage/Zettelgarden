@@ -86,11 +86,11 @@ struct EditCardView: View {
             }
             .sheet(isPresented: $isBacklinkInputPresented) {
                 BacklinkInputView(
-                    card: $cardCopy,
                     viewModel: cardListViewModel,
                     navigationViewModel: navigationViewModel,
                     onCardSelect: { selectedCard in
                         cardCopy.body = cardCopy.body + "\n\n[\(selectedCard.card_id)]"
+                        isBacklinkInputPresented = false
                     }
                 )
                 .presentationDetents([.medium, .large])

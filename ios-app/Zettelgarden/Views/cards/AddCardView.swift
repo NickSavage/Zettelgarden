@@ -50,11 +50,11 @@ struct AddCardView: View {
         }
         .sheet(isPresented: $isBacklinkInputPresented) {
             BacklinkInputView(
-                card: $newCard,
                 viewModel: cardListViewModel,
                 navigationViewModel: navigationViewModel,
                 onCardSelect: { selectedCard in
                     newCard.body = newCard.body + "\n\n[\(selectedCard.card_id)]"
+                    isBacklinkInputPresented = false
                 }
             )
             .presentationDetents([.medium, .large])

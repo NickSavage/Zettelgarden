@@ -5,6 +5,9 @@ struct FileCardListItem: View {
     let file: File
     @StateObject private var viewModel: FileViewModel
     @EnvironmentObject private var fileListViewModel: FileListViewModel
+    @EnvironmentObject private var partialCardViewModel: PartialCardViewModel
+    @EnvironmentObject var navigationViewModel: NavigationViewModel
+
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
         var jwt: String?
     @State private var identifiableFileURL: IdentifiableURL?
@@ -91,7 +94,7 @@ struct FileCardListItem: View {
 
                 if file.card_pk > 0 {
                     Button(action: {
-                        //                        fileViewModel.unlinkCard()
+                        viewModel.unlinkFile()
 
                     }) {
                         Text("Unlink Card")
@@ -101,12 +104,23 @@ struct FileCardListItem: View {
                 else {
 
                     Button(action: {
-
+                        isPresentingLinkFile = true
                     }) {
                         Text("Link Card")
                     }
                 }
             }
+        }
+        .sheet(isPresented: $isPresentingLinkFile) {
+            BacklinkInputView(
+                viewModel: partialCardViewModel,
+                navigationViewModel: navigationViewModel,
+                onCardSelect: { selectedCard in
+                    viewModel.linkFileToCard(card: selectedCard)
+                    isPresentingLinkFile = false
+                }
+            )
+            .presentationDetents([.medium, .large])
         }
         .alert(isPresented: $isPresentingDeleteFile) {
 

@@ -155,7 +155,6 @@ struct CardDisplayView: View {
                 .sheet(isPresented: $isBacklinkInputPresented) {
                     if let unwrappedCard = cardViewModel.card {
                         BacklinkInputView(
-                            card: .constant(unwrappedCard),
                             viewModel: partialCardViewModel,
                             navigationViewModel: navigationViewModel,
                             onCardSelect: { selectedCard in

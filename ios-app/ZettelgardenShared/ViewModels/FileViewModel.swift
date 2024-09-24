@@ -55,6 +55,18 @@ public class FileViewModel: ObservableObject {
 
     }
 
+    public func unlinkFile() {
+        var editedFile = file
+        editedFile.card_pk = -1
+        editFile(editedFile: editedFile)
+
+    }
+    public func linkFileToCard(card: PartialCard) {
+        var editedFile = file
+        editedFile.card_pk = card.id
+        editFile(editedFile: editedFile)
+    }
+
     public func editFile(editedFile: File) {
         guard let token = token else {
             print("Token is missing")
@@ -66,6 +78,7 @@ public class FileViewModel: ObservableObject {
         editFileImplementation(session: session, file: editedFile) { result in
             switch result {
             case .success(let savedFile):
+                self.file = savedFile
                 print("success!")
             case .failure(let error):
                 print("Failed to save existing file: \(error)")

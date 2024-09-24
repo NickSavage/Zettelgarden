@@ -2,7 +2,6 @@ import SwiftUI
 import ZettelgardenShared
 
 struct BacklinkInputView: View {
-    @Binding var card: Card
     @ObservedObject var viewModel: PartialCardViewModel
     @ObservedObject var navigationViewModel: NavigationViewModel
     @State private var searchText: String = ""
@@ -46,13 +45,11 @@ struct BacklinkInputView: View {
 }
 
 struct BacklinkInputView_Previews: PreviewProvider {
-    @State static var card = Card.emptyCard
     static var previews: some View {
         let mockCardViewModel = getTestCardViewModel()
         let mockPartialCardViewModel = getTestPartialCardViewModel()
         let mockNavigationViewModel = getTestNavigationViewModel()
         return BacklinkInputView(
-            card: $card,
             viewModel: mockPartialCardViewModel,
             navigationViewModel: mockNavigationViewModel,
             onCardSelect: { selectedCard in
