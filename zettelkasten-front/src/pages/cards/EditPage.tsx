@@ -188,16 +188,16 @@ export function EditPage({ newCard }: EditPageProps) {
           <div className="flex items-center mb-2">
             <input
               type="checkbox"
-              checked={editingCard.is_literature_card}
+              checked={editingCard.is_flashcard}
               onChange={(e) =>
                 setEditingCard({
                   ...editingCard,
-                  is_literature_card: e.target.checked,
+		  is_flashcard: e.target.checked,
                 })
               }
               className="mr-2 h-4 w-4"
             />
-            <span className="text-sm text-gray-700">Literature Card</span>
+            <span className="text-sm text-gray-700">Use as a Flashcard</span>
           </div>
           <Button onClick={handleSaveCard} children={"Save"} />
           <Button onClick={handleCancelButtonClick} children={"Cancel"} />

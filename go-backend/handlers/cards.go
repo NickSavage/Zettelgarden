@@ -842,7 +842,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	log.Printf("setting parent id %v", parent_id)
 
 	query := `
-	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, is_literature_card = $5, is_flashcard = $6 updated_at = NOW(), card_id = $7
+	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, is_literature_card = $5, is_flashcard = $6, updated_at = NOW(), card_id = $7
 	WHERE
 	id = $8
 	`

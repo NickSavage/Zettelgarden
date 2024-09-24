@@ -100,7 +100,7 @@ export function ViewPage({}: ViewPageProps) {
     setViewCard(editedCard);
     fetchCard(id!);
   }
-  
+
   function handleEditCard() {
     if (viewingCard === null) {
       return;
@@ -160,11 +160,9 @@ export function ViewPage({}: ViewPageProps) {
                   {viewingCard.card_id}
                 </span>
                 <HeaderTop text=": " />
-                <HeaderTop text={viewingCard.title} />
-                {viewingCard.is_literature_card && (
-                  <span className="pl-2 text-purple-500 text-sm">
-                    {"Literature Card"}
-                  </span>
+                <HeaderTop className="pr-2" text={viewingCard.title} />
+                {viewingCard.is_flashcard && (
+                  <span className="px-2 text-white bg-cyan-500 text-sm rounded-lg">Flashcard</span>
                 )}
                 {viewingCard.tags.length > 0 &&
                   viewingCard.tags.map((tag) => (
@@ -240,10 +238,9 @@ export function ViewPage({}: ViewPageProps) {
                     file={file}
                     onDelete={onFileDelete}
                     setRefreshFiles={(refresh: boolean) => {}}
-
-		    displayFileOnCard={(file: File) => {
-		      handleDisplayFileOnCardClick(file);
-		    }}
+                    displayFileOnCard={(file: File) => {
+                      handleDisplayFileOnCardClick(file);
+                    }}
                   />
                 ))}
               </ul>
@@ -267,12 +264,18 @@ export function ViewPage({}: ViewPageProps) {
           ))}
 
           <HeaderSubSection text="References" />
-          <CardList cards={viewingCard.references.sort((a, b) => compareCardIds(a.card_id, b.card_id))} />
+          <CardList
+            cards={viewingCard.references.sort((a, b) =>
+              compareCardIds(a.card_id, b.card_id),
+            )}
+          />
           {viewingCard.children.length > 0 && (
             <div>
               <HeaderSubSection text="Children" />
               <ChildrenCards
-                allChildren={viewingCard.children.sort((a, b) => compareCardIds(a.card_id, b.card_id))}
+                allChildren={viewingCard.children.sort((a, b) =>
+                  compareCardIds(a.card_id, b.card_id),
+                )}
                 card={viewingCard}
               />
             </div>
