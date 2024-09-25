@@ -10,11 +10,10 @@ export function FlashcardNextPage({}: FlashcardNextPageProps) {
 
   async function fetchRecordNextFlashcard(rating: string) {
     if (!activeCard) {
-      return
+      return;
     }
-    let response = await postNextFlashcard(activeCard.id, rating)
-    setActiveCard(response)
-    
+    let response = await postNextFlashcard(activeCard.id, rating);
+    setActiveCard(response);
   }
   async function fetchNextFlashcard() {
     let response = await getNextFlashcard();
@@ -35,21 +34,47 @@ export function FlashcardNextPage({}: FlashcardNextPageProps) {
   }
 
   return (
-    <div>
-      <span>{activeCard.title}</span>
-      {!showAnswer && (
-        <div>
-          <button onClick={() => setShowAnswer(true)}>Show Answer</button>
+    <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded">
+      <span className="block text-2xl font-semibold mb-4">
+        {activeCard.title}
+      </span>
+      {!showAnswer ? (
+        <div className="flex justify-center">
+          <button
+            className="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+            onClick={() => setShowAnswer(true)}
+          >
+            Show Answer
+          </button>
         </div>
-      )}
-      {showAnswer && (
+      ) : (
         <div>
-          <span>{activeCard.body}</span>
-          <div>
-            <button onClick={() => handleButtonClick("Again")}>Again</button>
-            <button onClick={() => handleButtonClick("Hard")}>Hard</button>
-            <button onClick={() => handleButtonClick("Good")}>Good</button>
-            <button onClick={() => handleButtonClick("Easy")}>Easy</button>
+          <span className="block text-lg mb-4">{activeCard.body}</span>
+          <div className="flex justify-around">
+            <button
+              className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition duration-200"
+              onClick={() => handleButtonClick("Again")}
+            >
+              Again
+            </button>
+            <button
+              className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition duration-200"
+              onClick={() => handleButtonClick("Hard")}
+            >
+              Hard
+            </button>
+            <button
+              className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 transition duration-200"
+              onClick={() => handleButtonClick("Good")}
+            >
+              Good
+            </button>
+            <button
+              className="bg-cyan-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition duration-200"
+              onClick={() => handleButtonClick("Easy")}
+            >
+              Easy
+            </button>
           </div>
         </div>
       )}
