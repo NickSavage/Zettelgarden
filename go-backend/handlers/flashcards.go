@@ -68,8 +68,6 @@ func (s *Handler) RecordFlashcardReview(userID int, cardPK int, rating models.Ra
 }
 
 func (s *Handler) FlashcardRecordNextRoute(w http.ResponseWriter, r *http.Request) {
-	log.Printf("?")
-
 	userID := r.Context().Value("current_user").(int)
 
 	var params models.FlashcardRecordNextParams

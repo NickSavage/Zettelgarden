@@ -14,6 +14,7 @@ import { BillingSuccess } from "./BillingSuccess";
 import { BillingCancelled } from "./BillingCancelled";
 import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
+import { FlashcardNextPage } from "./flashcards/FlashcardNextPage";
 
 import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
@@ -96,6 +97,10 @@ function MainAppContent() {
                   <Route
                     path="card/new"
                     element={<EditPage newCard={true} />}
+                  />
+                  <Route
+                    path="flashcards/next"
+                    element={<FlashcardNextPage />}
                   />
                   <Route path="settings" element={<UserSettingsPage />} />
                   <Route path="files" element={<FileVault />} />

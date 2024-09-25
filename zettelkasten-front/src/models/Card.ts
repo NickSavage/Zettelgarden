@@ -20,9 +20,7 @@ export interface Keyword {
   card_pk: number;
   user_id: number;
   keyword: string;
-  
 }
-
 
 export interface Card {
   id: number;
@@ -83,4 +81,30 @@ export interface NextIdResponse {
   error: boolean;
   message: string;
   new_id: string;
+}
+
+export interface FlashcardRecordNextParams {
+  card_pk: number;
+  rating: number;
+}
+enum Rating {
+  Again = 0,
+  Hard = 1,
+  Good = 2,
+  Easy = 3
+}
+
+export function getRatingValue(rating: string): number {
+  switch (rating.toLowerCase()) {
+    case 'again':
+      return Rating.Again;
+    case 'hard':
+      return Rating.Hard;
+    case 'good':
+      return Rating.Good;
+    case 'easy':
+      return Rating.Easy;
+    default:
+      throw new Error(`Invalid rating value: ${rating}`);
+  }
 }

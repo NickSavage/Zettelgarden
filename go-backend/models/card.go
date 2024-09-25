@@ -80,7 +80,7 @@ type InactiveCard struct {
 }
 
 type FlashcardRecordNextParams struct {
-	CardPK int    `json:"id"`
+	CardPK int    `json:"card_pk"`
 	Rating Rating `json:"rating"`
 }
 
