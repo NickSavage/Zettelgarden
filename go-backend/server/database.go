@@ -42,6 +42,7 @@ func ResetDatabase(S *Server) error {
                         DROP TABLE IF EXISTS card_tags CASCADE;
                         DROP TABLE IF EXISTS tags CASCADE;
                         DROP TABLE IF EXISTS task_tags CASCADE;
+                        DROP TABLE IF EXISTS flashcard_reviews CASCADE;
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,
 				migration_name VARCHAR(255) NOT NULL,

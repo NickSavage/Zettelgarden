@@ -144,6 +144,9 @@ func main() {
 	addProtectedRoute(r, "/api/cards/{id}", h.UpdateCardRoute, "PUT")
 	addProtectedRoute(r, "/api/cards/{id}", h.DeleteCardRoute, "DELETE")
 
+	addProtectedRoute(r, "/api/flashcards", h.FlashcardGetNextRoute, "GET")
+	addProtectedRoute(r, "/api/flashcards", h.FlashcardRecordNextRoute, "POST")
+
 	addProtectedRoute(r, "/api/cards/keywords/{id}", h.PutCardKeywordsRoute, "PUT")
 
 	addProtectedRoute(r, "/api/users/{id}", h.GetUserRoute, "GET")

@@ -81,5 +81,19 @@ type InactiveCard struct {
 
 type FlashcardRecordNextParams struct {
 	CardPK int    `json:"id"`
-	Rating string `json:"rating"`
+	Rating Rating `json:"rating"`
 }
+
+type FlashcardReview struct {
+	ID        int       `json:"id"`
+	CardPK    int       `json:"card_pk"`
+	CreatedAt time.Time `json:"created_at"`
+	Rating    int       `json:"rating"`
+}
+
+type Rating int
+
+const Again Rating = 0
+const Hard Rating = 1
+const Good Rating = 2
+const Easy Rating = 3
