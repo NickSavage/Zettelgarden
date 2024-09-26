@@ -20,6 +20,38 @@ func InitCardAsFlashcard(s *server.Server, userID, cardPK int) error {
 	return nil
 }
 
+func GetFlashcard(s *server.Server, userID, cardPK int) (models.Flashcard, error) {
+
+	var card models.Flashcard
+
+	err := s.DB.QueryRow(`
+	SELECT
+	id, card_id, user_id, title, body, created_at, updated_at,
+        flashcard_state, flashcard_reps, flashcard_lapses, flashcard_last_review,
+        flashcard_due
+	FROM cards 
+	WHERE is_deleted = FALSE AND card_id = $1 AND user_id = $2
+	`, cardPK, userID).Scan(
+		&card.ID,
+		&card.CardID,
+		&card.UserID,
+		&card.Title,
+		&card.Body,
+		&card.CreatedAt,
+		&card.UpdatedAt,
+		&card.State,
+		&card.Reps,
+		&card.Lapses,
+		&card.LastReview,
+		&card.Due,
+	)
+	if err != nil {
+		log.Printf("err %v", err)
+		return models.Flashcard{}, fmt.Errorf("something went wrong")
+	}
+	return card, nil
+}
+
 func Next(s *server.Server, userID int) (int, error) {
 	var count int
 	var result int
@@ -53,7 +85,36 @@ func Next(s *server.Server, userID int) (int, error) {
 
 }
 
+func getNewFlashcardState(card models.Flashcard, rating models.Rating) (string, error) {
+	if card.State == "New" || card.State == "" {
+		return "Learning", nil
+
+	} else if card.State == "Learning" || card.State == "Relearning" {
+		if rating == models.Again {
+			return "Learning", nil
+		} else {
+			return "Review", nil
+		}
+	} else if card.State == "Review" {
+		if rating == models.Again {
+			return "Relearning", nil
+		} else {
+			return "Review", nil
+		}
+
+	} else {
+		return "", fmt.Errorf("card state inconsistent, got %v", card.State)
+
+	}
+}
+
 func UpdateCardFromReview(s *server.Server, userID int, cardPK int, rating models.Rating) error {
+
+	flashcard, err := GetFlashcard(s, userID, cardPK)
+	if err != nil {
+		log.Printf("get flashcard error %v", err)
+		return err
+	}
 	flashcard_due := 1
 	flashcard_reps_inc := 1
 	flashcard_lapses_inc := 0
@@ -64,7 +125,11 @@ func UpdateCardFromReview(s *server.Server, userID int, cardPK int, rating model
 		flashcard_due = 0
 		flashcard_lapses_inc = 1
 	}
-	flashcard_state := rating.String()
+	flashcard_state, err := getNewFlashcardState(flashcard, rating)
+	if err != nil {
+		log.Printf("get flashcard error %v", err)
+		return err
+	}
 
 	query := `
         UPDATE cards
@@ -77,7 +142,7 @@ flashcard_state = $4
 
         WHERE id = $5 AND user_id = $6
         `
-	_, err := s.DB.Exec(
+	_, err = s.DB.Exec(
 		query,
 		flashcard_due,
 		flashcard_reps_inc,

@@ -67,8 +67,8 @@ func TestUpdateFlashcardAgain(t *testing.T) {
 			flashcard.Lapses+1,
 		)
 	}
-	if newFlashcard.State != "Again" {
-		t.Errorf("wrong state returned, got %v want %v", newFlashcard.State, "Again")
+	if newFlashcard.State != "Learning" {
+		t.Errorf("wrong state returned, got %v want %v", newFlashcard.State, "Learning")
 	}
 
 	if newFlashcard.LastReview == nil {
@@ -86,6 +86,55 @@ func TestUpdateFlashcardAgain(t *testing.T) {
 	} else if !sameDate(*flashcard.Due, *newFlashcard.Due) {
 		t.Errorf(
 			"due date changed when it should not have, got %v, want %v",
+			newFlashcard.Due,
+			flashcard.Due,
+		)
+	}
+
+}
+
+func TestUpdateFlashcardHard(t *testing.T) {
+	s := tests.Setup()
+	defer tests.Teardown()
+
+	flashcard, err := testFlashcardQuery(s, 6)
+	if err != nil {
+		t.Errorf("unable to get beginning flashcard")
+	}
+
+	UpdateCardFromReview(s, 1, flashcard.ID, models.Hard)
+
+	newFlashcard, err := testFlashcardQuery(s, 6)
+	if err != nil {
+		t.Errorf("unable to get ending flashcard")
+	}
+
+	if flashcard.Lapses != newFlashcard.Lapses {
+		t.Errorf(
+			"lapses were incremented when they should not have been, got %v want %v",
+			newFlashcard.Lapses,
+			flashcard.Lapses,
+		)
+	}
+	if newFlashcard.State != "Learning" {
+		t.Errorf("wrong state returned, got %v want %v", newFlashcard.State, "Learning")
+	}
+
+	if newFlashcard.LastReview == nil {
+		t.Error("last review timestamp was not set")
+	} else if flashcard.LastReview != nil && !newFlashcard.LastReview.After(*flashcard.LastReview) {
+		t.Errorf(
+			"last review timestamp was not updated correctly, got %v, want greater than %v",
+			newFlashcard.LastReview,
+			flashcard.LastReview,
+		)
+	}
+	if newFlashcard.Due == nil {
+
+		t.Error("due timestamp was not set")
+	} else if sameDate(*flashcard.Due, *newFlashcard.Due) {
+		t.Errorf(
+			"due date not changed when it should have, got %v, want %v",
 			newFlashcard.Due,
 			flashcard.Due,
 		)
