@@ -841,6 +841,11 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	}
 	log.Printf("setting parent id %v", parent_id)
 
+	originalCard, err := s.QueryPartialCardByID(userID, cardPK)
+	if err != nil {
+		return models.Card{}, fmt.Errorf("unable to load original card %v", err)
+	}
+
 	query := `
 	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, is_literature_card = $5, is_flashcard = $6, updated_at = NOW(), card_id = $7
 	WHERE
@@ -852,6 +857,10 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 		return models.Card{}, err
 	}
 
+	if !originalCard.IsFlashcard && params.IsFlashcard {
+		s.Server.SRSClient.InitCardAsFlashcard(userID, cardPK)
+	}
+
 	card, err := s.QueryFullCard(userID, cardPK)
 	backlinks := extractBacklinks(card.Body)
 	s.updateBacklinks(card.ID, backlinks)
@@ -859,6 +868,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	if !s.Server.Testing {
 		go s.UpdateCardKeywords(userID, card)
 	}
+
 	s.AddTagsFromCard(userID, cardPK)
 	return s.QueryFullCard(userID, cardPK)
 }

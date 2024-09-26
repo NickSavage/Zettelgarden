@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-backend/models"
 	"go-backend/server"
+	"go-backend/srs"
 	"log"
 	"math/rand"
 	"os"
@@ -38,6 +39,7 @@ func Setup() *server.Server {
 	S.SchemaDir = "../schema"
 
 	S.TestInspector = &server.TestInspector{}
+	S.SRSClient = &srs.Client{DB: db}
 
 	server.RunMigrations(S)
 	importTestData(S)
