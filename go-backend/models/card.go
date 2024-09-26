@@ -49,6 +49,8 @@ type Flashcard struct {
 	Lapses     int        `json:"lapses"`
 	LastReview *time.Time `json:"last_review,omitempty"`
 	Due        *time.Time `json:"due,omitempty"`
+	Difficulty float64    `json:"difficulty"`
+	Stability  float64    `json:"stability"`
 }
 
 func ConvertCardToPartialCard(input Card) PartialCard {
