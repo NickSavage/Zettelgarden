@@ -79,9 +79,8 @@ export function getCard(id: string): Promise<Card> {
     });
 }
 
-export function getNextFlashcard(id: string): Promise<Card> {
+export function getNextFlashcard(): Promise<Card> {
   // Assuming your backend is running on the same IP and port as in previous example
-  let encoded = encodeURIComponent(id);
   const url = base_url + `/flashcards`;
 
   let token = localStorage.getItem("token");
@@ -97,7 +96,7 @@ export function getNextFlashcard(id: string): Promise<Card> {
     });
 }
 
-export function postNextFlashcard(card_pk: int, rating: string): Promise<Card> {
+export function postNextFlashcard(card_pk: number, rating: string): Promise<Card> {
   let ratingInt = getRatingValue(rating);
 
   const data: FlashcardRecordNextParams = { card_pk: card_pk, rating: ratingInt };
