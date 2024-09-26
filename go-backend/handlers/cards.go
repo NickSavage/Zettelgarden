@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
+	"go-backend/srs"
 	"log"
 	"net/http"
 	"regexp"
@@ -858,7 +859,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	}
 
 	if !originalCard.IsFlashcard && params.IsFlashcard {
-		s.Server.SRSClient.InitCardAsFlashcard(userID, cardPK)
+		srs.InitCardAsFlashcard(s.Server, userID, cardPK)
 	}
 
 	card, err := s.QueryFullCard(userID, cardPK)

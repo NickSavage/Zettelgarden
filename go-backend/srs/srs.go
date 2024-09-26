@@ -1,22 +1,18 @@
 package srs
 
 import (
-	"database/sql"
 	"fmt"
 	"go-backend/models"
+	"go-backend/server"
 	"log"
 )
 
-type Client struct {
-	DB *sql.DB
-}
-
-func (c *Client) InitCardAsFlashcard(userID, cardPK int) error {
+func InitCardAsFlashcard(s *server.Server, userID, cardPK int) error {
 	query := `
         UPDATE cards SET flashcard_state = 'new', flashcard_due = NOW()
         WHERE id = $1 AND user_id = $2 AND is_flashcard = TRUE
         `
-	_, err := c.DB.Exec(query, cardPK, userID)
+	_, err := s.DB.Exec(query, cardPK, userID)
 	if err != nil {
 		log.Printf("init flashcard err %v", err)
 		return err
@@ -24,14 +20,14 @@ func (c *Client) InitCardAsFlashcard(userID, cardPK int) error {
 	return nil
 }
 
-func (c *Client) Next(userID int) (int, error) {
+func Next(s *server.Server, userID int) (int, error) {
 	var count int
 	var result int
 
-	err := c.DB.QueryRow(`
+	err := s.DB.QueryRow(`
         SELECT count(id) FROM cards
         WHERE is_flashcard = TRUE and user_id = $1 AND 
-        DATE(flashcard_due) <= CURRENT_DATE
+        DATE(flashcard_due) <= DATE(NOW())
 `, userID).Scan(&count)
 	if err != nil {
 		log.Printf("get next flashcard err %v", err)
@@ -41,10 +37,10 @@ func (c *Client) Next(userID int) (int, error) {
 		return -1, nil
 	}
 
-	err = c.DB.QueryRow(`
+	err = s.DB.QueryRow(`
         SELECT id FROM cards
         WHERE is_flashcard = TRUE AND user_id = $1 AND
-        DATE(flashcard_due) <= CURRENT_DATE
+        DATE(flashcard_due) <= DATE(NOW())
         ORDER BY RANDOM()
         LIMIT 1
 	`, userID).Scan(&result)
@@ -57,24 +53,51 @@ func (c *Client) Next(userID int) (int, error) {
 
 }
 
-func (c *Client) RecordFlashcardReview(userID int, cardPK int, rating models.Rating) error {
+func UpdateCardFromReview(s *server.Server, userID int, cardPK int, rating models.Rating) error {
+	flashcard_due := 1
+	flashcard_reps_inc := 1
+	flashcard_lapses_inc := 0
+
+	log.Printf("tee hee")
+	if rating == models.Again {
+		log.Printf("?")
+		flashcard_due = 0
+		flashcard_lapses_inc = 1
+	}
+	flashcard_state := rating.String()
+
 	query := `
         UPDATE cards
         SET
-          flashcard_due = (NOW()) + INTERVAL '1 day',
-          flashcard_reps = flashcard_reps + 1,
-          flashcard_last_review = NOW()
-        WHERE id = $1 AND user_id = $2
+          flashcard_due = NOW() + MAKE_INTERVAL(days => $1),
+          flashcard_reps = flashcard_reps + $2,
+flashcard_lapses = flashcard_lapses + $3,
+          flashcard_last_review = NOW(),
+flashcard_state = $4
+
+        WHERE id = $5 AND user_id = $6
         `
-	_, err := c.DB.Exec(query, cardPK, userID)
+	_, err := s.DB.Exec(
+		query,
+		flashcard_due,
+		flashcard_reps_inc,
+		flashcard_lapses_inc,
+		flashcard_state,
+		cardPK,
+		userID,
+	)
 	if err != nil {
 		log.Printf("record flashcard review err %v", err)
 		return fmt.Errorf("unable to update card: %v", err.Error())
 
 	}
-	query = `INSERT INTO flashcard_reviews (card_pk, user_id, rating) VALUES ($1, $2, $3)`
+	return nil
+}
 
-	_, err = c.DB.Exec(query, cardPK, userID, rating)
+func RecordFlashcardReview(s *server.Server, userID int, cardPK int, rating models.Rating) error {
+	query := `INSERT INTO flashcard_reviews (card_pk, user_id, rating) VALUES ($1, $2, $3)`
+
+	_, err := s.DB.Exec(query, cardPK, userID, rating)
 	if err != nil {
 		log.Printf("record flashcard review err %v", err)
 		return fmt.Errorf("unable to record flashcard review: %v", err.Error())

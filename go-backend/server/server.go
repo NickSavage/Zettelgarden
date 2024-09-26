@@ -3,7 +3,6 @@ package server
 import (
 	"database/sql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"go-backend/srs"
 )
 
 type Server struct {
@@ -15,7 +14,6 @@ type Server struct {
 	Mail          *MailClient
 	TestInspector *TestInspector
 	SchemaDir     string
-	SRSClient     *srs.Client
 }
 
 type MailClient struct {

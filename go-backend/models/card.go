@@ -112,3 +112,15 @@ const Again Rating = 0
 const Hard Rating = 1
 const Good Rating = 2
 const Easy Rating = 3
+
+func (r Rating) String() string {
+	if r == Again {
+		return "Again"
+	} else if r == Hard {
+		return "Hard"
+	} else if r == Good {
+		return "Good"
+	} else {
+		return "Easy"
+	}
+}

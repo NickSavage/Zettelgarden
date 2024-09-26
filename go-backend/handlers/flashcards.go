@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
+	"go-backend/srs"
 	"log"
 	"net/http"
 )
@@ -11,7 +12,7 @@ import (
 func (s *Handler) FlashcardGetNextRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
-	cardPK, err := s.Server.SRSClient.Next(userID)
+	cardPK, err := srs.Next(s.Server, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -41,12 +42,12 @@ func (s *Handler) FlashcardRecordNextRoute(w http.ResponseWriter, r *http.Reques
 		log.Printf("flashcard redcord params err %v", err)
 		http.Error(w, fmt.Sprintf("error parsing json: %v", err.Error()), http.StatusBadRequest)
 	}
-	err = s.Server.SRSClient.RecordFlashcardReview(userID, params.CardPK, params.Rating)
+	err = srs.RecordFlashcardReview(s.Server, userID, params.CardPK, params.Rating)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("unable to log card review: %v", err.Error()), http.StatusBadRequest)
 	}
 
-	cardPK, err := s.Server.SRSClient.Next(userID)
+	cardPK, err := srs.Next(s.Server, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

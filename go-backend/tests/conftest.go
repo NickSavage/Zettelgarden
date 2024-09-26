@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"go-backend/models"
 	"go-backend/server"
-	"go-backend/srs"
 	"log"
 	"math/rand"
 	"os"
@@ -39,7 +38,6 @@ func Setup() *server.Server {
 	S.SchemaDir = "../schema"
 
 	S.TestInspector = &server.TestInspector{}
-	S.SRSClient = &srs.Client{DB: db}
 
 	server.RunMigrations(S)
 	importTestData(S)
@@ -92,7 +90,7 @@ func importTestData(s *server.Server) error {
 
 	for _, card := range cards {
 		_, err := tx.Exec(
-			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card, is_flashcard) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card, is_flashcard, flashcard_due, flashcard_state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), '')",
 			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard, card.IsFlashcard,
 		)
 		if err != nil {
