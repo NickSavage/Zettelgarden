@@ -12,11 +12,22 @@ import ZettelgardenShared
 struct ShareAddCardView: View {
     var extensionContext: NSExtensionContext?
     @State var data: [NSItemProvider]?
-    @ObservedObject var cardListViewModel = PartialCardViewModel()
+    @StateObject var partialCardViewModel = PartialCardViewModel()
+    @StateObject var navigationViewModel: NavigationViewModel
+    @StateObject var cardViewModel = CardViewModel()
 
     @State private var newCard: Card = Card.emptyCard
 
     @State private var message: String = ""
+
+    init(extensionContext: NSExtensionContext?, data: [NSItemProvider]?) {
+        self.extensionContext = extensionContext
+        self.data = data
+        let cardViewModel = CardViewModel()
+        _navigationViewModel = StateObject(
+            wrappedValue: NavigationViewModel(cardViewModel: cardViewModel)
+        )
+    }
 
     func handleAttachments() {
 
@@ -38,39 +49,18 @@ struct ShareAddCardView: View {
             }
         }
     }
-
-    private func saveCard() {
-        cardListViewModel.createNewCard(card: newCard)
-        extensionContext!.completeRequest(returningItems: nil, completionHandler: nil)
-    }
-
     var body: some View {
         VStack {
-            Text(message)
-            Form {
-                Section(header: Text("Card Details")) {
-                    TextField("Card ID", text: $newCard.card_id)
-                    TextField("Title", text: $newCard.title)
-                    TextEditor(text: $newCard.body)
-                        .frame(height: 200)
-                    TextField("Link", text: $newCard.link)
+
+            let onSave: (_ card: Card) -> Void = { card in
+                extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
+            }
+            CreateCardView(message: $message, newCard: $newCard, onSave: onSave)
+                .environmentObject(partialCardViewModel)
+                .environmentObject(navigationViewModel)
+                .onAppear {
+                    handleAttachments()
                 }
-            }
-            Spacer()
-            Button(action: {
-                saveCard()
-            }) {
-                Text("Save")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .padding()
-            .onAppear {
-                handleAttachments()
-            }
         }
     }
 }

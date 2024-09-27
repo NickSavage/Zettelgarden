@@ -8,11 +8,15 @@
 import SwiftUI
 import ZettelgardenShared
 
-struct CardListItem: View {
+public struct CardListItem: View {
     let card: PartialCard
     @EnvironmentObject var navigationViewModel: NavigationViewModel
 
-    var body: some View {
+    public init(card: PartialCard) {
+        self.card = card
+    }
+
+    public var body: some View {
         VStack {
             Button(action: {
                 navigationViewModel.visit(page: .card, cardPK: card.id)

@@ -62,6 +62,12 @@ struct ContentView: View {
                     taskListViewModel: taskListViewModel,
                     fileListViewModel: fileListViewModel
                 )
+                .environmentObject(tagViewModel)
+                .environmentObject(cardViewModel)
+                .environmentObject(partialCardViewModel)
+                .environmentObject(navigationViewModel)
+                .environmentObject(taskListViewModel)
+                .environmentObject(fileListViewModel)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

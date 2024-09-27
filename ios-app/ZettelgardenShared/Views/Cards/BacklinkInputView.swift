@@ -1,12 +1,15 @@
 import SwiftUI
 import ZettelgardenShared
 
-struct BacklinkInputView: View {
+public struct BacklinkInputView: View {
     @EnvironmentObject var partialCardViewModel: PartialCardViewModel
     @EnvironmentObject var navigationViewModel: NavigationViewModel
     @State private var searchText: String = ""
     var onCardSelect: (PartialCard) -> Void
 
+    public init(onCardSelect: @escaping (PartialCard) -> Void) {
+        self.onCardSelect = onCardSelect
+    }
     var filteredCards: [PartialCard] {
         guard let cards = partialCardViewModel.cards else {
             return []  // Return an empty array if `cards` is nil
@@ -26,7 +29,7 @@ struct BacklinkInputView: View {
         onCardSelect(selectedCard)
 
     }
-    var body: some View {
+    public var body: some View {
         VStack {
             TextField("Search cards", text: $searchText)
                 .padding()

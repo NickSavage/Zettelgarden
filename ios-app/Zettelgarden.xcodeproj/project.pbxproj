@@ -23,7 +23,6 @@
 		01201F792BF2BB6400DF973E /* ZettelgardenUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F782BF2BB6400DF973E /* ZettelgardenUITestsLaunchTests.swift */; };
 		01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */; };
 		01201F8D2BF2C9AB00DF973E /* CardListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8C2BF2C9AB00DF973E /* CardListView.swift */; };
-		01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8E2BF2C9E000DF973E /* CardListItem.swift */; };
 		013C75E72C6EA7A100838E7B /* TaskListContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013C75E62C6EA7A100838E7B /* TaskListContextMenu.swift */; };
 		0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E9D62BF55DCA007D4EAD /* Utils.swift */; };
 		016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */; };
@@ -42,7 +41,6 @@
 		01759F192C3E092D00918E10 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F182C3E092D00918E10 /* TaskListView.swift */; };
 		01759F222C3F38CF00918E10 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F212C3F38CF00918E10 /* AddTaskView.swift */; };
 		01759F242C3F666C00918E10 /* EditTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01759F232C3F666C00918E10 /* EditTaskView.swift */; };
-		018523F72C9AD3CE00B3002D /* BacklinkInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */; };
 		018523F92C9BA50A00B3002D /* EditCardContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */; };
 		018523FC2C9BA86F00B3002D /* TagViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FB2C9BA86F00B3002D /* TagViewModel.swift */; };
 		018523FE2C9BA8B100B3002D /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018523FD2C9BA8B100B3002D /* Tags.swift */; };
@@ -63,6 +61,9 @@
 		01953EDD2C76A35900F44FAD /* TaskListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */; };
 		019AF16C2C9D7F9F00A99FFA /* AddCardTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */; };
 		019AF16E2C9E0EF000A99FFA /* CardListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019AF16D2C9E0EF000A99FFA /* CardListOptionsMenu.swift */; };
+		01A508742CA6B06A00449E40 /* CreateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A508732CA6B06100449E40 /* CreateCardView.swift */; };
+		01A508772CA6B7ED00449E40 /* CardListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A508762CA6B7ED00449E40 /* CardListItem.swift */; };
+		01A508782CA6B7ED00449E40 /* BacklinkInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A508752CA6B7ED00449E40 /* BacklinkInputView.swift */; };
 		01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */; };
 		01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */; };
 		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
@@ -186,7 +187,6 @@
 		01201F862BF2BBCE00DF973E /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		01201F8A2BF2BE4000DF973E /* CardDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDisplayView.swift; sourceTree = "<group>"; };
 		01201F8C2BF2C9AB00DF973E /* CardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListView.swift; sourceTree = "<group>"; };
-		01201F8E2BF2C9E000DF973E /* CardListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListItem.swift; sourceTree = "<group>"; };
 		013C75E62C6EA7A100838E7B /* TaskListContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListContextMenu.swift; sourceTree = "<group>"; };
 		0144E9D62BF55DCA007D4EAD /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		016D00012C6CE0EF00339760 /* NavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModel.swift; sourceTree = "<group>"; };
@@ -209,7 +209,6 @@
 		01759F1D2C3E958100918E10 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
 		01759F212C3F38CF00918E10 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		01759F232C3F666C00918E10 /* EditTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTaskView.swift; sourceTree = "<group>"; };
-		018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklinkInputView.swift; sourceTree = "<group>"; };
 		018523F82C9BA50A00B3002D /* EditCardContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCardContextMenu.swift; sourceTree = "<group>"; };
 		018523FB2C9BA86F00B3002D /* TagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViewModel.swift; sourceTree = "<group>"; };
 		018523FD2C9BA8B100B3002D /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
@@ -229,6 +228,9 @@
 		01953EDC2C76A35900F44FAD /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
 		019AF16B2C9D7F9E00A99FFA /* AddCardTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardTagsView.swift; sourceTree = "<group>"; };
 		019AF16D2C9E0EF000A99FFA /* CardListOptionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListOptionsMenu.swift; sourceTree = "<group>"; };
+		01A508732CA6B06100449E40 /* CreateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCardView.swift; sourceTree = "<group>"; };
+		01A508752CA6B7ED00449E40 /* BacklinkInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklinkInputView.swift; sourceTree = "<group>"; };
+		01A508762CA6B7ED00449E40 /* CardListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListItem.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
 		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
@@ -445,6 +447,7 @@
 		01953EAF2C76845500F44FAD /* ZettelgardenShared */ = {
 			isa = PBXGroup;
 			children = (
+				01A508702CA6AFE900449E40 /* Views */,
 				01953ED72C769FDD00F44FAD /* ViewModels */,
 				01953ED42C769FCB00F44FAD /* Api */,
 				01953ECC2C7696CE00F44FAD /* Utils */,
@@ -511,6 +514,32 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		01A508702CA6AFE900449E40 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				01A508722CA6B04F00449E40 /* Tasks */,
+				01A508712CA6B04A00449E40 /* Cards */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		01A508712CA6B04A00449E40 /* Cards */ = {
+			isa = PBXGroup;
+			children = (
+				01A508752CA6B7ED00449E40 /* BacklinkInputView.swift */,
+				01A508762CA6B7ED00449E40 /* CardListItem.swift */,
+				01A508732CA6B06100449E40 /* CreateCardView.swift */,
+			);
+			path = Cards;
+			sourceTree = "<group>";
+		};
+		01A508722CA6B04F00449E40 /* Tasks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Tasks;
+			sourceTree = "<group>";
+		};
 		01B888082BF6CA8700B3ACF1 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -537,8 +566,6 @@
 		01B888102BF8159300B3ACF1 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				018523F62C9AD3CE00B3002D /* BacklinkInputView.swift */,
-				01201F8E2BF2C9E000DF973E /* CardListItem.swift */,
 				01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */,
 				01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */,
 				01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */,
@@ -772,7 +799,6 @@
 				01C74F5C2C7EA20000605719 /* EditCardView.swift in Sources */,
 				01201F5C2BF2BB6200DF973E /* ZettelgardenApp.swift in Sources */,
 				01B8881E2BFB67ED00B3ACF1 /* FileDetailView.swift in Sources */,
-				01201F8F2BF2C9E000DF973E /* CardListItem.swift in Sources */,
 				0111A7382BFDF4A900DDED68 /* SidebarView.swift in Sources */,
 				01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */,
 				0172F7232C7D1024000F3CEB /* AddCardView.swift in Sources */,
@@ -791,7 +817,6 @@
 				011AAA512C44691900ED7BE2 /* EnvironmentSelector.swift in Sources */,
 				013C75E72C6EA7A100838E7B /* TaskListContextMenu.swift in Sources */,
 				01201F8B2BF2BE4000DF973E /* CardDisplayView.swift in Sources */,
-				018523F72C9AD3CE00B3002D /* BacklinkInputView.swift in Sources */,
 				019AF16E2C9E0EF000A99FFA /* CardListOptionsMenu.swift in Sources */,
 				01ECE5132BF4C75A00691C07 /* SettingsView.swift in Sources */,
 				01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */,
@@ -857,11 +882,14 @@
 				0172F7202C7D0382000F3CEB /* SpeechRecognizer.swift in Sources */,
 				01FC26722C77B59000039EDA /* File.swift in Sources */,
 				0172F71E2C7A1007000F3CEB /* Auth.swift in Sources */,
+				01A508772CA6B7ED00449E40 /* CardListItem.swift in Sources */,
+				01A508782CA6B7ED00449E40 /* BacklinkInputView.swift in Sources */,
 				01953ED32C769EBD00F44FAD /* HttpRequests.swift in Sources */,
 				01C74F5F2C7F393E00605719 /* AuthViewModel.swift in Sources */,
 				0172F71C2C7A0C6E000F3CEB /* Files.swift in Sources */,
 				018523FC2C9BA86F00B3002D /* TagViewModel.swift in Sources */,
 				01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */,
+				01A508742CA6B06A00449E40 /* CreateCardView.swift in Sources */,
 				01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */,
 				018524002C9BA8B900B3002D /* Tag.swift in Sources */,
 				01C74F652C833C9300605719 /* Strings.swift in Sources */,
