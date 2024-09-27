@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
-import { removeTagsFromTitle, parseTags } from "./tasks";
+import { removeTagsFromTitle, parseTags, filterTasks } from "./tasks";
+import { sampleTaskData } from "../tests/data";
 
 test("remove tags from title", () => {
   let title = "This is a #test title with #tags";
@@ -49,5 +50,9 @@ test("parse tags from title with consecutive tags", () => {
 test("skip parsing tags from middle of words", () => {
   const title = "Some text#tag1#tag2 more text";
   expect(parseTags(title)).toEqual([]);
-  
-})
+});
+
+test("filter tasks by tags", () => {
+  const results = filterTasks(sampleTaskData, "#work session");
+  expect(results.length).toEqual(1);
+});

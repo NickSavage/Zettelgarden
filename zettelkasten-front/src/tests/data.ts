@@ -23,7 +23,7 @@ export const sampleTagData: Tag[] = [
   },
 ];
 
-const sampleTaskData: Task[] = [
+export const sampleTaskData: Task[] = [
   {
     id: 1,
     card_pk: 101,
@@ -63,7 +63,7 @@ const sampleTaskData: Task[] = [
     created_at: new Date(),
     updated_at: new Date(),
     completed_at: null,
-    title: "Write Quarterly Report #report",
+    title: "Write Quarterly Work Report #report",
     is_complete: false,
     is_deleted: false,
     card: null,
@@ -78,11 +78,28 @@ const sampleTaskData: Task[] = [
     created_at: new Date(),
     updated_at: new Date(),
     completed_at: new Date(), // Completed
-    title: "Submit Expense Reports #task",
+    title: "Submit Expense Reports #work #task",
     is_complete: true,
     is_deleted: false,
     card: null,
-    tags: [],
+    tags: [
+      {
+        id: 2,
+        name: "work",
+        color: "black",
+        user_id: 1,
+        task_count: 2,
+        card_count: 0,
+      },
+      {
+        id: 4,
+        name: "task",
+        color: "black",
+        user_id: 1,
+        task_count: 1,
+        card_count: 0,
+      },
+    ],
   },
   {
     id: 5,
@@ -97,7 +114,24 @@ const sampleTaskData: Task[] = [
     is_complete: false,
     is_deleted: false,
     card: null,
-    tags: [],
+    tags: [
+      {
+        id: 2,
+        name: "work",
+        color: "black",
+        user_id: 1,
+        task_count: 2,
+        card_count: 0,
+      },
+      {
+        id: 3,
+        name: "todo",
+        color: "black",
+        user_id: 1,
+        task_count: 1,
+        card_count: 0,
+      },
+    ],
   },
 ];
 

@@ -15,6 +15,7 @@ import { Button } from "../../components/Button";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
+import { filterTasks } from "../../utils/tasks";
 
 interface TaskListProps {}
 
@@ -43,12 +44,6 @@ export function TaskPage({}: TaskListProps) {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) {
     setFilterString(e.target.value);
-  }
-  function filterTasks(task: Task) {
-    if (filterString === "") {
-      return task;
-    }
-    return task.title.toLowerCase().includes(filterString.toLowerCase());
   }
 
   function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
@@ -109,7 +104,7 @@ export function TaskPage({}: TaskListProps) {
   }
 
   function handleTagClick(tag: string) {
-    setFilterString(tag);
+    setFilterString("#" + tag);
   }
 
   function handleTabClick(label: string) {
@@ -209,10 +204,10 @@ export function TaskPage({}: TaskListProps) {
           {tasks && (
             <TaskList
               onTagClick={handleTagClick}
-              tasks={tasks
-                ?.filter(changeDateView)
-                .filter(filterTasks)
-                .sort((a, b) => a.id - b.id)}
+              tasks={filterTasks(
+                tasks.filter(changeDateView),
+                filterString,
+              ).sort((a, b) => a.id - b.id)}
             />
           )}
         </ul>
