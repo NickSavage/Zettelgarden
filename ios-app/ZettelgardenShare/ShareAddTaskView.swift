@@ -12,18 +12,16 @@ import ZettelgardenShared
 struct ShareAddTaskView: View {
     var extensionContext: NSExtensionContext?
     @State var data: [NSItemProvider]?
+    @State private var newTask: ZTask = ZTask.emptyTask
     @StateObject var taskListViewModel = TaskListViewModel()
-
-    @State private var title: String = ""
-    @State private var scheduledDate: Date = Date()
-    @State private var message: String = ""
 
     func handleAttachments() {
 
         for provider in data! {
             provider.loadItem(forTypeIdentifier: "public.url") { url, _ in
                 if let url = url as? URL {
-                    title = url.absoluteString
+                    newTask.title = url.absoluteString
+                    return
                 }
 
             }
@@ -32,55 +30,20 @@ struct ShareAddTaskView: View {
                 (text, error) in
                 if let text = text as? String {
                     DispatchQueue.main.async {
-                        title = text
+                        newTask.title = text
                     }
                 }
             }
         }
     }
 
-    private func saveTask() {
-        let newTask = ZTask(
-            id: -1,
-            card_pk: -1,
-            user_id: -1,
-            scheduled_date: scheduledDate,
-            created_at: Date(),
-            updated_at: Date(),
-            completed_at: nil,
-            title: title,
-            is_complete: false,
-            is_deleted: false,
-            card: nil,
-            tags: []
-        )
-        taskListViewModel.createNewTask(newTask: newTask)
-        extensionContext!.completeRequest(returningItems: nil, completionHandler: nil)
-    }
-
     var body: some View {
         VStack {
-            Text(message)
-            Form {
-                Section(header: Text("Add Task")) {
-                    TextField("Title", text: $title)
-                    DatePicker(
-                        "Scheduled Date",
-                        selection: $scheduledDate,
-                        displayedComponents: [.date]
-                    )
-                }
-                Button(action: {
-                    saveTask()
-                }) {
-                    Text("Save")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
+            let onSave: (_ task: ZTask) -> Void = { task in
+                extensionContext!.completeRequest(returningItems: nil, completionHandler: nil)
             }
+            CreateTaskView(newTask: $newTask, onSave: onSave)
+                .environmentObject(taskListViewModel)
         }
         .onAppear {
             handleAttachments()

@@ -3,59 +3,16 @@ import ZettelgardenShared
 
 struct AddTaskView: View {
     @ObservedObject var taskListViewModel: TaskListViewModel
-    @State private var title: String = ""
-    @State private var scheduledDate: Date = Date()
-    @State private var message: String = ""
+    @State private var newTask: ZTask = ZTask.emptyTask
 
     var body: some View {
         VStack {
-            Text(message)
-            Form {
-                Section(header: Text("Add Task")) {
-                    TextField("Title", text: $title)
-                    DatePicker(
-                        "Scheduled Date",
-                        selection: $scheduledDate,
-                        displayedComponents: [.date]
-                    )
-                }
-
-            }
-            Button(action: {
-                saveTask()
-            }) {
-                Text("Save")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .padding()
+            CreateTaskView(newTask: $newTask, onSave: saveTask)
         }
     }
 
-    private func saveTask() {
-        print(scheduledDate)
-        let newTask = ZTask(
-            id: -1,
-            card_pk: -1,
-            user_id: -1,
-            scheduled_date: scheduledDate,
-            created_at: Date(),
-            updated_at: Date(),
-            completed_at: nil,
-            title: title,
-            is_complete: false,
-            is_deleted: false,
-            card: nil,
-            tags: []
-        )
-        taskListViewModel.createNewTask(newTask: newTask)
+    private func saveTask(_ newTask: ZTask) {
         taskListViewModel.loadTasks()  // Assuming this refreshes the tasks list
-        title = ""
-        scheduledDate = Date()
-        self.message = "Task created"
     }
 }
 
@@ -67,6 +24,7 @@ struct AddTaskView_Preview: PreviewProvider {
             taskListViewModel: mockViewModel  // Use the static mockViewModel here
         )
         .previewLayout(.sizeThatFits)
+        .environmentObject(mockViewModel)
         .padding()  // Optional: improve appearance in the preview
     }
 }

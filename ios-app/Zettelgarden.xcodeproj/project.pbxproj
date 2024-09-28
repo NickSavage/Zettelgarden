@@ -64,6 +64,7 @@
 		01A508742CA6B06A00449E40 /* CreateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A508732CA6B06100449E40 /* CreateCardView.swift */; };
 		01A508772CA6B7ED00449E40 /* CardListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A508762CA6B7ED00449E40 /* CardListItem.swift */; };
 		01A508782CA6B7ED00449E40 /* BacklinkInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A508752CA6B7ED00449E40 /* BacklinkInputView.swift */; };
+		01A5087A2CA790A300449E40 /* CreateTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A508792CA790A300449E40 /* CreateTaskView.swift */; };
 		01B888122BF843BE00B3ACF1 /* FilterFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */; };
 		01B888182BFA1CA200B3ACF1 /* QuickAddMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */; };
 		01B8881C2BFB60FD00B3ACF1 /* FileCardListitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B8881B2BFB60FD00B3ACF1 /* FileCardListitem.swift */; };
@@ -231,6 +232,7 @@
 		01A508732CA6B06100449E40 /* CreateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCardView.swift; sourceTree = "<group>"; };
 		01A508752CA6B7ED00449E40 /* BacklinkInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklinkInputView.swift; sourceTree = "<group>"; };
 		01A508762CA6B7ED00449E40 /* CardListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListItem.swift; sourceTree = "<group>"; };
+		01A508792CA790A300449E40 /* CreateTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTaskView.swift; sourceTree = "<group>"; };
 		01B8880B2BF762D800B3ACF1 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		01B888112BF843BE00B3ACF1 /* FilterFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFieldView.swift; sourceTree = "<group>"; };
 		01B888172BFA1CA200B3ACF1 /* QuickAddMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddMenu.swift; sourceTree = "<group>"; };
@@ -536,6 +538,7 @@
 		01A508722CA6B04F00449E40 /* Tasks */ = {
 			isa = PBXGroup;
 			children = (
+				01A508792CA790A300449E40 /* CreateTaskView.swift */,
 			);
 			path = Tasks;
 			sourceTree = "<group>";
@@ -891,6 +894,7 @@
 				01FC266E2C77B4CA00039EDA /* Visit.swift in Sources */,
 				01A508742CA6B06A00449E40 /* CreateCardView.swift in Sources */,
 				01FC26772C77BA0D00039EDA /* TaskViewModel.swift in Sources */,
+				01A5087A2CA790A300449E40 /* CreateTaskView.swift in Sources */,
 				018524002C9BA8B900B3002D /* Tag.swift in Sources */,
 				01C74F652C833C9300605719 /* Strings.swift in Sources */,
 			);
