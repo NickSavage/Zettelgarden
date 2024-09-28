@@ -7,6 +7,19 @@ struct ShareContentView: View {
     @State var data: [NSItemProvider]?
     @State private var selectedTab = 0
 
+    @StateObject var taskListViewModel = TaskListViewModel()
+    @StateObject var partialCardViewModel = PartialCardViewModel()
+    @StateObject var navigationViewModel: NavigationViewModel
+    @StateObject var cardViewModel = CardViewModel()
+
+    init(extensionContext: NSExtensionContext?, data: [NSItemProvider]?) {
+        self.extensionContext = extensionContext
+        self.data = data
+        let cardViewModel = CardViewModel()
+        _navigationViewModel = StateObject(
+            wrappedValue: NavigationViewModel(cardViewModel: cardViewModel)
+        )
+    }
     var body: some View {
         VStack {
             Picker("Options", selection: $selectedTab) {
@@ -30,5 +43,8 @@ struct ShareContentView: View {
             }
         }
         .padding()
+        .environmentObject(partialCardViewModel)
+        .environmentObject(navigationViewModel)
+        .environmentObject(taskListViewModel)
     }
 }

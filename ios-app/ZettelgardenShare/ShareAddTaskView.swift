@@ -13,8 +13,8 @@ struct ShareAddTaskView: View {
     var extensionContext: NSExtensionContext?
     @State var data: [NSItemProvider]?
     @State private var newTask: ZTask = ZTask.emptyTask
-    @StateObject var taskListViewModel = TaskListViewModel()
 
+    @EnvironmentObject var taskListViewModel: TaskListViewModel
     func handleAttachments() {
 
         for provider in data! {

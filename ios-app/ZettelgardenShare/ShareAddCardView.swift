@@ -12,22 +12,10 @@ import ZettelgardenShared
 struct ShareAddCardView: View {
     var extensionContext: NSExtensionContext?
     @State var data: [NSItemProvider]?
-    @StateObject var partialCardViewModel = PartialCardViewModel()
-    @StateObject var navigationViewModel: NavigationViewModel
-    @StateObject var cardViewModel = CardViewModel()
 
     @State private var newCard: Card = Card.emptyCard
 
     @State private var message: String = ""
-
-    init(extensionContext: NSExtensionContext?, data: [NSItemProvider]?) {
-        self.extensionContext = extensionContext
-        self.data = data
-        let cardViewModel = CardViewModel()
-        _navigationViewModel = StateObject(
-            wrappedValue: NavigationViewModel(cardViewModel: cardViewModel)
-        )
-    }
 
     func handleAttachments() {
 
@@ -56,8 +44,6 @@ struct ShareAddCardView: View {
                 extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
             }
             CreateCardView(message: $message, newCard: $newCard, onSave: onSave)
-                .environmentObject(partialCardViewModel)
-                .environmentObject(navigationViewModel)
                 .onAppear {
                     handleAttachments()
                 }
