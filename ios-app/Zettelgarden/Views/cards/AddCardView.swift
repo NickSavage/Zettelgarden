@@ -9,6 +9,16 @@ struct AddCardView: View {
     @State private var newCard: Card = Card.emptyCard
     @State private var message: String = ""
 
+    init(card_id: String? = nil) {
+        var initialNewCard = Card.emptyCard
+
+        if let card_id = card_id {
+            initialNewCard.card_id = card_id
+        }
+
+        _newCard = State(initialValue: initialNewCard)
+    }
+
     var body: some View {
         VStack {
 

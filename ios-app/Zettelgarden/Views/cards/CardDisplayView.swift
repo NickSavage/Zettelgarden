@@ -10,6 +10,7 @@ struct CardDisplayView: View {
     @State private var showReferences = false
     @State private var showFiles = false
 
+    @State private var showingAddCardView = false
     @State private var isPresentingEditView = false
     @State private var isBacklinkInputPresented = false
     @State private var showAddTagsSheet = false
@@ -40,6 +41,12 @@ struct CardDisplayView: View {
                             showAddTagsSheet.toggle()
                         }) {
                             Text("Add Tags")
+                        }
+                        Button(action: {
+                            showingAddCardView = true
+                        }) {
+                            Text("Add Child Card")
+
                         }
                         Button(action: {
                             isPresentingEditView = true
@@ -202,6 +209,11 @@ struct CardDisplayView: View {
                     }
                 ) {
                     PhotoPicker(image: $selectedImage)
+                }
+                .sheet(isPresented: $showingAddCardView) {
+                    if let card = cardViewModel.card {
+                        AddCardView(card_id: card.card_id)
+                    }
                 }
 
             }
