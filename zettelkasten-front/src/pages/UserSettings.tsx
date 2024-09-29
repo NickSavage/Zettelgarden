@@ -4,7 +4,7 @@ import { getUserSubscription } from "../api/users";
 import { getCurrentUser } from "../api/users";
 import { editUser } from "../api/users";
 import { User, EditUserParams, UserSubscription } from "../models/User";
-import { PartialCard } from "../models/Card";
+import { PartialCard, Card } from "../models/Card";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
 import { TagList } from "../components/tags/TagList";
@@ -30,7 +30,7 @@ export function UserSettingsPage() {
     event.preventDefault(); // Prevent the default form submit action
 
     // Get the form data
-    const formData = new FormData(event.currentTarget as TMLFormElement);
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
     const updatedUsername = formData.get("username");
     const updatedEmail = formData.get("email");
 
@@ -100,7 +100,7 @@ export function UserSettingsPage() {
       return;
     }
 
-    let card = await getCard(id);
+    let card = await getCard(id.toString());
 
     if (!isErrorResponse(card)) {
       setDashboardCard(card);

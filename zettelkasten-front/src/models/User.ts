@@ -36,6 +36,7 @@ export const defaultUser: User = {
   stripe_subscription_frequency: "",
   stripe_current_plan: "",
   is_active: false,
+  dashboard_card_pk: 0,
 };
 
 export interface UserSubscription {
