@@ -27,7 +27,10 @@ public struct CreateCardView: View {
         self.onSave = onSave
     }
     private func saveCard() {
-        partialCardViewModel.createNewCard(card: newCard)
+        partialCardViewModel.createNewCard(card: newCard) { result in
+            message = result
+            print(result)
+        }
         onSave(newCard)
     }
 

@@ -67,8 +67,9 @@ public class PartialCardViewModel: ObservableObject {
         self.cards = cards
     }
 
-    public func createNewCard(card: Card) {
+    public func createNewCard(card: Card, completion: @escaping (String) -> Void) {
         guard let token = token else {
+            completion("Card not created, no token found")
             return
         }
         let session = openSession(token: token, environment: environment)
@@ -77,13 +78,13 @@ public class PartialCardViewModel: ObservableObject {
             switch result {
             case .success(let savedCard):
                 print("success!")
+                completion("Card Created")
             case .failure(let error):
                 print("Failed to save new card: \(error)")
+                completion("Failed to save new card: \(error)")
             }
         }
-
     }
-
     public func onScenePhaseChanged(to newPhase: ScenePhase) {
         if newPhase == .active {
             self.loadCards()

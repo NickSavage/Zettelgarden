@@ -24,7 +24,9 @@ struct AddRecordingView: View {
         newCard.card_id = cardID
         newCard.title = title
         newCard.body = transcriptText
-        cardListViewModel.createNewCard(card: newCard)
+        cardListViewModel.createNewCard(card: newCard) { result in
+            message = result
+        }
         cardListViewModel.loadCards()
         self.message = "card created"
     }
