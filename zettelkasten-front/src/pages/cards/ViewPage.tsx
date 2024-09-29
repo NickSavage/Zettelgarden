@@ -189,7 +189,7 @@ export function ViewPage({}: ViewPageProps) {
                   dangerouslySetInnerHTML={{
                     __html: linkifyWithDefaultOptions(viewingCard.link),
                   }}
-                />
+                />b
               </div>
             )}
           </div>
@@ -201,10 +201,10 @@ export function ViewPage({}: ViewPageProps) {
             </div>
             <div className="text-xs">
               <span className="font-bold">Created At:</span>
-              <span> {viewingCard.created_at}</span>
+              <span> {viewingCard.created_at.toISOString()}</span>
               <br />
               <span className="font-bold">Updated At:</span>
-              <span> {viewingCard.updated_at}</span>
+              <span> {viewingCard.updated_at.toISOString()}</span>
               {viewingCard.keywords && (
                 <div>
                   <span className="font-bold">{"Keywords: "} </span>

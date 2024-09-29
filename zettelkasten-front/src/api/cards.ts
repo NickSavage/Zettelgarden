@@ -9,6 +9,17 @@ import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
+function convertCardDates(
+  input: PartialCard[] | Card[],
+): PartialCard[] | Card[] {
+  let results = input.map((card) => ({
+    ...card,
+    created_at: new Date(card.created_at),
+    updated_at: new Date(card.updated_at),
+  }));
+  return results;
+}
+
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/cards";
@@ -22,7 +33,14 @@ export function fetchCards(searchTerm = ""): Promise<Card[]> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json() as Promise<Card[]>;
+        return response.json().then((cards: Card[]) => {
+          let results = cards.map((card) => ({
+            ...card,
+            created_at: new Date(card.created_at),
+            updated_at: new Date(card.updated_at),
+          }));
+          return results;
+        });
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }
@@ -54,7 +72,14 @@ export function fetchPartialCards(
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json() as Promise<PartialCard[]>;
+        return response.json().then((cards: PartialCard[]) => {
+          let results = cards.map((card) => ({
+            ...card,
+            created_at: new Date(card.created_at),
+            updated_at: new Date(card.updated_at),
+          }));
+          return results;
+        });
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }
@@ -72,7 +97,13 @@ export function getCard(id: string): Promise<Card> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json() as Promise<Card>;
+        return response.json().then((card: Card) => {
+          return {
+            ...card,
+            created_at: new Date(card.created_at),
+            updated_at: new Date(card.updated_at),
+          };
+        });
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }
@@ -96,11 +127,17 @@ export function getNextFlashcard(): Promise<Card> {
     });
 }
 
-export function postNextFlashcard(card_pk: number, rating: string): Promise<Card> {
+export function postNextFlashcard(
+  card_pk: number,
+  rating: string,
+): Promise<Card> {
   let ratingInt = getRatingValue(rating);
 
-  const data: FlashcardRecordNextParams = { card_pk: card_pk, rating: ratingInt };
-  console.log(data)
+  const data: FlashcardRecordNextParams = {
+    card_pk: card_pk,
+    rating: ratingInt,
+  };
+  console.log(data);
 
   let token = localStorage.getItem("token");
   return fetch(base_url + `/flashcards`, {

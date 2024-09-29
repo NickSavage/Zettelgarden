@@ -62,7 +62,7 @@ export function CardListItem({
           </span>
         )}
       </div>
-      <div className="flex text-xs">{formatDate(card.created_at)}</div>
+      <div className="flex text-xs">{formatDate(card.created_at.toISOString())}</div>
 
       {showHover && card && (
         <CardPreviewWindow cardPK={card.id} mousePosition={mousePosition} />

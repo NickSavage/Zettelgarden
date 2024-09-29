@@ -8,8 +8,8 @@ export interface PartialCard {
   user_id: number;
   title: string;
   parent_id: number;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
   is_literature_card: boolean;
   tags: Tag[];
   is_flashcard: boolean;
@@ -30,8 +30,8 @@ export interface Card {
   body: string;
   link: string;
   is_deleted: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
   parent_id: number;
   parent: PartialCard;
   files: File[];
@@ -49,8 +49,8 @@ export const defaultPartialCard: PartialCard = {
   user_id: -1,
   title: "",
   parent_id: -1,
-  created_at: "",
-  updated_at: "",
+  created_at: new Date(0),
+  updated_at: new Date(0),
   is_literature_card: false,
   tags: [],
   is_flashcard: false,
@@ -64,8 +64,8 @@ export const defaultCard: Card = {
   body: "",
   link: "",
   is_deleted: false,
-  created_at: "",
-  updated_at: "",
+  created_at: new Date(0),
+  updated_at: new Date(0),
   parent_id: -1,
   parent: defaultPartialCard,
   files: [],
