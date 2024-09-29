@@ -4,9 +4,14 @@ import { getUserSubscription } from "../api/users";
 import { getCurrentUser } from "../api/users";
 import { editUser } from "../api/users";
 import { User, EditUserParams, UserSubscription } from "../models/User";
+import { PartialCard } from "../models/Card";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
 import { TagList } from "../components/tags/TagList";
+import { BacklinkInput } from "../components/cards/BacklinkInput";
+import { getCard } from "../api/cards";
+import { isErrorResponse } from "../models/common";
+import { CardLink } from "../components/cards/CardLink";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -14,6 +19,10 @@ export function UserSettingsPage() {
     null,
   );
   const [error, setError] = useState<string | null>(null);
+
+  const [dashboardPK, setDashboardPK] = useState<number>(0);
+  const [dashboardCard, setDashboardCard] = useState<Card | null>(null);
+
   const navigate = useNavigate();
   const { logoutUser } = useAuth();
 
@@ -21,7 +30,7 @@ export function UserSettingsPage() {
     event.preventDefault(); // Prevent the default form submit action
 
     // Get the form data
-    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const formData = new FormData(event.currentTarget as TMLFormElement);
     const updatedUsername = formData.get("username");
     const updatedEmail = formData.get("email");
 
@@ -35,6 +44,7 @@ export function UserSettingsPage() {
       username: updatedUsername,
       email: updatedEmail,
       is_admin: user.is_admin,
+      dashboard_card_pk: dashboardPK,
     };
 
     try {
@@ -54,11 +64,20 @@ export function UserSettingsPage() {
     navigate("/login");
   }
 
+  function handleAddBacklink(selectedCard: PartialCard) {
+    setDashboardPK(selectedCard.id);
+    fetchDashboardCard(selectedCard.id);
+  }
+
   useEffect(() => {
     async function fetchUserAndSubscription() {
       let userResponse = await getCurrentUser();
       console.log(userResponse);
       setUser(userResponse);
+      console.log(userResponse);
+
+      setDashboardPK(userResponse.dashboard_card_pk);
+      fetchDashboardCard(userResponse.dashboard_card_pk);
 
       // Now that we have the user, fetch their subscription using the user ID
       if (userResponse && userResponse["id"]) {
@@ -73,6 +92,20 @@ export function UserSettingsPage() {
     document.title = "Zettelgarden - Settings";
     fetchUserAndSubscription();
   }, []);
+
+  async function fetchDashboardCard(id: number) {
+    console.log("?");
+    console.log(id);
+    if (id == 0 || id == undefined) {
+      return;
+    }
+
+    let card = await getCard(id);
+
+    if (!isErrorResponse(card)) {
+      setDashboardCard(card);
+    }
+  }
 
   return (
     <div>
@@ -99,6 +132,20 @@ export function UserSettingsPage() {
                 Email:
                 <input type="email" name="email" defaultValue={user.email} />
               </label>
+            </div>
+            <div className="mb-4">
+              <label>Set Dashboard Card:</label>
+	      <div className="flex items-center">
+              <BacklinkInput addBacklink={handleAddBacklink} />
+
+              {dashboardCard && (
+                <CardLink
+                  card={dashboardCard}
+                  handleViewBacklink={(id: number) => {}}
+                  showTitle={true}
+                />
+              )}
+	      </div>
             </div>
             <button type="submit">Save Changes</button>
           </form>

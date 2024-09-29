@@ -20,6 +20,7 @@ type User struct {
 	StripeSubscriptionFrequency string     `json:"stripe_subscription_frequency"`
 	StripeCurrentPlan           string     `json:"stripe_current_plan"`
 	IsActive                    bool       `json:"is_active"`
+	DashboardCardPK             int        `json:"dashboard_card_pk"`
 }
 
 type UserSubscription struct {
@@ -33,9 +34,10 @@ type UserSubscription struct {
 }
 
 type EditUserParams struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	IsAdmin  bool   `json:"is_admin"`
+	Username        string `json:"username"`
+	Email           string `json:"email"`
+	IsAdmin         bool   `json:"is_admin"`
+	DashboardCardPK int    `json:"dashboard_card_pk"`
 }
 
 type CreateUserParams struct {

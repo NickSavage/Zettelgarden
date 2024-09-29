@@ -287,7 +287,8 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage, last_login
+	stripe_subscription_status,max_file_storage, last_login,
+        dashboard_card_pk
 	FROM users`)
 	if err != nil {
 		return users, err
@@ -308,6 +309,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.StripeSubscriptionStatus,
 			&user.MaxFileStorage,
 			&user.LastLogin,
+			&user.DashboardCardPK,
 		); err != nil {
 			return users, err
 		}
@@ -332,7 +334,8 @@ func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage, last_login 
+	stripe_subscription_status,max_file_storage, last_login,
+        dashboard_card_pk
 	FROM users WHERE email = $1
 	`, email).Scan(
 		&user.ID,
@@ -347,6 +350,7 @@ func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 		&user.StripeSubscriptionStatus,
 		&user.MaxFileStorage,
 		&user.LastLogin,
+		&user.DashboardCardPK,
 	)
 	if err != nil {
 		log.Printf("err %v", err)
@@ -366,7 +370,8 @@ func (s *Handler) QueryUser(id int) (models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage, last_login 
+	stripe_subscription_status,max_file_storage, last_login,
+        dashboard_card_pk
 	FROM users WHERE id = $1
 	`, id).Scan(
 		&user.ID,
@@ -381,6 +386,7 @@ func (s *Handler) QueryUser(id int) (models.User, error) {
 		&user.StripeSubscriptionStatus,
 		&user.MaxFileStorage,
 		&user.LastLogin,
+		&user.DashboardCardPK,
 	)
 	if err != nil {
 		log.Printf("errsd %v", err)
@@ -398,11 +404,19 @@ func (s *Handler) UpdateUser(id int, user models.User, params models.EditUserPar
 	oldEmail := user.Email
 
 	query := `
-	UPDATE users SET username = $1, email = $2, is_admin = $3, updated_at = NOW()
+	UPDATE users SET username = $1, email = $2, is_admin = $3, updated_at = NOW(),
+        dashboard_card_pk = $4
 	WHERE
-	id = $4
+	id = $5
 	`
-	_, err := s.DB.Exec(query, params.Username, params.Email, params.IsAdmin, id)
+	_, err := s.DB.Exec(
+		query,
+		params.Username,
+		params.Email,
+		params.IsAdmin,
+		params.DashboardCardPK,
+		id,
+	)
 	if err != nil {
 		log.Printf("updateuser err %v", err)
 		return models.User{}, err
@@ -445,9 +459,9 @@ func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 	query := `
 	INSERT INTO users (username, email, password, created_at, updated_at,
 	stripe_customer_id, stripe_subscription_id, stripe_subscription_status, 
-	stripe_subscription_frequency, stripe_current_plan
+	stripe_subscription_frequency, stripe_current_plan, dashboard_card_pk
 	)
-	VALUES ($1, $2, $3, NOW(), NOW(), '', '', '', '', '') RETURNING id
+	VALUES ($1, $2, $3, NOW(), NOW(), '', '', '', '', '', 0) RETURNING id
 	`
 
 	err = s.DB.QueryRow(query, params.Username, params.Email, hashedPassword).Scan(&newID)

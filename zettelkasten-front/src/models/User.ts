@@ -16,6 +16,7 @@ export interface User {
   stripe_subscription_frequency: string;
   stripe_current_plan: string;
   is_active: boolean;
+  dashboard_card_pk: number;
 }
 export const defaultUser: User = {
   id: 0,
@@ -51,6 +52,7 @@ export interface EditUserParams {
   username: string;
   email: string;
   is_admin: boolean;
+  dashboard_card_pk: number;
 }
 
 export interface CreateUserParams {

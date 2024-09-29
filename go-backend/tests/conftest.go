@@ -73,8 +73,8 @@ func importTestData(s *server.Server) error {
 			INSERT INTO users 
 			(username, email, password, created_at, updated_at, can_upload_files, 
 			stripe_subscription_status, stripe_customer_id, stripe_current_plan, stripe_subscription_frequency, stripe_subscription_id,
-			email_validated) 
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) 
+			email_validated, dashboard_card_pk) 
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 0) 
 			RETURNING id`,
 			user.Username, user.Email, user.Password, user.CreatedAt,
 			user.UpdatedAt, user.CanUploadFiles, user.StripeSubscriptionStatus,
