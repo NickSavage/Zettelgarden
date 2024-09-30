@@ -23,28 +23,13 @@ export function fetchCards(searchTerm = ""): Promise<Card[]> {
     .then((response) => {
       if (response) {
         return response.json().then((cards: Card[]) => {
-
-          let children = card.children.map((child) => {
+          let results = cards.map((card) => {
             return {
-              ...child,
-              created_at: new Date(child.created_at),
-              updated_at: new Date(child.updated_at),
+              ...card,
+              created_at: new Date(card.created_at),
+              updated_at: new Date(card.updated_at),
             };
           });
-          let references = card.references.map((ref) => {
-            return {
-              ...ref,
-              created_at: new Date(ref.created_at),
-              updated_at: new Date(ref.updated_at),
-            };
-          });
-          let results = cards.map((card) => ({
-            ...card,
-            created_at: new Date(card.created_at),
-            updated_at: new Date(card.updated_at),
-            children: children,
-            references: references,
-          }));
           return results;
         });
       } else {
