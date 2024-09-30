@@ -9,17 +9,6 @@ import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
-function convertCardDates(
-  input: PartialCard[] | Card[],
-): PartialCard[] | Card[] {
-  let results = input.map((card) => ({
-    ...card,
-    created_at: new Date(card.created_at),
-    updated_at: new Date(card.updated_at),
-  }));
-  return results;
-}
-
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/cards";
@@ -34,10 +23,27 @@ export function fetchCards(searchTerm = ""): Promise<Card[]> {
     .then((response) => {
       if (response) {
         return response.json().then((cards: Card[]) => {
+
+          let children = card.children.map((child) => {
+            return {
+              ...child,
+              created_at: new Date(child.created_at),
+              updated_at: new Date(child.updated_at),
+            };
+          });
+          let references = card.references.map((ref) => {
+            return {
+              ...ref,
+              created_at: new Date(ref.created_at),
+              updated_at: new Date(ref.updated_at),
+            };
+          });
           let results = cards.map((card) => ({
             ...card,
             created_at: new Date(card.created_at),
             updated_at: new Date(card.updated_at),
+            children: children,
+            references: references,
           }));
           return results;
         });
@@ -98,10 +104,26 @@ export function getCard(id: string): Promise<Card> {
     .then((response) => {
       if (response) {
         return response.json().then((card: Card) => {
+          let children = card.children.map((child) => {
+            return {
+              ...child,
+              created_at: new Date(child.created_at),
+              updated_at: new Date(child.updated_at),
+            };
+          });
+          let references = card.references.map((ref) => {
+            return {
+              ...ref,
+              created_at: new Date(ref.created_at),
+              updated_at: new Date(ref.updated_at),
+            };
+          });
           return {
             ...card,
             created_at: new Date(card.created_at),
             updated_at: new Date(card.updated_at),
+            children: children,
+            references: references,
           };
         });
       } else {
