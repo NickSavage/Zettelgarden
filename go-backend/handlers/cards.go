@@ -641,8 +641,7 @@ func (s *Handler) QueryPartialCard(userID int, cardID string) (models.PartialCar
 
 	err := s.DB.QueryRow(`
 	SELECT
-	id, card_id, user_id title, parent_id, created_at, updated_at,
-        is_literature_card, is_flashcard 
+	id, card_id, user_id, title, parent_id, created_at, updated_at
 	FROM cards 
 	WHERE is_deleted = FALSE AND card_id = $1 AND user_id = $2
 	`, cardID, userID).Scan(
@@ -653,11 +652,9 @@ func (s *Handler) QueryPartialCard(userID int, cardID string) (models.PartialCar
 		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
-		&card.IsLiteratureCard,
-		&card.IsFlashcard,
 	)
 	if err != nil {
-		log.Printf("err %v", err)
+		log.Printf("query partial err %v", err)
 		return models.PartialCard{}, fmt.Errorf("something went wrong")
 	}
 	return card, nil
