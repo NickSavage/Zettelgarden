@@ -11,6 +11,7 @@ import { CardList } from "../components/cards/CardList";
 import { TaskList } from "../components/tasks/TaskList";
 import { useAuth } from "../contexts/AuthContext";
 import { CardBody } from "../components/cards/CardBody";
+import { useNavigate } from "react-router-dom";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
@@ -20,12 +21,18 @@ export function DashboardPage() {
   const { tasks, setRefreshTasks } = useTaskContext();
   const { currentUser } = useAuth();
 
+  const navigate = useNavigate();
+
   const [displayCard, setDisplayCard] = React.useState<Card | null>(null);
 
   async function fetchDisplayCard(cardPK: number) {
     await getCard(cardPK.toString()).then((card) => {
       setDisplayCard(card);
     });
+  }
+
+  function handleNewCard() {
+    navigate("/app/card/new", { state: { cardType: "standard" } });
   }
 
   useEffect(() => {
@@ -51,9 +58,17 @@ export function DashboardPage() {
     <div>
       <div className="px-10 py-10">
         <ul>
-          <li>Create a Card</li>
-          <li>Create a Task</li>
-          <li>Upload a File</li>
+          <li>
+            <span onClick={handleNewCard} className="cursor-pointer">
+              Create a Card
+            </span>
+          </li>
+          <li>
+            <span className="cursor-pointer">Create a Task</span>
+          </li>
+          <li>
+            <span className="cursor-pointer">Upload a File</span>
+          </li>
         </ul>
       </div>
       <div className="flex border-t">
@@ -65,7 +80,9 @@ export function DashboardPage() {
               {displayCard && (
                 <div>
                   <CardBody viewingCard={displayCard} />
-                  <Link to={"/app/card/" + displayCard.id.toString() + "/edit"}>Edit Dashboard</Link>
+                  <Link to={"/app/card/" + displayCard.id.toString() + "/edit"}>
+                    Edit Dashboard
+                  </Link>
                 </div>
               )}
             </div>
