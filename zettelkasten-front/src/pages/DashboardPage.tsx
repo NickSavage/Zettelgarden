@@ -1,6 +1,7 @@
 import React from "react";
 import { fetchPartialCards, getCard } from "../api/cards";
 import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { PartialCard, Card } from "../models/Card";
 import { isTodayOrPast } from "../utils/dates";
 import { useTaskContext } from "../contexts/TaskContext";
@@ -56,18 +57,23 @@ export function DashboardPage() {
         </ul>
       </div>
       <div className="flex border-t">
-      <div className="flex grow border-r w-8/12 p-2">
+        <div className="flex grow border-r w-8/12 p-2">
           <div>
             <div>
               <hr />
 
-              {displayCard && <CardBody viewingCard={displayCard} />}
+              {displayCard && (
+                <div>
+                  <CardBody viewingCard={displayCard} />
+                  <Link to={"/app/card/" + displayCard.id.toString() + "/edit"}>Edit Dashboard</Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
         <div className="flex w-4/12 border-l m-2 truncate">
           <div>
-	  <span className="font-bold">Unsorted Cards</span>
+            <span className="font-bold">Unsorted Cards</span>
             {partialCards && (
               <CardList
                 cards={partialCards
