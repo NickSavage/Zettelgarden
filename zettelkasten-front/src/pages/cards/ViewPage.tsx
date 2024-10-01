@@ -161,9 +161,6 @@ export function ViewPage({}: ViewPageProps) {
                 </span>
                 <HeaderTop text=": " />
                 <HeaderTop className="pr-2" text={viewingCard.title} />
-                {viewingCard.is_flashcard && (
-                  <span className="px-2 text-white bg-cyan-500 text-sm rounded-lg">Flashcard</span>
-                )}
                 {viewingCard.tags.length > 0 &&
                   viewingCard.tags.map((tag) => (
                     <span className="pl-2 text-purple-500 text-sm">

@@ -47,13 +47,6 @@ export function CardListItem({
           />
         </span>
 
-        {card.is_flashcard && (
-	<span className="pl-2">
-          <span className="px-2 text-white bg-cyan-500 text-sm rounded-lg">
-            Flashcard
-          </span>
-	</span>
-        )}
       </div>
       <div className="flex-grow">
         {showAddButton && (

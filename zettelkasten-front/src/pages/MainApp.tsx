@@ -98,10 +98,6 @@ function MainAppContent() {
                     path="card/new"
                     element={<EditPage newCard={true} />}
                   />
-                  <Route
-                    path="flashcards/next"
-                    element={<FlashcardNextPage />}
-                  />
                   <Route path="settings" element={<UserSettingsPage />} />
                   <Route path="files" element={<FileVault />} />
                   <Route path="tasks" element={<TaskPage />} />
