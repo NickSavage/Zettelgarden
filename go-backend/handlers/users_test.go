@@ -316,6 +316,52 @@ func TestCreateUserSuccess(t *testing.T) {
 		t.Errorf("handler returned unexpected result, got %v want %v", response.NewID, 11)
 	}
 }
+func TestCreateUserDashboardCardsSuccess(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	params := models.CreateUserParams{
+		Username:        "asdfadf",
+		Password:        "asdfasdfasdf",
+		ConfirmPassword: "asdfasdfasdf",
+		Email:           "asdf@asdf.com",
+	}
+	rr := createUserWithParams(s, t, params)
+
+	var response models.CreateUserResponse
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	if response.NewID != 11 {
+		t.Errorf("handler returned unexpected result, got %v want %v", response.NewID, 11)
+	}
+
+	var cardPK int
+	err := s.DB.QueryRow("SELECT dashboard_card_pk FROM users where id = $1",
+		response.NewID).Scan(&cardPK)
+	if err != nil {
+		t.Errorf("handler returned error %v", err)
+	}
+	if cardPK == 0 {
+		t.Errorf("dashboard card not set, expected an id other than 0")
+	}
+
+	expectedTitle := "Dashboard"
+	var title string
+	var body string
+	err = s.DB.QueryRow("SELECT title, body FROM cards where id = $1", cardPK).Scan(&title, &body)
+	if err != nil {
+		t.Errorf("handler returned error %v", err)
+	}
+	if title != expectedTitle {
+		t.Errorf("incorrect card title returned, got %v want %v", title, expectedTitle)
+	}
+	if body == "" {
+		t.Errorf("incorrect card body returned, want non-blank body")
+	}
+}
 
 func TestCreateUserMismatchedPass(t *testing.T) {
 	s := setup()

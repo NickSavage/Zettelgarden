@@ -434,6 +434,45 @@ func (s *Handler) UpdateUser(id int, user models.User, params models.EditUserPar
 
 }
 
+func (s *Handler) getDefaultDashboardBody() string {
+	var path string
+	if s.Server.Testing {
+		path = "../static/dashboard.md"
+	} else {
+		path = "./static/dashboard.md"
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return ""
+	}
+
+	result := string(data)
+	return result
+}
+
+func (s *Handler) createDefaultCards(userID int) error {
+	params := models.EditCardParams{
+		CardID: "1",
+		Title:  "Dashboard",
+		Body:   s.getDefaultDashboardBody(),
+		Link:   "",
+	}
+	card, err := s.CreateCard(userID, params)
+	if err != nil {
+		log.Printf("error creating default cards: %v", err)
+		return err
+	}
+	query := `UPDATE users SET dashboard_card_pk = $1 WHERE id = $2`
+	_, err = s.DB.Exec(query, card.ID, userID)
+	if err != nil {
+		log.Printf("error creating default cards: %v", err)
+		return err
+	}
+	return nil
+
+}
+
 func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 	if params.Email == "" {
 		return -1, fmt.Errorf("Email is blank.")
@@ -465,6 +504,12 @@ func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 	`
 
 	err = s.DB.QueryRow(query, params.Username, params.Email, hashedPassword).Scan(&newID)
+
+	err = s.createDefaultCards(newID)
+	if err != nil {
+		log.Printf("error creating default cards %v", err)
+	}
+
 	user, _ := s.QueryUser(newID)
 	s.sendEmailValidation(user)
 	return newID, err

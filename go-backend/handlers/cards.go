@@ -641,7 +641,7 @@ func (s *Handler) QueryPartialCard(userID int, cardID string) (models.PartialCar
 
 	err := s.DB.QueryRow(`
 	SELECT
-	id, card_id, user_id, title, parent_id, created_at, updated_at,
+	id, card_id, user_id title, parent_id, created_at, updated_at,
         is_literature_card, is_flashcard 
 	FROM cards 
 	WHERE is_deleted = FALSE AND card_id = $1 AND user_id = $2
