@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"go-backend/llms"
 	"go-backend/models"
-	"go-backend/srs"
 	"log"
 	"net/http"
 	"regexp"
@@ -615,7 +614,7 @@ func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, erro
 	err := s.DB.QueryRow(`
 	SELECT
 	id, card_id, user_id, title, parent_id, created_at, updated_at,
-        is_literature_card, is_flashcard
+        is_literature_card
 	FROM cards 
 	WHERE is_deleted = FALSE AND id = $1 AND user_id = $2
 	`, id, userID).Scan(
@@ -627,7 +626,6 @@ func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, erro
 		&card.CreatedAt,
 		&card.UpdatedAt,
 		&card.IsLiteratureCard,
-		&card.IsFlashcard,
 	)
 	if err != nil {
 		log.Printf("query partial err %v", err)
@@ -668,7 +666,7 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 	err := s.DB.QueryRow(`
 	SELECT 
 	id, card_id, user_id, title, body, link, parent_id,
-        created_at, updated_at, is_literature_card, is_flashcard
+        created_at, updated_at, is_literature_card
 	FROM 
 	cards
 	WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
@@ -683,7 +681,6 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 		&card.CreatedAt,
 		&card.UpdatedAt,
 		&card.IsLiteratureCard,
-		&card.IsFlashcard,
 	)
 	if err != nil {
 		log.Printf("asdas err %v", err)
@@ -700,7 +697,7 @@ func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, 
 	query := `
     SELECT 
 		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at,
-                is_literature_card, is_flashcard
+                is_literature_card
     FROM 
         cards
     WHERE
@@ -729,7 +726,6 @@ func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, 
 			&card.CreatedAt,
 			&card.UpdatedAt,
 			&card.IsLiteratureCard,
-			&card.IsFlashcard,
 		); err != nil {
 			log.Printf(" query full err %v", err)
 			return cards, err
@@ -744,8 +740,7 @@ func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.Par
 	cards := []models.PartialCard{}
 	query := `
     SELECT 
-        id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card,
-        is_flashcard
+        id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card
     FROM 
         cards
     WHERE
@@ -771,7 +766,6 @@ func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.Par
 			&card.CreatedAt,
 			&card.UpdatedAt,
 			&card.IsLiteratureCard,
-			&card.IsFlashcard,
 		); err != nil {
 			log.Printf("query partial cards err %v", err)
 			return cards, err
@@ -791,7 +785,7 @@ func (s *Handler) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 	}
 	cards := []models.PartialCard{}
 	query := `
-	SELECT c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at, c.is_literature_card, c.is_flashcard
+	SELECT c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at, c.is_literature_card
 	FROM inactive_cards i
 	JOIN cards c on c.id = i.card_pk
 	WHERE i.user_id = $1 AND c.is_deleted = FALSE
@@ -818,7 +812,6 @@ func (s *Handler) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 			&card.CreatedAt,
 			&card.UpdatedAt,
 			&card.IsLiteratureCard,
-			&card.IsFlashcard,
 		); err != nil {
 			log.Printf("inactive err %v", err)
 			return cards, err
@@ -840,24 +833,20 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	}
 	log.Printf("setting parent id %v", parent_id)
 
-	originalCard, err := s.QueryPartialCardByID(userID, cardPK)
+	//	originalCard, err := s.QueryPartialCardByID(userID, cardPK)
 	if err != nil {
 		return models.Card{}, fmt.Errorf("unable to load original card %v", err)
 	}
 
 	query := `
-	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, is_literature_card = $5, is_flashcard = $6, updated_at = NOW(), card_id = $7
+	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, is_literature_card = $5, updated_at = NOW(), card_id = $6
 	WHERE
-	id = $8
+	id = $7
 	`
-	_, err = s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.IsLiteratureCard, params.IsFlashcard, params.CardID, cardPK)
+	_, err = s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.IsLiteratureCard, params.CardID, cardPK)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
-	}
-
-	if !originalCard.IsFlashcard && params.IsFlashcard {
-		srs.InitCardAsFlashcard(s.Server, userID, cardPK)
 	}
 
 	card, err := s.QueryFullCard(userID, cardPK)
