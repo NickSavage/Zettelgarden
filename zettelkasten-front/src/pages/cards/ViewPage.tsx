@@ -202,14 +202,6 @@ export function ViewPage({}: ViewPageProps) {
               <br />
               <span className="font-bold">Updated At:</span>
               <span> {viewingCard.updated_at.toISOString()}</span>
-              {viewingCard.keywords && (
-                <div>
-                  <span className="font-bold">{"Keywords: "} </span>
-                  {viewingCard.keywords.map((keyword, index) => (
-                    <span>{keyword.keyword} </span>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
           <hr />

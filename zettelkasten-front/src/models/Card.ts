@@ -15,13 +15,6 @@ export interface PartialCard {
   is_flashcard: boolean;
 }
 
-export interface Keyword {
-  id: number;
-  card_pk: number;
-  user_id: number;
-  keyword: string;
-}
-
 export interface Card {
   id: number;
   card_id: string;
@@ -37,7 +30,6 @@ export interface Card {
   files: File[];
   children: PartialCard[];
   references: PartialCard[];
-  keywords: Keyword[];
   is_literature_card: boolean;
   tags: Tag[];
   is_flashcard: boolean;
@@ -71,7 +63,6 @@ export const defaultCard: Card = {
   files: [],
   children: [],
   references: [],
-  keywords: [],
   is_literature_card: false,
   tags: [],
   is_flashcard: false,
