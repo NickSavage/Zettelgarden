@@ -283,6 +283,69 @@ func (s *Handler) getReferences(userID int, card models.Card) ([]models.PartialC
 	return links, nil
 }
 
+func (s *Handler) GetRelatedCards(userID int, card models.Card) ([]models.PartialCard, error) {
+
+	cards := []models.PartialCard{}
+	query := `
+    SELECT 
+        id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card
+    FROM 
+        cards
+    WHERE
+		user_id = $1 AND is_deleted = FALSE
+ORDER BY embedding <-> (SELECT embedding FROM items WHERE id = $2) LIMIT 10
+
+`
+
+	var rows *sql.Rows
+	var err error
+	rows, err = s.DB.Query(query, userID, card.ID)
+	if err != nil {
+		log.Printf("err %v", err)
+		return cards, err
+	}
+
+	for rows.Next() {
+		var card models.PartialCard
+		if err := rows.Scan(
+			&card.ID,
+			&card.CardID,
+			&card.UserID,
+			&card.Title,
+			&card.ParentID,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+			&card.IsLiteratureCard,
+		); err != nil {
+			log.Printf("query partial cards err %v", err)
+			return cards, err
+		}
+		cards = append(cards, card)
+	}
+	return cards, nil
+
+}
+
+func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Printf("error %v", err)
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	card, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	results, err := s.GetRelatedCards(userID, card)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(results)
+}
+
 func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
