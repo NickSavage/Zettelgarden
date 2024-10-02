@@ -10,10 +10,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
+
+	"github.com/pgvector/pgvector-go"
 )
 
-func GenerateEmbeddings(db *sql.DB, card models.Card) ([]float64, error) {
+func GenerateEmbeddings(db *sql.DB, card models.Card) ([]float32, error) {
 	url := os.Getenv("ZETTEL_EMBEDDING_API")
 	if url == "" {
 		return nil, errors.New("no embedding url given - set ZETTEL_EMBEDDING_API")
@@ -46,22 +47,25 @@ func GenerateEmbeddings(db *sql.DB, card models.Card) ([]float64, error) {
 	}
 
 	var response struct {
-		Embedding []float64 `json:"embedding"`
+		Embedding []float32 `json:"embedding"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, errors.New("error decoding the embedding API response")
 	}
 
-	log.Printf("embedding %v", response.Embedding)
+	//	log.Printf("embedding %v", response.Embedding)
 	return response.Embedding, nil
 }
 
-func StoreEmbeddings(db *sql.DB, card models.Card, embedding []float64) error {
-	embeddingStr := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(embedding)), ","), "[]")
+func StoreEmbeddings(db *sql.DB, card models.Card, embedding []float32) error {
+	log.Printf("?")
+	v := pgvector.NewVector(embedding)
+
 	query := `UPDATE cards SET embedding = $1 WHERE id = $2;`
 
-	_, err := db.Exec(query, embeddingStr, card.ID)
+	_, err := db.Exec(query, v, card.ID)
 	if err != nil {
+		log.Printf("error %v", err)
 		return fmt.Errorf("error updating card %d: %w", card.ID, err)
 	}
 	return nil

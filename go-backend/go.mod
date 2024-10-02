@@ -25,9 +25,10 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	github.com/pgvector/pgvector-go v0.2.2 // indirect
 	github.com/rs/cors v1.11.0 // indirect
 	github.com/sashabaranov/go-openai v1.29.0 // indirect
 	github.com/stripe/stripe-go v70.15.0+incompatible // indirect
 	github.com/stripe/stripe-go/v79 v79.4.0 // indirect
-	golang.org/x/crypto v0.24.0 // indirect
+	golang.org/x/crypto v0.25.0 // indirect
 )
