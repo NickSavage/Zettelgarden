@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"go-backend/llms"
 	"go-backend/models"
 	"go-backend/srs"
 	"log"
@@ -629,7 +630,7 @@ func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, erro
 		&card.IsFlashcard,
 	)
 	if err != nil {
-		log.Printf("err %v", err)
+		log.Printf("query partial err %v", err)
 		return models.PartialCard{}, fmt.Errorf("something went wrong")
 	}
 	return card, nil
@@ -730,7 +731,7 @@ func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, 
 			&card.IsLiteratureCard,
 			&card.IsFlashcard,
 		); err != nil {
-			log.Printf("err %v", err)
+			log.Printf(" query full err %v", err)
 			return cards, err
 		}
 		cards = append(cards, card)
@@ -772,7 +773,7 @@ func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.Par
 			&card.IsLiteratureCard,
 			&card.IsFlashcard,
 		); err != nil {
-			log.Printf("err %v", err)
+			log.Printf("query partial cards err %v", err)
 			return cards, err
 		}
 		cards = append(cards, card)
@@ -819,7 +820,7 @@ func (s *Handler) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 			&card.IsLiteratureCard,
 			&card.IsFlashcard,
 		); err != nil {
-			log.Printf("err %v", err)
+			log.Printf("inactive err %v", err)
 			return cards, err
 		}
 		cards = append(cards, card)
@@ -864,7 +865,14 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	s.updateBacklinks(card.ID, backlinks)
 
 	if !s.Server.Testing {
-		go s.UpdateCardKeywords(userID, card)
+		go func() {
+			embedding, err := llms.GenerateEmbeddings(s.DB, card)
+			if err != nil {
+				log.Printf("error generating embeddings: %v", err)
+			}
+			llms.StoreEmbeddings(s.DB, card, embedding)
+
+		}()
 	}
 
 	s.AddTagsFromCard(userID, cardPK)
@@ -897,7 +905,14 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	backlinks := extractBacklinks(card.Body)
 	s.updateBacklinks(card.ID, backlinks)
 	if !s.Server.Testing {
-		go s.UpdateCardKeywords(userID, card)
+		go func() {
+			embedding, err := llms.GenerateEmbeddings(s.DB, card)
+			if err != nil {
+				log.Printf("error generating embeddings: %v", err)
+			}
+			llms.StoreEmbeddings(s.DB, card, embedding)
+
+		}()
 	}
 	s.AddTagsFromCard(userID, id)
 	return s.QueryFullCard(userID, id)
