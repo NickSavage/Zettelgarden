@@ -13,6 +13,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/pgvector/pgvector-go"
 )
 
 func getParentIdAlternating(cardID string) string {
@@ -316,7 +317,7 @@ func (s *Handler) checkCardLinkedOrRelated(
 	return false
 }
 
-func (s *Handler) GetRelatedCards(userID int, originalCard models.Card) ([]models.PartialCard, error) {
+func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.PartialCard, error) {
 
 	cards := []models.PartialCard{}
 	query := `
@@ -325,20 +326,20 @@ func (s *Handler) GetRelatedCards(userID int, originalCard models.Card) ([]model
     FROM 
         cards
     WHERE
-		user_id = $1 AND is_deleted = FALSE AND id != $2
-ORDER BY embedding <=> (SELECT embedding FROM cards WHERE id = $2) LIMIT 50
+		user_id = $1 AND is_deleted = FALSE
+ORDER BY embedding <=> $2 LIMIT 50
 
 `
-
 	var rows *sql.Rows
 	var err error
-	rows, err = s.DB.Query(query, userID, originalCard.ID)
+	rows, err = s.DB.Query(query, userID, embedding)
 	if err != nil {
 		log.Printf("err %v", err)
 		return cards, err
 	}
 
 	for rows.Next() {
+		log.Printf("?")
 		var card models.PartialCard
 		if err := rows.Scan(
 			&card.ID,
@@ -353,12 +354,7 @@ ORDER BY embedding <=> (SELECT embedding FROM cards WHERE id = $2) LIMIT 50
 			log.Printf("query partial cards err %v", err)
 			return cards, err
 		}
-		if !s.checkCardLinkedOrRelated(userID, originalCard, card) {
-			cards = append(cards, card)
-		}
-		if len(cards) >= 10 {
-			break
-		}
+		cards = append(cards, card)
 	}
 	return cards, nil
 
@@ -374,12 +370,33 @@ func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := s.QueryFullCard(userID, id)
+	originalCard, err := s.QueryFullCard(userID, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	results, err := s.GetRelatedCards(userID, card)
+	var embedding pgvector.Vector
+	query := "SELECT embedding FROM cards WHERE id = $1"
+	err = s.DB.QueryRow(query, originalCard.ID).Scan(&embedding)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Printf("embedding %v", embedding)
+
+	relatedCards, err := s.GetRelatedCards(userID, embedding)
+
+	var results []models.PartialCard
+	for _, card := range relatedCards {
+		log.Printf("card %v", card.ID)
+		if !s.checkCardLinkedOrRelated(userID, originalCard, card) {
+			results = append(results, card)
+		}
+		if len(results) >= 10 {
+			break
+		}
+	}
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
