@@ -4,7 +4,7 @@ import { CardItem } from "../../components/cards/CardItem";
 import { CardList } from "../../components/cards/CardList";
 import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
-import { getCard, saveExistingCard } from "../../api/cards";
+import { getCard, saveExistingCard, fetchRelatedCards } from "../../api/cards";
 import { compareCardIds } from "../../utils/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +36,7 @@ export function ViewPage({}: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
+  const [relatedCards, setRelatedCards] = useState<PartialCard[]>([]);
   const { tasks, setRefreshTasks } = useTaskContext();
   const [showCreateTaskWindow, setShowCreateTaskWindow] =
     useState<boolean>(false);
@@ -136,11 +137,22 @@ export function ViewPage({}: ViewPageProps) {
     setShowCreateTaskWindow(!showCreateTaskWindow);
   }
 
+  async function handleFetchRelatedCards(id: number) {
+    let response = await fetchRelatedCards(id);
+
+    if (isErrorResponse(response)) {
+      setError(response["error"]);
+    } else {
+      setRelatedCards(response);
+    }
+  }
+
   // For initial fetch and when id changes
   useEffect(() => {
     setError("");
     fetchCard(id!);
     setRefreshTasks(true);
+    handleFetchRelatedCards(id!);
   }, [id, setRefreshTasks]);
 
   return (
@@ -186,7 +198,8 @@ export function ViewPage({}: ViewPageProps) {
                   dangerouslySetInnerHTML={{
                     __html: linkifyWithDefaultOptions(viewingCard.link),
                   }}
-                />b
+                />
+                b
               </div>
             )}
           </div>
@@ -269,6 +282,9 @@ export function ViewPage({}: ViewPageProps) {
               />
             </div>
           )}
+
+          <HeaderSubSection text="Related Cards" />
+          <CardList cards={relatedCards} />
         </div>
       )}
     </div>

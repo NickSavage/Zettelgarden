@@ -292,8 +292,8 @@ func (s *Handler) GetRelatedCards(userID int, card models.Card) ([]models.Partia
     FROM 
         cards
     WHERE
-		user_id = $1 AND is_deleted = FALSE
-ORDER BY embedding <-> (SELECT embedding FROM items WHERE id = $2) LIMIT 10
+		user_id = $1 AND is_deleted = FALSE AND id != $2
+ORDER BY embedding <-> (SELECT embedding FROM cards WHERE id = $2) LIMIT 10
 
 `
 
@@ -341,6 +341,10 @@ func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	results, err := s.GetRelatedCards(userID, card)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)

@@ -77,6 +77,32 @@ export function fetchPartialCards(
     });
 }
 
+export function fetchRelatedCards(
+  id: number
+): Promise<PartialCard[]> {
+  let token = localStorage.getItem("token");
+
+  const url = base_url + `/cards/${id}/related`;
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((cards: PartialCard[]) => {
+          let results = cards.map((card) => ({
+            ...card,
+            created_at: new Date(card.created_at),
+            updated_at: new Date(card.updated_at),
+          }));
+          return results;
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
 export function getCard(id: string): Promise<Card> {
   // Assuming your backend is running on the same IP and port as in previous example
   let encoded = encodeURIComponent(id);
