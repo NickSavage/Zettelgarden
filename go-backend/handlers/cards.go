@@ -326,7 +326,7 @@ func (s *Handler) GetRelatedCards(userID int, originalCard models.Card) ([]model
         cards
     WHERE
 		user_id = $1 AND is_deleted = FALSE AND id != $2
-ORDER BY embedding <-> (SELECT embedding FROM cards WHERE id = $2) LIMIT 50
+ORDER BY embedding <=> (SELECT embedding FROM cards WHERE id = $2) LIMIT 50
 
 `
 
