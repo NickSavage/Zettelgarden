@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
-import { fetchCards } from "../../api/cards";
+import { fetchCards, semanticSearchCards } from "../../api/cards";
 import { fetchUserTags } from "../../api/tags";
-import { Card } from "../../models/Card";
+import { Card, PartialCard } from "../../models/Card";
 import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
@@ -12,8 +12,8 @@ import { usePartialCardContext } from "../../contexts/CardContext";
 interface SearchPageProps {
   searchTerm: string;
   setSearchTerm: (searchTerm: string) => void;
-  cards: Card[];
-  setCards: (cards: Card[]) => void;
+  cards: PartialCard[];
+  setCards: (cards: PartialCard[]) => void;
 }
 
 export function SearchPage({
@@ -36,7 +36,7 @@ export function SearchPage({
   function handleSearch(inputTerm = "") {
     let term = inputTerm == "" ? searchTerm : inputTerm;
 
-    fetchCards(term).then((data) => {
+    semanticSearchCards(term).then((data) => {
       if (data === null) {
         setCards([]);
       } else {

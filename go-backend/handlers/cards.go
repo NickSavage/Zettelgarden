@@ -360,11 +360,25 @@ ORDER BY embedding <=> $2 LIMIT 50
 
 }
 
-// func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
-// 	userID := r.Context().Value("current_user").(int)
-// 	searchTerm := r.URL.Query().Get("search_term")
+func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	searchTerm := r.URL.Query().Get("search_term")
 
-// }
+	embedding, err := llms.GenerateEmbeddings(searchTerm)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Printf("do we get here?")
+	relatedCards, err := s.GetRelatedCards(userID, embedding)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(relatedCards)
+}
 
 func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 	log.Printf("?")

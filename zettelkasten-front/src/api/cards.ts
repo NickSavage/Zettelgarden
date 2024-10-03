@@ -9,6 +9,36 @@ import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
+export function semanticSearchCards(searchTerm = ""): Promise<PartialCard[]> {
+  let token = localStorage.getItem("token");
+  let url = base_url + "/cards/search";
+  if (searchTerm) {
+    url += `?search_term=${encodeURIComponent(searchTerm)}`;
+  }
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((cards: PartialCard[]) => {
+          let results = cards.map((card) => {
+            return {
+              ...card,
+              created_at: new Date(card.created_at),
+              updated_at: new Date(card.updated_at),
+            };
+          });
+          return results;
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+  
+}
+
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/cards";

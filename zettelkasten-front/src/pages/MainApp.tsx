@@ -29,7 +29,7 @@ import { ShortcutProvider } from "../contexts/ShortcutContext";
 function MainAppContent() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchCards, setSearchCards] = useState<Card[]>([]);
+  const [searchCards, setSearchCards] = useState<PartialCard[]>([]);
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
   const { setRefreshPartialCards } = usePartialCardContext();
