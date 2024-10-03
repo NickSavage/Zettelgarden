@@ -360,6 +360,12 @@ ORDER BY embedding <=> $2 LIMIT 50
 
 }
 
+// func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
+// 	userID := r.Context().Value("current_user").(int)
+// 	searchTerm := r.URL.Query().Get("search_term")
+
+// }
+
 func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 	log.Printf("?")
 	userID := r.Context().Value("current_user").(int)
@@ -978,7 +984,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 
 	if !s.Server.Testing {
 		go func() {
-			embedding, err := llms.GenerateEmbeddings(s.DB, card)
+			embedding, err := llms.GenerateEmbeddingsFromCard(s.DB, card)
 			if err != nil {
 				log.Printf("error generating embeddings: %v", err)
 			}
@@ -1018,7 +1024,7 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	s.updateBacklinks(card.ID, backlinks)
 	if !s.Server.Testing {
 		go func() {
-			embedding, err := llms.GenerateEmbeddings(s.DB, card)
+			embedding, err := llms.GenerateEmbeddingsFromCard(s.DB, card)
 			if err != nil {
 				log.Printf("error generating embeddings: %v", err)
 			}
