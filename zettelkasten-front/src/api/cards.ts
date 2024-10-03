@@ -78,7 +78,7 @@ export function fetchPartialCards(
 }
 
 export function fetchRelatedCards(
-  id: number
+  id: string
 ): Promise<PartialCard[]> {
   let token = localStorage.getItem("token");
 

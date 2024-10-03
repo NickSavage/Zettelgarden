@@ -137,7 +137,7 @@ export function ViewPage({}: ViewPageProps) {
     setShowCreateTaskWindow(!showCreateTaskWindow);
   }
 
-  async function handleFetchRelatedCards(id: number) {
+  async function handleFetchRelatedCards(id: string) {
     let response = await fetchRelatedCards(id);
 
     if (isErrorResponse(response)) {

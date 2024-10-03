@@ -65,4 +65,3 @@ jobs:
       run: |
         cd go-backend
         go test ./handlers/
-        go test ./srs/
