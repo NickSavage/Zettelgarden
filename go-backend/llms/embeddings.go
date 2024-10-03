@@ -64,12 +64,22 @@ func GenerateEmbeddingsFromCard(db *sql.DB, card models.Card) (pgvector.Vector, 
 }
 
 func StoreEmbeddings(db *sql.DB, card models.Card, embedding pgvector.Vector) error {
-	query := `UPDATE cards SET embedding = $1 WHERE id = $2;`
-
-	_, err := db.Exec(query, embedding, card.ID)
+	tx, err := db.Begin()
+	query := `DELETE FROM card_embeddings WHERE card_pk = $1 AND user_id = $2`
+	_, err = tx.Exec(query, card.ID, card.UserID)
 	if err != nil {
 		log.Printf("error %v", err)
+		tx.Rollback()
 		return fmt.Errorf("error updating card %d: %w", card.ID, err)
 	}
+	query = `INSERT INTO card_embeddings (card_pk, user_id, embedding) VALUES ($1, $2, $3)`
+
+	_, err = tx.Exec(query, card.ID, card.UserID, embedding)
+	if err != nil {
+		log.Printf("error %v", err)
+		tx.Rollback()
+		return fmt.Errorf("error updating card %d: %w", card.ID, err)
+	}
+	tx.Commit()
 	return nil
 }

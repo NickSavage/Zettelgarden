@@ -339,7 +339,6 @@ ORDER BY embedding <=> $2 LIMIT 50
 	}
 
 	for rows.Next() {
-		log.Printf("?")
 		var card models.PartialCard
 		if err := rows.Scan(
 			&card.ID,
@@ -396,19 +395,17 @@ func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var embedding pgvector.Vector
-	query := "SELECT embedding FROM cards WHERE id = $1"
+	query := "SELECT embedding FROM card_embeddings WHERE card_pk = $1 LIMIT 1"
 	err = s.DB.QueryRow(query, originalCard.ID).Scan(&embedding)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Printf("embedding %v", embedding)
 
 	relatedCards, err := s.GetRelatedCards(userID, embedding)
 
 	var results []models.PartialCard
 	for _, card := range relatedCards {
-		log.Printf("card %v", card.ID)
 		if !s.checkCardLinkedOrRelated(userID, originalCard, card) {
 			results = append(results, card)
 		}
@@ -613,7 +610,6 @@ func (s *Handler) CreateCardRoute(w http.ResponseWriter, r *http.Request) {
 
 	card, err := s.CreateCard(userID, params)
 	if err != nil {
-		log.Printf("?")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -725,7 +721,6 @@ func (s *Handler) NextIDRoute(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Context().Value("current_user").(int)
 
-	log.Printf("body %v", r.Body)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
 	if err != nil {
@@ -923,7 +918,6 @@ func (s *Handler) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
 	var count int
 	_ = s.DB.QueryRow("SELECT count(*) FROM inactive_cards WHERE user_id = $1", userID).Scan(&count)
 	if count == 0 {
-		log.Printf("derp")
 		s.GenerateInactiveCards(userID)
 	}
 	cards := []models.PartialCard{}
@@ -974,7 +968,6 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	} else {
 		parent_id = parent.ID
 	}
-	log.Printf("setting parent id %v", parent_id)
 
 	//	originalCard, err := s.QueryPartialCardByID(userID, cardPK)
 	if err != nil {
