@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"github.com/pgvector/pgvector-go"
+	"time"
+)
 
 type Card struct {
 	ID               int           `json:"id"`
@@ -21,6 +24,7 @@ type Card struct {
 	IsLiteratureCard bool          `json:"is_literature_card"`
 	Tags             []Tag         `json:"tags"`
 	IsFlashcard      bool          `json:"is_flashcard"`
+	Embedding        pgvector.Vector
 }
 
 type PartialCard struct {
