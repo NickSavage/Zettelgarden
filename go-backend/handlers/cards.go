@@ -283,7 +283,40 @@ func (s *Handler) getReferences(userID int, card models.Card) ([]models.PartialC
 	return links, nil
 }
 
-func (s *Handler) GetRelatedCards(userID int, card models.Card) ([]models.PartialCard, error) {
+func getCardById(cards []models.Card, id int) (models.Card, error) {
+	for _, card := range cards {
+		if card.ID == id {
+			return card, nil
+		}
+	}
+	return models.Card{}, fmt.Errorf("unable to find card")
+
+}
+
+func (s *Handler) checkCardLinkedOrRelated(
+	userID int,
+	mainCard models.Card,
+	relatedCard models.PartialCard,
+) bool {
+	if relatedCard.ParentID == mainCard.ID {
+		log.Printf("reject card, is child")
+		return true
+	}
+	references, err := s.getReferences(userID, mainCard)
+	if err != nil {
+		log.Printf("check card linked err %v", err)
+		return true
+	}
+	for _, ref := range references {
+		if ref.ID == relatedCard.ID {
+			log.Printf("reject card, is a reference")
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Handler) GetRelatedCards(userID int, originalCard models.Card) ([]models.PartialCard, error) {
 
 	cards := []models.PartialCard{}
 	query := `
@@ -293,13 +326,13 @@ func (s *Handler) GetRelatedCards(userID int, card models.Card) ([]models.Partia
         cards
     WHERE
 		user_id = $1 AND is_deleted = FALSE AND id != $2
-ORDER BY embedding <-> (SELECT embedding FROM cards WHERE id = $2) LIMIT 10
+ORDER BY embedding <-> (SELECT embedding FROM cards WHERE id = $2) LIMIT 50
 
 `
 
 	var rows *sql.Rows
 	var err error
-	rows, err = s.DB.Query(query, userID, card.ID)
+	rows, err = s.DB.Query(query, userID, originalCard.ID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return cards, err
@@ -320,13 +353,19 @@ ORDER BY embedding <-> (SELECT embedding FROM cards WHERE id = $2) LIMIT 10
 			log.Printf("query partial cards err %v", err)
 			return cards, err
 		}
-		cards = append(cards, card)
+		if !s.checkCardLinkedOrRelated(userID, originalCard, card) {
+			cards = append(cards, card)
+		}
+		if len(cards) >= 10 {
+			break
+		}
 	}
 	return cards, nil
 
 }
 
 func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
+	log.Printf("?")
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
