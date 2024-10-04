@@ -8,9 +8,20 @@
 
 ## Features
 
-- **Cards**: Create 'cards', which are meant to be individual, atomic pieces of information. They are arranged in a tree that can be traversed.
-- **Tasks**: You can track all of your tasks, and link them with different cards
-- **Files**: Upload files and link them to cards, to keep all of your information in the same place
+- **Store Information**: Zettelgarden can hold many different types of information, from long-term "Cards" (individual, atomic pieces of information), "Tasks" (short-term to-do items), and "Files" (upload your PDFs). Upload everything you have and link it together, creating a digital garden of thoughts.
+- **Connect Information**: Effortlessly link your content together to form a network of related ideas. Zettelgarden empowers you to create a web of knowledge where concepts and tasks are interconnected, ensuring you never lose context or insight.
+- **Find Information**: Utilize Zettelgarden's advanced retrieval-augmented generation (RAG) to efficiently locate items within your data. The app intelligently suggests links and helps you uncover meaningful connections between seemingly disparate pieces of information.
+
+## Why Zettelgarden?
+
+Zettelgarden is an opinionated implementation of the zettelkasten technique. The idea is to build a database of curated information and allow the user to build 'connections' through it. Zettelgarden shines with small, atomic notes (about as much as would fit onto an index card). It encourages you to build a network of lots and lots of cards. 
+
+Cards themselves are not useful, the power comes through linking cards together. Zettelgarden 
+## Why Zettelgarden?
+
+Zettelgarden is an opinionated implementation of the zettelkasten technique, designed to facilitate a structured and interconnected database of information. It specializes in handling small, atomic notes that encapsulate discrete pieces of information - akin to index cards in a traditional setup. The core philosophy of Zettelgarden is that the true value emerges from linking these cards together.
+
+There are two main benefits to keeping notes small: one, it enables you to curate information yourself. The point is not to dump articles in, but to read **and write** atomic thoughts that matter to the user. Then, using embeddings and retrival-augmented generation (RAG), information in Zettelgarden comes **pre-chunked**. This gives good results out of the box, and links you add only make it better.
 
 ## Architecture
 
