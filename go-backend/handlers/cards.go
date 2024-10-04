@@ -321,14 +321,24 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 
 	cards := []models.PartialCard{}
 	query := `
-    SELECT 
-        id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card
-    FROM 
-        cards
-    WHERE
-		user_id = $1 AND is_deleted = FALSE
-ORDER BY embedding <=> $2 LIMIT 50
-
+SELECT 
+    c.id,
+    c.card_id,
+    c.user_id,
+    c.title,
+    c.parent_id,
+    c.created_at,
+    c.updated_at,
+    c.is_literature_card
+FROM 
+    card_embeddings ce
+INNER JOIN 
+    cards c ON ce.card_pk = c.id
+WHERE
+    ce.user_id = $1 AND c.is_deleted = FALSE
+ORDER BY 
+    ce.embedding <=> $2 
+LIMIT 50;
 `
 	var rows *sql.Rows
 	var err error
@@ -338,6 +348,7 @@ ORDER BY embedding <=> $2 LIMIT 50
 		return cards, err
 	}
 
+	var seen = make(map[int]bool)
 	for rows.Next() {
 		var card models.PartialCard
 		if err := rows.Scan(
@@ -353,7 +364,10 @@ ORDER BY embedding <=> $2 LIMIT 50
 			log.Printf("query partial cards err %v", err)
 			return cards, err
 		}
-		cards = append(cards, card)
+		if _, exists := seen[card.ID]; !exists {
+			cards = append(cards, card)
+			seen[card.ID] = true
+		}
 	}
 	return cards, nil
 
@@ -408,6 +422,7 @@ func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 	relatedCards, err := s.GetRelatedCards(userID, embedding)
 
 	var results []models.PartialCard
+
 	for _, card := range relatedCards {
 		if !s.checkCardLinkedOrRelated(userID, originalCard, card) {
 			results = append(results, card)
