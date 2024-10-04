@@ -83,11 +83,11 @@ func addRoute(r *mux.Router, path string, handler http.HandlerFunc, method strin
 }
 
 func main() {
-	file, err := handlers.OpenLogFile(os.Getenv("ZETTEL_BACKEND_LOG_LOCATION"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.SetOutput(file)
+	// file, err := handlers.OpenLogFile(os.Getenv("ZETTEL_BACKEND_LOG_LOCATION"))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.SetOutput(file)
 	s = &server.Server{}
 
 	dbConfig := models.DatabaseConfig{}
@@ -140,6 +140,7 @@ func main() {
 	addProtectedRoute(r, "/api/cards", h.GetCardsRoute, "GET")
 	addProtectedRoute(r, "/api/cards", h.CreateCardRoute, "POST")
 	addProtectedRoute(r, "/api/next", h.NextIDRoute, "POST")
+	addProtectedRoute(r, "/api/search", h.SemanticSearchCardsRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}", h.GetCardRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}", h.UpdateCardRoute, "PUT")
 	addProtectedRoute(r, "/api/cards/{id}", h.DeleteCardRoute, "DELETE")

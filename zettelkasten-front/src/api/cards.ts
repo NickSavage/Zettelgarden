@@ -11,7 +11,7 @@ const base_url = import.meta.env.VITE_URL;
 
 export function semanticSearchCards(searchTerm = ""): Promise<PartialCard[]> {
   let token = localStorage.getItem("token");
-  let url = base_url + "/cards/search";
+  let url = base_url + "/search";
   if (searchTerm) {
     url += `?search_term=${encodeURIComponent(searchTerm)}`;
   }
