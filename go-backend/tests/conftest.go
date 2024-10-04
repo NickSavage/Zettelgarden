@@ -65,6 +65,7 @@ func importTestData(s *server.Server) error {
 	keywords := data["keywords"].([]models.Keyword)
 	tags := data["tags"].([]models.Tag)
 	card_tags := data["card_tags"].([]models.CardTag)
+	embeddings := data["embeddings"].([]models.Embedding)
 
 	tx, _ := s.DB.Begin()
 	var userIDs []int
@@ -91,8 +92,8 @@ func importTestData(s *server.Server) error {
 
 	for _, card := range cards {
 		_, err := tx.Exec(
-			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card, embedding) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard, card.Embedding,
+			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard,
 		)
 		if err != nil {
 			log.Printf("something went wrong inserting rows: %v", err)
@@ -180,6 +181,21 @@ func importTestData(s *server.Server) error {
 		}
 	}
 
+	for _, embedding := range embeddings {
+		_, err := tx.Exec(
+
+			"INSERT INTO card_embeddings (user_id, card_pk, embedding, chunk) VALUES ($1, $2, $3, $4)",
+			embedding.UserID,
+			embedding.CardPK,
+			embedding.Embedding,
+			embedding.Chunk,
+		)
+		if err != nil {
+			log.Printf("err %v", err)
+			return err
+		}
+	}
+
 	tx.Commit()
 	return nil
 }
@@ -247,11 +263,6 @@ func generateData() map[string]interface{} {
 		users = append(users, user)
 	}
 
-	vectorData := make([]float32, 1024)
-	for i := range vectorData {
-		vectorData[i] = float32(i + 1) // or any other logic to fill the vector
-	}
-	vector := pgvector.NewVector(vectorData)
 	cards := []models.Card{}
 	for i := 1; i <= 20; i++ {
 		card := models.Card{
@@ -266,7 +277,6 @@ func generateData() map[string]interface{} {
 			ParentID:         i,
 			IsLiteratureCard: false,
 			IsFlashcard:      false,
-			Embedding:        vector,
 		}
 		if i == 1 {
 			card.Body = card.Body + "\n[" + strconv.Itoa(i+1) + "]"
@@ -300,7 +310,6 @@ func generateData() map[string]interface{} {
 		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 		ParentID:         1,
 		IsLiteratureCard: false,
-		Embedding:        vector,
 	})
 	cards = append(cards, models.Card{
 		ID:               22,
@@ -313,7 +322,6 @@ func generateData() map[string]interface{} {
 		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 		ParentID:         2,
 		IsLiteratureCard: false,
-		Embedding:        vector,
 	})
 	cards = append(cards, models.Card{
 		ID:               23,
@@ -326,7 +334,6 @@ func generateData() map[string]interface{} {
 		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 		ParentID:         23,
 		IsLiteratureCard: false,
-		Embedding:        vector,
 	})
 	cards = append(cards, models.Card{
 		ID:               24,
@@ -339,7 +346,6 @@ func generateData() map[string]interface{} {
 		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
 		ParentID:         22,
 		IsLiteratureCard: false,
-		Embedding:        vector,
 	})
 
 	backlinks := []models.Backlink{}
@@ -408,15 +414,33 @@ func generateData() map[string]interface{} {
 		tasks = append(tasks, task)
 	}
 
+	vectorData := make([]float32, 1024)
+	for i := range vectorData {
+		vectorData[i] = float32(i + 1) // or any other logic to fill the vector
+	}
+	vector := pgvector.NewVector(vectorData)
+	embeddings := []models.Embedding{}
+	for i, card := range cards {
+		embedding := models.Embedding{
+			ID:        i,
+			CardPK:    card.ID,
+			UserID:    card.UserID,
+			Chunk:     1,
+			Embedding: vector,
+		}
+		embeddings = append(embeddings, embedding)
+	}
+
 	results := map[string]interface{}{
-		"users":     users,
-		"cards":     cards,
-		"backlinks": backlinks,
-		"files":     files,
-		"tasks":     tasks,
-		"keywords":  keywords,
-		"tags":      tags,
-		"card_tags": card_tags,
+		"users":      users,
+		"cards":      cards,
+		"backlinks":  backlinks,
+		"files":      files,
+		"tasks":      tasks,
+		"keywords":   keywords,
+		"tags":       tags,
+		"card_tags":  card_tags,
+		"embeddings": embeddings,
 	}
 	return results
 }

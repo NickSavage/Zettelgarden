@@ -363,13 +363,16 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
 
-	embedding, err := llms.GenerateEmbeddings(searchTerm)
+	embeddings, err := llms.GenerateEmbeddings(searchTerm)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Printf("do we get here?")
-	relatedCards, err := s.GetRelatedCards(userID, embedding)
+	if len(embeddings) == 0 {
+		http.Error(w, "search query not entered", http.StatusBadRequest)
+		return
+	}
+	relatedCards, err := s.GetRelatedCards(userID, embeddings[0])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
