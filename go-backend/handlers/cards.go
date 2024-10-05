@@ -847,11 +847,11 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	}
 
 	query := `
-	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, is_literature_card = $5, updated_at = NOW(), card_id = $6
+	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, updated_at = NOW(), card_id = $5
 	WHERE
-	id = $7
+	id = $6
 	`
-	_, err = s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.IsLiteratureCard, params.CardID, cardPK)
+	_, err = s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.CardID, cardPK)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
@@ -880,12 +880,12 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 	query := `
 	INSERT INTO cards 
-	(title, body, link, user_id, card_id, parent_id, is_literature_card, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+	(title, body, link, user_id, card_id, parent_id, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
 	RETURNING id;
 	`
 	var id int
-	err = s.DB.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID, parent.ID, params.IsLiteratureCard).Scan(&id)
+	err = s.DB.QueryRow(query, params.Title, params.Body, params.Link, userID, params.CardID, parent.ID).Scan(&id)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err

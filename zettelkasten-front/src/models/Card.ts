@@ -10,9 +10,7 @@ export interface PartialCard {
   parent_id: number;
   created_at: Date;
   updated_at: Date;
-  is_literature_card: boolean;
   tags: Tag[];
-  is_flashcard: boolean;
 }
 
 export interface Card {
@@ -30,9 +28,7 @@ export interface Card {
   files: File[];
   children: PartialCard[];
   references: PartialCard[];
-  is_literature_card: boolean;
   tags: Tag[];
-  is_flashcard: boolean;
 }
 
 export const defaultPartialCard: PartialCard = {
@@ -43,9 +39,7 @@ export const defaultPartialCard: PartialCard = {
   parent_id: -1,
   created_at: new Date(0),
   updated_at: new Date(0),
-  is_literature_card: false,
   tags: [],
-  is_flashcard: false,
 };
 
 export const defaultCard: Card = {
@@ -63,9 +57,7 @@ export const defaultCard: Card = {
   files: [],
   children: [],
   references: [],
-  is_literature_card: false,
   tags: [],
-  is_flashcard: false,
 };
 
 export interface NextIdResponse {

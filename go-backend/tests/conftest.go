@@ -91,8 +91,8 @@ func importTestData(s *server.Server) error {
 
 	for _, card := range cards {
 		_, err := tx.Exec(
-			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id, is_literature_card) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID, card.IsLiteratureCard,
+			"INSERT INTO cards (card_id, user_id, title, body, link, created_at, updated_at, parent_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+			card.CardID, card.UserID, card.Title, card.Body, card.Link, card.CreatedAt, card.UpdatedAt, card.ParentID,
 		)
 		if err != nil {
 			log.Printf("something went wrong inserting rows: %v", err)
@@ -265,17 +265,15 @@ func generateData() map[string]interface{} {
 	cards := []models.Card{}
 	for i := 1; i <= 20; i++ {
 		card := models.Card{
-			ID:               i,
-			CardID:           strconv.Itoa(i),
-			UserID:           1,
-			Title:            randomString(20),
-			Body:             randomString(100),
-			Link:             fmt.Sprintf("https://%s.com", randomString(10)),
-			CreatedAt:        randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-			UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			ParentID:         i,
-			IsLiteratureCard: false,
-			IsFlashcard:      false,
+			ID:        i,
+			CardID:    strconv.Itoa(i),
+			UserID:    1,
+			Title:     randomString(20),
+			Body:      randomString(100),
+			Link:      fmt.Sprintf("https://%s.com", randomString(10)),
+			CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+			ParentID:  i,
 		}
 		if i == 1 {
 			card.Body = card.Body + "\n[" + strconv.Itoa(i+1) + "]"
@@ -287,64 +285,51 @@ func generateData() map[string]interface{} {
 		if i == 5 {
 			card.CardID = "MM001"
 		}
-		if i == 6 {
-			card.IsFlashcard = true
-		}
-		if i == 7 {
-			card.IsFlashcard = true
-		}
-		if i == 8 {
-			card.IsFlashcard = true
-		}
 		cards = append(cards, card)
 	}
 	cards = append(cards, models.Card{
-		ID:               21,
-		CardID:           "1/A",
-		UserID:           1,
-		Title:            randomString(20),
-		Body:             randomString(20),
-		Link:             fmt.Sprintf("https://%s.com", randomString(10)),
-		CreatedAt:        randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-		ParentID:         1,
-		IsLiteratureCard: false,
+		ID:        21,
+		CardID:    "1/A",
+		UserID:    1,
+		Title:     randomString(20),
+		Body:      randomString(20),
+		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:  1,
 	})
 	cards = append(cards, models.Card{
-		ID:               22,
-		CardID:           "2/A",
-		UserID:           1,
-		Title:            "test card",
-		Body:             randomString(20) + "[1]",
-		Link:             fmt.Sprintf("https://%s.com", randomString(10)),
-		CreatedAt:        randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-		ParentID:         2,
-		IsLiteratureCard: false,
+		ID:        22,
+		CardID:    "2/A",
+		UserID:    1,
+		Title:     "test card",
+		Body:      randomString(20) + "[1]",
+		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:  2,
 	})
 	cards = append(cards, models.Card{
-		ID:               23,
-		CardID:           "1",
-		UserID:           2,
-		Title:            "test card",
-		Body:             "hello world #to-read",
-		Link:             fmt.Sprintf("https://%s.com", randomString(10)),
-		CreatedAt:        randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-		ParentID:         23,
-		IsLiteratureCard: false,
+		ID:        23,
+		CardID:    "1",
+		UserID:    2,
+		Title:     "test card",
+		Body:      "hello world #to-read",
+		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:  23,
 	})
 	cards = append(cards, models.Card{
-		ID:               24,
-		CardID:           "2/A.1",
-		UserID:           1,
-		Title:            "another test card",
-		Body:             randomString(20) + "[1]",
-		Link:             fmt.Sprintf("https://%s.com", randomString(10)),
-		CreatedAt:        randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		UpdatedAt:        randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-		ParentID:         22,
-		IsLiteratureCard: false,
+		ID:        24,
+		CardID:    "2/A.1",
+		UserID:    1,
+		Title:     "another test card",
+		Body:      randomString(20) + "[1]",
+		Link:      fmt.Sprintf("https://%s.com", randomString(10)),
+		CreatedAt: randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+		UpdatedAt: randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		ParentID:  22,
 	})
 
 	backlinks := []models.Backlink{}

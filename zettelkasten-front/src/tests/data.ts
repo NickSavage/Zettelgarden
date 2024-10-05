@@ -144,9 +144,7 @@ const samplePartialCardData: PartialCard[] = [
     created_at: new Date(),
     updated_at: new Date(),
     parent_id: 1,
-    is_literature_card: false,
     tags: [],
-    is_flashcard: false,
   },
   {
     id: 2,
@@ -156,9 +154,7 @@ const samplePartialCardData: PartialCard[] = [
     created_at: new Date(),
     updated_at: new Date(),
     parent_id: 2,
-    is_literature_card: false,
     tags: [],
-    is_flashcard: false,
   },
 ];
 
@@ -178,9 +174,7 @@ const sampleCardData: Card[] = [
     references: [],
     files: [],
     is_deleted: false,
-    is_literature_card: false,
     tags: [],
-    is_flashcard: false,
   },
   {
     id: 2,
@@ -197,8 +191,6 @@ const sampleCardData: Card[] = [
     references: [],
     files: [],
     is_deleted: false,
-    is_literature_card: false,
     tags: [],
-    is_flashcard: false,
   },
 ];
