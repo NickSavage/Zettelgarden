@@ -50,7 +50,6 @@ func (s *Handler) GetUserRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Handler) GetUsersRoute(w http.ResponseWriter, r *http.Request) {
 	users, err := s.QueryUsers()
-	log.Printf("users %v", users)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -212,7 +211,6 @@ func (s *Handler) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Requ
 
 	user, err := s.QueryUser(userID)
 	if err != nil {
-		log.Printf("asdas")
 		response.Message = err.Error()
 		response.Error = true
 		w.WriteHeader(http.StatusBadRequest)
@@ -220,7 +218,6 @@ func (s *Handler) ResendEmailValidationRoute(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	if user.EmailValidated {
-		log.Printf("here?")
 		response.Message = "email already validated"
 		response.Error = true
 		w.WriteHeader(http.StatusBadRequest)
@@ -530,7 +527,6 @@ func (s *Handler) sendEmailValidation(user models.User) error {
 
 	Thank you.
 	`, user.Username, url)
-	log.Printf("messagee %v", messageBody)
 
 	s.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
 	return nil

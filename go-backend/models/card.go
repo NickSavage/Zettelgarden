@@ -1,7 +1,9 @@
 package models
 
 import (
+	"database/sql"
 	"github.com/pgvector/pgvector-go"
+	"log"
 	"time"
 )
 
@@ -25,6 +27,55 @@ type Card struct {
 	Tags             []Tag         `json:"tags"`
 	IsFlashcard      bool          `json:"is_flashcard"`
 	Embedding        pgvector.Vector
+}
+
+func ScanCards(rows *sql.Rows) ([]Card, error) {
+	var cards []Card
+
+	for rows.Next() {
+		var card Card
+		if err := rows.Scan(
+			&card.ID,
+			&card.CardID,
+			&card.UserID,
+			&card.Title,
+			&card.Body,
+			&card.Link,
+			&card.ParentID,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+		); err != nil {
+			log.Printf(" query full err %v", err)
+			return cards, err
+		}
+		cards = append(cards, card)
+	}
+
+	return cards, nil
+}
+
+func ScanPartialCards(rows *sql.Rows) ([]PartialCard, error) {
+	var cards []PartialCard
+
+	for rows.Next() {
+		var card PartialCard
+		if err := rows.Scan(
+			&card.ID,
+			&card.CardID,
+			&card.UserID,
+			&card.Title,
+			&card.ParentID,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+		); err != nil {
+			log.Printf("err %v", err)
+			return cards, err
+		}
+		cards = append(cards, card)
+
+	}
+	return cards, nil
+
 }
 
 type PartialCard struct {
@@ -89,35 +140,4 @@ type NextIDResponse struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
 	NextID  string `json:"new_id"`
-}
-
-type FlashcardRecordNextParams struct {
-	CardPK int    `json:"card_pk"`
-	Rating Rating `json:"rating"`
-}
-
-type FlashcardReview struct {
-	ID        int       `json:"id"`
-	CardPK    int       `json:"card_pk"`
-	CreatedAt time.Time `json:"created_at"`
-	Rating    int       `json:"rating"`
-}
-
-type Rating int
-
-const Again Rating = 0
-const Hard Rating = 1
-const Good Rating = 2
-const Easy Rating = 3
-
-func (r Rating) String() string {
-	if r == Again {
-		return "Again"
-	} else if r == Hard {
-		return "Hard"
-	} else if r == Good {
-		return "Good"
-	} else {
-		return "Easy"
-	}
 }

@@ -406,7 +406,6 @@ func TestCreateCardSuccessRecursiveTags(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	log.Printf("body %v", rr.Body.String())
 	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
 
 	tags, err := s.QueryTagsForCard(1, card.ID)

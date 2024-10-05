@@ -20,7 +20,6 @@ import (
 var S *server.Server
 
 func Setup() *server.Server {
-	log.Printf("setup")
 	var err error
 	dbConfig := models.DatabaseConfig{}
 	dbConfig.Host = os.Getenv("DB_HOST")

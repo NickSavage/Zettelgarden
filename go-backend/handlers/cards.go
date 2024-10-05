@@ -148,29 +148,25 @@ func (s *Handler) getChildren(userID int, cardID string) ([]models.PartialCard, 
 	rows, err := s.DB.Query(query, userID, cardID+".%", cardID+"/%")
 	if err != nil {
 		log.Printf("err %v", err)
+		return []models.PartialCard{}, err
 	}
-	cards := []models.PartialCard{}
 
-	for rows.Next() {
-		var card models.PartialCard
-		if err := rows.Scan(
-			&card.ID,
-			&card.CardID,
-			&card.UserID,
-			&card.Title,
-			&card.ParentID,
-			&card.CreatedAt,
-			&card.UpdatedAt,
-		); err != nil {
-			log.Printf("err %v", err)
-			return cards, err
-		}
+	cards, err := models.ScanPartialCards(rows)
+	log.Printf("cards %v", cards)
+	if err != nil {
+		log.Printf("err %v", err)
+		return []models.PartialCard{}, err
+	}
 
+	var results []models.PartialCard
+	for _, card := range cards {
+		log.Printf("card %v", card)
 		if card.CardID != cardID {
-			cards = append(cards, card)
+			results = append(results, card)
 		}
 	}
-	return cards, nil
+
+	return results, nil
 }
 
 func (s *Handler) getBacklinks(userID int, cardID string) ([]models.PartialCard, error) {
@@ -293,7 +289,6 @@ func (s *Handler) checkCardLinkedOrRelated(
 
 func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.PartialCard, error) {
 
-	cards := []models.PartialCard{}
 	query := `
 SELECT 
     c.id,
@@ -302,8 +297,7 @@ SELECT
     c.title,
     c.parent_id,
     c.created_at,
-    c.updated_at,
-    c.is_literature_card
+    c.updated_at
 FROM 
     card_embeddings ce
 INNER JOIN 
@@ -319,31 +313,22 @@ LIMIT 50;
 	rows, err = s.DB.Query(query, userID, embedding)
 	if err != nil {
 		log.Printf("err %v", err)
-		return cards, err
+		return []models.PartialCard{}, err
 	}
 
+	cards, err := models.ScanPartialCards(rows)
+
 	var seen = make(map[int]bool)
-	for rows.Next() {
-		var card models.PartialCard
-		if err := rows.Scan(
-			&card.ID,
-			&card.CardID,
-			&card.UserID,
-			&card.Title,
-			&card.ParentID,
-			&card.CreatedAt,
-			&card.UpdatedAt,
-			&card.IsLiteratureCard,
-		); err != nil {
-			log.Printf("query partial cards err %v", err)
-			return cards, err
-		}
+	var results []models.PartialCard
+
+	for _, card := range cards {
 		if _, exists := seen[card.ID]; !exists {
-			cards = append(cards, card)
+			results = append(results, card)
 			seen[card.ID] = true
 		}
 	}
-	return cards, nil
+
+	return results, nil
 
 }
 
@@ -724,8 +709,7 @@ func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, erro
 
 	err := s.DB.QueryRow(`
 	SELECT
-	id, card_id, user_id, title, parent_id, created_at, updated_at,
-        is_literature_card
+	id, card_id, user_id, title, parent_id, created_at, updated_at
 	FROM cards 
 	WHERE is_deleted = FALSE AND id = $1 AND user_id = $2
 	`, id, userID).Scan(
@@ -736,7 +720,6 @@ func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, erro
 		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
-		&card.IsLiteratureCard,
 	)
 	if err != nil {
 		log.Printf("query partial err %v", err)
@@ -777,7 +760,7 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 	err := s.DB.QueryRow(`
 	SELECT 
 	id, card_id, user_id, title, body, link, parent_id,
-        created_at, updated_at, is_literature_card
+        created_at, updated_at
 	FROM 
 	cards
 	WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
@@ -791,7 +774,6 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 		&card.ParentID,
 		&card.CreatedAt,
 		&card.UpdatedAt,
-		&card.IsLiteratureCard,
 	)
 	if err != nil {
 		log.Printf("asdas err %v", err)
@@ -804,11 +786,9 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 }
 
 func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, error) {
-	var cards []models.Card
 	query := `
     SELECT 
-		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at,
-                is_literature_card
+		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at
     FROM 
         cards
     WHERE
@@ -821,37 +801,17 @@ func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, 
 	rows, err = s.DB.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
-		return cards, err
+		return []models.Card{}, err
 	}
 
-	for rows.Next() {
-		var card models.Card
-		if err := rows.Scan(
-			&card.ID,
-			&card.CardID,
-			&card.UserID,
-			&card.Title,
-			&card.Body,
-			&card.Link,
-			&card.ParentID,
-			&card.CreatedAt,
-			&card.UpdatedAt,
-			&card.IsLiteratureCard,
-		); err != nil {
-			log.Printf(" query full err %v", err)
-			return cards, err
-		}
-		cards = append(cards, card)
-	}
-
+	cards, err := models.ScanCards(rows)
 	return cards, nil
 }
 
 func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.PartialCard, error) {
-	cards := []models.PartialCard{}
 	query := `
     SELECT 
-        id, card_id, user_id, title, parent_id, created_at, updated_at, is_literature_card
+        id, card_id, user_id, title, parent_id, created_at, updated_at
     FROM 
         cards
     WHERE
@@ -863,26 +823,10 @@ func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.Par
 	rows, err = s.DB.Query(query, userID)
 	if err != nil {
 		log.Printf("err %v", err)
-		return cards, err
+		return []models.PartialCard{}, err
 	}
 
-	for rows.Next() {
-		var card models.PartialCard
-		if err := rows.Scan(
-			&card.ID,
-			&card.CardID,
-			&card.UserID,
-			&card.Title,
-			&card.ParentID,
-			&card.CreatedAt,
-			&card.UpdatedAt,
-			&card.IsLiteratureCard,
-		); err != nil {
-			log.Printf("query partial cards err %v", err)
-			return cards, err
-		}
-		cards = append(cards, card)
-	}
+	cards, err := models.ScanPartialCards(rows)
 	return cards, nil
 }
 
