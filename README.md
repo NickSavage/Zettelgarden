@@ -8,7 +8,7 @@
 
 ## Features
 
-- **Store Information**: Zettelgarden can hold many different types of information, from long-term "Cards" (individual, atomic pieces of information), "Tasks" (short-term to-do items), and "Files" (upload your PDFs). Upload everything you have and link it together, creating a digital garden of thoughts.
+- **Capture Information**: Zettelgarden can hold many different types of information, from long-term "Cards" (individual, atomic pieces of information), "Tasks" (short-term to-do items), and "Files" (upload your PDFs). Upload everything you have and link it together, creating a digital garden of thoughts.
 - **Connect Information**: Effortlessly link your content together to form a network of related ideas. Zettelgarden empowers you to create a web of knowledge where concepts and tasks are interconnected, ensuring you never lose context or insight.
 - **Find Information**: Utilize Zettelgarden's advanced retrieval-augmented generation (RAG) to efficiently locate items within your data. The app intelligently suggests links and helps you uncover meaningful connections between seemingly disparate pieces of information.
 
@@ -17,6 +17,14 @@
 Zettelgarden is an opinionated implementation of the zettelkasten technique, designed to facilitate a structured and interconnected database of information. It specializes in handling small, atomic notes that encapsulate discrete pieces of information - akin to index cards in a traditional setup. The core philosophy of Zettelgarden is that the true value emerges from linking these cards together.
 
 There are two main benefits to keeping notes small: one, it enables you to curate information yourself. The point is not to dump articles in, but to read **and write** atomic thoughts that matter to the user. Then, using embeddings and retrival-augmented generation (RAG), information in Zettelgarden comes **pre-chunked**. This gives good results out of the box, and links you add only make it better.
+
+## Capturing Information
+
+Zettelgarden makes it easy to capture information. Aside from the main app, there are many ways to get data in, such as:
+
+- iOS app: share content to create tasks or cards
+- Apple Watch app (coming soon)
+- Browser extensions and bookmarklets (coming soon)
 
 ## Architecture
 
