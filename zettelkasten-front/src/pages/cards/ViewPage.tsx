@@ -51,6 +51,14 @@ export function ViewPage({}: ViewPageProps) {
   const { setLastCard } = usePartialCardContext();
   const { tags } = useTagContext();
 
+  const [activeTab, setActiveTab] = useState<string>("Children");
+
+  const tabs = [
+    { label: "Children" },
+    { label: "References" },
+    { label: "Related" },
+  ];
+
   function onFileDelete(file_id: number) {}
   function handleViewCard(card_id: number) {}
   function openRenameModal(file: File) {}
@@ -145,6 +153,10 @@ export function ViewPage({}: ViewPageProps) {
     } else {
       setRelatedCards(response);
     }
+  }
+
+  function handleTabClick(label: string) {
+    setActiveTab(label);
   }
 
   // For initial fetch and when id changes
@@ -264,26 +276,62 @@ export function ViewPage({}: ViewPageProps) {
             />
           ))}
 
-          <HeaderSubSection text="References" />
-          <CardList
-            cards={viewingCard.references.sort((a, b) =>
-              compareCardIds(a.card_id, b.card_id),
-            )}
-          />
-          {viewingCard.children.length > 0 && (
-            <div>
-              <HeaderSubSection text="Children" />
-              <ChildrenCards
-                allChildren={viewingCard.children.sort((a, b) =>
-                  compareCardIds(a.card_id, b.card_id),
-                )}
-                card={viewingCard}
-              />
+          <div>
+            <div className="flex">
+              {tabs.map((tab) => (
+                <span
+                  key={tab.label}
+                  onClick={() => handleTabClick(tab.label)}
+                  className={`
+            cursor-pointer font-medium py-1.5 px-3 rounded-md flex items-center
+            ${
+              activeTab === tab.label
+                ? "text-blue-600 border-b-4 border-blue-600"
+                : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+            }
+          `}
+                >
+                  {tab.label}
+                  <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
+		  {tab.label === "Children" && viewingCard.children.length}
+		  {tab.label === "References" && viewingCard.references.length}
+		  {tab.label === "Related" && relatedCards.length}
+                  </span>
+                </span>
+              ))}
             </div>
-          )}
-
-          <HeaderSubSection text="Related Cards" />
-          <CardList cards={relatedCards} />
+            {activeTab === "References" && (
+              <div>
+                <HeaderSubSection text="References" />
+                <CardList
+                  cards={viewingCard.references.sort((a, b) =>
+                    compareCardIds(a.card_id, b.card_id),
+                  )}
+                />
+              </div>
+            )}
+            {activeTab === "Children" && (
+              <div>
+                {viewingCard.children.length > 0 && (
+                  <div>
+                    <HeaderSubSection text="Children" />
+                    <ChildrenCards
+                      allChildren={viewingCard.children.sort((a, b) =>
+                        compareCardIds(a.card_id, b.card_id),
+                      )}
+                      card={viewingCard}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+            {activeTab === "Related" && (
+              <div>
+                <HeaderSubSection text="Related Cards" />
+                <CardList cards={relatedCards} />
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
