@@ -26,6 +26,7 @@ export function SearchPage({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
+  const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
 
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -36,13 +37,23 @@ export function SearchPage({
   function handleSearch(inputTerm = "") {
     let term = inputTerm == "" ? searchTerm : inputTerm;
 
-    semanticSearchCards(term).then((data) => {
-      if (data === null) {
-        setCards([]);
-      } else {
-        setCards(data);
-      }
-    });
+    if (useClassicSearch) {
+      fetchCards(term).then((data) => {
+        if (data === null) {
+          setCards([]);
+        } else {
+          setCards(data);
+        }
+      });
+    } else {
+      semanticSearchCards(term).then((data) => {
+        if (data === null) {
+          setCards([]);
+        } else {
+          setCards(data);
+        }
+      });
+    }
   }
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
@@ -79,12 +90,16 @@ export function SearchPage({
       handleSearch(term);
     } else {
       fetchTags();
-    handleSearch();
+      handleSearch();
     }
     document.title = "Zettelgarden - Search";
   }, []);
 
   const currentItems = getSortedAndPagedCards();
+
+  const handleCheckboxChange = (event) => {
+    setUseClassicSearch(event.target.checked);
+  };
 
   return (
     <div>
@@ -116,6 +131,14 @@ export function SearchPage({
               tags={tags.filter((tag) => tag.card_count > 0)}
               handleTagClick={handleTagClick}
             />
+            <label>
+              <input
+                type="checkbox"
+                checked={useClassicSearch}
+                onChange={handleCheckboxChange}
+              />
+	      Use Classic Search
+            </label>
           </div>
         </div>
         {currentItems.length > 0 ? (
