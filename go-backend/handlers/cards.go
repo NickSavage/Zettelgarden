@@ -244,32 +244,6 @@ func getUniqueCards(input []models.PartialCard) []models.PartialCard {
 	return u
 }
 
-func (s *Handler) getCardKeywords(userID int, cardPK int) ([]models.Keyword, error) {
-
-	query := "SELECT id, user_id, card_pk, keyword FROM keywords WHERE user_id = $1 AND card_pk = $2"
-
-	rows, err := s.DB.Query(query, userID, cardPK)
-	var keywords []models.Keyword
-	if err != nil {
-		log.Printf("err4 %v", err)
-		return keywords, err
-	}
-	for rows.Next() {
-		keyword := models.Keyword{}
-		if err := rows.Scan(
-			&keyword.ID,
-			&keyword.UserID,
-			&keyword.CardPK,
-			&keyword.Keyword,
-		); err != nil {
-			log.Printf("err3 %v", err)
-			return keywords, err
-		}
-		keywords = append(keywords, keyword)
-	}
-	return keywords, nil
-}
-
 func (s *Handler) getReferences(userID int, card models.Card) ([]models.PartialCard, error) {
 	directLinks := s.getDirectlinks(userID, card)
 	backlinks, _ := s.getBacklinks(userID, card.CardID)
@@ -486,14 +460,6 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.References = references
-
-	keywords, err := s.getCardKeywords(userID, card.ID)
-	if err != nil {
-		log.Printf("err %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	card.Keywords = keywords
 
 	tags, err := s.QueryTagsForCard(userID, card.ID)
 	if err != nil {

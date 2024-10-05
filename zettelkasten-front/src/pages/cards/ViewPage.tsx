@@ -199,7 +199,6 @@ export function ViewPage({}: ViewPageProps) {
                     __html: linkifyWithDefaultOptions(viewingCard.link),
                   }}
                 />
-                b
               </div>
             )}
           </div>
