@@ -71,9 +71,7 @@ export function fetchCards(searchTerm = ""): Promise<Card[]> {
 export function fetchPartialCards(
   searchTerm = "",
   sortMethod = "",
-  inactive = false,
 ): Promise<PartialCard[]> {
-  console.log([searchTerm, sortMethod, inactive]);
   let token = localStorage.getItem("token");
   let url = base_url + "/cards?partial=true";
   if (searchTerm) {
@@ -81,9 +79,6 @@ export function fetchPartialCards(
   }
   if (sortMethod) {
     url += `&sort_method=${encodeURIComponent(sortMethod)}`;
-  }
-  if (inactive) {
-    url += `&inactive=${encodeURIComponent(inactive)}`;
   }
 
   console.log(url);

@@ -368,22 +368,6 @@ func TestGetCardsSuccessPartialSearch(t *testing.T) {
 		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 2)
 	}
 }
-func TestGetCardsSuccessInactive(t *testing.T) {
-	s := setup()
-	defer tests.Teardown()
-
-	rr := makeCardsRequestSuccess(s, t, "inactive=true")
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-	var cards []models.PartialCard
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
-	if len(cards) != 20 {
-		t.Errorf("wrong number of cards returned, got %v want %v", len(cards), 20)
-	}
-}
-
 func TestUpdateCardSuccess(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
@@ -669,24 +653,6 @@ func TestGenerateNextIDMeeting(t *testing.T) {
 	}
 }
 
-func TestGenerateInactiveCards(t *testing.T) {
-	s := setup()
-	defer tests.Teardown()
-
-	var count int
-	cards := 20
-
-	_ = s.DB.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&count)
-	if count != 0 {
-		t.Errorf("wrong number of initial inactive cards, got %v want 0", count)
-	}
-	s.GenerateInactiveCards(1)
-	var newCount int
-	_ = s.DB.QueryRow("SELECT count(*) FROM inactive_cards").Scan(&newCount)
-	if newCount != cards {
-		t.Errorf("wrong number of post-run inactive cards, got %v want %v", newCount, cards)
-	}
-}
 func TestCreateCardLinkedParentId(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()

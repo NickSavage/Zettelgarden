@@ -15,8 +15,6 @@ import { useNavigate } from "react-router-dom";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
-  const [inactiveCards, setInactiveCards] = React.useState<PartialCard[]>([]);
-  //  const [tasks, setTasks] = React.useState<Task[]>([]);
   const [refresh, setRefresh] = React.useState<boolean>(false);
   const { tasks, setRefreshTasks } = useTaskContext();
   const { currentUser } = useAuth();
@@ -34,17 +32,6 @@ export function DashboardPage() {
   function handleNewCard() {
     navigate("/app/card/new", { state: { cardType: "standard" } });
   }
-
-  useEffect(() => {
-    fetchPartialCards("", "", true)
-      .then((response) => {
-        setInactiveCards(response);
-      })
-      .catch((error) => {
-        console.error("Error fetching partial cards:", error);
-      });
-    setRefresh(false);
-  }, [refresh]);
 
   useEffect(() => {
     if (currentUser) {

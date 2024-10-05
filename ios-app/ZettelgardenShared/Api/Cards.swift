@@ -42,7 +42,6 @@ public func fetchPartialCards(
     session: HttpSession,
     searchTerm: String = "",
     sort: String = "",
-    inactive: Bool = false,
     completion: @escaping (Result<[PartialCard], Error>) -> Void
 ) {
 
@@ -52,9 +51,6 @@ public func fetchPartialCards(
 
     if !searchTerm.isEmpty {
         queryItems.append(URLQueryItem(name: "search_term", value: searchTerm))
-    }
-    if inactive {
-        queryItems.append(URLQueryItem(name: "inactive", value: String(inactive)))
     }
     if !sort.isEmpty {
         queryItems.append(URLQueryItem(name: "sort_method", value: sort))

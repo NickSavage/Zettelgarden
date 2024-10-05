@@ -13,7 +13,6 @@ public class PartialCardViewModel: ObservableObject {
         }
     }
 
-    @Published public var inactive: Bool = false
     @Published public var sort: String = ""
 
     @Published public var displayOnlyTopLevel: Bool = false
@@ -49,8 +48,7 @@ public class PartialCardViewModel: ObservableObject {
             return
         }
         let session = openSession(token: token, environment: environment)
-        fetchPartialCards(session: session, searchTerm: searchTerm, sort: sort, inactive: inactive)
-        { result in
+        fetchPartialCards(session: session, searchTerm: searchTerm, sort: sort) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedCards):

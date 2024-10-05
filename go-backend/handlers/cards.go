@@ -484,22 +484,11 @@ func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("search_term")
 	partial := r.URL.Query().Get("partial")
 	sortMethod := r.URL.Query().Get("sort_method")
-	inactive := r.URL.Query().Get("inactive")
 
 	if sortMethod == "" {
 		sortMethod = "date"
 	}
 
-	if inactive == "true" {
-		partialCards, err = s.QueryInactiveCards(userID)
-		if err != nil {
-			log.Printf("err %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(partialCards)
-		return
-	}
 	if partial == "true" {
 		partialCards, err = s.QueryPartialCards(userID, searchTerm)
 		if err != nil {
@@ -897,51 +886,6 @@ func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.Par
 	return cards, nil
 }
 
-func (s *Handler) QueryInactiveCards(userID int) ([]models.PartialCard, error) {
-
-	var count int
-	_ = s.DB.QueryRow("SELECT count(*) FROM inactive_cards WHERE user_id = $1", userID).Scan(&count)
-	if count == 0 {
-		s.GenerateInactiveCards(userID)
-	}
-	cards := []models.PartialCard{}
-	query := `
-	SELECT c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at, c.is_literature_card
-	FROM inactive_cards i
-	JOIN cards c on c.id = i.card_pk
-	WHERE i.user_id = $1 AND c.is_deleted = FALSE
-	`
-
-	// Add condition for searchTerm
-	var rows *sql.Rows
-	var err error
-
-	rows, err = s.DB.Query(query, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return cards, err
-	}
-
-	for rows.Next() {
-		var card models.PartialCard
-		if err := rows.Scan(
-			&card.ID,
-			&card.CardID,
-			&card.UserID,
-			&card.Title,
-			&card.ParentID,
-			&card.CreatedAt,
-			&card.UpdatedAt,
-			&card.IsLiteratureCard,
-		); err != nil {
-			log.Printf("inactive err %v", err)
-			return cards, err
-		}
-		cards = append(cards, card)
-	}
-	return cards, nil
-}
-
 func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {
 	var parent_id int
 	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
@@ -1025,37 +969,4 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	}
 	s.AddTagsFromCard(userID, id)
 	return s.QueryFullCard(userID, id)
-}
-
-func (s *Handler) GenerateInactiveCards(userID int) error {
-	tx, _ := s.DB.Begin()
-	_, err := tx.Exec("DELETE FROM inactive_cards WHERE user_id = $1", userID)
-	if err != nil {
-		log.Fatal(err.Error())
-		tx.Rollback()
-		return err
-	}
-	query := `
-	INSERT INTO inactive_cards (card_pk, user_id, card_updated_at)
-SELECT c.id, c.user_id, c.updated_at
-FROM cards c
-LEFT JOIN (
-    SELECT card_pk, MAX(created_at) AS recent_view
-    FROM card_views
-    GROUP BY card_pk
-) cv ON c.id = cv.card_pk
-WHERE c.user_id = $1 AND c.is_deleted = FALSE AND
- c.title != '' AND c.card_id NOT LIKE 'MM%' AND c.card_id NOT LIKE 'READ%'
-ORDER BY c.created_at ASC, RANDOM()
-LIMIT 20;
-	`
-	_, err = tx.Exec(query, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return err
-	}
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-	return nil
 }

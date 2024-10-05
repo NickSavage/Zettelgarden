@@ -33,7 +33,6 @@ func ResetDatabase(S *Server) error {
 			DROP TABLE IF EXISTS cards CASCADE;
 			DROP TABLE IF EXISTS backlinks CASCADE;
 			DROP TABLE IF EXISTS card_views CASCADE;
-			DROP TABLE IF EXISTS inactive_cards CASCADE;
 			DROP TABLE IF EXISTS files CASCADE;
 			DROP TABLE IF EXISTS migrations CASCADE;
 			DROP TABLE IF EXISTS stripe_plans CASCADE;
@@ -42,7 +41,6 @@ func ResetDatabase(S *Server) error {
                         DROP TABLE IF EXISTS card_tags CASCADE;
                         DROP TABLE IF EXISTS tags CASCADE;
                         DROP TABLE IF EXISTS task_tags CASCADE;
-                        DROP TABLE IF EXISTS flashcard_reviews CASCADE;
                         DROP TABLE IF EXISTS card_embeddings CASCADE;
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,

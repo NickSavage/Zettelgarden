@@ -1,4 +1,4 @@
-CREATE TABLE flashcard_reviews (
+CREATE TABLE IF NOT EXISTS flashcard_reviews (
     id INT,
     card_pk INT,
     user_id INT,

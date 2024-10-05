@@ -91,15 +91,6 @@ type NextIDResponse struct {
 	NextID  string `json:"new_id"`
 }
 
-type InactiveCard struct {
-	ID            int       `json:"id"`
-	CardPK        int       `json:"card_pk"`
-	UserID        int       `json:"user_id"`
-	CardUpdatedAt time.Time `json:"card_updated_at"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
-}
-
 type FlashcardRecordNextParams struct {
 	CardPK int    `json:"card_pk"`
 	Rating Rating `json:"rating"`
