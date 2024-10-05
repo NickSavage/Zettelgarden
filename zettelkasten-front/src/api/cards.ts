@@ -140,20 +140,20 @@ export function getCard(id: string): Promise<Card> {
     .then((response) => {
       if (response) {
         return response.json().then((card: Card) => {
-          let children = card.children.map((child) => {
+          let children = card.children !== null ? card.children.map((child) => {
             return {
               ...child,
               created_at: new Date(child.created_at),
               updated_at: new Date(child.updated_at),
             };
-          });
-          let references = card.references.map((ref) => {
+          }) : [];
+          let references = card.references !== null ? card.references.map((ref) => {
             return {
               ...ref,
               created_at: new Date(ref.created_at),
               updated_at: new Date(ref.updated_at),
             };
-          });
+          }) : [];
           return {
             ...card,
             created_at: new Date(card.created_at),
