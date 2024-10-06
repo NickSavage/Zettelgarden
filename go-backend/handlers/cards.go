@@ -90,7 +90,7 @@ func extractBacklinks(text string) []string {
 
 func (s *Handler) updateBacklinks(cardPK int, backlinks []string) error {
 	tx, _ := s.DB.Begin()
-	_, err := tx.Exec("DELETE FROM backlinks WHERE source_id = $1", cardPK)
+	_, err := tx.Exec("DELETE FROM backlinks WHERE source_id_int = $1", cardPK)
 	if err != nil {
 		log.Fatal(err.Error())
 		tx.Rollback()
