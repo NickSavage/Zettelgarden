@@ -51,70 +51,71 @@ function MainAppContent() {
     setRefreshPartialCards(true);
   }, []);
 
-  if (!isLoading) {
-    if (!isAuthenticated) {
-      <Navigate to="/login" />;
-    }
-    return (
-      <div className="main-content">
-        {hasSubscription ? <Sidebar /> : <div></div>}
-        <div className="content">
-          <div className="content-display">
-            <EmailValidationBanner />
-            <Routes>
-              {!hasSubscription && (
-                <>
-                  <Route path="subscription" element={<SubscriptionPage />} />
-                  <Route
-                    path="settings/billing/success"
-                    element={<BillingSuccess />}
-                  />
-                  <Route
-                    path="settings/billing/cancelled"
-                    element={<BillingCancelled />}
-                  />
-                </>
-              )}
-              {hasSubscription ? (
-                <>
-                  <Route
-                    path="search"
-                    element={
-                      <SearchPage
-                        searchTerm={searchTerm}
-                        setSearchTerm={setSearchTerm}
-                        cards={searchCards}
-                        setCards={setSearchCards}
-                      />
-                    }
-                  />
-                  <Route path="card/:id" element={<ViewPage />} />
-                  <Route
-                    path="card/:id/edit"
-                    element={<EditPage newCard={false} />}
-                  />
+  console.log();
 
-                  <Route
-                    path="card/new"
-                    element={<EditPage newCard={true} />}
-                  />
-                  <Route path="settings" element={<UserSettingsPage />} />
-                  <Route path="files" element={<FileVault />} />
-                  <Route path="tasks" element={<TaskPage />} />
-                  <Route path="*" element={<DashboardPage />} />
-                </>
-              ) : (
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return (
+    <div className="main-content">
+      {hasSubscription ? <Sidebar /> : <div></div>}
+      <div className="content">
+        <div className="content-display">
+          <EmailValidationBanner />
+          <Routes>
+            {!hasSubscription && (
+              <>
+                <Route path="subscription" element={<SubscriptionPage />} />
                 <Route
-                  path="*"
-                  element={<Navigate to="/app/subscription" replace />}
+                  path="settings/billing/success"
+                  element={<BillingSuccess />}
                 />
-              )}
-            </Routes>
-          </div>
+                <Route
+                  path="settings/billing/cancelled"
+                  element={<BillingCancelled />}
+                />
+              </>
+            )}
+            {hasSubscription ? (
+              <>
+                <Route
+                  path="search"
+                  element={
+                    <SearchPage
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      cards={searchCards}
+                      setCards={setSearchCards}
+                    />
+                  }
+                />
+                <Route path="card/:id" element={<ViewPage />} />
+                <Route
+                  path="card/:id/edit"
+                  element={<EditPage newCard={false} />}
+                />
+
+                <Route path="card/new" element={<EditPage newCard={true} />} />
+                <Route path="settings" element={<UserSettingsPage />} />
+                <Route path="files" element={<FileVault />} />
+                <Route path="tasks" element={<TaskPage />} />
+                <Route path="*" element={<DashboardPage />} />
+              </>
+            ) : (
+              <Route
+                path="*"
+                element={<Navigate to="/app/subscription" replace />}
+              />
+            )}
+          </Routes>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 function MainApp() {
