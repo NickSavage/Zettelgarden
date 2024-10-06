@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, PartialCard } from "../../models/Card";
+import { File } from "../../models/File";
 
 import {
   HeaderTop,
@@ -19,12 +20,13 @@ import { ChildrenCards } from "../../components/cards/ChildrenCards";
 interface ViewCardTabbedDisplay {
   viewingCard: Card;
   setViewCard: (card: Card) => void;
+  setError: (error: string) => void;
 }
 
 export function ViewCardTabbedDisplay({
   viewingCard,
   setViewCard,
-
+  setError,
 }: ViewCardTabbedDisplay) {
   const [activeTab, setActiveTab] = useState<string>("Children");
   const [relatedCards, setRelatedCards] = useState<PartialCard[]>([]);
@@ -35,7 +37,6 @@ export function ViewCardTabbedDisplay({
     { label: "Related" },
     { label: "Files" },
   ];
-
 
   function onFileDelete(file_id: number) {}
   function handleViewCard(card_id: number) {}
@@ -56,7 +57,6 @@ export function ViewCardTabbedDisplay({
     };
     let response = await saveExistingCard(editedCard);
     setViewCard(editedCard);
-    fetchCard(id!);
   }
 
   async function handleFetchRelatedCards(id: string) {
@@ -70,9 +70,8 @@ export function ViewCardTabbedDisplay({
   }
 
   useEffect(() => {
-
     handleFetchRelatedCards(viewingCard.id.toString());
-  }, [viewingCard])
+  }, [viewingCard]);
 
   return (
     <div>

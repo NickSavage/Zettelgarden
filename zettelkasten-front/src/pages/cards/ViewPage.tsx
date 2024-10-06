@@ -174,6 +174,13 @@ export function ViewPage({}: ViewPageProps) {
             <div className="flex align-center pb-2 pr-2">
               <BacklinkInput addBacklink={handleAddBacklink} />
               <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
+
+              <FileUpload
+                setRefresh={(refresh: boolean) => {}}
+                setMessage={setError}
+                card={viewingCard}
+              />
+              <Button onClick={toggleCreateTaskWindow} children={"Add Task"} />
             </div>
             <div className="text-xs">
               <span className="font-bold">Created At:</span>
@@ -192,14 +199,6 @@ export function ViewPage({}: ViewPageProps) {
               </ul>
             </div>
           )}
-          <HeaderSubSection text="Files" />
-          <FileUpload
-            setRefresh={(refresh: boolean) => {}}
-            setMessage={setError}
-            card={viewingCard}
-          />
-          <HeaderSubSection text="Tasks" />
-          <Button onClick={toggleCreateTaskWindow} children={"Add Task"} />
           {showCreateTaskWindow && (
             <CreateTaskWindow
               currentCard={viewingCard}
@@ -207,14 +206,23 @@ export function ViewPage({}: ViewPageProps) {
               setShowTaskWindow={setShowCreateTaskWindow}
             />
           )}
-          {cardTasks.map((task, index) => (
-            <TaskListItem
-              task={task}
-              setRefresh={setRefreshTasks}
-              onTagClick={(tag: string) => {}}
-            />
-          ))}
-	  <ViewCardTabbedDisplay viewingCard={viewingCard} setViewCard={setViewCard} />
+          {cardTasks.length > 0 && (
+            <div>
+              <HeaderSubSection text="Tasks" />
+              {cardTasks.map((task, index) => (
+                <TaskListItem
+                  task={task}
+                  setRefresh={setRefreshTasks}
+                  onTagClick={(tag: string) => {}}
+                />
+              ))}
+            </div>
+          )}
+          <ViewCardTabbedDisplay
+            viewingCard={viewingCard}
+            setViewCard={setViewCard}
+            setError={setError}
+          />
         </div>
       )}
     </div>
