@@ -57,6 +57,7 @@ export function ViewPage({}: ViewPageProps) {
     { label: "Children" },
     { label: "References" },
     { label: "Related" },
+    { label: "Files" },
   ];
 
   function onFileDelete(file_id: number) {}
@@ -243,22 +244,6 @@ export function ViewPage({}: ViewPageProps) {
             setMessage={setError}
             card={viewingCard}
           />
-          {viewingCard.files.length > 0 && (
-            <div>
-              <ul>
-                {viewingCard.files.map((file, index) => (
-                  <FileListItem
-                    file={file}
-                    onDelete={onFileDelete}
-                    setRefreshFiles={(refresh: boolean) => {}}
-                    displayFileOnCard={(file: File) => {
-                      handleDisplayFileOnCardClick(file);
-                    }}
-                  />
-                ))}
-              </ul>
-            </div>
-          )}
           <HeaderSubSection text="Tasks" />
           <Button onClick={toggleCreateTaskWindow} children={"Add Task"} />
           {showCreateTaskWindow && (
@@ -293,9 +278,11 @@ export function ViewPage({}: ViewPageProps) {
                 >
                   {tab.label}
                   <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
-		  {tab.label === "Children" && viewingCard.children.length}
-		  {tab.label === "References" && viewingCard.references.length}
-		  {tab.label === "Related" && relatedCards.length}
+                    {tab.label === "Children" && viewingCard.children.length}
+                    {tab.label === "References" &&
+                      viewingCard.references.length}
+                    {tab.label === "Related" && relatedCards.length}
+                    {tab.label === "Files" && viewingCard.files.length}
                   </span>
                 </span>
               ))}
@@ -329,6 +316,26 @@ export function ViewPage({}: ViewPageProps) {
               <div>
                 <HeaderSubSection text="Related Cards" />
                 <CardList cards={relatedCards} />
+              </div>
+            )}
+            {activeTab === "Files" && (
+              <div>
+                {viewingCard.files.length > 0 && (
+                  <div>
+                    <ul>
+                      {viewingCard.files.map((file, index) => (
+                        <FileListItem
+                          file={file}
+                          onDelete={onFileDelete}
+                          setRefreshFiles={(refresh: boolean) => {}}
+                          displayFileOnCard={(file: File) => {
+                            handleDisplayFileOnCardClick(file);
+                          }}
+                        />
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
