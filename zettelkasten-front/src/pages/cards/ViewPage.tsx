@@ -10,20 +10,19 @@ import { Card, PartialCard } from "../../models/Card";
 import { File } from "../../models/File";
 import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
-import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
+
+import { Button } from "../../components/Button";
 import {
   HeaderTop,
   HeaderSection,
   HeaderSubSection,
 } from "../../components/Header";
-import { Button } from "../../components/Button";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { convertCardToPartialCard } from "../../utils/cards";
-import { FileUpload } from "../../components/files/FileUpload";
 import { ViewCardTabbedDisplay } from "../../components/cards/ViewCardTabbedDisplay";
 
-import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
+import { ViewCardOptionsMenu } from "../../components/cards/ViewCardOptionsMenu";
 import { useTagContext } from "../../contexts/TagContext";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
@@ -34,8 +33,6 @@ export function ViewPage({}: ViewPageProps) {
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
   const { tasks, setRefreshTasks } = useTaskContext();
-  const [showCreateTaskWindow, setShowCreateTaskWindow] =
-    useState<boolean>(false);
   const { id } = useParams<{ id: string }>();
   const cardId = id ? parseInt(id, 10) : null;
   const cardTasks = cardId
@@ -60,20 +57,6 @@ export function ViewPage({}: ViewPageProps) {
     let editedCard = {
       ...viewingCard,
       body: viewingCard.body + text,
-    };
-    let response = await saveExistingCard(editedCard);
-    setViewCard(editedCard);
-    fetchCard(id!);
-  }
-
-  async function handleTagClick(tagName: string) {
-    if (viewingCard === null) {
-      return;
-    }
-
-    let editedCard = {
-      ...viewingCard,
-      body: viewingCard.body + "\n\n#" + tagName,
     };
     let response = await saveExistingCard(editedCard);
     setViewCard(editedCard);
@@ -109,10 +92,6 @@ export function ViewPage({}: ViewPageProps) {
     } catch (error: any) {
       setError(error.message);
     }
-  }
-
-  function toggleCreateTaskWindow() {
-    setShowCreateTaskWindow(!showCreateTaskWindow);
   }
 
   // For initial fetch and when id changes
@@ -173,14 +152,11 @@ export function ViewPage({}: ViewPageProps) {
           <div className="py-4">
             <div className="flex align-center pb-2 pr-2">
               <BacklinkInput addBacklink={handleAddBacklink} />
-              <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
-
-              <FileUpload
-                setRefresh={(refresh: boolean) => {}}
+              <ViewCardOptionsMenu
+                viewingCard={viewingCard}
+                setViewCard={setViewCard}
                 setMessage={setError}
-                card={viewingCard}
               />
-              <Button onClick={toggleCreateTaskWindow} children={"Add Task"} />
             </div>
             <div className="text-xs">
               <span className="font-bold">Created At:</span>
@@ -198,13 +174,6 @@ export function ViewPage({}: ViewPageProps) {
                 <CardItem card={parentCard} />
               </ul>
             </div>
-          )}
-          {showCreateTaskWindow && (
-            <CreateTaskWindow
-              currentCard={viewingCard}
-              setRefresh={setRefreshTasks}
-              setShowTaskWindow={setShowCreateTaskWindow}
-            />
           )}
           {cardTasks.length > 0 && (
             <div>

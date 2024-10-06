@@ -42,7 +42,7 @@ export function FileUpload({ setRefresh, setMessage, card }: FileUploadProps) {
   };
   return (
     <div>
-      <Button onClick={handleButtonClick} children={"Select File to Upload"} />
+    <button onClick={handleButtonClick}>Select File to Upload</button>
       <input
         type="file"
         ref={fileInputRef}
