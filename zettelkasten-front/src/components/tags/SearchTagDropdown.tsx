@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent } from "react";
+import { Tag } from "../../models/Tags";
 
 interface SearchTagDropdownProps {
   tags: Tag[];

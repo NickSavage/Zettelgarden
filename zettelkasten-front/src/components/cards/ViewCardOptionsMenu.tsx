@@ -6,6 +6,7 @@ import { saveExistingCard } from "../../api/cards";
 import { Button } from "../../components/Button";
 import { FileUpload } from "../../components/files/FileUpload";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
+import { Card } from "../../models/Card";
 
 interface ViewCardOptionsMenu {
   viewingCard: Card;
@@ -55,7 +56,6 @@ export function ViewCardOptionsMenu({
     };
     let response = await saveExistingCard(editedCard);
     setViewCard(editedCard);
-    fetchCard(id!);
   }
 
   return (
