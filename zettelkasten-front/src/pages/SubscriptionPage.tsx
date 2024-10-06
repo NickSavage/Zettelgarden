@@ -21,28 +21,32 @@ export function SubscriptionPage() {
     logoutUser();
   }
   return (
-    <div className="login-container">
-      <h1>Select Your Subscription Plan</h1>
-      <div className="subscription-options">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">
+      <h1 className="text-3xl font-bold text-center mb-8">
+        Select Your Subscription Plan
+      </h1>
+      <div className="flex space-x-4">
         <button
           onClick={handleMonthlySubscribe}
-          className="subscription-button"
+          className="flex flex-col items-center justify-center bg-indigo-500 text-white p-6 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200"
         >
-          <div className="button-text">
-            <div className="plan-name">Monthly Plan</div>
-            <div className="plan-cost">$9.99 / month</div>
-          </div>
+          <div className="plan-name text-xl font-semibold">Monthly Plan</div>
+          <div className="plan-cost text-lg mt-2">$9.99 / month</div>
         </button>
-        <button onClick={handleAnnualSubscribe} className="subscription-button">
-          <div className="button-text">
-            <div className="plan-name">Annual Plan</div>
-            <div className="plan-cost">$99.99 / year</div>
-          </div>
+        <button
+          onClick={handleAnnualSubscribe}
+          className="flex flex-col items-center justify-center bg-indigo-500 text-white p-6 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200"
+        >
+          <div className="plan-name text-xl font-semibold">Annual Plan</div>
+          <div className="plan-cost text-lg mt-2">$99.99 / year</div>
         </button>
       </div>
-
-      <span className="text">
-        <Link to="/login" onClick={handleLogout}>
+      <span className="text-center mt-8">
+        <Link
+          to="/login"
+          onClick={handleLogout}
+          className="text-indigo-500 hover:underline"
+        >
           Already have an account?
         </Link>
       </span>

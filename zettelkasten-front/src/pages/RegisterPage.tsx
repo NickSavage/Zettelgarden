@@ -53,52 +53,77 @@ function RegisterPage() {
   };
 
   return (
-    <div className="registration-container">
-      <h2>Create your Zettelindex account</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Confirm Password:</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit">Register</button>
-        <span className="text">
-          Already have an account? <Link to="/login">Login instead</Link>.
-        </span>
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold text-center mb-6">
+          Create your Zettelindex account
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Username:
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Email:
+            </label>
+            <input
+              type="email"
+              value={email}
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Password:
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Confirm Password:
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          <button
+            type="submit"
+            className="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600 transition duration-200"
+          >
+            Register
+          </button>
+          <span className="block text-center mt-4">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-500 hover:underline">
+              Login instead
+            </Link>
+            .
+          </span>
+        </form>
+      </div>
     </div>
   );
 }
