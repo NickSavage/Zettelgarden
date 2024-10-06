@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Added loading state
-  const [hasSubscription, setHasSubscription] = useState<boolean>(false);
+  const [hasSubscription, setHasSubscription] = useState<boolean>(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -45,7 +45,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const currentUser = await getCurrentUser();
         setCurrentUser(currentUser);
         console.log("user", currentUser)
-	setHasSubscription(currentUser.stripe_subscription_status === "active");
+	//	setHasSubscription(currentUser.stripe_subscription_status === "active");
+	setHasSubscription(true)
       }
       setIsLoading(false);
     };
@@ -56,7 +57,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const loginUser = (data: LoginResponse) => {
     localStorage.setItem("token", data["access_token"]);
     localStorage.setItem("username", data["user"]["username"]);
-    setHasSubscription(data["user"].stripe_subscription_status === "active");
+    setHasSubscription(true);
+    //    setHasSubscription(data["user"].stripe_subscription_status === "active");
     setIsAuthenticated(true);
   };
 
