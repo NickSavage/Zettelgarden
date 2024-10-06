@@ -166,7 +166,6 @@ export function ViewPage({}: ViewPageProps) {
               <span> {viewingCard.updated_at.toISOString()}</span>
             </div>
           </div>
-          <hr />
           {parentCard && (
             <div>
               <HeaderSubSection text="Parent" />
@@ -175,6 +174,7 @@ export function ViewPage({}: ViewPageProps) {
               </ul>
             </div>
           )}
+          <hr />
           {cardTasks.length > 0 && (
             <div>
               <HeaderSubSection text="Tasks" />
@@ -185,6 +185,7 @@ export function ViewPage({}: ViewPageProps) {
                   onTagClick={(tag: string) => {}}
                 />
               ))}
+              <hr />
             </div>
           )}
           <ViewCardTabbedDisplay
