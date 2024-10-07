@@ -28,52 +28,13 @@ struct CardDisplayView: View {
         VStack(alignment: .leading) {
 
             if let card = cardViewModel.card {
-                HStack {
-                    Text(card.card_id).foregroundColor(.blue)
-                    Text(" - ")
-                    Text(card.title)
-                    Spacer()
-                    Menu {
-                        Button(action: {
-                            isBacklinkInputPresented.toggle()
-
-                        }) {
-                            Text("Add Backlink")
-                        }
-                        Button(action: {
-                            showAddTagsSheet.toggle()
-                        }) {
-                            Text("Add Tags")
-                        }
-                        Button(action: {
-                            showingAddCardView = true
-                        }) {
-                            Text("Add Child Card")
-
-                        }
-                        Button(action: {
-                            isPresentingEditView = true
-                        }) {
-                            Text("Edit Card")
-                        }
-                        Button(action: {
-                            isPresentingUploadFileView = true
-                        }) {
-                            Text("Upload File To Card")
-                        }
-                        Button(action: {
-                            isPresentingUploadPhotoView = true
-                        }) {
-                            Text("Upload Photo To Card")
-                        }
-
-                    } label: {
-                        Text("Actions")
-                    }
-                }
-                .bold()
-                .padding()
                 ScrollView {
+
+                    HStack {
+                        Text(card.card_id).foregroundColor(.blue)
+                        Text(" - ")
+                        Text(card.title).bold()
+                    }
 
                     VStack(alignment: .leading) {
                         Text(card.body).padding()
@@ -186,9 +147,61 @@ struct CardDisplayView: View {
                         }
                     }
                 }
+                .background(
+                    Color(UIColor(red: 241 / 255, green: 241 / 255, blue: 241 / 255, alpha: 1.0))
+                )
                 .onAppear {
                     if let card = cardViewModel.card {
                         relatedCardsViewModel.loadRelatedCards(cardPK: card.id)
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        HStack {
+                            Text(card.card_id).foregroundColor(.blue)
+                            Text(" - ")
+                            Text(card.title).bold()
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
+                            Button(action: {
+                                isBacklinkInputPresented.toggle()
+
+                            }) {
+                                Text("Add Backlink")
+                            }
+                            Button(action: {
+                                showAddTagsSheet.toggle()
+                            }) {
+                                Text("Add Tags")
+                            }
+                            Button(action: {
+                                showingAddCardView = true
+                            }) {
+                                Text("Add Child Card")
+
+                            }
+                            Button(action: {
+                                isPresentingEditView = true
+                            }) {
+                                Text("Edit Card")
+                            }
+                            Button(action: {
+                                isPresentingUploadFileView = true
+                            }) {
+                                Text("Upload File To Card")
+                            }
+                            Button(action: {
+                                isPresentingUploadPhotoView = true
+                            }) {
+                                Text("Upload Photo To Card")
+                            }
+
+                        } label: {
+                            Text("Actions")
+                        }
+
                     }
                 }
                 .sheet(isPresented: $isBacklinkInputPresented) {
