@@ -40,7 +40,6 @@ public class PartialCardViewModel: ObservableObject {
     }
 
     public init() {
-        loadCards()
     }
 
     public func loadCards(searchTerm: String = "") {
@@ -59,6 +58,25 @@ public class PartialCardViewModel: ObservableObject {
                 self.isLoading = false
             }
         }
+    }
+
+    public func loadRelatedCards(cardPK: Int) {
+        guard let token = token else {
+            return
+        }
+        let session = openSession(token: token, environment: environment)
+        fetchRelatedCards(session: session, cardPK: cardPK) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let fetchedCards):
+                    self.cards = fetchedCards
+                case .failure(let error):
+                    print("Unable to load card: \(error.localizedDescription)")
+                }
+                self.isLoading = false
+            }
+        }
+
     }
 
     public func loadTestCards(cards: [PartialCard]) {

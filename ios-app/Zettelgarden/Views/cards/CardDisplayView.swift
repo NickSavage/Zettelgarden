@@ -9,6 +9,7 @@ struct CardDisplayView: View {
     @State private var showChildren = false
     @State private var showReferences = false
     @State private var showFiles = false
+    @State private var showRelated = false
 
     @State private var showingAddCardView = false
     @State private var isPresentingEditView = false
@@ -20,6 +21,8 @@ struct CardDisplayView: View {
     @State private var isPresentingUploadFileView = false
     @State private var selectedImage: UIImage?
     @State private var isPresentingUploadPhotoView = false
+
+    @State private var relatedCardsViewModel = PartialCardViewModel()
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -75,7 +78,7 @@ struct CardDisplayView: View {
                     VStack(alignment: .leading) {
                         Text(card.body).padding()
                         Spacer()
-                        VStack {
+                        VStack(alignment: .leading) {
                             if let parentCard = card.parent {
                                 Text("Parent").bold()
                                 CardListItem(
@@ -157,6 +160,35 @@ struct CardDisplayView: View {
                                 }
                             }
                         }
+                        Button(action: {
+                            showRelated.toggle()
+                        }) {
+                            if let relatedCards = relatedCardsViewModel.cards {
+                                Text("Related (\(relatedCards.count))").bold()
+                                    .foregroundColor(.primary)
+                            }
+                            else {
+                                Text("Related").bold()
+                                    .foregroundColor(.primary)
+
+                            }
+                        }
+                        if showRelated {
+                            if let relatedCards = relatedCardsViewModel.cards {
+                                LazyVStack(alignment: .leading) {
+                                    ForEach(relatedCards) { relatedCard in
+                                        CardListItem(card: relatedCard)
+                                            .padding()
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+                .onAppear {
+                    if let card = cardViewModel.card {
+                        relatedCardsViewModel.loadRelatedCards(cardPK: card.id)
                     }
                 }
                 .sheet(isPresented: $isBacklinkInputPresented) {

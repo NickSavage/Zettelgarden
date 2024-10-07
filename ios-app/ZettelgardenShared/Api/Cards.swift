@@ -68,6 +68,25 @@ public func fetchPartialCards(
     performRequest(with: url, token: token, completion: completion)
 }
 
+public func fetchRelatedCards(
+    session: HttpSession,
+    cardPK: Int,
+    completion: @escaping (Result<[PartialCard], Error>) -> Void
+) {
+
+    var urlComponents = URLComponents(string: session.environment + "/cards/\(cardPK)/related")!
+    let token = session.token ?? ""
+
+    guard let url = urlComponents.url else {
+        completion(.failure(NetworkError.invalidURL))
+        return
+    }
+
+    print("Request URL: \(url.absoluteString)")
+
+    performRequest(with: url, token: token, completion: completion)
+}
+
 func saveCard(
     session: HttpSession,
     card: Card,
