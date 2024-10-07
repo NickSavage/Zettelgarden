@@ -10,7 +10,7 @@ import SwiftUI
 import ZettelgardenShared
 
 struct ContentView: View {
-    @State var isMenuOpen: Bool = false
+    @State var isMenuOpen: Bool = true
     @Environment(\.scenePhase) private var scenePhase
     @StateObject var cardViewModel = CardViewModel()
     @StateObject var partialCardViewModel = PartialCardViewModel()
