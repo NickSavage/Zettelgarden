@@ -4,6 +4,8 @@ import SwiftUI
 
 public class CardViewModel: ObservableObject {
     @Published public var card: Card?
+    @State public var relatedCardsViewModel = PartialCardViewModel()
+
     var cardHistory: [Int] = []
     var currentIndex: Int = -1
     @AppStorage("jwt", store: UserDefaults(suiteName: "group.zettelgarden")) private
@@ -19,6 +21,7 @@ public class CardViewModel: ObservableObject {
 
     public func loadTestCard(card: Card) {
         self.card = card
+        self.relatedCardsViewModel
     }
     public func loadCard(cardPK: Int) {
         guard let token = token else {
@@ -41,6 +44,8 @@ public class CardViewModel: ObservableObject {
                     self.card = fetchedCard
                     print("loaded card \(cardPK)")
                     print(fetchedCard)
+
+                    self.relatedCardsViewModel.loadRelatedCards(cardPK: fetchedCard.id)
                 }
             case .failure(let error):
                 print("Unable to load card: \(error.localizedDescription)")

@@ -22,8 +22,6 @@ struct CardDisplayView: View {
     @State private var selectedImage: UIImage?
     @State private var isPresentingUploadPhotoView = false
 
-    @State private var relatedCardsViewModel = PartialCardViewModel()
-
     var body: some View {
         VStack(alignment: .leading) {
 
@@ -124,7 +122,7 @@ struct CardDisplayView: View {
                         Button(action: {
                             showRelated.toggle()
                         }) {
-                            if let relatedCards = relatedCardsViewModel.cards {
+                            if let relatedCards = cardViewModel.relatedCardsViewModel.cards {
                                 Text("Related (\(relatedCards.count))").bold()
                                     .foregroundColor(.primary)
                             }
@@ -135,7 +133,7 @@ struct CardDisplayView: View {
                             }
                         }
                         if showRelated {
-                            if let relatedCards = relatedCardsViewModel.cards {
+                            if let relatedCards = cardViewModel.relatedCardsViewModel.cards {
                                 LazyVStack(alignment: .leading) {
                                     ForEach(relatedCards) { relatedCard in
                                         CardListItem(card: relatedCard)
@@ -150,11 +148,6 @@ struct CardDisplayView: View {
                 .background(
                     Color(UIColor(red: 241 / 255, green: 241 / 255, blue: 241 / 255, alpha: 1.0))
                 )
-                .onAppear {
-                    if let card = cardViewModel.card {
-                        relatedCardsViewModel.loadRelatedCards(cardPK: card.id)
-                    }
-                }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         HStack {

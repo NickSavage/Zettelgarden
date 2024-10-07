@@ -64,6 +64,8 @@ public class PartialCardViewModel: ObservableObject {
         guard let token = token else {
             return
         }
+        self.cards = []
+        self.isLoading = true
         let session = openSession(token: token, environment: environment)
         fetchRelatedCards(session: session, cardPK: cardPK) { result in
             DispatchQueue.main.async {
