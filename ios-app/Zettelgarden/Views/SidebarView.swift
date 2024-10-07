@@ -40,11 +40,6 @@ struct SidebarView: View {
                                     Text("New Card")
                                 }
                                 Button(action: {
-                                    showingAddRecordingView.toggle()
-                                }) {
-                                    Text("New Recording")
-                                }
-                                Button(action: {
                                     showingAddTaskView.toggle()
                                 }) {
                                     Text("New Task")
