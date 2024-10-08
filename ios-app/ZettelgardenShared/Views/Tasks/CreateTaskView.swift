@@ -34,6 +34,12 @@ public struct CreateTaskView: View {
         selectedCard = nil
     }
 
+    public func selectTag(_ tagName: String) {
+        newTask.title = newTask.title + " " + tagName
+        showAddTagsSheet = false
+
+    }
+
     public var body: some View {
         VStack {
             Text(message)
@@ -92,6 +98,10 @@ public struct CreateTaskView: View {
                 }
             )
             .presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: $showAddTagsSheet) {
+            AddTagMenuView(onSelect: selectTag)
+                .presentationDetents([.medium, .large])
         }
 
     }
