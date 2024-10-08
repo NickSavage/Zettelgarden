@@ -25,6 +25,7 @@
 		01201F8D2BF2C9AB00DF973E /* CardListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01201F8C2BF2C9AB00DF973E /* CardListView.swift */; };
 		013C75E72C6EA7A100838E7B /* TaskListContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013C75E62C6EA7A100838E7B /* TaskListContextMenu.swift */; };
 		0144E9D72BF55DCA007D4EAD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144E9D62BF55DCA007D4EAD /* Utils.swift */; };
+		01642E2C2CB4ADE00079FAC6 /* AddTagMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01642E2B2CB4ADDA0079FAC6 /* AddTagMenuView.swift */; };
 		016D00002C6CD85000339760 /* TaskDateTextDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFFF2C6CD85000339760 /* TaskDateTextDisplay.swift */; };
 		016DFFE62C68DA7A00339760 /* TaskListOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */; };
 		0170E42C2C7927D1007DBA95 /* PartialCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0170E42B2C7927D1007DBA95 /* PartialCardTests.swift */; };
@@ -190,6 +191,7 @@
 		01201F8C2BF2C9AB00DF973E /* CardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListView.swift; sourceTree = "<group>"; };
 		013C75E62C6EA7A100838E7B /* TaskListContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListContextMenu.swift; sourceTree = "<group>"; };
 		0144E9D62BF55DCA007D4EAD /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		01642E2B2CB4ADDA0079FAC6 /* AddTagMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTagMenuView.swift; sourceTree = "<group>"; };
 		016D00012C6CE0EF00339760 /* NavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModel.swift; sourceTree = "<group>"; };
 		016D00032C6CE1F600339760 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
 		016DFFE52C68DA7A00339760 /* TaskListOptionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListOptionsMenu.swift; sourceTree = "<group>"; };
@@ -393,6 +395,14 @@
 			path = ZettelgardenUITests;
 			sourceTree = "<group>";
 		};
+		01642E2A2CB4ADD20079FAC6 /* Tags */ = {
+			isa = PBXGroup;
+			children = (
+				01642E2B2CB4ADDA0079FAC6 /* AddTagMenuView.swift */,
+			);
+			path = Tags;
+			sourceTree = "<group>";
+		};
 		0170E42A2C7927BE007DBA95 /* ZettelgardenShared */ = {
 			isa = PBXGroup;
 			children = (
@@ -519,6 +529,7 @@
 		01A508702CA6AFE900449E40 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				01642E2A2CB4ADD20079FAC6 /* Tags */,
 				01A508722CA6B04F00449E40 /* Tasks */,
 				01A508712CA6B04A00449E40 /* Cards */,
 			);
@@ -880,6 +891,7 @@
 				01FC26712C77B52C00039EDA /* Card.swift in Sources */,
 				0172F7102C793668000F3CEB /* Test.swift in Sources */,
 				01953EDB2C76A10700F44FAD /* PartialCard.swift in Sources */,
+				01642E2C2CB4ADE00079FAC6 /* AddTagMenuView.swift in Sources */,
 				018523FE2C9BA8B100B3002D /* Tags.swift in Sources */,
 				01953EB22C76845500F44FAD /* ZettelgardenShared.docc in Sources */,
 				0172F7202C7D0382000F3CEB /* SpeechRecognizer.swift in Sources */,
