@@ -29,7 +29,7 @@ func (s *Handler) createStripeClient() *StripeClient {
 	return client
 }
 
-func (s *Handler) syncStripePlans() error {
+func (s *Handler) SyncStripePlans() error {
 	log.Printf("start")
 	stripe.Key = s.Server.StripeKey
 
@@ -182,7 +182,7 @@ func (s *Handler) GetSuccessfulSessionData(w http.ResponseWriter, r *http.Reques
 	var response models.GetSuccessfulSessionDataResponse
 	sessionID := r.URL.Query().Get("session_id")
 
-	s.syncStripePlans()
+	s.SyncStripePlans()
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 	resource, err := session.Get(sessionID, &stripe.CheckoutSessionParams{})
 	if err != nil {

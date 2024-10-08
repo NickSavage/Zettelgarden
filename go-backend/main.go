@@ -123,6 +123,10 @@ func main() {
 	log.Printf("email server: %v", s.Mail)
 	s.JwtSecretKey = []byte(os.Getenv("SECRET_KEY"))
 
+	go func() {
+		h.SyncStripePlans()
+	}()
+
 	r := mux.NewRouter()
 	addProtectedRoute(r, "/api/auth", h.CheckTokenRoute, "GET")
 	addRoute(r, "/api/login", h.LoginRoute, "POST")
