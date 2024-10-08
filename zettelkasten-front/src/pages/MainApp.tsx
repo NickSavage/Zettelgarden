@@ -65,7 +65,7 @@ function MainAppContent() {
       {hasSubscription ? <Sidebar /> : <div></div>}
       <div className="content">
         <div className="content-display">
-          <EmailValidationBanner />
+        {hasSubscription ? <EmailValidationBanner /> : <div></div> }
           <Routes>
             {!hasSubscription && (
               <>

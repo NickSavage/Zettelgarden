@@ -8,12 +8,12 @@ export function SubscriptionPage() {
   const { logoutUser } = useAuth();
 
   async function handleMonthlySubscribe() {
-    let response = await createCheckoutSession("month");
+    let response = await createCheckoutSession("standard_monthly");
     window.location.href = response.redirect_url;
   }
 
   async function handleAnnualSubscribe() {
-    let response = await createCheckoutSession("year");
+    let response = await createCheckoutSession("standard_annual");
     window.location.href = response.redirect_url;
   }
 

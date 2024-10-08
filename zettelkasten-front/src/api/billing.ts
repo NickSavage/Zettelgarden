@@ -14,7 +14,7 @@ export async function createCheckoutSession(interval: string) {
       headers: {
         Authorization: `Bearer ${token}`, // Include the JWT token in the Authorization header
         "Content-Type": "application/json",
-      },
+      }
       body: JSON.stringify({ interval: interval }),
     });
 

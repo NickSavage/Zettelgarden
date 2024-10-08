@@ -44,6 +44,7 @@ func (s *Handler) SyncStripePlans() error {
 		product := p.Product
 
 		log.Printf("price %v", p)
+		log.Printf("lookup %v", p.LookupKey)
 		// Prepare data for insertion or update
 		metadata, err := json.Marshal(product.Metadata)
 		if err != nil {
@@ -60,8 +61,8 @@ func (s *Handler) SyncStripePlans() error {
 
 		// Upsert query (PostgreSQL 9.5+)
 		query := `
-		INSERT INTO stripe_plans (stripe_product_id, stripe_price_id, name, description, active, unit_amount, currency, interval, interval_count, trial_days, metadata)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		INSERT INTO stripe_plans (stripe_product_id, stripe_price_id, name, description, active, unit_amount, currency, interval, interval_count, trial_days, metadata, lookup_key)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		ON CONFLICT (stripe_price_id)
 		DO UPDATE SET
 			name = EXCLUDED.name,
@@ -73,7 +74,8 @@ func (s *Handler) SyncStripePlans() error {
 			interval_count = EXCLUDED.interval_count,
 			trial_days = EXCLUDED.trial_days,
 			metadata = EXCLUDED.metadata,
-			updated_at = CURRENT_TIMESTAMP;
+			updated_at = CURRENT_TIMESTAMP,
+                        lookup_key = EXCLUDED.lookup_key;
 		`
 
 		_, err = s.DB.Exec(query,
@@ -88,6 +90,7 @@ func (s *Handler) SyncStripePlans() error {
 			intervalCount,
 			trialDays,
 			metadata,
+			p.LookupKey,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to execute upsert query: %w", err)
@@ -102,11 +105,11 @@ func (s *Handler) SyncStripePlans() error {
 }
 
 func (s *Handler) fetchPlanInformation(interval string) (models.StripePlan, error) {
-	if interval != "month" && interval != "year" {
-		return models.StripePlan{}, fmt.Errorf("Interval must be either month or year")
+	if interval != "standard_monthly" && interval != "standard_annual" {
+		return models.StripePlan{}, fmt.Errorf("Interval must be either standard_month or standard_annual")
 	}
 
-	stmt, err := s.DB.Prepare("SELECT id, stripe_price_id, name, unit_amount, currency, interval FROM stripe_plans WHERE interval = $1")
+	stmt, err := s.DB.Prepare("SELECT id, stripe_price_id, name, unit_amount, currency, interval FROM stripe_plans WHERE lookup_key = $1")
 	if err != nil {
 		return models.StripePlan{}, err
 	}
