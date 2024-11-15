@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/pgvector/pgvector-go"
@@ -901,6 +902,7 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	}
 	backlinks := extractBacklinks(card.Body)
 	s.updateBacklinks(card.ID, backlinks)
+
 	if !s.Server.Testing {
 		go func() {
 			embedding, err := llms.GenerateEmbeddingsFromCard(s.DB, card)
@@ -913,4 +915,30 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	}
 	s.AddTagsFromCard(userID, id)
 	return s.QueryFullCard(userID, id)
+}
+
+func (s *Handler) GenerateChunks(input string) []string {
+	results := []string{}
+
+	// Only trim leading/trailing spaces
+	input = strings.TrimSpace(input)
+
+	// Split by periods but add them back
+	sentences := strings.Split(input+".", ".")
+	for i, sentence := range sentences {
+		// Skip the last empty element caused by our added period
+		if i == len(sentences)-1 && sentence == "" {
+			break
+		}
+
+		// Only trim leading spaces, preserve newlines and trailing spaces
+		sentence = strings.TrimLeft(sentence, " ")
+		if sentence == "" {
+			continue
+		}
+
+		results = append(results, sentence+".")
+	}
+
+	return results
 }
