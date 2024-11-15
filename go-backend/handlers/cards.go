@@ -862,6 +862,8 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	backlinks := extractBacklinks(card.Body)
 	s.updateBacklinks(card.ID, backlinks)
 
+	s.ChunkCard(card)
+
 	if !s.Server.Testing {
 		go func() {
 			embedding, err := llms.GenerateEmbeddingsFromCard(s.DB, card)
@@ -902,6 +904,7 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	}
 	backlinks := extractBacklinks(card.Body)
 	s.updateBacklinks(card.ID, backlinks)
+	s.ChunkCard(card)
 
 	if !s.Server.Testing {
 		go func() {
@@ -915,6 +918,33 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	}
 	s.AddTagsFromCard(userID, id)
 	return s.QueryFullCard(userID, id)
+}
+
+func (s *Handler) ChunkCard(card models.Card) error {
+	db := s.DB
+
+	tx, err := db.Begin()
+	chunks := s.GenerateChunks(card.Body)
+	query := `DELETE FROM card_chunks WHERE card_pk = $1 AND user_id = $2`
+	_, err = tx.Exec(query, card.ID, card.UserID)
+	if err != nil {
+		log.Printf("error %v", err)
+		tx.Rollback()
+		return fmt.Errorf("error updating card %d: %w", card.ID, err)
+	}
+	query = `INSERT INTO card_chunks (card_pk, user_id, chunk_text) VALUES ($1, $2, $3)`
+	for _, chunk := range chunks {
+		_, err = tx.Exec(query, card.ID, card.UserID, chunk)
+		if err != nil {
+			log.Printf("error %v", err)
+			tx.Rollback()
+			return fmt.Errorf("error updating card %d: %w", card.ID, err)
+		}
+	}
+
+	tx.Commit()
+	return nil
+
 }
 
 func (s *Handler) GenerateChunks(input string) []string {
