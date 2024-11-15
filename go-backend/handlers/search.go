@@ -100,7 +100,7 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 	}
 
 	if len(termConditions) > 0 {
-		result += " AND (" + strings.Join(termConditions, " OR ") + ")"
+		result += " AND (" + strings.Join(termConditions, " AND ") + ")"
 	}
 	if len(excludeTerms) > 0 {
 		excludeClause := strings.Join(excludeTerms, " AND ")
