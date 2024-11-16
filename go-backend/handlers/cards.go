@@ -265,10 +265,10 @@ func getCardById(cards []models.Card, id int) (models.Card, error) {
 
 }
 
-func (s *Handler) checkCardLinkedOrRelated(
+func (s *Handler) checkChunkLinkedOrRelated(
 	userID int,
 	mainCard models.Card,
-	relatedCard models.PartialCard,
+	relatedCard models.CardChunk,
 ) bool {
 	if relatedCard.ParentID == mainCard.ID {
 		log.Printf("reject card, is child")
@@ -288,7 +288,7 @@ func (s *Handler) checkCardLinkedOrRelated(
 	return false
 }
 
-func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.PartialCard, error) {
+func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
 
 	query := `
 SELECT 
@@ -296,17 +296,26 @@ SELECT
     c.card_id,
     c.user_id,
     c.title,
-    c.parent_id,
+    cc.chunk_text as chunk,
     c.created_at,
-    c.updated_at
+    c.updated_at,
+    c.parent_id
 FROM 
     card_embeddings ce
-INNER JOIN 
-    cards c ON ce.card_pk = c.id
-WHERE
-    ce.user_id = $1 AND c.is_deleted = FALSE
+    INNER JOIN cards c ON ce.card_pk = c.id
+    INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.id
+WHERE 
+    ce.user_id = $1 
+    AND c.is_deleted = FALSE
 GROUP BY 
-    c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at
+    c.id, 
+    c.card_id, 
+    c.user_id, 
+    c.title, 
+    cc.chunk_text,
+    c.created_at, 
+    c.updated_at,
+    c.parent_id
 ORDER BY 
     AVG(ce.embedding <=> $2)
 LIMIT 50;
@@ -316,22 +325,24 @@ LIMIT 50;
 	rows, err = s.DB.Query(query, userID, embedding)
 	if err != nil {
 		log.Printf("err %v", err)
-		return []models.PartialCard{}, err
+		return []models.CardChunk{}, err
 	}
 
-	cards, err := models.ScanPartialCards(rows)
+	cards, err := models.ScanCardChunks(rows)
+	log.Printf("err %v", err)
+	return cards, err
 
-	var seen = make(map[int]bool)
-	var results []models.PartialCard
+	// var seen = make(map[int]bool)
+	// var results []models.CardChunk
 
-	for _, card := range cards {
-		if _, exists := seen[card.ID]; !exists {
-			results = append(results, card)
-			seen[card.ID] = true
-		}
-	}
+	// // for _, card := range cards {
+	// // 	if _, exists := seen[card.ID]; !exists {
+	// // 		results = append(results, card)
+	// // 		seen[card.ID] = true
+	// // 	}
+	// // }
 
-	return results, nil
+	// return results, nil
 
 }
 
@@ -339,7 +350,11 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
 
-	embeddings, err := llms.GenerateEmbeddings(searchTerm, true)
+	chunk := models.CardChunk{
+		Chunk: searchTerm,
+	}
+
+	embeddings, err := llms.GenerateEmbeddings(chunk, true)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -381,13 +396,13 @@ func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	relatedCards, err := s.GetRelatedCards(userID, embedding)
+	relatedChunks, err := s.GetRelatedCards(userID, embedding)
 
-	var results []models.PartialCard
+	var results []models.CardChunk
 
-	for _, card := range relatedCards {
-		if !s.checkCardLinkedOrRelated(userID, originalCard, card) {
-			results = append(results, card)
+	for _, chunk := range relatedChunks {
+		if !s.checkChunkLinkedOrRelated(userID, originalCard, chunk) {
+			results = append(results, chunk)
 		}
 		if len(results) >= 10 {
 			break
@@ -945,6 +960,7 @@ func (s *Handler) ChunkCard(card models.Card) error {
 		_, err = tx.Exec(query, card.ID, card.UserID, chunk)
 		if err != nil {
 			log.Printf("error %v", err)
+
 			tx.Rollback()
 			return fmt.Errorf("error updating card %d: %w", card.ID, err)
 		}
@@ -981,22 +997,24 @@ func (s *Handler) GenerateChunks(input string) []string {
 	return results
 }
 
-func (s *Handler) GetCardChunks(userID, cardPK int) ([]string, error) {
-	query := `SELECT chunk_text FROM card_chunks WHERE card_pk = $1 AND user_id = $2`
+func (s *Handler) GetCardChunks(userID, cardPK int) ([]models.CardChunk, error) {
+	query := `SELECT
+ id, card_pk, user_id, chunk_text
+FROM card_chunks
+WHERE card_pk = $1 AND user_id = $2
+`
 	rows, err := s.DB.Query(query, cardPK, userID)
 	if err != nil {
 		log.Printf("err %v", err)
+		return []models.CardChunk{}, err
 	}
-	var chunks []string
 
-	for rows.Next() {
-		var chunk string
-		if err := rows.Scan(&chunk); err != nil {
-			log.Printf("error scanning row: %v", err)
-			return nil, err
-		}
-		chunks = append(chunks, chunk)
+	chunks, err := models.ScanCardChunks(rows)
+	if err != nil {
+		log.Printf("err %v", err)
+		return []models.CardChunk{}, err
 	}
+
 	return chunks, nil
 
 }

@@ -9,7 +9,7 @@ import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
-export function semanticSearchCards(searchTerm = ""): Promise<PartialCard[]> {
+export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
   if (searchTerm) {
@@ -22,7 +22,7 @@ export function semanticSearchCards(searchTerm = ""): Promise<PartialCard[]> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json().then((cards: PartialCard[]) => {
+        return response.json().then((cards: CardChunk[]) => {
           let results = cards.map((card) => {
             return {
               ...card,
@@ -104,7 +104,7 @@ export function fetchPartialCards(
 
 export function fetchRelatedCards(
   id: string
-): Promise<PartialCard[]> {
+): Promise<CardChunk[]> {
   let token = localStorage.getItem("token");
 
   const url = base_url + `/cards/${id}/related`;
@@ -115,7 +115,7 @@ export function fetchRelatedCards(
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json().then((cards: PartialCard[]) => {
+        return response.json().then((cards: CardChunk[]) => {
           let results = cards.map((card) => ({
             ...card,
             created_at: new Date(card.created_at),

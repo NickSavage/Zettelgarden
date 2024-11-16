@@ -134,3 +134,48 @@ type NextIDResponse struct {
 	Message string `json:"message"`
 	NextID  string `json:"new_id"`
 }
+
+type CardChunk struct {
+	ID        int       `json:"id"`
+	CardID    string    `json:"card_id"`
+	UserID    int       `json:"user_id"`
+	Title     string    `json:"title"`
+	Chunk     string    `json:"body"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	ParentID  int       `json:"parent_id"`
+}
+
+func ScanCardChunks(rows *sql.Rows) ([]CardChunk, error) {
+	var cards []CardChunk
+
+	for rows.Next() {
+		var card CardChunk
+		if err := rows.Scan(
+			&card.ID,
+			&card.ID,
+			&card.UserID,
+			&card.Chunk,
+		); err != nil {
+			log.Printf("err %v", err)
+			return cards, err
+		}
+		cards = append(cards, card)
+
+	}
+	return cards, nil
+
+}
+
+func ConvertCardToChunk(input Card) CardChunk {
+	return CardChunk{
+		ID:        input.ID,
+		CardID:    input.CardID,
+		UserID:    input.UserID,
+		Title:     input.Title,
+		Chunk:     input.Body,
+		ParentID:  input.ParentID,
+		CreatedAt: input.CreatedAt,
+		UpdatedAt: input.UpdatedAt,
+	}
+}

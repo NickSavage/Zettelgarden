@@ -1,7 +1,6 @@
 import { File } from "./File";
 import { Tag } from "./Tags";
 
-// src/models/PartialCard.ts
 export interface PartialCard {
   id: number;
   card_id: string;
@@ -30,6 +29,19 @@ export interface Card {
   references: PartialCard[];
   tags: Tag[];
 }
+
+export interface CardChunk {
+  id: number;
+  card_id: string;
+  user_id: number;
+  title: string;
+  chunk: string;
+  parent_id: number;
+  created_at: Date;
+  updated_at: Date;
+  tags: Tag[];
+}
+
 
 export const defaultPartialCard: PartialCard = {
   id: -1,

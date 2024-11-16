@@ -748,16 +748,16 @@ func TestCheckCardLinkedOrRelated(t *testing.T) {
 	if err != nil {
 		t.Errorf("getting card returned error: %v", err)
 	}
-	result := s.checkCardLinkedOrRelated(1, mainCard, models.ConvertCardToPartialCard(testCard))
+	result := s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
 	if !result {
 		t.Errorf("expected card to be linked, returned false")
 	}
 
 	testCard, err = getCardById(cards, 22)
 	if err != nil {
-		t.Errorf("getting card returned error: %v", err)
+		t.Errorf("getting chunk returned error: %v", err)
 	}
-	result = s.checkCardLinkedOrRelated(1, mainCard, models.ConvertCardToPartialCard(testCard))
+	result = s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
 	if !result {
 		t.Errorf("expected card to be linked, returned false")
 	}
@@ -766,7 +766,7 @@ func TestCheckCardLinkedOrRelated(t *testing.T) {
 	if err != nil {
 		t.Errorf("getting card returned error: %v", err)
 	}
-	result = s.checkCardLinkedOrRelated(1, mainCard, models.ConvertCardToPartialCard(testCard))
+	result = s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
 	if result {
 		t.Errorf("expected card to not be linked, returned true")
 	}
