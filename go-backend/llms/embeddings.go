@@ -26,7 +26,6 @@ func chunkInput(input string) []string {
 		}
 
 		chunks = append(chunks, input[i:end])
-		log.Printf("chunk")
 	}
 	return chunks
 }
