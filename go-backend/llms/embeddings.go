@@ -75,6 +75,7 @@ func GenerateEmbeddings(input string) ([]pgvector.Vector, error) {
 		}
 
 		result := pgvector.NewVector(response.Embedding)
+
 		results = append(results, result)
 
 	}
@@ -82,30 +83,41 @@ func GenerateEmbeddings(input string) ([]pgvector.Vector, error) {
 
 }
 
-func GenerateEmbeddingsFromCard(db *sql.DB, card models.Card) ([]pgvector.Vector, error) {
-	text := card.Title + " " + card.Body
-	return GenerateEmbeddings(text)
+func GenerateEmbeddingsFromCard(db *sql.DB, chunks []string) ([][]pgvector.Vector, error) {
+	results := [][]pgvector.Vector{}
+	for _, chunk := range chunks {
+		vec, err := GenerateEmbeddings(chunk)
+		if err != nil {
+			log.Printf("error generating embeddings %v", err)
+			return [][]pgvector.Vector{}, err
+		}
+		results = append(results, vec)
+	}
+	return results, nil
 }
 
-func StoreEmbeddings(db *sql.DB, card models.Card, embeddings []pgvector.Vector) error {
+func StoreEmbeddings(db *sql.DB, card models.Card, embeddings [][]pgvector.Vector) error {
 	tx, err := db.Begin()
 	query := `DELETE FROM card_embeddings WHERE card_pk = $1 AND user_id = $2`
 	_, err = tx.Exec(query, card.ID, card.UserID)
-	if err != nil {
-		log.Printf("error %v", err)
-		tx.Rollback()
-		return fmt.Errorf("error updating card %d: %w", card.ID, err)
-	}
-	for i, embedding := range embeddings {
-		query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding) VALUES ($1, $2, $3, $4)`
+	for _, vec := range embeddings {
 
-		_, err = tx.Exec(query, card.ID, card.UserID, i, embedding)
 		if err != nil {
 			log.Printf("error %v", err)
 			tx.Rollback()
 			return fmt.Errorf("error updating card %d: %w", card.ID, err)
 		}
+		for i, embedding := range vec {
+			query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding) VALUES ($1, $2, $3, $4)`
 
+			_, err = tx.Exec(query, card.ID, card.UserID, i, embedding)
+			if err != nil {
+				log.Printf("error %v", err)
+				tx.Rollback()
+				return fmt.Errorf("error updating card %d: %w", card.ID, err)
+			}
+
+		}
 	}
 	tx.Commit()
 	return nil

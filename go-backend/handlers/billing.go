@@ -43,8 +43,8 @@ func (s *Handler) SyncStripePlans() error {
 		p := iter.Price()
 		product := p.Product
 
-		log.Printf("price %v", p)
-		log.Printf("lookup %v", p.LookupKey)
+		// log.Printf("price %v", p)
+		// log.Printf("lookup %v", p.LookupKey)
 		// Prepare data for insertion or update
 		metadata, err := json.Marshal(product.Metadata)
 		if err != nil {

@@ -866,12 +866,16 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 
 	if !s.Server.Testing {
 		go func() {
-			embedding, err := llms.GenerateEmbeddingsFromCard(s.DB, card)
+			chunks, err := s.GetCardChunks(userID, card.ID)
+			if err != nil {
+				log.Printf("error in chunking %v", err)
+				return
+			}
+			embeddings, err := llms.GenerateEmbeddingsFromCard(s.DB, chunks)
 			if err != nil {
 				log.Printf("error generating embeddings: %v", err)
 			}
-			llms.StoreEmbeddings(s.DB, card, embedding)
-
+			llms.StoreEmbeddings(s.DB, card, embeddings)
 		}()
 	}
 
@@ -908,11 +912,16 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 
 	if !s.Server.Testing {
 		go func() {
-			embedding, err := llms.GenerateEmbeddingsFromCard(s.DB, card)
+			chunks, err := s.GetCardChunks(userID, card.ID)
+			if err != nil {
+				log.Printf("error in chunking %v", err)
+				return
+			}
+			embeddings, err := llms.GenerateEmbeddingsFromCard(s.DB, chunks)
 			if err != nil {
 				log.Printf("error generating embeddings: %v", err)
 			}
-			llms.StoreEmbeddings(s.DB, card, embedding)
+			llms.StoreEmbeddings(s.DB, card, embeddings)
 
 		}()
 	}
@@ -971,4 +980,24 @@ func (s *Handler) GenerateChunks(input string) []string {
 	}
 
 	return results
+}
+
+func (s *Handler) GetCardChunks(userID, cardPK int) ([]string, error) {
+	query := `SELECT chunk_text FROM card_chunks WHERE card_pk = $1 AND user_id = $2`
+	rows, err := s.DB.Query(query, cardPK, userID)
+	if err != nil {
+		log.Printf("err %v", err)
+	}
+	var chunks []string
+
+	for rows.Next() {
+		var chunk string
+		if err := rows.Scan(&chunk); err != nil {
+			log.Printf("error scanning row: %v", err)
+			return nil, err
+		}
+		chunks = append(chunks, chunk)
+	}
+	return chunks, nil
+
 }
