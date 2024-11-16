@@ -305,8 +305,10 @@ INNER JOIN
     cards c ON ce.card_pk = c.id
 WHERE
     ce.user_id = $1 AND c.is_deleted = FALSE
+GROUP BY 
+    c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at
 ORDER BY 
-    ce.embedding <=> $2 
+    AVG(ce.embedding <=> $2)
 LIMIT 50;
 `
 	var rows *sql.Rows
