@@ -131,34 +131,37 @@ func main() {
 
 	// Check if file exists
 	if _, err := os.Stat(flagFile); os.IsNotExist(err) {
-		// File doesn't exist, run the processing
-		start := time.Now()
+		go func() {
 
-		cards, _ := h.QueryFullCards(1, "")
-		for _, card := range cards {
-			log.Printf("%v - %v", card.CardID, card.Title)
-			err := h.ChunkCard(card)
-			if err != nil {
-				log.Fatalf("err %v", err)
-				break
+			// File doesn't exist, run the processing
+			start := time.Now()
+
+			cards, _ := h.QueryFullCards(1, "")
+			for _, card := range cards {
+				log.Printf("%v - %v", card.CardID, card.Title)
+				err := h.ChunkCard(card)
+				if err != nil {
+					log.Fatalf("err %v", err)
+					break
+				}
+				err = h.ChunkEmbedCard(1, card.ID)
+				if err != nil {
+					log.Fatalf("err %v", err)
+					break
+				}
 			}
-			err = h.ChunkEmbedCard(1, card.ID)
+
+			elapsed := time.Since(start)
+
+			// Create the flag file
+			file, err := os.Create(flagFile)
 			if err != nil {
-				log.Fatalf("err %v", err)
-				break
+				log.Fatalf("Failed to create flag file: %v", err)
 			}
-		}
+			file.Close()
 
-		elapsed := time.Since(start)
-
-		// Create the flag file
-		file, err := os.Create(flagFile)
-		if err != nil {
-			log.Fatalf("Failed to create flag file: %v", err)
-		}
-		file.Close()
-
-		log.Printf("Processing completed in %v", elapsed)
+			log.Printf("Processing completed in %v", elapsed)
+		}()
 	} else {
 		log.Printf("Processing already completed (flag file exists)")
 	}
