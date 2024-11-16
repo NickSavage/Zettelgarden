@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go-backend/models"
 	"log"
 	"net/http"
 	"os"
@@ -32,7 +31,7 @@ func chunkInput(input string) []string {
 	return chunks
 }
 
-func GenerateEmbeddings(input string) ([]pgvector.Vector, error) {
+func GenerateEmbeddings(input string, useForQuery bool) ([]pgvector.Vector, error) {
 	chunks := chunkInput(input)
 	var results []pgvector.Vector
 	url := os.Getenv("ZETTEL_EMBEDDING_API")
@@ -40,10 +39,14 @@ func GenerateEmbeddings(input string) ([]pgvector.Vector, error) {
 		return results, errors.New("no embedding url given - set ZETTEL_EMBEDDING_API")
 	}
 	for _, chunk := range chunks {
+		prompt := chunk
+		if useForQuery {
+			prompt = "Represent this sentence for searching relevant passages:" + prompt
+		}
 
 		payload := map[string]string{
 			"model":  "mxbai-embed-large",
-			"prompt": chunk,
+			"prompt": prompt,
 		}
 
 		jsonData, err := json.Marshal(payload)
@@ -86,7 +89,7 @@ func GenerateEmbeddings(input string) ([]pgvector.Vector, error) {
 func GenerateEmbeddingsFromCard(db *sql.DB, chunks []string) ([][]pgvector.Vector, error) {
 	results := [][]pgvector.Vector{}
 	for _, chunk := range chunks {
-		vec, err := GenerateEmbeddings(chunk)
+		vec, err := GenerateEmbeddings(chunk, false)
 		if err != nil {
 			log.Printf("error generating embeddings %v", err)
 			return [][]pgvector.Vector{}, err
@@ -96,25 +99,25 @@ func GenerateEmbeddingsFromCard(db *sql.DB, chunks []string) ([][]pgvector.Vecto
 	return results, nil
 }
 
-func StoreEmbeddings(db *sql.DB, card models.Card, embeddings [][]pgvector.Vector) error {
+func StoreEmbeddings(db *sql.DB, userID, cardPK int, embeddings [][]pgvector.Vector) error {
 	tx, err := db.Begin()
 	query := `DELETE FROM card_embeddings WHERE card_pk = $1 AND user_id = $2`
-	_, err = tx.Exec(query, card.ID, card.UserID)
+	_, err = tx.Exec(query, cardPK, userID)
 	for _, vec := range embeddings {
 
 		if err != nil {
 			log.Printf("error %v", err)
 			tx.Rollback()
-			return fmt.Errorf("error updating card %d: %w", card.ID, err)
+			return fmt.Errorf("error updating card %d: %w", cardPK, err)
 		}
 		for i, embedding := range vec {
 			query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding) VALUES ($1, $2, $3, $4)`
 
-			_, err = tx.Exec(query, card.ID, card.UserID, i, embedding)
+			_, err = tx.Exec(query, cardPK, userID, i, embedding)
 			if err != nil {
 				log.Printf("error %v", err)
 				tx.Rollback()
-				return fmt.Errorf("error updating card %d: %w", card.ID, err)
+				return fmt.Errorf("error updating card %d: %w", cardPK, err)
 			}
 
 		}

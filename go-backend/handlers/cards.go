@@ -339,7 +339,7 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
 
-	embeddings, err := llms.GenerateEmbeddings(searchTerm)
+	embeddings, err := llms.GenerateEmbeddings(searchTerm, true)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -868,16 +868,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 
 	if !s.Server.Testing {
 		go func() {
-			chunks, err := s.GetCardChunks(userID, card.ID)
-			if err != nil {
-				log.Printf("error in chunking %v", err)
-				return
-			}
-			embeddings, err := llms.GenerateEmbeddingsFromCard(s.DB, chunks)
-			if err != nil {
-				log.Printf("error generating embeddings: %v", err)
-			}
-			llms.StoreEmbeddings(s.DB, card, embeddings)
+			s.ChunkEmbedCard(userID, card.ID)
 		}()
 	}
 
@@ -914,21 +905,27 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 
 	if !s.Server.Testing {
 		go func() {
-			chunks, err := s.GetCardChunks(userID, card.ID)
-			if err != nil {
-				log.Printf("error in chunking %v", err)
-				return
-			}
-			embeddings, err := llms.GenerateEmbeddingsFromCard(s.DB, chunks)
-			if err != nil {
-				log.Printf("error generating embeddings: %v", err)
-			}
-			llms.StoreEmbeddings(s.DB, card, embeddings)
-
+			s.ChunkEmbedCard(userID, card.ID)
 		}()
 	}
 	s.AddTagsFromCard(userID, id)
 	return s.QueryFullCard(userID, id)
+}
+
+func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
+	chunks, err := s.GetCardChunks(userID, cardPK)
+	if err != nil {
+		log.Printf("error in chunking %v", err)
+		return err
+	}
+	embeddings, err := llms.GenerateEmbeddingsFromCard(s.DB, chunks)
+	if err != nil {
+		log.Printf("error generating embeddings: %v", err)
+		return err
+	}
+	log.Printf("chunks %v - count %v", len(chunks), len(embeddings))
+	llms.StoreEmbeddings(s.DB, userID, cardPK, embeddings)
+	return nil
 }
 
 func (s *Handler) ChunkCard(card models.Card) error {
