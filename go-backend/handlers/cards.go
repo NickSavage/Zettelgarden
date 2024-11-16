@@ -374,7 +374,7 @@ func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var embedding pgvector.Vector
-	query := "SELECT embedding FROM card_embeddings WHERE card_pk = $1 LIMIT 1"
+	query := "SELECT avg(embedding) FROM card_embeddings WHERE card_pk = $1"
 	err = s.DB.QueryRow(query, originalCard.ID).Scan(&embedding)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
