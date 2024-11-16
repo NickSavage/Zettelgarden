@@ -153,9 +153,13 @@ func ScanCardChunks(rows *sql.Rows) ([]CardChunk, error) {
 		var card CardChunk
 		if err := rows.Scan(
 			&card.ID,
-			&card.ID,
+			&card.CardID,
 			&card.UserID,
+			&card.Title,
 			&card.Chunk,
+			&card.CreatedAt,
+			&card.UpdatedAt,
+			&card.ParentID,
 		); err != nil {
 			log.Printf("err %v", err)
 			return cards, err

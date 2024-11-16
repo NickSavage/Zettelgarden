@@ -303,7 +303,7 @@ SELECT
 FROM 
     card_embeddings ce
     INNER JOIN cards c ON ce.card_pk = c.id
-    INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.id
+    INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.chunk_id
 WHERE 
     ce.user_id = $1 
     AND c.is_deleted = FALSE
@@ -955,9 +955,9 @@ func (s *Handler) ChunkCard(card models.Card) error {
 		tx.Rollback()
 		return fmt.Errorf("error updating card %d: %w", card.ID, err)
 	}
-	query = `INSERT INTO card_chunks (card_pk, user_id, chunk_text) VALUES ($1, $2, $3)`
-	for _, chunk := range chunks {
-		_, err = tx.Exec(query, card.ID, card.UserID, chunk)
+	query = `INSERT INTO card_chunks (card_pk, user_id, chunk_text, chunk_id) VALUES ($1, $2, $3, $4)`
+	for i, chunk := range chunks {
+		_, err = tx.Exec(query, card.ID, card.UserID, chunk, i)
 		if err != nil {
 			log.Printf("error %v", err)
 
@@ -1009,7 +1009,22 @@ WHERE card_pk = $1 AND user_id = $2
 		return []models.CardChunk{}, err
 	}
 
-	chunks, err := models.ScanCardChunks(rows)
+	var chunks []models.CardChunk
+
+	for rows.Next() {
+		var chunk models.CardChunk
+		if err := rows.Scan(
+			&chunk.ID,
+			&chunk.ID,
+			&chunk.UserID,
+			&chunk.Chunk,
+		); err != nil {
+			log.Printf("err %v", err)
+			return chunks, err
+		}
+		chunks = append(chunks, chunk)
+
+	}
 	if err != nil {
 		log.Printf("err %v", err)
 		return []models.CardChunk{}, err

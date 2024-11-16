@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
@@ -126,7 +127,27 @@ func main() {
 	go func() {
 		h.SyncStripePlans()
 	}()
-	const flagFile = "process_completed.flag" // or whatever filename you want to use
+
+	go func() {
+
+		start := time.Now()
+		cards, _ := h.QueryFullCards(1, "")
+		for _, card := range cards {
+			log.Printf("%v - %v", card.CardID, card.Title)
+			err := h.ChunkCard(card)
+			if err != nil {
+				log.Fatalf("err %v", err)
+				break
+			}
+			err = h.ChunkEmbedCard(1, card.ID)
+			if err != nil {
+				log.Fatalf("err %v", err)
+				break
+			}
+		}
+		elapsed := time.Since(start)
+		log.Printf("Processing completed in %v", elapsed)
+	}()
 
 	r := mux.NewRouter()
 	addProtectedRoute(r, "/api/auth", h.CheckTokenRoute, "GET")
