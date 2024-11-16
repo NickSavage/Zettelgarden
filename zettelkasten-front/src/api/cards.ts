@@ -1,5 +1,6 @@
 import {
   Card,
+  CardChunk,
   PartialCard,
   NextIdResponse,
   FlashcardRecordNextParams,
