@@ -11,7 +11,6 @@ export function findWordBoundaries(
   // Find the start of the word
   let start = index;
   while (start > 0 && input[start - 1] !== " " && input[start - 1] !== "\n") {
-    console.log(input[start - 1]);
     start--;
   }
 

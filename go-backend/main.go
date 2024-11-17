@@ -10,7 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
+	// "time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
@@ -128,27 +128,6 @@ func main() {
 		h.SyncStripePlans()
 	}()
 
-	go func() {
-
-		start := time.Now()
-		cards, _ := h.QueryFullCards(1, "")
-		for _, card := range cards {
-			log.Printf("%v - %v", card.CardID, card.Title)
-			err := h.ChunkCard(card)
-			if err != nil {
-				log.Fatalf("err %v", err)
-				break
-			}
-			err = h.ChunkEmbedCard(1, card.ID)
-			if err != nil {
-				log.Fatalf("err %v", err)
-				break
-			}
-		}
-		elapsed := time.Since(start)
-		log.Printf("Processing completed in %v", elapsed)
-	}()
-
 	r := mux.NewRouter()
 	addProtectedRoute(r, "/api/auth", h.CheckTokenRoute, "GET")
 	addRoute(r, "/api/login", h.LoginRoute, "POST")
@@ -188,6 +167,8 @@ func main() {
 
 	addProtectedRoute(r, "/api/tags", h.GetTagsRoute, "GET")
 	addProtectedRoute(r, "/api/tags/id/{id}", h.DeleteTagRoute, "DELETE")
+
+	addProtectedRoute(r, "/api/url/parse", h.ParseURLRoute, "POST")
 
 	addRoute(r, "/api/billing/create_checkout_session", h.CreateCheckoutSession, "POST")
 	addRoute(r, "/api/billing/success", h.GetSuccessfulSessionData, "GET")

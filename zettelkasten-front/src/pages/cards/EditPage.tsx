@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../../utils/cards";
 import { uploadFile } from "../../api/files";
+import { parseURL } from "../../api/references";
 import { saveNewCard, saveExistingCard, getCard } from "../../api/cards";
 import { editFile } from "../../api/files";
 import { FileListItem } from "../../components/files/FileListItem";
@@ -34,6 +35,7 @@ function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
 export function EditPage({ newCard }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [isParsingUrl, setIsParsingUrl] = useState(false);
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
   const { partialCards, setRefreshPartialCards, lastCard } =
     usePartialCardContext();
@@ -119,7 +121,32 @@ export function EditPage({ newCard }: EditPageProps) {
       ...prevEditingCard,
       body: prevEditingCard.body + "\n\n#" + tagName,
     }));
-    
+  }
+
+  async function handleClickFillCard() {
+    if (!editingCard.link) {
+      // Handle case where there's no link
+      console.log("No link provided");
+      return;
+    }
+
+    try {
+      const result = await parseURL(editingCard.link);
+      let body =
+        // Assuming you have a function to update the card
+        setEditingCard((prev) => ({
+          ...prev,
+          // Only update title if it's empty/blank
+          title:
+            !prev.title || prev.title.trim() === "" ? result.title : prev.title,
+          // Only update body if it's empty/blank
+          body:
+            !prev.body || prev.body.trim() === "" ? result.content : prev.body,
+        }));
+    } catch (error) {
+      console.error("Failed to parse URL:", error);
+      // Handle error - maybe show a notification to the user
+    }
   }
 
   async function handleDisplayFileOnCardClick(file: File) {
@@ -175,16 +202,19 @@ export function EditPage({ newCard }: EditPageProps) {
 
           <label htmlFor="title">Source/URL:</label>
 
-          <input
-            style={{ display: "block", width: "100%", marginBottom: "10px" }}
-            type="text"
-            id="link"
-            value={editingCard.link}
-            onChange={(e) =>
-              setEditingCard({ ...editingCard, link: e.target.value })
-            }
-            placeholder="Title"
-          />
+          <div className="flex">
+            <input
+              style={{ display: "block", width: "100%", marginBottom: "10px" }}
+              type="text"
+              id="link"
+              value={editingCard.link}
+              onChange={(e) =>
+                setEditingCard({ ...editingCard, link: e.target.value })
+              }
+              placeholder="Source/URL"
+            />
+            <span onClick={handleClickFillCard}>{"Fill Card From URL"}</span>
+          </div>
           <Button onClick={handleSaveCard} children={"Save"} />
           <Button onClick={handleCancelButtonClick} children={"Cancel"} />
           {!newCard && (
@@ -200,7 +230,9 @@ export function EditPage({ newCard }: EditPageProps) {
                     file={file}
                     onDelete={onFileDelete}
                     setRefreshFiles={(refresh: boolean) => {}}
-		    displayFileOnCard={(file: File) => handleDisplayFileOnCardClick(file)}
+                    displayFileOnCard={(file: File) =>
+                      handleDisplayFileOnCardClick(file)
+                    }
                   />
                 ))}
               </ul>
