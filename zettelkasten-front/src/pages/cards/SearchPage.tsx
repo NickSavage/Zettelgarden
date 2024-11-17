@@ -6,6 +6,7 @@ import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { CardList } from "../../components/cards/CardList";
+import { CardChunkList } from "../../components/cards/CardChunkList";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
@@ -26,7 +27,7 @@ export function SearchPage({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
-  const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
+  const [useClassicSearch, setUseClassicSearch] = useState<boolean>(false);
 
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -46,6 +47,9 @@ export function SearchPage({
         }
       });
     } else {
+      if (term === "") {
+        return;
+      }
       semanticSearchCards(term).then((data) => {
         if (data === null) {
           setCards([]);
@@ -137,13 +141,25 @@ export function SearchPage({
                 checked={useClassicSearch}
                 onChange={handleCheckboxChange}
               />
-	      Use Classic Search
+              Use Classic Search
             </label>
           </div>
         </div>
         {currentItems.length > 0 ? (
           <div>
-            <CardList cards={currentItems} sort={false} showAddButton={false} />
+            {useClassicSearch ? (
+              <CardList
+                cards={currentItems}
+                sort={false}
+                showAddButton={false}
+              />
+            ) : (
+              <CardChunkList
+                cards={currentItems}
+                sort={false}
+                showAddButton={false}
+              />
+            )}
             <div>
               <Button
                 onClick={() => setCurrentPage(currentPage - 1)}
