@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards, semanticSearchCards } from "../../api/cards";
 import { fetchUserTags } from "../../api/tags";
-import { Card, PartialCard } from "../../models/Card";
+import { CardChunk, Card, PartialCard } from "../../models/Card";
 import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
@@ -28,6 +28,7 @@ export function SearchPage({
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(false);
+  const [chunks, setChunks] = useState<CardChunk[]>([]);
 
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -52,9 +53,9 @@ export function SearchPage({
       }
       semanticSearchCards(term).then((data) => {
         if (data === null) {
-          setCards([]);
+          setChunks([]);
         } else {
-          setCards(data);
+          setChunks(data);
         }
       });
     }
@@ -145,7 +146,7 @@ export function SearchPage({
             </label>
           </div>
         </div>
-        {currentItems.length > 0 ? (
+        {currentItems.length > 0 || chunks.length > 0 ? (
           <div>
             {useClassicSearch ? (
               <CardList
@@ -155,7 +156,7 @@ export function SearchPage({
               />
             ) : (
               <CardChunkList
-                cards={currentItems}
+                cards={chunks}
                 sort={false}
                 showAddButton={false}
               />

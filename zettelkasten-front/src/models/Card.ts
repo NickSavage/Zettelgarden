@@ -35,7 +35,7 @@ export interface CardChunk {
   card_id: string;
   user_id: number;
   title: string;
-  chunk: string;
+  body: string;
   parent_id: number;
   created_at: Date;
   updated_at: Date;

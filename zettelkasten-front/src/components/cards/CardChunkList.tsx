@@ -1,15 +1,19 @@
 import React from "react";
 
 import { CardChunkListItem } from "./CardChunkListItem";
-import { PartialCard } from "../../models/Card";
+import { CardChunk } from "../../models/Card";
 
 interface CardChunkListProps {
-  cards: PartialCard[];
+  cards: CardChunk[];
   sort?: boolean;
   showAddButton?: boolean;
 }
 
-export function CardChunkList({ cards, sort = true, showAddButton = true }: CardChunkListProps) {
+export function CardChunkList({
+  cards,
+  sort = true,
+  showAddButton = true,
+}: CardChunkListProps) {
   console.log("chunk", sort);
   const sortedCards = sort
     ? [...cards].sort((a, b) => a.card_id.localeCompare(b.card_id))
@@ -19,7 +23,7 @@ export function CardChunkList({ cards, sort = true, showAddButton = true }: Card
     <ul>
       {sortedCards.map((backlink, index) => (
         <li className="">
-        <CardChunkListItem card={backlink} showAddButton={showAddButton} />
+          <CardChunkListItem card={backlink} showAddButton={showAddButton} />
         </li>
       ))}
     </ul>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PartialCard } from "../../models/Card";
+import { CardChunk } from "../../models/Card";
 import { CardPreviewWindow } from "./CardPreviewWindow";
 import { CardLink } from "./CardLink";
 import { PlusCircleIcon } from "../../assets/icons/PlusCircleIcon";
@@ -8,7 +8,7 @@ import { usePartialCardContext } from "../../contexts/CardContext";
 import { useNavigate } from "react-router-dom";
 
 interface CardChunkListItemProps {
-  card: PartialCard;
+  card: CardChunk;
   showAddButton?: boolean;
 }
 
@@ -33,6 +33,7 @@ export function CardChunkListItem({
     navigate("/app/card/new");
   }
 
+  console.log(card)
   return (
     <div
       key={card.id}
