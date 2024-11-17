@@ -1,3 +1,7 @@
+github.com/JohannesKaufmann/dom v0.1.1-0.20240706125338-ff9f3b772364 h1:TDlO/A2QqlNhdvH+hDnu8cv1rouhfHgLwhGzJeHGgFQ=
+github.com/JohannesKaufmann/dom v0.1.1-0.20240706125338-ff9f3b772364/go.mod h1:U+fBZLZTYiZCOwQUT04V3J4I+0TxyLNnj0R8nBlO4fk=
+github.com/JohannesKaufmann/html-to-markdown/v2 v2.1.0 h1:k6vBBqTmQOqLnaYkELgCU/F9xVPt3xhO1754hvlP/HM=
+github.com/JohannesKaufmann/html-to-markdown/v2 v2.1.0/go.mod h1:djCj8ehU80KpSAepQciLcNzrp8hwZ1vQFnYKRo4/Cio=
 github.com/andybalholm/cascadia v1.3.2 h1:3Xi6Dw5lHF15JtdcmAHD3i1+T8plmv7BQ/nsViSLyss=
 github.com/andybalholm/cascadia v1.3.2/go.mod h1:7gtRlve5FxPPgIgX36uWBX58OdBsSS6lUvCFb+h7KvU=
 github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de h1:FxWPpzIjnTlhPwqqXc4/vE0f7GvRjuAsbW+HOIe8KnA=

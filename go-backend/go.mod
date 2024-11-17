@@ -1,8 +1,12 @@
 module go-backend
 
-go 1.22
+go 1.22.1
+
+toolchain go1.22.3
 
 require (
+	github.com/JohannesKaufmann/dom v0.1.1-0.20240706125338-ff9f3b772364 // indirect
+	github.com/JohannesKaufmann/html-to-markdown/v2 v2.1.0 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
 	github.com/aws/aws-sdk-go-v2 v1.27.0 // indirect

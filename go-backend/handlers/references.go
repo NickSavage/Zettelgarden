@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
 	readability "github.com/go-shiori/go-readability"
 	"golang.org/x/net/html"
 )
@@ -49,10 +50,14 @@ func (p *Parser) ParseHTML(htmlContent string, urlStr string) (ParseResult, erro
 	if err != nil {
 		return ParseResult{}, err
 	}
+	markdown, err := htmltomarkdown.ConvertString(article.Content)
+	if err != nil {
+		return ParseResult{}, err
+	}
 
 	result := ParseResult{
 		Title:    article.Title,
-		Content:  article.Content,
+		Content:  markdown,
 		URL:      urlStr,
 		Author:   article.Byline,
 		Excerpt:  article.Excerpt,
@@ -86,10 +91,16 @@ func (h *Handler) ParseURLRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	markdown, err := htmltomarkdown.ConvertString(article.Content)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Convert to your response format if needed
 	result := ParseResult{
 		Title:    article.Title,
-		Content:  article.Content,
+		Content:  markdown,
 		URL:      req.URL,
 		Author:   article.Byline,
 		Excerpt:  article.Excerpt,
