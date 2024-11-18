@@ -7,6 +7,8 @@ import logo from "../assets/logo.png";
 import landingImage from "../assets/landing.png";
 import { GithubIcon } from "../assets/icons/GithubIcon";
 
+import { addToMailingList } from "../api/users";
+
 function LandingPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -16,12 +18,12 @@ function LandingPage() {
     navigate("/app");
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     console.log(email);
+    addToMailingList(email)
     setSubmitted(true);
   }
-  useEffect(() => {
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <div className="w-full py-2 mx-auto max-w-screen-xl flex items-center">

@@ -170,6 +170,8 @@ func main() {
 
 	addProtectedRoute(r, "/api/url/parse", h.ParseURLRoute, "POST")
 
+	addRoute(r, "/api/mailing-list", h.AddToMailingListRoute, "POST")
+
 	addRoute(r, "/api/billing/create_checkout_session", h.CreateCheckoutSession, "POST")
 	addRoute(r, "/api/billing/success", h.GetSuccessfulSessionData, "GET")
 	addRoute(r, "/api/webhook", h.HandleWebhook, "POST")

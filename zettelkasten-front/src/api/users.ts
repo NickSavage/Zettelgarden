@@ -180,3 +180,23 @@ export function getUserSubscription(id: number): Promise<UserSubscription> {
       throw error;
     });
 }
+
+export function addToMailingList(email: string): Promise<{ email: string }> {
+  let url = base_url + "/mailing-list";
+  
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json();
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
