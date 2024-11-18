@@ -509,6 +509,13 @@ func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 
 	user, _ := s.QueryUser(newID)
 	s.sendEmailValidation(user)
+	go func() {
+		subject := "New user registered at Zettelgarden"
+		recipient := "nick@nicksavage.ca"
+		body := fmt.Sprintf("A new user has registered at Zettelgarden: %v, %v", params.Username, params.Email)
+		s.SendEmail(subject, recipient, body)
+		log.Printf("New user registered: %v, %v", params.Username, params.Email)
+	}()
 	return newID, err
 }
 
