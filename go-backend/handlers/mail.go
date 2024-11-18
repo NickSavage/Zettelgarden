@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -94,4 +95,12 @@ func (s *Handler) AddToMailingListRoute(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
+
+	go func() {
+		subject := "New mailing list registered at Zettelgarden"
+		recipient := "nick@nicksavage.ca"
+		body := fmt.Sprintf("A new email has registered at for the Zettelgarden mailing list: %v", request.Email)
+		s.SendEmail(subject, recipient, body)
+		log.Printf("New mailing list registration %v", request.Email)
+	}()
 }
