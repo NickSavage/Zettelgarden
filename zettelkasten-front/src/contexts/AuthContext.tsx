@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const currentUser = await getCurrentUser();
         setCurrentUser(currentUser);
         console.log("user", currentUser);
-        setHasSubscription(currentUser.stripe_subscription_status === "active");
-        //setHasSubscription(true)
+        // setHasSubscription(currentUser.stripe_subscription_status === "active");
+        setHasSubscription(true)
       }
       setIsLoading(false);
     };
@@ -57,8 +57,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const loginUser = (data: LoginResponse) => {
     localStorage.setItem("token", data["access_token"]);
     localStorage.setItem("username", data["user"]["username"]);
-    //setHasSubscription(true);
-    setHasSubscription(data["user"].stripe_subscription_status === "active");
+    setHasSubscription(true);
+    // setHasSubscription(data["user"].stripe_subscription_status === "active");
     setIsAuthenticated(true);
   };
 
