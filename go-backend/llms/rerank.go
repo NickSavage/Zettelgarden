@@ -31,7 +31,7 @@ Documents to rate:
 	resp, err := c.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: "google/gemini-flash-1.5",
+			Model: "meta-llama/llama-3.2-3b-instruct:free",
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    "system",
