@@ -3,6 +3,8 @@ package server
 import (
 	"database/sql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type Server struct {
@@ -14,6 +16,7 @@ type Server struct {
 	Mail          *MailClient
 	TestInspector *TestInspector
 	SchemaDir     string
+	LLMClient     *openai.Client
 }
 
 type MailClient struct {

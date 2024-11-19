@@ -55,7 +55,7 @@ export function CardChunkListItem({
               showTitle={true}
             />
           </span>
-          <div className="mt-1 px-4 text-sm">{card.body}</div>
+          <div className="mt-1 px-4 text-sm">{card.ranking} - {card.body}</div>
         </div>
         {showAddButton && (
           <span onClick={handleAddCardClick}>

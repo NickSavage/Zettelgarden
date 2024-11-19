@@ -144,6 +144,7 @@ type CardChunk struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	ParentID  int       `json:"parent_id"`
+	Ranking   float64   `json:"ranking"`
 }
 
 func ScanCardChunks(rows *sql.Rows) ([]CardChunk, error) {

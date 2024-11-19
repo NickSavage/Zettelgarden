@@ -330,6 +330,7 @@ LIMIT 50;
 
 	cards, err := models.ScanCardChunks(rows)
 	log.Printf("err %v", err)
+
 	return cards, err
 
 	// var seen = make(map[int]bool)
@@ -368,6 +369,22 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	scores, err := llms.RerankResults(s.Server.LLMClient, searchTerm, relatedCards)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Printf("cards %v scores %v", len(relatedCards), len(scores))
+	for i, score := range scores {
+		if i == len(scores)-1 {
+			break
+		}
+		relatedCards[i].Ranking = score
+	}
+	sort.Slice(relatedCards, func(i, j int) bool {
+		return relatedCards[i].Ranking > relatedCards[j].Ranking
+	})
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(relatedCards)

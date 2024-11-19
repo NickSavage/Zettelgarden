@@ -40,6 +40,7 @@ export interface CardChunk {
   created_at: Date;
   updated_at: Date;
   tags: Tag[];
+  ranking: number;
 }
 
 

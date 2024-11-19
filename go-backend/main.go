@@ -15,6 +15,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	openai "github.com/sashabaranov/go-openai"
 	"github.com/stripe/stripe-go"
 )
 
@@ -123,6 +124,11 @@ func main() {
 	}
 	log.Printf("email server: %v", s.Mail)
 	s.JwtSecretKey = []byte(os.Getenv("SECRET_KEY"))
+	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+	client := openai.NewClientWithConfig(config)
+
+	s.LLMClient = client
 
 	go func() {
 		h.SyncStripePlans()
