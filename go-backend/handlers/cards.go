@@ -375,7 +375,6 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Printf("cards %v scores %v", len(relatedCards), len(scores))
 	for i, score := range scores {
 		if i == len(scores)-1 {
 			break

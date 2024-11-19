@@ -16,7 +16,7 @@ func RerankResults(c *openai.Client, query string, input []models.CardChunk) ([]
 	summaries := make([]string, len(input))
 	for i, result := range input {
 		// Create a brief summary of each result
-		summaries[i] = fmt.Sprintf("Document %d: Title: %s, Summary: %s",
+		summaries[i] = fmt.Sprintf("%d - %s - %s",
 			i+1,
 			result.Title,
 			result.Chunk)
@@ -31,7 +31,7 @@ Documents to rate:
 	resp, err := c.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: "anthropic/claude-3.5-sonnet:beta",
+			Model: "google/gemini-flash-1.5",
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    "system",
