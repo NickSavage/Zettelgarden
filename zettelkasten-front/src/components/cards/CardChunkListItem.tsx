@@ -37,7 +37,7 @@ export function CardChunkListItem({
   return (
     <div
       key={card.id}
-      className="card-item py-2 px-2.5 flex justify-between items-start w-full"
+      className="card-item py-1 px-2.5 flex justify-between items-start w-full"
     >
       {/* Left side - blue tag */}
       <div className="flex-shrink-0"></div>
@@ -55,7 +55,7 @@ export function CardChunkListItem({
               showTitle={true}
             />
           </span>
-          <div className="mt-1 px-4 text-sm">{card.ranking} - {card.body}</div>
+          <div className="mt-1 px-4 text-sm italic">{card.ranking} - {card.body}</div>
         </div>
         {showAddButton && (
           <span onClick={handleAddCardClick}>
