@@ -37,9 +37,6 @@ function LandingPage() {
             <a href="#features" className="p-4">
               <span className="text-1xl">Features</span>
             </a>
-            // <Link to="" className="p-4">
-            //   <span className="text-1xl">Pricing</span>
-            // </Link>
           </div>
           <div className="flex-shrink">
             <Link to="/app">

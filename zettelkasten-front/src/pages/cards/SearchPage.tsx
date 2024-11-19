@@ -28,6 +28,7 @@ export function SearchPage({
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [chunks, setChunks] = useState<CardChunk[]>([]);
 
   const [tags, setTags] = useState<Tag[]>([]);
@@ -36,28 +37,36 @@ export function SearchPage({
     setSearchTerm(e.target.value);
   }
 
-  function handleSearch(inputTerm = "") {
+  async function handleSearch(inputTerm = "") {
+    setIsLoading(true);
+    setCards([]);
     let term = inputTerm == "" ? searchTerm : inputTerm;
 
-    if (useClassicSearch) {
-      fetchCards(term).then((data) => {
+    try {
+      if (useClassicSearch) {
+        const data = await fetchCards(term);
         if (data === null) {
           setCards([]);
         } else {
           setCards(data);
         }
-      });
-    } else {
-      if (term === "") {
-        return;
-      }
-      semanticSearchCards(term).then((data) => {
+      } else {
+        if (term === "") {
+          setIsLoading(false);
+          return;
+        }
+        const data = await semanticSearchCards(term);
         if (data === null) {
           setChunks([]);
         } else {
           setChunks(data);
         }
-      });
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      // Handle error appropriately
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -146,51 +155,58 @@ export function SearchPage({
             </label>
           </div>
         </div>
-        {currentItems.length > 0 || chunks.length > 0 ? (
-          <div>
-            {useClassicSearch ? (
-              <CardList
-                cards={currentItems}
-                sort={false}
-                showAddButton={false}
-              />
-            ) : (
-              <CardChunkList
-                cards={chunks}
-                sort={false}
-                showAddButton={false}
-              />
-            )}
-            <div>
-              <Button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                children={"Previous"}
-              />
-              <span>
-                {" "}
-                Page {currentPage} of{" "}
-                {Math.ceil(
-                  (cards.length > 0 ? cards.length : partialCards.length) /
-                    itemsPerPage,
-                )}{" "}
-              </span>
-              <Button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={
-                  currentPage ===
-                  Math.ceil(
-                    (cards.length > 0 ? cards.length : partialCards.length) /
-                      itemsPerPage,
-                  )
-                }
-                children={"Next"}
-              />
-            </div>
-          </div>
+        {isLoading ? (
+          <div className="flex justify-center w-full py-20">Loading</div>
         ) : (
-          <div className="flex justify-center w-full py-20">
-            Search returned no results
+          <div>
+            {currentItems.length > 0 || chunks.length > 0 ? (
+              <div>
+                {useClassicSearch ? (
+                  <CardList
+                    cards={currentItems}
+                    sort={false}
+                    showAddButton={false}
+                  />
+                ) : (
+                  <CardChunkList
+                    cards={chunks}
+                    sort={false}
+                    showAddButton={false}
+                  />
+                )}
+                <div>
+                  <Button
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    children={"Previous"}
+                  />
+                  <span>
+                    {" "}
+                    Page {currentPage} of{" "}
+                    {Math.ceil(
+                      (cards.length > 0 ? cards.length : partialCards.length) /
+                        itemsPerPage,
+                    )}{" "}
+                  </span>
+                  <Button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={
+                      currentPage ===
+                      Math.ceil(
+                        (cards.length > 0
+                          ? cards.length
+                          : partialCards.length) / itemsPerPage,
+                      )
+                    }
+                    children={"Next"}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-center w-full py-20">
+                Search returned no results
+              </div>
+            )}
           </div>
         )}
       </div>
