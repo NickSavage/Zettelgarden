@@ -4,13 +4,14 @@ import (
 	//	"bytes"
 	"context"
 	//"encoding/json"
+	"fmt"
 	"go-backend/handlers"
 	"go-backend/models"
 	"go-backend/server"
 	"log"
 	"net/http"
 	"os"
-	// "time"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
@@ -136,6 +137,7 @@ func main() {
 
 	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
 		go func() {
+			start := time.Now()
 			cards, _ := h.QueryFullCards(1, "")
 			for _, card := range cards {
 				err := h.ChunkCard(card)
@@ -149,6 +151,9 @@ func main() {
 					break
 				}
 			}
+			elapsed := time.Since(start)
+
+			fmt.Printf("Operation took %v\n", elapsed)
 
 		}()
 
