@@ -43,7 +43,7 @@ func GenerateEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvector.Ve
 	}
 
 	payload := map[string]string{
-		"model":  "mxbai-embed-large",
+		"model":  "nomic-embed-text",
 		"prompt": prompt,
 	}
 
