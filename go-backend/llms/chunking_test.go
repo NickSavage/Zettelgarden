@@ -31,3 +31,25 @@ Lorem cubilia cubilia dis iaculis, odio vivamus interdum adipiscing dolor.`
 
 	}
 }
+
+func TestChunkCardBodyRemoveBacklinks(t *testing.T) {
+
+	input := `Lorem ipsum odor amet, consectetuer adipiscing elit. Luctus egestas lobortis cursus mollis facilisi. 
+
+[A.1] - Test`
+	results := GenerateChunks(input)
+
+	if len(results) != 2 {
+		t.Errorf("wrong number of chunks returned, got %v want %v", len(results), 2)
+	}
+	input = `Lorem ipsum odor amet, consectetuer adipiscing elit. Luctus egestas lobortis cursus mollis facilisi. 
+
+[A.1] - Test
+
+[B.1] - Another test, this one a big longer`
+	results = GenerateChunks(input)
+	if len(results) != 2 {
+		t.Errorf("wrong number of chunks returned, got %v want %v", len(results), 2)
+	}
+
+}
