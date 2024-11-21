@@ -1,13 +1,13 @@
 package llms
 
 import (
-	"log"
 	"regexp"
 	"strings"
 )
 
 func GenerateChunks(input string) []string {
 	results := []string{}
+	current := ""
 
 	// Only trim leading/trailing spaces
 	input = strings.TrimSpace(input)
@@ -17,7 +17,6 @@ func GenerateChunks(input string) []string {
 
 	// Remove the references that end in line breaks
 	input = refPattern.ReplaceAllString(input, "")
-	log.Printf("input %v", input)
 
 	// Split by periods but add them back
 	sentences := strings.Split(input+".", ".")
@@ -29,12 +28,18 @@ func GenerateChunks(input string) []string {
 
 		// Only trim leading spaces, preserve newlines and trailing spaces
 		sentence = strings.TrimLeft(sentence, " ")
-		log.Printf("sentence '%v'", sentence)
 		if sentence == "" || strings.TrimSpace(sentence) == "" {
 			continue
 		}
+		current += sentence
+		if len(current) >= 300 {
+			results = append(results, current+".")
+			current = ""
+		}
 
-		results = append(results, sentence+".")
+	}
+	if current != "" {
+		results = append(results, current+".")
 	}
 
 	return results

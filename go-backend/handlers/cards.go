@@ -962,7 +962,8 @@ func (s *Handler) ChunkCard(card models.Card) error {
 	db := s.DB
 
 	tx, err := db.Begin()
-	chunks := llms.GenerateChunks(card.Body)
+	textToChunk := "Title: " + card.Title + " - " + card.Body
+	chunks := llms.GenerateChunks(textToChunk)
 	query := `DELETE FROM card_chunks WHERE card_pk = $1 AND user_id = $2`
 	_, err = tx.Exec(query, card.ID, card.UserID)
 	if err != nil {
