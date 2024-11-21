@@ -963,7 +963,7 @@ func (s *Handler) ChunkCard(card models.Card) error {
 	db := s.DB
 
 	tx, err := db.Begin()
-	chunks := s.GenerateChunks(card.Body)
+	chunks := llms.GenerateChunks(card.Body)
 	query := `DELETE FROM card_chunks WHERE card_pk = $1 AND user_id = $2`
 	_, err = tx.Exec(query, card.ID, card.UserID)
 	if err != nil {
@@ -986,33 +986,6 @@ func (s *Handler) ChunkCard(card models.Card) error {
 	return nil
 
 }
-
-func (s *Handler) GenerateChunks(input string) []string {
-	results := []string{}
-
-	// Only trim leading/trailing spaces
-	input = strings.TrimSpace(input)
-
-	// Split by periods but add them back
-	sentences := strings.Split(input+".", ".")
-	for i, sentence := range sentences {
-		// Skip the last empty element caused by our added period
-		if i == len(sentences)-1 && sentence == "" {
-			break
-		}
-
-		// Only trim leading spaces, preserve newlines and trailing spaces
-		sentence = strings.TrimLeft(sentence, " ")
-		if sentence == "" {
-			continue
-		}
-
-		results = append(results, sentence+".")
-	}
-
-	return results
-}
-
 func (s *Handler) GetCardChunks(userID, cardPK int) ([]models.CardChunk, error) {
 	query := `SELECT
  id, card_pk, user_id, chunk_text
