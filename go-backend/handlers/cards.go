@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/pgvector/pgvector-go"
