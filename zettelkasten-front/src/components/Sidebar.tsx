@@ -82,7 +82,7 @@ export function Sidebar() {
       setFilteredCards(mainCards.slice(0, 100));
     }
     await fetchPartialCards(text, "date").then((data) => {
-      setFilteredCards(data.filter((card) => !card.card_id.includes("/")));
+      setFilteredCards(data === null ? [] : data.filter((card) => !card.card_id.includes("/")));
     });
   }
 

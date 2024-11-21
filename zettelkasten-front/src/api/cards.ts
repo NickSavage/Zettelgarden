@@ -37,7 +37,6 @@ export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
         return Promise.reject(new Error("Response is undefined"));
       }
     });
-  
 }
 
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
@@ -90,6 +89,9 @@ export function fetchPartialCards(
     .then((response) => {
       if (response) {
         return response.json().then((cards: PartialCard[]) => {
+          if (cards === null) {
+            return [];
+          }
           let results = cards.map((card) => ({
             ...card,
             created_at: new Date(card.created_at),
@@ -103,9 +105,7 @@ export function fetchPartialCards(
     });
 }
 
-export function fetchRelatedCards(
-  id: string
-): Promise<CardChunk[]> {
+export function fetchRelatedCards(id: string): Promise<CardChunk[]> {
   let token = localStorage.getItem("token");
 
   const url = base_url + `/cards/${id}/related`;
@@ -141,20 +141,26 @@ export function getCard(id: string): Promise<Card> {
     .then((response) => {
       if (response) {
         return response.json().then((card: Card) => {
-          let children = card.children !== null ? card.children.map((child) => {
-            return {
-              ...child,
-              created_at: new Date(child.created_at),
-              updated_at: new Date(child.updated_at),
-            };
-          }) : [];
-          let references = card.references !== null ? card.references.map((ref) => {
-            return {
-              ...ref,
-              created_at: new Date(ref.created_at),
-              updated_at: new Date(ref.updated_at),
-            };
-          }) : [];
+          let children =
+            card.children !== null
+              ? card.children.map((child) => {
+                  return {
+                    ...child,
+                    created_at: new Date(child.created_at),
+                    updated_at: new Date(child.updated_at),
+                  };
+                })
+              : [];
+          let references =
+            card.references !== null
+              ? card.references.map((ref) => {
+                  return {
+                    ...ref,
+                    created_at: new Date(ref.created_at),
+                    updated_at: new Date(ref.updated_at),
+                  };
+                })
+              : [];
           return {
             ...card,
             created_at: new Date(card.created_at),
