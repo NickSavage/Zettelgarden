@@ -134,6 +134,26 @@ func main() {
 		h.SyncStripePlans()
 	}()
 
+	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
+		go func() {
+			cards, _ := h.QueryFullCards(1, "")
+			for _, card := range cards {
+				err := h.ChunkCard(card)
+				if err != nil {
+					log.Printf("chunking error %v", err)
+					break
+				}
+				err = h.ChunkEmbedCard(1, card.ID)
+				if err != nil {
+					log.Printf("embedding error %v", err)
+					break
+				}
+			}
+
+		}()
+
+	}
+
 	r := mux.NewRouter()
 	addProtectedRoute(r, "/api/auth", h.CheckTokenRoute, "GET")
 	addRoute(r, "/api/login", h.LoginRoute, "POST")
