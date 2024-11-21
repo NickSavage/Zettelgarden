@@ -110,7 +110,6 @@ func StoreEmbeddings(db *sql.DB, userID, cardPK int, embeddings [][]pgvector.Vec
 		for _, embedding := range vec {
 			query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding) VALUES ($1, $2, $3, $4)`
 
-			log.Printf("i %v", i)
 			_, err = tx.Exec(query, cardPK, userID, i, embedding)
 			if err != nil {
 				log.Printf("error %v", err)

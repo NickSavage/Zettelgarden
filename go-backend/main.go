@@ -140,6 +140,7 @@ func main() {
 			start := time.Now()
 			cards, _ := h.QueryFullCards(1, "")
 			for _, card := range cards {
+				log.Printf("%v - %v", card.CardID, card.Title)
 				err := h.ChunkCard(card)
 				if err != nil {
 					log.Printf("chunking error %v", err)

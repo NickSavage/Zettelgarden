@@ -953,7 +953,6 @@ func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
 		log.Printf("error generating embeddings: %v", err)
 		return err
 	}
-	log.Printf("chunks %v - count %v", len(chunks), len(embeddings))
 	llms.StoreEmbeddings(s.DB, userID, cardPK, embeddings)
 	return nil
 }
