@@ -196,6 +196,7 @@ export function TaskPage({}: TaskListProps) {
             currentCard={null}
             setRefresh={setRefreshTasks}
             setShowTaskWindow={setShowCreateTaskWindow}
+            currentFilter={filterString}
           />
         )}
       </div>

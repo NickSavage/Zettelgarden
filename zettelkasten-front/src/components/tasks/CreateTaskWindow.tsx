@@ -12,12 +12,14 @@ interface CreateTaskWindowProps {
   currentCard: Card | PartialCard | null;
   setRefresh: (refresh: boolean) => void;
   setShowTaskWindow: (showTaskWindow: boolean) => void;
+  currentFilter?: string;
 }
 
 export function CreateTaskWindow({
   currentCard,
   setRefresh,
   setShowTaskWindow,
+  currentFilter,
 }: CreateTaskWindowProps) {
   const [newTask, setNewTask] = useState<Task>(emptyTask);
   const [selectedCard, setSelectedCard] = useState<PartialCard | null>(null);
@@ -65,7 +67,7 @@ export function CreateTaskWindow({
   async function handleAddTag(tag: string) {
     let editedTask = { ...newTask, title: newTask.title + " " + tag };
     setNewTask(editedTask);
-    setShowTagMenu(false)
+    setShowTagMenu(false);
   }
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
@@ -79,12 +81,18 @@ export function CreateTaskWindow({
   };
 
   useEffect(() => {
-  const keyDownListener = (event: KeyboardEvent) => handleKeyPress(event);
-  document.addEventListener("keydown", keyDownListener);
-  return () => {
-    document.removeEventListener("keydown", keyDownListener);
-  };
+    const keyDownListener = (event: KeyboardEvent) => handleKeyPress(event);
+    document.addEventListener("keydown", keyDownListener);
+    return () => {
+      document.removeEventListener("keydown", keyDownListener);
+    };
   }, []);
+
+  useEffect(() => {
+    setNewTask({ ...newTask, title: currentFilter + " " || "" });
+  }, [currentFilter]);
+
+  // console.log("create task", currentFilter);
 
   return (
     <div
@@ -128,10 +136,7 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
                 )}
                 {showTagMenu && (
                   <div className="popup-menu">
-                    <AddTagMenu
-                      task={newTask}
-                      handleAddTag={handleAddTag}
-                    />
+                    <AddTagMenu task={newTask} handleAddTag={handleAddTag} />
                   </div>
                 )}
               </div>
@@ -155,7 +160,7 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
               />
             </div>
             <div className="create-task-window-bottom-right">
-            <Button onClick={handleSaveTask} children="Save" />
+              <Button onClick={handleSaveTask} children="Save" />
             </div>
           </div>
         </div>
