@@ -12,6 +12,7 @@ import { SidebarLink } from "./SidebarLink";
 import { SearchIcon } from "../assets/icons/SearchIcon";
 import { TasksIcon } from "../assets/icons/TasksIcon";
 import { FileIcon } from "../assets/icons/FileIcon";
+import { ChatIcon } from "../assets/icons/ChatIcon";
 import { Button } from "./Button";
 
 import { useShortcutContext } from "../contexts/ShortcutContext";
@@ -82,7 +83,9 @@ export function Sidebar() {
       setFilteredCards(mainCards.slice(0, 100));
     }
     await fetchPartialCards(text, "date").then((data) => {
-      setFilteredCards(data === null ? [] : data.filter((card) => !card.card_id.includes("/")));
+      setFilteredCards(
+        data === null ? [] : data.filter((card) => !card.card_id.includes("/")),
+      );
     });
   }
 
@@ -170,6 +173,19 @@ export function Sidebar() {
                 <span className="flex-grow">Files</span>,
               ]}
             />
+            {import.meta.env.VITE_FEATURE_CHAT === "true" ? (
+              <SidebarLink
+                to="/app/files"
+                children={[
+                  <span className="mx-2">
+                    <ChatIcon />
+                  </span>,
+                  <span className="flex-grow">Chat</span>,
+                ]}
+              />
+            ) : (
+              <div></div>
+            )}
           </ul>
         </div>
       </div>
