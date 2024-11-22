@@ -121,7 +121,7 @@ export function Sidebar() {
   return (
     <div className="sidebar">
       <div className="sidebar-upper">
-        <Link to="/">
+        <Link to="/app">
           <img src={logo} alt="Company Logo" className="logo rounded-md" />
         </Link>
         <div className="grow">
