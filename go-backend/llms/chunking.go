@@ -31,7 +31,7 @@ func GenerateChunks(input string) []string {
 		if sentence == "" || strings.TrimSpace(sentence) == "" {
 			continue
 		}
-		current += sentence + ". "
+		current += sentence
 		if len(current) >= 300 {
 			results = append(results, current+".")
 			current = ""
