@@ -25,6 +25,20 @@ export function getNextWeek(): Date {
   return result;
 }
 
+export function isFriday(): boolean {
+    const today = new Date();
+    return today.getDay() === 5;
+}
+
+export function getNextMonday(): Date {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() + (8 - day) % 7;
+    const nextMonday = new Date(today);
+    nextMonday.setDate(diff);
+    return nextMonday;
+}
+
 export function compareDates(date1: Date | null, date2: Date | null): boolean {
   if (date1 === null || date2 === null) {
     return false;

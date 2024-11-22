@@ -9,6 +9,8 @@ import {
   getNextWeek,
   isPast,
   isRecurringTask,
+  getNextMonday,
+  isFriday,
 } from "../../utils/dates";
 import { saveExistingTask } from "../../api/tasks";
 
@@ -100,6 +102,14 @@ export function TaskDateDisplay({
     setSelectedDate("");
   }
 
+  async function setNextMonday() {
+    let editedTask = { ...task, scheduled_date: getNextMonday() };
+    updateTask(editedTask);
+    setDisplayDatePicker(false);
+    setSelectedDate("");
+    
+  }
+
   function handleTextClick() {
     setDisplayDatePicker(!displayDatePicker);
   }
@@ -148,6 +158,10 @@ export function TaskDateDisplay({
               <button onClick={setNoDate}>No Date</button>
               <button onClick={setToday}>Today</button>
               <button onClick={setTomorrow}>Tomorrow</button>
+	      { isFriday() ? (
+		
+              <button onClick={setNextMonday}>Next Monday</button>
+	      ) : <div></div>}
               <button onClick={setNextWeek}>Next Week</button>
               <input
                 aria-label="Date"
