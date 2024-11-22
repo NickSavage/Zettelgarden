@@ -16,19 +16,15 @@ Lorem cubilia cubilia dis iaculis, odio vivamus interdum adipiscing dolor.`
 		log.Printf(result)
 	}
 
-	if len(results) != 4 {
-		t.Errorf("wrong number of chunks returned, got %v want %v", len(results), 4)
+	if len(results) != 2 {
+		t.Errorf("wrong number of chunks returned, got %v want %v", len(results), 2)
 	}
-	string := "Fermentum phasellus hendrerit purus, etiam erat litora."
-	if len(results) > 4 && results[6] != string {
-		t.Errorf("wrong chunk return, %v, got %v want %v", results[6] == string, results[6], string)
-		t.Errorf("one: %v", results[6])
-		t.Errorf("two: %v", string)
+	string := `Fermentum phasellus hendrerit purus, etiam erat litora
 
-	}
-	last := "\n\nLorem cubilia cubilia dis iaculis, odio vivamus interdum adipiscing dolor."
-	if len(results) > 4 && results[7] != last {
-		t.Errorf("wrong chunk return, got %v want %v", results[7], last)
+Lorem cubilia cubilia dis iaculis, odio vivamus interdum adipiscing dolor.`
+
+	if len(results) > 1 && results[1] != string {
+		t.Errorf("wrong chunk return, %v, got %v want %v", results[1] == string, results[1], string)
 
 	}
 }
