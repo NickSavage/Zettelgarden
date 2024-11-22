@@ -16,14 +16,17 @@ func RerankResults(c *openai.Client, query string, input []models.CardChunk) ([]
 	summaries := make([]string, len(input))
 	for i, result := range input {
 		// Create a brief summary of each result
-		summaries[i] = fmt.Sprintf("%d - %s - %s",
-			i+1,
+		summaries[i] = fmt.Sprintf("%s - %s",
 			result.Title,
 			result.Chunk)
 	}
 
-	prompt := fmt.Sprintf(`Given the search query "%s", rate the relevance of each document on a scale of 0-10.
-Consider how well each document matches the query's intent and content.
+	prompt := fmt.Sprintf(`Given the search query "%s", rate the relevance of each document on a scale of 0-10. You are being provided with a number of documents in the form of "title - chunk"
+
+Consider how well each document matches the query's intent and content. A "10", or close to it,
+should mean that the document matches the query. A "0", or close to it, means it is unrelated.
+You should weigh the title most heavily. For example, if the query is "Winston Churchill" and one
+of the documents is titled Winston Churchill, that should be the most highly rated card.
 Only respond with numbers separated by commas, like: 8.5,7.2,6.8
 
 Documents to rate:
@@ -31,7 +34,7 @@ Documents to rate:
 	resp, err := c.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: "meta-llama/llama-3.2-3b-instruct:free",
+			Model: "gpt-3.5-turbo",
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    "system",
