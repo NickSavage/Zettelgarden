@@ -48,7 +48,7 @@ func (s *Handler) QueryTask(userID int, id int) (models.Task, error) {
 	return task, nil
 }
 
-func (s *Handler) QueryTasks(userID int) ([]models.Task, error) {
+func (s *Handler) QueryTasks(userID int, includeCompleted bool) ([]models.Task, error) {
 	var tasks []models.Task
 	query := `
 	SELECT id, card_pk, user_id, scheduled_date, due_date,
@@ -57,6 +57,9 @@ func (s *Handler) QueryTasks(userID int) ([]models.Task, error) {
 	tasks
 	WHERE user_id = $1 AND is_deleted = FALSE
 	`
+	if !includeCompleted {
+		query += " AND is_complete = FALSE"
+	}
 
 	rows, err := s.DB.Query(query, userID)
 	if err != nil {
@@ -118,7 +121,13 @@ func (s *Handler) GetTaskRoute(w http.ResponseWriter, r *http.Request) {
 func (s *Handler) GetTasksRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 
-	tasks, err := s.QueryTasks(userID)
+	completed := r.URL.Query().Get("completed")
+	includeCompleted := false
+	if completed == "true" {
+		includeCompleted = true
+	}
+
+	tasks, err := s.QueryTasks(userID, includeCompleted)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

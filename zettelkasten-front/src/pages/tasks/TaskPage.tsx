@@ -1,6 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
 import { Task } from "../../models/Task";
 import { TaskList } from "../../components/tasks/TaskList";
+import { TaskPageOptionsMenu } from "../../components/tasks/TaskPageOptionsMenu";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
 import { useTagContext } from "../../contexts/TagContext";
@@ -20,25 +21,13 @@ import { filterTasks } from "../../utils/tasks";
 interface TaskListProps {}
 
 export function TaskPage({}: TaskListProps) {
-  const { tasks, setRefreshTasks } = useTaskContext();
+  const { tasks, setRefreshTasks, showCompleted } = useTaskContext();
   const [dateView, setDateView] = useState<string>("today");
-  const [refresh, setRefresh] = useState<boolean>(true);
   const { showCreateTaskWindow, setShowCreateTaskWindow } =
     useShortcutContext();
   const [filterString, setFilterString] = useState<string>("");
-  const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
   const { tags } = useTagContext();
-
-  const [activeTab, setActiveTab] = useState("Open");
-  const openTasksCount = tasks.filter((task) => !task.is_complete).length;
-  const closedTasksCount = tasks.filter((task) => task.is_complete).length;
-  const allTasksCount = tasks.length;
-  const tabs = [
-    { label: "Open", count: openTasksCount },
-    { label: "Closed", count: closedTasksCount },
-    { label: "All", count: allTasksCount },
-  ];
 
   function handleFilterChange(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -50,15 +39,6 @@ export function TaskPage({}: TaskListProps) {
     setDateView(e.target.value);
   }
   function changeDateView(task: Task): boolean {
-    // Handle filtering based on the active tab
-    if (activeTab === "Open" && task.is_complete) {
-      return false;
-    }
-
-    if (activeTab === "Closed" && !task.is_complete) {
-      return false;
-    }
-
     // Handle further filtering based on the date view
     if (dateView === "all") {
       // Only show completed tasks if the "Closed" tab is active
@@ -107,14 +87,6 @@ export function TaskPage({}: TaskListProps) {
     setFilterString("#" + tag);
   }
 
-  function handleTabClick(label: string) {
-    setActiveTab(label);
-    if (label === "Closed") {
-      setShowCompleted(true);
-    } else {
-      setShowCompleted(false);
-    }
-  }
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
     if (event.metaKey) {
@@ -144,27 +116,6 @@ export function TaskPage({}: TaskListProps) {
   }, []);
   return (
     <div>
-      <div className="flex items-center space-x-4">
-        {tabs.map((tab) => (
-          <span
-            key={tab.label}
-            onClick={() => handleTabClick(tab.label)}
-            className={`
-            cursor-pointer font-medium py-1.5 px-3 rounded-md flex items-center
-            ${
-              activeTab === tab.label
-                ? "text-blue-600 border-b-4 border-blue-600"
-                : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-            }
-          `}
-          >
-            {tab.label}
-            <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
-              {tab.count}
-            </span>
-          </span>
-        ))}
-      </div>
       <div className="bg-slate-200 p-2 border-slate-400 border">
         <div className="flex">
           <select className="mb-5" value={dateView} onChange={handleDateChange}>
@@ -188,6 +139,7 @@ export function TaskPage({}: TaskListProps) {
             tags={tags.filter((tag) => tag.task_count > 0)}
             handleTagClick={handleTagClick}
           />
+          <TaskPageOptionsMenu />
         </div>
       </div>
       <div>

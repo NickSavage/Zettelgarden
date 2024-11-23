@@ -11,6 +11,8 @@ interface TaskContextType {
   setRefreshTasks: (refresh: boolean) => void;
   getTasks: () => Promise<void>;
   existingTags: string[];
+  showCompleted: boolean;
+  setShowCompleted: (refresh: boolean) => void;
 }
 interface TaskProviderProps {
   children: React.ReactNode;
@@ -18,10 +20,15 @@ interface TaskProviderProps {
   testTasks?: Task[];
 }
 
-export const TaskProvider: React.FC<TaskProviderProps> = ({ children, testing = false, testTasks=[] }) => {
+export const TaskProvider: React.FC<TaskProviderProps> = ({
+  children,
+  testing = false,
+  testTasks = [],
+}) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [refreshTasks, setRefreshTasks] = useState(false);
   const [existingTags, setExistingTags] = useState<string[]>([]);
+  const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
   const extractTags = async (data: Task[]) => {
     let tagSet = new Set<string>();
@@ -39,7 +46,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, testing = 
   };
   const getTasks = async () => {
     console.log("run getTasks");
-    await fetchTasks().then((data) => {
+    await fetchTasks(showCompleted).then((data) => {
       console.log("asdas");
       setTasks(data);
       extractTags(data);
@@ -48,9 +55,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, testing = 
   };
   useEffect(() => {
     if (testing) {
-      setTasks(testTasks)
+      setTasks(testTasks);
       extractTags(testTasks);
-      return
+      return;
     }
     if (refreshTasks) {
       getTasks();
@@ -60,11 +67,19 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children, testing = 
     }, 60000);
 
     return () => clearInterval(intervalId); // Cleanup on component unmount
-  }, [refreshTasks]);
+  }, [refreshTasks, showCompleted]);
 
   return (
     <TaskContext.Provider
-      value={{ tasks, refreshTasks, setRefreshTasks, getTasks, existingTags }}
+      value={{
+        tasks,
+        refreshTasks,
+        setRefreshTasks,
+        getTasks,
+        existingTags,
+        showCompleted,
+        setShowCompleted,
+      }}
     >
       {children}
     </TaskContext.Provider>

@@ -3,9 +3,12 @@ import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
-export function fetchTasks(): Promise<Task[]> {
+export function fetchTasks(showCompleted: boolean): Promise<Task[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/tasks";
+  if (showCompleted) {
+    url += "?completed=true"
+  }
 
   return fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
