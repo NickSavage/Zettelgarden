@@ -7,7 +7,8 @@ def check_required_env_vars():
     required_vars = {
         'ZETTEL_MAIL_SERVER': os.getenv('ZETTEL_MAIL_SERVER'),
         'ZETTEL_MAIL_USERNAME': os.getenv('ZETTEL_MAIL_USERNAME'),
-        'ZETTEL_MAIL_PASSWORD': os.getenv('ZETTEL_MAIL_PASSWORD')
+        'ZETTEL_MAIL_PASSWORD': os.getenv('ZETTEL_MAIL_PASSWORD'),
+        'ZETTEL_MAIL_DEFAULT_SENDER': os.getenv('ZETTEL_MAIL_DEFAULT_SENDER'),
     }
     
     missing_vars = [var for var, value in required_vars.items() if not value]
@@ -28,6 +29,7 @@ app.config['MAIL_PORT'] = int(os.getenv('ZETTEL_MAIL_PORT', 587))  # 587 as defa
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('ZETTEL_MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('ZETTEL_MAIL_PASSWORD')
+app.config['DEFAULT_SENDER'] = os.getenv('ZETTEL_MAIL_DEFAULT_SENDER')
 
 mail = Mail(app)
 
@@ -58,7 +60,7 @@ def send_mail():
         return jsonify({"message": "Email needs a subject and recipient"}), 400
 
     # Create the email message
-    message = Message(subject, sender=('nick@nicksavage.ca', 'nick@nicksavage.ca'), recipients=[recipient], body=body)
+    message = Message(subject, sender=(app.config['DEFAULT_SENDER'], app.config['DEFAULT_SENDER']), recipients=[recipient], body=body)
 
     # Send the email
     with app.app_context():
