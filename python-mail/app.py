@@ -60,7 +60,7 @@ def send_mail():
         return jsonify({"message": "Email needs a subject and recipient"}), 400
 
     # Create the email message
-    message = Message(subject, sender=(app.config['DEFAULT_SENDER'], app.config['DEFAULT_SENDER']), recipients=[recipient], body=body)
+    message = Message(subject, sender=("Zettelgarden", app.config['DEFAULT_SENDER']), recipients=[recipient], body=body)
 
     # Send the email
     with app.app_context():
