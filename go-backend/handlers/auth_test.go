@@ -151,7 +151,7 @@ func TestRequestPasswordResetSuccess(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
 
-	sent := s.Server.TestInspector.EmailsSent
+	sent := s.Server.Mail.TestingEmailsSent
 	params := models.RequestPasswordResetParams{
 		Email: "test@test.com",
 	}
@@ -168,10 +168,10 @@ func TestRequestPasswordResetSuccess(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	if s.Server.TestInspector.EmailsSent == sent {
+	if s.Server.Mail.TestingEmailsSent == sent {
 		t.Errorf("no email was sent when one email should have been sent")
 	}
-	if s.Server.TestInspector.EmailsSent > sent+1 {
+	if s.Server.Mail.TestingEmailsSent > sent+1 {
 		t.Errorf("more than one email was sent when one email should have been sent")
 	}
 }
@@ -180,7 +180,7 @@ func TestRequestPasswordResetWrongEmail(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
 
-	sent := s.Server.TestInspector.EmailsSent
+	sent := s.Server.Mail.TestingEmailsSent
 	params := models.RequestPasswordResetParams{
 		Email: "wrongemail@test.com",
 	}
@@ -197,7 +197,7 @@ func TestRequestPasswordResetWrongEmail(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	if s.Server.TestInspector.EmailsSent != sent {
+	if s.Server.Mail.TestingEmailsSent != sent {
 		t.Errorf("email sent when no email should have been sent")
 	}
 }

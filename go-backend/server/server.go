@@ -3,6 +3,7 @@ package server
 import (
 	"database/sql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"go-backend/mail"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -13,18 +14,12 @@ type Server struct {
 	Testing       bool
 	JwtSecretKey  []byte
 	StripeKey     string
-	Mail          *MailClient
+	Mail          *mail.MailClient
 	TestInspector *TestInspector
 	SchemaDir     string
 	LLMClient     *openai.Client
 }
 
-type MailClient struct {
-	Host     string
-	Password string
-}
-
 type TestInspector struct {
-	EmailsSent    int
 	FilesUploaded int
 }

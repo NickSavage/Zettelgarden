@@ -6,6 +6,7 @@ import (
 	//"encoding/json"
 	"fmt"
 	"go-backend/handlers"
+	"go-backend/mail"
 	"go-backend/models"
 	"go-backend/server"
 	"log"
@@ -119,7 +120,7 @@ func main() {
 	s.StripeKey = os.Getenv("STRIPE_SECRET_KEY")
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
-	s.Mail = &server.MailClient{
+	s.Mail = &mail.MailClient{
 		Host:     os.Getenv("MAIL_HOST"),
 		Password: os.Getenv("MAIL_PASSWORD"),
 	}

@@ -16,7 +16,7 @@ type Email struct {
 
 func (s *Handler) SendEmail(subject, recipient, body string) error {
 	if s.Server.Testing {
-		s.Server.TestInspector.EmailsSent += 1
+		s.Server.Mail.TestingEmailsSent += 1
 		return nil
 	}
 	email := Email{

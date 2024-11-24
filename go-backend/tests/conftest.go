@@ -3,6 +3,7 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
+	"go-backend/mail"
 	"go-backend/models"
 	"go-backend/server"
 	"log"
@@ -37,6 +38,10 @@ func Setup() *server.Server {
 	S.Testing = true
 	S.SchemaDir = "../schema"
 
+	S.Mail = &mail.MailClient{
+		Testing:           true,
+		TestingEmailsSent: 0,
+	}
 	S.TestInspector = &server.TestInspector{}
 
 	server.RunMigrations(S)
