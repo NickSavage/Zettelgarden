@@ -282,6 +282,6 @@ func (s *Handler) RequestPasswordResetRoute(w http.ResponseWriter, r *http.Reque
 	messageBody := fmt.Sprintf("Please go to this link to reset your password: %s", url)
 	log.Printf("messag %v", messageBody)
 
-	s.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
+	s.Server.Mail.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
 	json.NewEncoder(w).Encode(response)
 }

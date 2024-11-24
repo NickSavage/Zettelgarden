@@ -513,7 +513,7 @@ func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 		subject := "New user registered at Zettelgarden"
 		recipient := "nick@nicksavage.ca"
 		body := fmt.Sprintf("A new user has registered at Zettelgarden: %v, %v", params.Username, params.Email)
-		s.SendEmail(subject, recipient, body)
+		s.Server.Mail.SendEmail(subject, recipient, body)
 		log.Printf("New user registered: %v, %v", params.Username, params.Email)
 	}()
 	return newID, err
@@ -535,6 +535,6 @@ func (s *Handler) sendEmailValidation(user models.User) error {
 	Thank you.
 	`, user.Username, url)
 
-	s.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
+	s.Server.Mail.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
 	return nil
 }

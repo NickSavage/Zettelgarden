@@ -16,7 +16,7 @@ mail = Mail(app)
 
 # Configure logging
 logging.basicConfig(
-    filename='/app/logs/zettel-mail.log',            # Log file name
+    filename=os.getenv('ZETTEL_MAIL_LOG'),
     level=logging.INFO,            # Log level
     format='%(asctime)s - %(levelname)s - %(message)s',  # Log format
     datefmt='%Y-%m-%d %H:%M:%S'    # Date format in logs

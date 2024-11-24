@@ -1,8 +1,26 @@
 package mail
 
+import (
+	"sync"
+)
+
 type MailClient struct {
 	Host              string
 	Password          string
 	Testing           bool
 	TestingEmailsSent int
+	Queue             *EmailQueue
+	mu                sync.Mutex
+	isProcessing      bool
+}
+
+type Email struct {
+	Subject   string `json:"subject"`
+	Recipient string `json:"recipient"`
+	Body      string `json:"body"`
+}
+
+type EmailQueue struct {
+	queue []Email
+	mu    sync.Mutex
 }
