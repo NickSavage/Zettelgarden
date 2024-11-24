@@ -3,20 +3,37 @@ from flask_mail import Mail, Message
 import os
 import logging
 
+def check_required_env_vars():
+    required_vars = {
+        'ZETTEL_MAIL_SERVER': os.getenv('ZETTEL_MAIL_SERVER'),
+        'ZETTEL_MAIL_USERNAME': os.getenv('ZETTEL_MAIL_USERNAME'),
+        'ZETTEL_MAIL_PASSWORD': os.getenv('ZETTEL_MAIL_PASSWORD')
+    }
+    
+    missing_vars = [var for var, value in required_vars.items() if not value]
+    
+    if missing_vars:
+        error_msg = f"Missing required environment variables: {', '.join(missing_vars)}"
+        raise EnvironmentError(error_msg)
+
+# Check environment variables before initializing app
+check_required_env_vars()
+
 # Initialize Flask app
 app = Flask(__name__)
 
 # Configure mail settings
 app.config['MAIL_SERVER'] = os.getenv('ZETTEL_MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.getenv('ZETTEL_MAIL_PORT', 587))
+app.config['MAIL_PORT'] = int(os.getenv('ZETTEL_MAIL_PORT', 587))  # 587 as default
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('ZETTEL_MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('ZETTEL_MAIL_PASSWORD')
+
 mail = Mail(app)
 
 # Configure logging
 logging.basicConfig(
-    filename=os.getenv('ZETTEL_MAIL_LOG'),
+    filename=os.getenv('ZETTEL_MAIL_LOG', 'mail.log'),
     level=logging.INFO,            # Log level
     format='%(asctime)s - %(levelname)s - %(message)s',  # Log format
     datefmt='%Y-%m-%d %H:%M:%S'    # Date format in logs
