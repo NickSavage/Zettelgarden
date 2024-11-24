@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -19,7 +18,8 @@ func (s *Handler) AddToMailingListRoute(w http.ResponseWriter, r *http.Request) 
 	}
 	err := s.Server.Mail.HandleAddToMailingList(request.Email)
 	if err != nil {
-		http.Error(w, "Internal server error: err", http.StatusInternalServerError)
+		log.Printf("err %v", err)
+		http.Error(w, "Internal server error: %v", http.StatusInternalServerError)
 		return
 	}
 
