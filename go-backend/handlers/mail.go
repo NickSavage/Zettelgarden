@@ -17,17 +17,9 @@ func (s *Handler) AddToMailingListRoute(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	query := `
-            INSERT INTO mailing_list (email)
-            VALUES ($1)
-            RETURNING id`
-
-	var id int
-	err := s.DB.QueryRow(query, request.Email).Scan(&id)
+	err := s.Server.Mail.HandleAddToMailingList(request.Email)
 	if err != nil {
-		log.Printf("Error adding email to mailing list: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error: err", http.StatusInternalServerError)
 		return
 	}
 
@@ -41,12 +33,4 @@ func (s *Handler) AddToMailingListRoute(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
-
-	go func() {
-		subject := "New mailing list registered at Zettelgarden"
-		recipient := "nick@nicksavage.ca"
-		body := fmt.Sprintf("A new email has registered at for the Zettelgarden mailing list: %v", request.Email)
-		s.Server.Mail.SendEmail(subject, recipient, body)
-		log.Printf("New mailing list registration %v", request.Email)
-	}()
 }

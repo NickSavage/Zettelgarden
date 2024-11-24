@@ -124,6 +124,7 @@ func main() {
 		Host:     os.Getenv("MAIL_HOST"),
 		Password: os.Getenv("MAIL_PASSWORD"),
 		Queue:    mail.NewEmailQueue(),
+		DB:       s.DB,
 	}
 	log.Printf("email server: %v", s.Mail)
 	s.JwtSecretKey = []byte(os.Getenv("SECRET_KEY"))

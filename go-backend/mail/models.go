@@ -1,6 +1,7 @@
 package mail
 
 import (
+	"database/sql"
 	"sync"
 )
 
@@ -12,6 +13,7 @@ type MailClient struct {
 	Queue             *EmailQueue
 	mu                sync.Mutex
 	isProcessing      bool
+	DB                *sql.DB
 }
 
 type Email struct {

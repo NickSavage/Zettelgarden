@@ -131,6 +131,6 @@ func (m *MailClient) processQueue() {
 		}
 
 		// Optional: add a small delay between sends
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 }
