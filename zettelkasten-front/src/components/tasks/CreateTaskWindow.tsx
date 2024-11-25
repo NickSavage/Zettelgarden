@@ -89,7 +89,11 @@ export function CreateTaskWindow({
   }, []);
 
   useEffect(() => {
-    setNewTask({ ...newTask, title: currentFilter + " " || "" });
+    if (currentFilter === undefined) {
+      setNewTask({ ...newTask, title: "" });
+    } else {
+      setNewTask({ ...newTask, title: currentFilter + " " });
+    }
   }, [currentFilter]);
 
   // console.log("create task", currentFilter);
