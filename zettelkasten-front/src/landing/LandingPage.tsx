@@ -20,7 +20,7 @@ function LandingPage() {
 
   async function handleSubmit() {
     console.log(email);
-    addToMailingList(email)
+    addToMailingList(email);
     setSubmitted(true);
   }
   useEffect(() => {}, []);
@@ -36,6 +36,9 @@ function LandingPage() {
           <div className="flex-grow">
             <a href="#features" className="p-4">
               <span className="text-1xl">Features</span>
+            </a>
+            <a href="https://nsavage.substack.com" className="p-4">
+              <span className="text-1xl">Blog</span>
             </a>
           </div>
           <div className="flex-shrink">
@@ -69,6 +72,19 @@ function LandingPage() {
         </div>
 
         <div id="features" className="text-lg">
+          <div className="pt-20">
+            <p className="font-bold">
+              AI-Powered Knowledge Navigation (Coming Soon)
+            </p>
+            <p>
+              Transform your knowledge base into an intelligent companion with
+              our integrated AI system. Easily search, analyze, and discover
+              connections across your cards using natural language queries.
+              Vector search technology helps you uncover hidden insights and
+              patterns within your personal knowledge ecosystem, making your
+              information more accessible and actionable than ever before.
+            </p>
+          </div>
           <div className="pt-20">
             <p className="font-bold">Atomic Card System</p>
             <p>
