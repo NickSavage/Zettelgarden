@@ -14,6 +14,7 @@ export function TaskPageOptionsMenu({}: TaskPageOptionsMenu) {
   function toggleViewCompleted() {
     setShowCompleted(!showCompleted);
     setRefreshTasks(true);
+    setShowMenu(false)
   }
 
   return (
