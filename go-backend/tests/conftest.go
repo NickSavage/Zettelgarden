@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"go-backend/mail"
@@ -45,7 +46,10 @@ func Setup() *server.Server {
 	S.TestInspector = &server.TestInspector{}
 
 	server.RunMigrations(S)
-	importTestData(S)
+	err = importTestData(S)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return S
 }
 
@@ -198,6 +202,10 @@ func importTestData(s *server.Server) error {
 			log.Printf("err %v", err)
 			return err
 		}
+	}
+	log.Printf("starting chat")
+	if err := loadChatData(tx); err != nil {
+		return err
 	}
 
 	tx.Commit()
@@ -479,4 +487,40 @@ func GenerateTestJWT(userID int) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+}
+func loadChatData(tx *sql.Tx) error {
+	// Read the JSON file
+	jsonData, err := os.ReadFile("../testdata/chat.json")
+	if err != nil {
+		return fmt.Errorf("failed to read chat JSON file: %w", err)
+	}
+
+	var chatData models.ChatData
+	if err := json.Unmarshal(jsonData, &chatData); err != nil {
+		return fmt.Errorf("failed to unmarshal chat data: %w", err)
+	}
+
+	// Insert each chat completion
+	for _, chat := range chatData.ChatCompletions {
+		_, err := tx.Exec(`
+            INSERT INTO chat_completions 
+            (user_id, conversation_id, sequence_number, role, content, refusal, model, tokens, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+			chat.UserID,
+			chat.ConversationID,
+			chat.SequenceNumber,
+			chat.Role,
+			chat.Content,
+			chat.Refusal,
+			chat.Model,
+			chat.Tokens,
+			chat.CreatedAt,
+		)
+		log.Printf("chat %v", chat)
+		if err != nil {
+			return fmt.Errorf("failed to insert chat completion: %w", err)
+		}
+	}
+
+	return nil
 }

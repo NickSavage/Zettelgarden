@@ -44,6 +44,7 @@ func ResetDatabase(S *Server) error {
                         DROP TABLE IF EXISTS card_embeddings CASCADE;
                         DROP TABLE IF EXISTS card_chunks CASCADE;
                         DROP TABLE IF EXISTS mailing_list CASCADE;
+                        DROP TABLE IF EXISTS chat_completions CASCADE;
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,
 				migration_name VARCHAR(255) NOT NULL,
