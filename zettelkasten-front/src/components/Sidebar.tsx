@@ -175,7 +175,7 @@ export function Sidebar() {
             />
             {import.meta.env.VITE_FEATURE_CHAT === "true" ? (
               <SidebarLink
-                to="/app/files"
+                to="/app/chat"
                 children={[
                   <span className="mx-2">
                     <ChatIcon />

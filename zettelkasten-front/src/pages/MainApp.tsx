@@ -14,7 +14,7 @@ import { BillingSuccess } from "./BillingSuccess";
 import { BillingCancelled } from "./BillingCancelled";
 import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
-import { FlashcardNextPage } from "./flashcards/FlashcardNextPage";
+import { ChatPage } from "../components/chat/ChatPage";
 
 import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
@@ -103,6 +103,7 @@ function MainAppContent() {
                 <Route path="settings" element={<UserSettingsPage />} />
                 <Route path="files" element={<FileVault />} />
                 <Route path="tasks" element={<TaskPage />} />
+                <Route path="chat" element={<ChatPage />} />
                 <Route path="*" element={<DashboardPage />} />
               </>
             ) : (
