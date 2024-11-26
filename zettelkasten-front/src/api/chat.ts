@@ -1,4 +1,4 @@
-import { ChatCompletion } from "../models/Chat";
+import { ChatCompletion, ConversationSummary } from "../models/Chat";
 
 import { checkStatus } from "./common";
 

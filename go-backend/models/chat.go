@@ -29,4 +29,5 @@ type ConversationSummary struct {
 	CreatedAt      time.Time `json:"created_at"`
 	Model          string    `json:"model"`
 	Title          string    `json:"title"`
+	UserID         int       `json:"user_id"`
 }

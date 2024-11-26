@@ -15,12 +15,14 @@ import { FileIcon } from "../assets/icons/FileIcon";
 import { ChatIcon } from "../assets/icons/ChatIcon";
 import { Button } from "./Button";
 
+import { getUserConversations } from "../api/chat";
+import { ConversationSummary } from "../models/Chat";
+
 import { useShortcutContext } from "../contexts/ShortcutContext";
 import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
 import { PartialCard, Card } from "../models/Card";
 import { fetchPartialCards } from "../api/cards";
-
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -33,6 +35,9 @@ export function Sidebar() {
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
+  const [chatConversations, setChatConversations] = useState<
+    ConversationSummary[]
+  >([]);
 
   const {
     showCreateTaskWindow,
@@ -126,6 +131,12 @@ export function Sidebar() {
     };
   }, []);
 
+  useEffect(() => {
+    getUserConversations().then((conversations) => {
+      setChatConversations(conversations);
+    });
+  });
+
   return (
     <div className="sidebar">
       <div className="sidebar-upper">
@@ -195,7 +206,13 @@ export function Sidebar() {
         </div>
       </div>
       {currentPath === "/app/chat" ? (
-        <div></div>
+        <div className="scroll-cards">
+          {chatConversations.map((summary) => (
+            <Link to={`/app/chat?id=${summary.conversation_id}`}>
+              <span>{summary.title}</span>
+            </Link>
+          ))}
+        </div>
       ) : (
         <div className="scroll-cards">
           <span className="px-2.5 py-2 font-bold">Recent Cards</span>

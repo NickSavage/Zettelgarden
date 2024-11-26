@@ -46,3 +46,35 @@ func ChatCompletion(c *openai.Client, pastMessages []models.ChatCompletion) (mod
 	return completion, err
 
 }
+
+func CreateConversationSummary(c *openai.Client, message models.ChatCompletion) (models.ConversationSummary, error) {
+
+	content := message.Role + ": " + message.Content + "\n"
+	id := message.ConversationID
+	created := message.CreatedAt
+
+	new := []openai.ChatCompletionMessage{
+		{
+			Role:    "user",
+			Content: fmt.Sprintf("Please generate a few words a title that summarizes the following quesiton and answer. Feel free to use emojis! Content: %v", content),
+		},
+	}
+	resp, err := c.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:    models.MODEL,
+			Messages: new,
+		},
+	)
+	if err != nil {
+		log.Printf("error getting completion: %v", err)
+		return models.ConversationSummary{}, fmt.Errorf("failed to get AI response")
+	}
+	result := models.ConversationSummary{
+		ConversationID: id,
+		Title:          resp.Choices[0].Message.Content,
+		CreatedAt:      created,
+		Model:          models.MODEL,
+	}
+	return result, nil
+}

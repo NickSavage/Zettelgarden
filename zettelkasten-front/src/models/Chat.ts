@@ -1,14 +1,14 @@
 export interface ChatCompletion {
-    id: number;
-    user_id: number;
-    conversation_id: string;
-    sequence_number: number;
-    role: string;
-    content: string;
-    refusal: string | null;
-    model: string;
-    tokens: number;
-    created_at: Date;
+  id: number;
+  user_id: number;
+  conversation_id: string;
+  sequence_number: number;
+  role: string;
+  content: string;
+  refusal: string | null;
+  model: string;
+  tokens: number;
+  created_at: Date;
 }
 
 export interface ConversationSummary {
@@ -16,4 +16,6 @@ export interface ConversationSummary {
   message_count: number;
   created_at: Date;
   model: string;
+  title: string;
+  user_id: number;
 }

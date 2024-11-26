@@ -77,6 +77,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 
 func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
+	newConversation := false
 	// vars := mux.Vars(r)
 
 	// Parse the incoming message
@@ -93,6 +94,7 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newMessage.ConversationID == "" {
+		newConversation = true
 		uuid, err := uuid.NewRandom()
 		if err != nil {
 			http.Error(w, "Failed to generate conversation ID", http.StatusInternalServerError)
@@ -109,8 +111,51 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	message, err = s.GetChatCompletion(userID, newMessage.ConversationID)
 
+	if newConversation {
+		summary, err := llms.CreateConversationSummary(s.Server.LLMClient, message)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		s.WriteConversationSummary(userID, summary)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(message)
+}
+
+func (s *Handler) WriteConversationSummary(userID int, summary models.ConversationSummary) error {
+	query := `
+        INSERT INTO chat_conversations (
+            user_id,
+            id,
+            message_count,
+            created_at,
+            model,
+            title
+        ) VALUES ($1, $2, $3, $4, $5, $6)
+    `
+
+	_, err := s.DB.Exec(
+		query,
+		userID,
+		summary.ConversationID,
+		summary.MessageCount,
+		summary.CreatedAt,
+		summary.Model,
+		summary.Title,
+	)
+
+	if err != nil {
+		log.Printf("error inserting conversation summary: %v", err)
+		return fmt.Errorf("failed to save conversation summary")
+	}
+
+	return nil
 }
 
 func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (models.ChatCompletion, error) {
@@ -236,18 +281,19 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 
 	return completion, nil
 }
-
 func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSummary, error) {
 	query := `
         SELECT 
-            conversation_id,
-            COUNT(*) as message_count,
-            MIN(created_at) as created_at,
-            MAX(model) as model
-        FROM chat_completions
-        WHERE user_id = $1
-        GROUP BY conversation_id
-        ORDER BY MIN(created_at) DESC
+            c.id as conversation_id,
+            c.title,
+            COUNT(m.id) as message_count,
+            c.created_at,
+            c.model
+        FROM chat_conversations c
+        LEFT JOIN chat_completions m ON c.id = m.conversation_id
+        WHERE c.user_id = $1
+        GROUP BY c.id, c.title, c.created_at, c.model
+        ORDER BY c.created_at DESC
     `
 
 	rows, err := s.DB.Query(query, userID)
@@ -262,6 +308,7 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
 		var conversation models.ConversationSummary
 		if err := rows.Scan(
 			&conversation.ConversationID,
+			&conversation.Title,
 			&conversation.MessageCount,
 			&conversation.CreatedAt,
 			&conversation.Model,

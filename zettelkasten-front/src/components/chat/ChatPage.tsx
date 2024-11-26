@@ -1,11 +1,13 @@
 import React, { useState, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import { StopIcon } from "../../assets/icons/StopIcon";
-import { postChatMessage, getUserConversations } from "../../api/chat";
+import { postChatMessage, getUserConversations, getChatConversation } from "../../api/chat";
+import { useSearchParams } from 'react-router-dom';
 
 import { AssistantMessage } from "./AssistantMessage";
 import { UserMessage } from "./UserMessage";
 
 interface ChatPageProps {}
+
 interface Message {
   role: string;
   content: string;
@@ -14,8 +16,12 @@ interface Message {
 export function ChatPage({}: ChatPageProps) {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [conversationId, setConversationId] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [searchParams] = useSearchParams();
+  const [conversationId, setConversationId] = useState<string>(
+    searchParams.get('id') || ''
+  );
+
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value);
@@ -58,13 +64,27 @@ export function ChatPage({}: ChatPageProps) {
   }
 
   useEffect(() => {
+    let id = searchParams.get('id')
+    setMessages([]);
+    if (id) {
+      // Maybe load existing conversation messages
+      getChatConversation(id).then(messages => {
+	messages.forEach((message) => {
+	  setMessages((prev) => [
+            ...prev,
+            { role: message.role, content: message.content },
+	  ]);
+	})
+      });
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+
     getUserConversations()
       .then((conversations) => {
         conversations.forEach((conversation) => {
-          console.log(`Conversation ${conversation.conversation_id}:`);
-          console.log(`- Messages: ${conversation.message_count}`);
-          console.log(`- Created: ${conversation.created_at.toLocaleString()}`);
-          console.log(`- Model: ${conversation.model}`);
+	  console.log(conversation)
         });
       })
       .catch((error) => {
