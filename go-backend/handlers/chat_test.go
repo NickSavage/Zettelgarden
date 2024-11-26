@@ -71,9 +71,7 @@ func TestPostChatMessage(t *testing.T) {
 	// Post new message
 	newMessage := models.ChatCompletion{
 		ConversationID: conversationID,
-		Role:           "user",
 		Content:        "This is a new test message",
-		Model:          "gpt-4",
 	}
 
 	jsonBody, _ := json.Marshal(newMessage)

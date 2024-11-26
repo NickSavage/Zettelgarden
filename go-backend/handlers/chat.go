@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const MODEL = "gpt-4"
+
 func (s *Handler) GetChatConversationRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	vars := mux.Vars(r)
@@ -85,8 +87,8 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate required fields
-	if newMessage.Content == "" || newMessage.Role == "" {
-		http.Error(w, "Content and role are required", http.StatusBadRequest)
+	if newMessage.Content == "" {
+		http.Error(w, "Content is required", http.StatusBadRequest)
 		return
 	}
 
@@ -146,9 +148,9 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 		userID,
 		message.ConversationID,
 		nextSequence,
-		message.Role,
+		"user",
 		message.Content,
-		message.Model,
+		MODEL,
 		message.Refusal,
 		message.Tokens,
 	).Scan(&insertedMessage.ID, &insertedMessage.CreatedAt)
