@@ -106,3 +106,85 @@ func TestPostChatMessage(t *testing.T) {
 			len(finalMessages), initialLength+1)
 	}
 }
+func TestCreateNewChatConversation(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
+
+	// Create new message without conversation ID
+	newMessage := models.ChatCompletion{
+		Content: "This is the first message in a new conversation",
+	}
+
+	jsonBody, _ := json.Marshal(newMessage)
+	req, _ := http.NewRequest("POST", "/api/chat", bytes.NewBuffer(jsonBody))
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/chat", s.JwtMiddleware(s.PostChatMessageRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check response status
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("error response: %v", rr.Body.String())
+	}
+
+	// Parse the response
+	var responseMessage models.ChatCompletion
+	if err := json.NewDecoder(rr.Body).Decode(&responseMessage); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	// Verify the response
+	if responseMessage.ConversationID == "" {
+		t.Error("Expected conversation ID to be generated, got empty string")
+	}
+	if responseMessage.SequenceNumber != 1 {
+		t.Errorf("First message should have sequence number 1, got %d", responseMessage.SequenceNumber)
+	}
+	if responseMessage.Content != newMessage.Content {
+		t.Errorf("Message content doesn't match: got %v want %v",
+			responseMessage.Content, newMessage.Content)
+	}
+	if responseMessage.UserID != 1 {
+		t.Errorf("Message should be associated with user 1, got %d", responseMessage.UserID)
+	}
+
+	// Now verify we can retrieve the conversation
+	getReq, _ := http.NewRequest("GET", "/api/chat/"+responseMessage.ConversationID, nil)
+	getReq.Header.Set("Authorization", "Bearer "+token)
+
+	getRr := httptest.NewRecorder()
+	getRouter := mux.NewRouter()
+	getRouter.HandleFunc("/api/chat/{id}", s.JwtMiddleware(s.GetChatConversationRoute))
+	getRouter.ServeHTTP(getRr, getReq)
+
+	if status := getRr.Code; status != http.StatusOK {
+		t.Errorf("GET handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var conversationMessages []models.ChatCompletion
+	if err := json.NewDecoder(getRr.Body).Decode(&conversationMessages); err != nil {
+		t.Fatalf("Failed to decode conversation: %v", err)
+	}
+
+	// Verify conversation contains our message
+	if len(conversationMessages) != 1 {
+		t.Errorf("Expected conversation to have 1 message, got %d", len(conversationMessages))
+	}
+	if len(conversationMessages) > 0 {
+		firstMessage := conversationMessages[0]
+		if firstMessage.ConversationID != responseMessage.ConversationID {
+			t.Errorf("Conversation ID mismatch: got %v want %v",
+				firstMessage.ConversationID, responseMessage.ConversationID)
+		}
+		if firstMessage.Content != newMessage.Content {
+			t.Errorf("Message content mismatch: got %v want %v",
+				firstMessage.Content, newMessage.Content)
+		}
+	}
+}

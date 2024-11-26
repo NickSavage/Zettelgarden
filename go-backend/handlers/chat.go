@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -75,9 +76,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 
 func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
-	vars := mux.Vars(r)
-	conversationID := vars["id"]
-	log.Printf("?")
+	// vars := mux.Vars(r)
 
 	// Parse the incoming message
 	var newMessage models.ChatCompletion
@@ -92,12 +91,15 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Ensure the conversation ID matches the URL
-	if newMessage.ConversationID != conversationID {
-		http.Error(w, "Conversation ID mismatch", http.StatusBadRequest)
-		return
-	}
+	if newMessage.ConversationID == "" {
+		uuid, err := uuid.NewRandom()
+		if err != nil {
+			http.Error(w, "Failed to generate conversation ID", http.StatusInternalServerError)
+			return
+		}
+		newMessage.ConversationID = uuid.String()
 
+	}
 	// Add the message to the conversation
 	message, err := s.AddChatMessage(userID, newMessage)
 	if err != nil {

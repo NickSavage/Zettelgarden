@@ -27,12 +27,13 @@ export function getChatConversation(
       }
     });
 }
+
 export function postChatMessage(
-  conversationId: string,
   content: string,
+  conversationId?: string,
 ): Promise<ChatCompletion> {
   const token = localStorage.getItem("token");
-  const url = `${base_url}/chat/${encodeURIComponent(conversationId)}`;
+  const url = `${base_url}/chat`; 
 
   const newMessage = {
     conversation_id: conversationId,
