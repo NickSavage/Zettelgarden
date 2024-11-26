@@ -70,3 +70,93 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 
 	return messages, nil
 }
+
+func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+	conversationID := vars["id"]
+	log.Printf("?")
+
+	// Parse the incoming message
+	var newMessage models.ChatCompletion
+	if err := json.NewDecoder(r.Body).Decode(&newMessage); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if newMessage.Content == "" || newMessage.Role == "" {
+		http.Error(w, "Content and role are required", http.StatusBadRequest)
+		return
+	}
+
+	// Ensure the conversation ID matches the URL
+	if newMessage.ConversationID != conversationID {
+		http.Error(w, "Conversation ID mismatch", http.StatusBadRequest)
+		return
+	}
+
+	// Add the message to the conversation
+	message, err := s.AddChatMessage(userID, newMessage)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(message)
+}
+
+func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (models.ChatCompletion, error) {
+	log.Printf("do we run?")
+	// First, get the next sequence number for this conversation
+	var nextSequence int
+	err := s.DB.QueryRow(`
+        SELECT COALESCE(MAX(sequence_number), 0) + 1
+        FROM chat_completions
+        WHERE conversation_id = $1
+    `, message.ConversationID).Scan(&nextSequence)
+	if err != nil {
+		log.Printf("error getting next sequence number: %v", err)
+		return models.ChatCompletion{}, fmt.Errorf("failed to determine message sequence")
+	}
+
+	// Insert the new message
+	query := `
+        INSERT INTO chat_completions (
+            user_id, 
+            conversation_id, 
+            sequence_number, 
+            role, 
+            content, 
+            model, 
+            refusal,
+            tokens
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, created_at
+    `
+
+	var insertedMessage models.ChatCompletion
+	insertedMessage = message
+	insertedMessage.UserID = userID
+	insertedMessage.SequenceNumber = nextSequence
+
+	err = s.DB.QueryRow(
+		query,
+		userID,
+		message.ConversationID,
+		nextSequence,
+		message.Role,
+		message.Content,
+		message.Model,
+		message.Refusal,
+		message.Tokens,
+	).Scan(&insertedMessage.ID, &insertedMessage.CreatedAt)
+
+	if err != nil {
+		log.Printf("error inserting chat message: %v", err)
+		return models.ChatCompletion{}, fmt.Errorf("failed to save chat message")
+	}
+
+	return insertedMessage, nil
+}

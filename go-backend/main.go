@@ -205,7 +205,8 @@ func main() {
 
 	addProtectedRoute(r, "/api/url/parse", h.ParseURLRoute, "POST")
 
-	addProtectedRoute(r, "/api/chat.{id}", h.GetChatConversationRoute, "GET")
+	addProtectedRoute(r, "/api/chat/{id}", h.GetChatConversationRoute, "GET")
+	addProtectedRoute(r, "/api/chat/{id}", h.PostChatMessageRoute, "POST")
 
 	addRoute(r, "/api/mailing-list", h.AddToMailingListRoute, "POST")
 
