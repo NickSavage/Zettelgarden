@@ -27,16 +27,16 @@ export function getChatConversation(
       }
     });
 }
-
 export function postChatMessage(
   content: string,
-  conversationId?: string,
+  conversationId?: string, // Make conversationId optional and move it second
 ): Promise<ChatCompletion> {
   const token = localStorage.getItem("token");
-  const url = `${base_url}/chat`; 
+  const url = `${base_url}/chat`; // Remove the ID from the URL
+  console.log("message", content, conversationId)
 
   const newMessage = {
-    conversation_id: conversationId,
+    conversation_id: conversationId, // Will be undefined for new conversations
     content,
   };
 

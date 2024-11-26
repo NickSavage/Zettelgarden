@@ -2,18 +2,18 @@ import React from "react";
 
 interface AssistantMessageProps {
   message: string;
+  isStreaming?: boolean;
 }
-export function AssistantMessage({ message }: AssistantMessageProps) {
+
+export function AssistantMessage({ message, isStreaming }: AssistantMessageProps) {
   return (
-    <div>
-      <div className="flex flex-col gap-1 p-4 mx-20">
-        <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-gray-800">Zettelgarden</h2>
-        </div>
-        <div className="text-gray-600 mx-4">
-          {message}
-        </div>
-      </div>
+    <div className={`${isStreaming ? "animate-pulse" : ""}`}>
+      {message}
+      {isStreaming && (
+        <span className="inline-block w-2 h-4 ml-1 bg-gray-400 animate-blink">
+          |
+        </span>
+      )}
     </div>
   );
 }

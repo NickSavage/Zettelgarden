@@ -20,3 +20,5 @@ type ChatCompletion struct {
 type ChatData struct {
 	ChatCompletions []ChatCompletion `json:"chat_completions"`
 }
+
+const MODEL = "gpt-3.5-turbo"

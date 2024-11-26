@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"go-backend/llms"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -106,6 +107,7 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	message, err = s.GetChatCompletion(userID, newMessage.ConversationID)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(message)
@@ -163,4 +165,74 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 	}
 
 	return insertedMessage, nil
+}
+
+func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.ChatCompletion, error) {
+	// First, get all previous messages in this conversation
+	query := `
+        SELECT user_id, role, content, model
+        FROM chat_completions
+        WHERE conversation_id = $1 AND user_id = $2
+        ORDER BY sequence_number ASC
+    `
+	rows, err := s.DB.Query(query, conversationID, userID)
+	if err != nil {
+		log.Printf("error querying chat history: %v", err)
+		return models.ChatCompletion{}, fmt.Errorf("failed to retrieve chat history")
+	}
+	defer rows.Close()
+
+	var messages []models.ChatCompletion
+
+	for rows.Next() {
+		var msg models.ChatCompletion
+		if err := rows.Scan(&msg.UserID, &msg.Role, &msg.Content, &msg.Model); err != nil {
+			log.Printf("error scanning message: %v", err)
+			return models.ChatCompletion{}, fmt.Errorf("failed to process chat history")
+		}
+		messages = append(messages, msg)
+
+	}
+
+	// Get the next sequence number
+	var nextSequence int
+	err = s.DB.QueryRow(`
+        SELECT COALESCE(MAX(sequence_number), 0) + 1
+        FROM chat_completions
+        WHERE conversation_id = $1
+    `, conversationID).Scan(&nextSequence)
+	if err != nil {
+		log.Printf("error getting next sequence: %v", err)
+		return models.ChatCompletion{}, fmt.Errorf("failed to process response")
+	}
+
+	// Create the new completion
+	completion, err := llms.ChatCompletion(s.Server.LLMClient, messages)
+	// Insert the completion into the database
+	query = `
+        INSERT INTO chat_completions (
+            user_id, conversation_id, sequence_number, role, 
+            content, model, tokens
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id, created_at
+    `
+	err = s.DB.QueryRow(
+		query,
+		userID,
+		conversationID,
+		nextSequence,
+		completion.Role,
+		completion.Content,
+		completion.Model,
+		completion.Tokens,
+	).Scan(&completion.ID, &completion.CreatedAt)
+
+	if err != nil {
+		log.Printf("error inserting completion: %v", err)
+		return models.ChatCompletion{}, fmt.Errorf("failed to save response")
+	}
+	completion.UserID = userID
+	completion.ConversationID = conversationID
+
+	return completion, nil
 }
