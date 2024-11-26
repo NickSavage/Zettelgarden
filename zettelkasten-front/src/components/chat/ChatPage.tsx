@@ -1,6 +1,6 @@
 import React, { useState, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import { StopIcon } from "../../assets/icons/StopIcon";
-import { postChatMessage } from "../../api/chat";
+import { postChatMessage, getUserConversations } from "../../api/chat";
 
 import { AssistantMessage } from "./AssistantMessage";
 import { UserMessage } from "./UserMessage";
@@ -30,7 +30,7 @@ export function ChatPage({}: ChatPageProps) {
 
     try {
       const response = await postChatMessage(query, conversationId);
-      console.log(response)
+      console.log(response);
 
       // Save conversation ID if this is a new conversation
       if (conversationId === "") {
@@ -56,6 +56,21 @@ export function ChatPage({}: ChatPageProps) {
   function handleStop() {
     // Implement stop functionality here
   }
+
+  useEffect(() => {
+    getUserConversations()
+      .then((conversations) => {
+        conversations.forEach((conversation) => {
+          console.log(`Conversation ${conversation.conversation_id}:`);
+          console.log(`- Messages: ${conversation.message_count}`);
+          console.log(`- Created: ${conversation.created_at.toLocaleString()}`);
+          console.log(`- Model: ${conversation.model}`);
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to fetch conversations:", error);
+      });
+  }, []);
 
   return (
     <div className="flex flex-col gap-4">

@@ -154,7 +154,7 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 		nextSequence,
 		"user",
 		message.Content,
-		MODEL,
+		models.MODEL,
 		message.Refusal,
 		message.Tokens,
 	).Scan(&insertedMessage.ID, &insertedMessage.CreatedAt)
@@ -235,4 +235,60 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 	completion.ConversationID = conversationID
 
 	return completion, nil
+}
+
+func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSummary, error) {
+	query := `
+        SELECT 
+            conversation_id,
+            COUNT(*) as message_count,
+            MIN(created_at) as created_at,
+            MAX(model) as model
+        FROM chat_completions
+        WHERE user_id = $1
+        GROUP BY conversation_id
+        ORDER BY MIN(created_at) DESC
+    `
+
+	rows, err := s.DB.Query(query, userID)
+	if err != nil {
+		log.Printf("err querying user conversations: %v", err)
+		return nil, fmt.Errorf("unable to retrieve user conversations")
+	}
+	defer rows.Close()
+
+	var conversations []models.ConversationSummary
+	for rows.Next() {
+		var conversation models.ConversationSummary
+		if err := rows.Scan(
+			&conversation.ConversationID,
+			&conversation.MessageCount,
+			&conversation.CreatedAt,
+			&conversation.Model,
+		); err != nil {
+			log.Printf("err scanning conversation summary: %v", err)
+			return nil, fmt.Errorf("unable to process conversation summary")
+		}
+		conversations = append(conversations, conversation)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("err iterating conversations: %v", err)
+		return nil, fmt.Errorf("error processing conversations")
+	}
+
+	return conversations, nil
+}
+
+func (s *Handler) GetUserConversationsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	conversations, err := s.QueryUserConversations(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(conversations)
 }

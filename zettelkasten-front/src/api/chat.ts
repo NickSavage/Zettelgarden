@@ -60,3 +60,27 @@ export function postChatMessage(
       }
     });
 }
+
+export function getUserConversations(): Promise<ConversationSummary[]> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/chat`;
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((conversations: ConversationSummary[]) => {
+          // Convert created_at strings to Date objects
+          return conversations.map((conversation) => ({
+            ...conversation,
+            created_at: new Date(conversation.created_at),
+          }));
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+

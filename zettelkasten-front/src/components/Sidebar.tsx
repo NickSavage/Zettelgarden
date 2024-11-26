@@ -21,14 +21,19 @@ import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 import { PartialCard, Card } from "../models/Card";
 import { fetchPartialCards } from "../api/cards";
 
+
 export function Sidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const [filter, setFilter] = useState("");
   const { partialCards, lastCard } = usePartialCardContext();
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
   const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
+
   const {
     showCreateTaskWindow,
     setShowCreateTaskWindow,
@@ -189,17 +194,21 @@ export function Sidebar() {
           </ul>
         </div>
       </div>
-      <div className="scroll-cards">
-        <span className="px-2.5 py-2 font-bold">Recent Cards</span>
-        <div className="m-1">
-          <FilterInput handleFilterHook={handleFilter} />
+      {currentPath === "/app/chat" ? (
+        <div></div>
+      ) : (
+        <div className="scroll-cards">
+          <span className="px-2.5 py-2 font-bold">Recent Cards</span>
+          <div className="m-1">
+            <FilterInput handleFilterHook={handleFilter} />
+          </div>
+          <div>
+            {filteredCards.map((card) => (
+              <CardItem key={card.id} card={card} />
+            ))}
+          </div>
         </div>
-        <div>
-          {filteredCards.map((card) => (
-            <CardItem key={card.id} card={card} />
-          ))}
-        </div>
-      </div>
+      )}
       <div>
         {showCreateTaskWindow && (
           <CreateTaskWindow

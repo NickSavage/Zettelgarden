@@ -10,3 +10,10 @@ export interface ChatCompletion {
     tokens: number;
     created_at: Date;
 }
+
+export interface ConversationSummary {
+  conversation_id: string;
+  message_count: number;
+  created_at: Date;
+  model: string;
+}
