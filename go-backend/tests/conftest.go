@@ -516,7 +516,6 @@ func loadChatData(tx *sql.Tx) error {
 			chat.Tokens,
 			chat.CreatedAt,
 		)
-		log.Printf("chat %v", chat)
 		if err != nil {
 			return fmt.Errorf("failed to insert chat completion: %w", err)
 		}
