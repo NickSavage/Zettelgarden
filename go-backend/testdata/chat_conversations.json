@@ -1,0 +1,29 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Apple Pie Baking Discussion",
+    "user_id": 1,
+    "model": "gpt-4",
+    "message_count": 6,
+    "created_at": "2023-09-20T14:28:00Z",
+    "updated_at": "2023-09-20T14:29:05Z"
+  },
+  {
+    "id": "660e8400-e29b-41d4-a716-446655440001",
+    "title": "Apples and Weight Loss",
+    "user_id": 1,
+    "model": "gpt-4",
+    "message_count": 2,
+    "created_at": "2023-09-20T15:30:00Z",
+    "updated_at": "2023-09-20T15:30:05Z"
+  },
+  {
+    "id": "770e8400-e29b-41d4-a716-446655440002",
+    "title": "Apple Cultivation History",
+    "user_id": 2,
+    "model": "gpt-4",
+    "message_count": 2,
+    "created_at": "2023-09-20T16:15:00Z",
+    "updated_at": "2023-09-20T16:15:05Z"
+  }
+]

@@ -207,6 +207,9 @@ func importTestData(s *server.Server) error {
 	if err := loadChatData(tx); err != nil {
 		return err
 	}
+	if err := loadChatConversationsData(tx); err != nil {
+		return err
+	}
 
 	tx.Commit()
 	return nil
@@ -518,6 +521,39 @@ func loadChatData(tx *sql.Tx) error {
 		)
 		if err != nil {
 			return fmt.Errorf("failed to insert chat completion: %w", err)
+		}
+	}
+
+	return nil
+}
+func loadChatConversationsData(tx *sql.Tx) error {
+	// Read the JSON file
+	jsonData, err := os.ReadFile("../testdata/chat_conversations.json")
+	if err != nil {
+		return fmt.Errorf("failed to read chat conversations JSON file: %w", err)
+	}
+
+	var conversationsData []models.ConversationSummary
+	if err := json.Unmarshal(jsonData, &conversationsData); err != nil {
+		return fmt.Errorf("failed to unmarshal chat conversations data: %w", err)
+	}
+
+	// Insert each chat conversation
+	for _, conversation := range conversationsData {
+		log.Printf("conversation %v", conversation)
+		_, err := tx.Exec(`
+            INSERT INTO chat_conversations
+            (id, title, user_id, model, message_count, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6)`,
+			conversation.ID,
+			conversation.Title,
+			conversation.UserID,
+			conversation.Model,
+			conversation.MessageCount,
+			conversation.CreatedAt,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to insert chat conversation: %w", err)
 		}
 	}
 

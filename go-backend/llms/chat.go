@@ -71,10 +71,10 @@ func CreateConversationSummary(c *openai.Client, message models.ChatCompletion) 
 		return models.ConversationSummary{}, fmt.Errorf("failed to get AI response")
 	}
 	result := models.ConversationSummary{
-		ConversationID: id,
-		Title:          resp.Choices[0].Message.Content,
-		CreatedAt:      created,
-		Model:          models.MODEL,
+		ID:        id,
+		Title:     resp.Choices[0].Message.Content,
+		CreatedAt: created,
+		Model:     models.MODEL,
 	}
 	return result, nil
 }

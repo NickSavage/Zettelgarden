@@ -24,10 +24,10 @@ type ChatData struct {
 const MODEL = "gpt-3.5-turbo"
 
 type ConversationSummary struct {
-	ConversationID string    `json:"conversation_id"`
-	MessageCount   int       `json:"message_count"`
-	CreatedAt      time.Time `json:"created_at"`
-	Model          string    `json:"model"`
-	Title          string    `json:"title"`
-	UserID         int       `json:"user_id"`
+	ID           string    `json:"id"`
+	MessageCount int       `json:"message_count"`
+	CreatedAt    time.Time `json:"created_at"`
+	Model        string    `json:"model"`
+	Title        string    `json:"title"`
+	UserID       int       `json:"user_id"`
 }

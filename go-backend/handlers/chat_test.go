@@ -189,71 +189,71 @@ func TestGetChatConversation(t *testing.T) {
 //			}
 //		}
 //	}
-// func TestGetUserConversations(t *testing.T) {
-// 	s := setup()
-// 	defer tests.Teardown()
+func TestGetUserConversations(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
 
-// 	token, _ := tests.GenerateTestJWT(1)
+	token, _ := tests.GenerateTestJWT(1)
 
-// 	req, err := http.NewRequest("GET", "/api/chat", nil)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	req, err := http.NewRequest("GET", "/api/chat", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+token)
 
-// 	rr := httptest.NewRecorder()
-// 	router := mux.NewRouter()
-// 	router.HandleFunc("/api/chat", s.JwtMiddleware(s.GetUserConversationsRoute))
-// 	router.ServeHTTP(rr, req)
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/chat", s.JwtMiddleware(s.GetUserConversationsRoute))
+	router.ServeHTTP(rr, req)
 
-// 	// Check status code
-// 	if status := rr.Code; status != http.StatusOK {
-// 		log.Printf("err %v", rr.Body.String())
-// 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-// 	}
+	// Check status code
+	if status := rr.Code; status != http.StatusOK {
+		log.Printf("err %v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
 
-// 	// Parse and check response
-// 	var conversations []models.ConversationSummary
-// 	tests.ParseJsonResponse(t, rr.Body.Bytes(), &conversations)
+	// Parse and check response
+	var conversations []models.ConversationSummary
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &conversations)
 
-// 	// Assuming there should be at least one conversation in the test database
-// 	if len(conversations) == 0 {
-// 		t.Error("handler returned no conversations, expected at least one")
-// 	}
+	// Assuming there should be at least one conversation in the test database
+	if len(conversations) == 0 {
+		t.Error("handler returned no conversations, expected at least one")
+	}
 
-// 	// Check the first conversation has expected fields
-// 	if len(conversations) > 0 {
-// 		conv := conversations[0]
+	// Check the first conversation has expected fields
+	if len(conversations) > 0 {
+		conv := conversations[0]
 
-// 		// Check conversation ID is not empty
-// 		if conv.ConversationID == "" {
-// 			t.Error("conversation ID is empty")
-// 		}
+		// Check conversation ID is not empty
+		if conv.ID == "" {
+			t.Error("conversation ID is empty")
+		}
 
-// 		// Check message count is positive
-// 		if conv.MessageCount <= 0 {
-// 			t.Errorf("invalid message count: got %v, want > 0", conv.MessageCount)
-// 		}
+		// Check message count is positive
+		if conv.MessageCount <= 0 {
+			t.Errorf("invalid message count: got %v, want > 0", conv.MessageCount)
+		}
 
-// 		// Check created_at is not zero
-// 		if conv.CreatedAt.IsZero() {
-// 			t.Error("created_at is zero")
-// 		}
+		// Check created_at is not zero
+		if conv.CreatedAt.IsZero() {
+			t.Error("created_at is zero")
+		}
 
-// 		// Check model is not empty
-// 		if conv.Model == "" {
-// 			t.Error("model is empty")
-// 		}
-// 	}
+		// Check model is not empty
+		if conv.Model == "" {
+			t.Error("model is empty")
+		}
+	}
 
-// 	// Check conversations are ordered by created_at DESC
-// 	if len(conversations) > 1 {
-// 		for i := 0; i < len(conversations)-1; i++ {
-// 			if conversations[i].CreatedAt.Before(conversations[i+1].CreatedAt) {
-// 				t.Error("conversations are not properly ordered by created_at DESC")
-// 				break
-// 			}
-// 		}
-// 	}
-// }
+	// Check conversations are ordered by created_at DESC
+	if len(conversations) > 1 {
+		for i := 0; i < len(conversations)-1; i++ {
+			if conversations[i].CreatedAt.Before(conversations[i+1].CreatedAt) {
+				t.Error("conversations are not properly ordered by created_at DESC")
+				break
+			}
+		}
+	}
+}

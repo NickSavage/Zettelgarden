@@ -143,7 +143,7 @@ func (s *Handler) WriteConversationSummary(userID int, summary models.Conversati
 	_, err := s.DB.Exec(
 		query,
 		userID,
-		summary.ConversationID,
+		summary.ID,
 		summary.MessageCount,
 		summary.CreatedAt,
 		summary.Model,
@@ -307,7 +307,7 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
 	for rows.Next() {
 		var conversation models.ConversationSummary
 		if err := rows.Scan(
-			&conversation.ConversationID,
+			&conversation.ID,
 			&conversation.Title,
 			&conversation.MessageCount,
 			&conversation.CreatedAt,
