@@ -1,7 +1,12 @@
 import React, { useState, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import { StopIcon } from "../../assets/icons/StopIcon";
-import { postChatMessage, getUserConversations, getChatConversation } from "../../api/chat";
-import { useSearchParams } from 'react-router-dom';
+import {
+  postChatMessage,
+  getUserConversations,
+  getChatConversation,
+} from "../../api/chat";
+import { useSearchParams } from "react-router-dom";
+import { useChatContext } from "../../contexts/ChatContext";
 
 import { AssistantMessage } from "./AssistantMessage";
 import { UserMessage } from "./UserMessage";
@@ -18,10 +23,7 @@ export function ChatPage({}: ChatPageProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [searchParams] = useSearchParams();
-  const [conversationId, setConversationId] = useState<string>(
-    searchParams.get('id') || ''
-  );
-
+  const {conversationId, setConversationId} = useChatContext();
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value);
@@ -64,27 +66,27 @@ export function ChatPage({}: ChatPageProps) {
   }
 
   useEffect(() => {
-    let id = searchParams.get('id')
+    let id = searchParams.get("id");
     setMessages([]);
     if (id) {
+      setConversationId(id)
       // Maybe load existing conversation messages
-      getChatConversation(id).then(messages => {
-	messages.forEach((message) => {
-	  setMessages((prev) => [
+      getChatConversation(id).then((messages) => {
+        messages.forEach((message) => {
+          setMessages((prev) => [
             ...prev,
             { role: message.role, content: message.content },
-	  ]);
-	})
+          ]);
+        });
       });
     }
   }, [searchParams]);
 
   useEffect(() => {
-
     getUserConversations()
       .then((conversations) => {
         conversations.forEach((conversation) => {
-	  console.log(conversation)
+          console.log(conversation);
         });
       })
       .catch((error) => {
@@ -93,45 +95,48 @@ export function ChatPage({}: ChatPageProps) {
   }, []);
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Display all messages */}
-      {messages.map((message, index) =>
-        message.role === "user" ? (
-          <UserMessage key={index} message={message.content} />
-        ) : (
-          <AssistantMessage key={index} message={message.content} />
-        ),
-      )}
-
-      {/* Input section */}
-      <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
-        <button
-          className="text-gray-400 hover:text-gray-600"
-          onClick={handleQuery}
-        >
-          +
-        </button>
-        <input
-          className="w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500"
-          type="text"
-          id="title"
-          value={query}
-          placeholder="How can I help you today?"
-          onChange={handleSearchUpdate}
-          onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-            if (event.key === "Enter") {
-              handleQuery();
-            }
-          }}
-        />
-        {isLoading && (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto mb-4">
+        <div className="flex flex-col gap-4">
+          {messages.map((message, index) =>
+            message.role === "user" ? (
+              <UserMessage key={index} message={message.content} />
+            ) : (
+              <AssistantMessage key={index} message={message.content} />
+            ),
+          )}
+        </div>
+      </div>
+      <div className="sticky bottom-2">
+        <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
           <button
-            className="bg-black text-white rounded-full h-8 w-8 flex items-center justify-center text-sm font-medium hover:bg-gray-800"
-            onClick={handleStop}
+            className="text-gray-400 hover:text-gray-600"
+            onClick={handleQuery}
           >
-            <StopIcon />
+            +
           </button>
-        )}
+          <input
+            className="w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500"
+            type="text"
+            id="title"
+            value={query}
+            placeholder="How can I help you today?"
+            onChange={handleSearchUpdate}
+            onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+              if (event.key === "Enter") {
+                handleQuery();
+              }
+            }}
+          />
+          {isLoading && (
+            <button
+              className="bg-black text-white rounded-full h-8 w-8 flex items-center justify-center text-sm font-medium hover:bg-gray-800"
+              onClick={handleStop}
+            >
+              <StopIcon />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

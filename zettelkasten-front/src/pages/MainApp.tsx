@@ -20,6 +20,7 @@ import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
 import { TagProvider } from "../contexts/TagContext";
+import { ChatProvider } from "../contexts/ChatContext";
 import {
   PartialCardProvider,
   usePartialCardContext,
@@ -65,7 +66,7 @@ function MainAppContent() {
       {hasSubscription ? <Sidebar /> : <div></div>}
       <div className="content">
         <div className="content-display">
-        {hasSubscription ? <EmailValidationBanner /> : <div></div> }
+          {hasSubscription ? <EmailValidationBanner /> : <div></div>}
           <Routes>
             {!hasSubscription && (
               <>
@@ -122,13 +123,15 @@ function MainAppContent() {
 function MainApp() {
   return (
     <TagProvider>
-      <PartialCardProvider>
-        <TaskProvider>
-          <ShortcutProvider>
-            <MainAppContent />
-          </ShortcutProvider>
-        </TaskProvider>
-      </PartialCardProvider>
+      <ChatProvider>
+        <PartialCardProvider>
+          <TaskProvider>
+            <ShortcutProvider>
+              <MainAppContent />
+            </ShortcutProvider>
+          </TaskProvider>
+        </PartialCardProvider>
+      </ChatProvider>
     </TagProvider>
   );
 }

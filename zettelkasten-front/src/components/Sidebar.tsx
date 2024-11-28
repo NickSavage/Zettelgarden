@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
 import { CardItem } from "./cards/CardItem";
 import { Link, useLocation } from "react-router-dom";
 import { useTaskContext } from "../contexts/TaskContext";
+import { useChatContext } from "../contexts/ChatContext";
 import { isTodayOrPast } from "../utils/dates";
 import { usePartialCardContext } from "../contexts/CardContext";
 import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
@@ -38,6 +39,7 @@ export function Sidebar() {
   const [chatConversations, setChatConversations] = useState<
     ConversationSummary[]
   >([]);
+  const { setConversationId } = useChatContext();
 
   const {
     showCreateTaskWindow,
@@ -67,6 +69,12 @@ export function Sidebar() {
   function handleNewStandardCard() {
     toggleNewDropdown();
     navigate("/app/card/new", { state: { cardType: "standard" } });
+  }
+  function handleNewChat() {
+    toggleNewDropdown();
+    setConversationId("")
+    navigate("/");
+    navigate("/app/chat");
   }
   function handleNewTask() {
     toggleNewDropdown();
@@ -154,6 +162,7 @@ export function Sidebar() {
             <div className="popup-menu">
               <button onClick={handleNewStandardCard} children={"New Card"} />
               <button onClick={handleNewTask} children={"New Task"} />
+              <button onClick={handleNewChat} children={"New Chat"} />
             </div>
           )}
         </div>
@@ -207,10 +216,13 @@ export function Sidebar() {
       </div>
       {currentPath === "/app/chat" ? (
         <div className="scroll-cards">
+          <span className="px-2.5 py-2 font-bold">Recent Chats</span>
           {chatConversations.map((summary) => (
-            <Link to={`/app/chat?id=${summary.conversation_id}`}>
-              <span>{summary.title}</span>
-            </Link>
+            <div className="py-2 px-2.5">
+              <Link to={`/app/chat?id=${summary.id}`}>
+                <span>{summary.title}</span>
+              </Link>
+            </div>
           ))}
         </div>
       ) : (

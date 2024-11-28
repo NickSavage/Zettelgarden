@@ -82,7 +82,7 @@ func CreateConversationSummary(c *models.LLMClient, message models.ChatCompletio
 	new := []openai.ChatCompletionMessage{
 		{
 			Role:    "user",
-			Content: fmt.Sprintf("Please generate a few words a title that summarizes the following quesiton and answer. Feel free to use emojis! Content: %v", content),
+			Content: fmt.Sprintf("Please generate a few words a title that summarizes the following quesiton and answer. Please start with an emoji that you think covers the topic as well. Respond only in the format: Emoji Title, nothing else. Please no quotation marks. Content: %v", content),
 		},
 	}
 	resp, err := c.Client.CreateChatCompletion(
