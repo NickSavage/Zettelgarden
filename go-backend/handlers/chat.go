@@ -213,31 +213,8 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 }
 
 func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.ChatCompletion, error) {
-	// First, get all previous messages in this conversation
-	query := `
-        SELECT user_id, role, content, model
-        FROM chat_completions
-        WHERE conversation_id = $1 AND user_id = $2
-        ORDER BY sequence_number ASC
-    `
-	rows, err := s.DB.Query(query, conversationID, userID)
-	if err != nil {
-		log.Printf("error querying chat history: %v", err)
-		return models.ChatCompletion{}, fmt.Errorf("failed to retrieve chat history")
-	}
-	defer rows.Close()
 
-	var messages []models.ChatCompletion
-
-	for rows.Next() {
-		var msg models.ChatCompletion
-		if err := rows.Scan(&msg.UserID, &msg.Role, &msg.Content, &msg.Model); err != nil {
-			log.Printf("error scanning message: %v", err)
-			return models.ChatCompletion{}, fmt.Errorf("failed to process chat history")
-		}
-		messages = append(messages, msg)
-
-	}
+	messages, err := s.GetChatMessagesInConversation(userID, conversationID)
 
 	// Get the next sequence number
 	var nextSequence int
@@ -251,10 +228,21 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 		return models.ChatCompletion{}, fmt.Errorf("failed to process response")
 	}
 
-	// Create the new completion
-	completion, err := llms.ChatCompletion(s.Server.LLMClient, messages)
+	lastMessage := messages[len(messages)-1].Content
+
+	option, err := llms.ChooseOptions(s.Server.LLMClient, lastMessage)
+	var completion models.ChatCompletion
+	if option == models.UserInfo {
+		user, _ := s.QueryUser(userID)
+		log.Printf("user %v", user)
+		completion, err = llms.AnswerUserInfoQuestion(s.Server.LLMClient, user, lastMessage)
+	} else {
+		// Create the new completion
+		completion, err = llms.ChatCompletion(s.Server.LLMClient, messages)
+	}
+
 	// Insert the completion into the database
-	query = `
+	query := `
         INSERT INTO chat_completions (
             user_id, conversation_id, sequence_number, role, 
             content, model, tokens
@@ -338,4 +326,34 @@ func (s *Handler) GetUserConversationsRoute(w http.ResponseWriter, r *http.Reque
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(conversations)
+}
+
+func (s *Handler) GetChatMessagesInConversation(userID int, conversationID string) ([]models.ChatCompletion, error) {
+
+	// First, get all previous messages in this conversation
+	query := `
+        SELECT user_id, role, content, model
+        FROM chat_completions
+        WHERE conversation_id = $1 AND user_id = $2
+        ORDER BY sequence_number ASC
+    `
+	rows, err := s.DB.Query(query, conversationID, userID)
+	if err != nil {
+		log.Printf("error querying chat history: %v", err)
+		return []models.ChatCompletion{}, fmt.Errorf("failed to retrieve chat history")
+	}
+	defer rows.Close()
+
+	var messages []models.ChatCompletion
+
+	for rows.Next() {
+		var msg models.ChatCompletion
+		if err := rows.Scan(&msg.UserID, &msg.Role, &msg.Content, &msg.Model); err != nil {
+			log.Printf("error scanning message: %v", err)
+			return []models.ChatCompletion{}, fmt.Errorf("failed to process chat history")
+		}
+		messages = append(messages, msg)
+
+	}
+	return messages, nil
 }

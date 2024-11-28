@@ -38,3 +38,20 @@ type ConversationSummary struct {
 	Title        string    `json:"title"`
 	UserID       int       `json:"user_id"`
 }
+
+type ChatOption = string
+
+const (
+	Chat     ChatOption = "Chat"
+	UserInfo ChatOption = "UserInfo"
+)
+
+type TechnologyType = string
+
+const (
+	PlantSpace     TechnologyType = "PlantSpace"
+	Seed           TechnologyType = "Seed"
+	Field          TechnologyType = "Field"
+	BuildingSpace  TechnologyType = "BuildingSpace"
+	CellTowerSpace TechnologyType = "CellTowerSpace"
+)

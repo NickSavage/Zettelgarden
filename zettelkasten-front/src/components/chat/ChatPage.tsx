@@ -23,7 +23,7 @@ export function ChatPage({}: ChatPageProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [searchParams] = useSearchParams();
-  const {conversationId, setConversationId} = useChatContext();
+  const { conversationId, setConversationId } = useChatContext();
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value);
@@ -69,7 +69,7 @@ export function ChatPage({}: ChatPageProps) {
     let id = searchParams.get("id");
     setMessages([]);
     if (id) {
-      setConversationId(id)
+      setConversationId(id);
       // Maybe load existing conversation messages
       getChatConversation(id).then((messages) => {
         messages.forEach((message) => {
@@ -116,7 +116,9 @@ export function ChatPage({}: ChatPageProps) {
             +
           </button>
           <input
-            className="w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500"
+            className={`w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 ${
+              isLoading ? "cursor-not-allowed opacity-50" : ""
+            }`}
             type="text"
             id="title"
             value={query}
@@ -127,6 +129,7 @@ export function ChatPage({}: ChatPageProps) {
                 handleQuery();
               }
             }}
+            disabled={isLoading} // Add this line
           />
           {isLoading && (
             <button

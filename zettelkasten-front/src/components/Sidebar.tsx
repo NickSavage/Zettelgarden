@@ -143,7 +143,7 @@ export function Sidebar() {
     getUserConversations().then((conversations) => {
       setChatConversations(conversations);
     });
-  });
+  },[]);
 
   return (
     <div className="sidebar">

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-backend/models"
 	"log"
+	"strings"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -103,4 +104,117 @@ func CreateConversationSummary(c *models.LLMClient, message models.ChatCompletio
 		Model:     models.MODEL,
 	}
 	return result, nil
+}
+
+func ChooseOptions(c *models.LLMClient, userInput string) (models.ChatOption, error) {
+	prompt := `
+You are a command router. Your only job is to analyze user input and return exactly one of these values:
+- "UserInfo" - if the user is asking about themselves, their information, their account, their settings, or their preferences
+- "Chat" - for all other queries
+Respond with only one of these exact strings, nothing else.
+`
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    "system",
+			Content: prompt,
+		},
+		{
+			Role:    "user",
+			Content: userInput,
+		},
+	}
+
+	resp, err := c.Client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:       models.MODEL,
+			Messages:    messages,
+			Temperature: 0, // Keep it deterministic
+		},
+	)
+	if err != nil {
+		log.Printf("error getting completion: %v", err)
+		return "", fmt.Errorf("failed to get AI response: %w", err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return "", fmt.Errorf("no response from AI")
+	}
+
+	// Clean up the response
+	result := strings.TrimSpace(resp.Choices[0].Message.Content)
+
+	// Validate the response
+	switch result {
+	case string(models.Chat), string(models.UserInfo):
+		return models.ChatOption(result), nil
+	default:
+		log.Printf("unexpected routing response: %s, defaulting to Chat", result)
+		return models.Chat, nil
+	}
+}
+
+func AnswerUserInfoQuestion(c *models.LLMClient, userData models.User, lastMessage string) (models.ChatCompletion, error) {
+
+	prompt := `
+You are a helpful assistant. Your job is to take a go struct of user data and use it to answer the user's question. If you don't have the information you need, say you can't answer the question. Be brief. Never give out the user's password':
+
+type User struct {
+	ID                          int        
+	Username                    string    
+	Email                       string   
+	Password                    string    
+	CreatedAt                   time.Time 
+	UpdatedAt                   time.Time
+	IsAdmin                     bool    
+	LastLogin                   *time.Time
+	EmailValidated              bool     
+	CanUploadFiles              bool    
+	MaxFileStorage              int    
+	StripeCustomerID            string
+	StripeSubscriptionID        string    
+	StripeSubscriptionStatus    string   
+	StripeSubscriptionFrequency string  
+	StripeCurrentPlan           string 
+	IsActive                    bool  
+	DashboardCardPK             int  
+}
+The user data is this: %v'
+`
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    "system",
+			Content: fmt.Sprint(prompt, userData),
+		},
+		{
+			Role:    "user",
+			Content: lastMessage,
+		},
+	}
+
+	resp, err := c.Client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:       models.MODEL,
+			Messages:    messages,
+			Temperature: 0, // Keep it deterministic
+		},
+	)
+	if err != nil {
+		log.Printf("error getting completion: %v", err)
+		return models.ChatCompletion{}, fmt.Errorf("failed to get AI response: %w", err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return models.ChatCompletion{}, fmt.Errorf("no response from AI")
+	}
+
+	completion := models.ChatCompletion{
+		Role:    resp.Choices[0].Message.Role,
+		Content: resp.Choices[0].Message.Content,
+		Model:   models.MODEL,
+		Tokens:  resp.Usage.TotalTokens,
+	}
+	return completion, err
+
 }
