@@ -2,6 +2,7 @@ package llms
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -12,6 +13,7 @@ import (
 	"os"
 
 	"github.com/pgvector/pgvector-go"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 const CHUNK_SIZE = 500
@@ -121,4 +123,48 @@ func StoreEmbeddings(db *sql.DB, userID, cardPK int, embeddings [][]pgvector.Vec
 	}
 	tx.Commit()
 	return nil
+}
+func GenerateSemanticSearchQuery(c *models.LLMClient, userQuery string) ([]pgvector.Vector, error) {
+	// First, let's create a system prompt to help generate a better search query
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: "You are a search query optimizer. Convert the user's query into a clear, focused search query that captures the main concepts and intent. Keep it concise but comprehensive. Only respond with the optimized query, nothing else.",
+		},
+		{
+			Role:    openai.ChatMessageRoleUser,
+			Content: userQuery,
+		},
+	}
+
+	// Generate the optimized search query
+	resp, err := c.Client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:    openai.GPT3Dot5Turbo,
+			Messages: messages,
+		},
+	)
+	if err != nil {
+		return []pgvector.Vector{}, fmt.Errorf("failed to generate optimized search query: %w", err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return []pgvector.Vector{}, fmt.Errorf("no response received from LLM")
+	}
+
+	// Get the optimized query
+	optimizedQuery := resp.Choices[0].Message.Content
+
+	// Convert the optimized query to embeddings
+	chunk := models.CardChunk{
+		Chunk: optimizedQuery,
+	}
+
+	embeddings, err := GenerateEmbeddings(chunk, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate embeddings: %w", err)
+	}
+
+	return embeddings, nil
 }

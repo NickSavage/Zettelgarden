@@ -108,10 +108,11 @@ func CreateConversationSummary(c *models.LLMClient, message models.ChatCompletio
 
 func ChooseOptions(c *models.LLMClient, userInput string) (models.ChatOption, error) {
 	prompt := `
-You are a command router. Your only job is to analyze user input and return exactly one of these values:
+You are a command router for a zettelkasten. Your only job is to analyze user input and return exactly one of these values:
+- "Cards" - This probably is the main thing the user will be asking about. Any time the user is asking you to look up information, this is probably what you want to be doing.
 - "UserInfo" - if the user is asking about themselves, their information, their account, their settings, or their preferences
 - "Chat" - for all other queries
-Respond with only one of these exact strings, nothing else.
+Respond with only one of these exact strings, nothing else. If you are not sure, ask the user to select one of the options.
 `
 	messages := []openai.ChatCompletionMessage{
 		{
@@ -146,7 +147,7 @@ Respond with only one of these exact strings, nothing else.
 
 	// Validate the response
 	switch result {
-	case string(models.Chat), string(models.UserInfo):
+	case string(models.Chat), string(models.UserInfo), string(models.Cards):
 		return models.ChatOption(result), nil
 	default:
 		log.Printf("unexpected routing response: %s, defaulting to Chat", result)
@@ -217,4 +218,77 @@ The user data is this: %v'
 	}
 	return completion, err
 
+}
+func CardSearchChatCompletion(c *models.LLMClient, messages []models.ChatCompletion, relatedCards []models.CardChunk) (models.ChatCompletion, error) {
+	// Create a string representation of the cards for the context
+	var cardContext strings.Builder
+	cardContext.WriteString("Here are the relevant cards from the knowledge base:\n\n")
+	for i, card := range relatedCards {
+		cardContext.WriteString(fmt.Sprintf("Card %d:\nTitle: %s\nContent: %s\n\n",
+			i+1, card.Title, card.Chunk))
+	}
+
+	// Create system prompt
+	systemPrompt := `
+You are a helpful assistant with access to a Zettelkasten (note card) system. 
+Your job is to answer the user's question based on the provided card contents.
+Rules:
+1. Only use information from the provided cards
+2. If the cards don't contain relevant information, say so
+3. Cite which card(s) you're using in your response
+4. Be concise but thorough
+5. If multiple cards have conflicting information, point this out
+
+Context: %s`
+
+	// Convert the conversation history to OpenAI format
+	openAIMessages := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: fmt.Sprintf(systemPrompt, cardContext.String()),
+		},
+	}
+
+	// Add the conversation history
+	for _, msg := range messages {
+		openAIMessages = append(openAIMessages, openai.ChatCompletionMessage{
+			Role:    msg.Role,
+			Content: msg.Content,
+		})
+	}
+
+	// Get completion from OpenAI
+	resp, err := c.Client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:       models.MODEL,
+			Messages:    openAIMessages,
+			Temperature: 0.3, // Slightly creative but mostly factual
+		},
+	)
+	if err != nil {
+		log.Printf("error getting completion: %v", err)
+		return models.ChatCompletion{}, fmt.Errorf("failed to get AI response: %w", err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return models.ChatCompletion{}, fmt.Errorf("no response from AI")
+	}
+
+	// Create the completion response
+	completion := models.ChatCompletion{
+		Role:    resp.Choices[0].Message.Role,
+		Content: resp.Choices[0].Message.Content,
+		Model:   models.MODEL,
+		Tokens:  resp.Usage.TotalTokens,
+	}
+
+	// Create a slice of card IDs that were used
+	cardIDs := make([]int, len(relatedCards))
+	for i, card := range relatedCards {
+		cardIDs[i] = card.ID
+	}
+	completion.ReferencedCards = cardIDs
+
+	return completion, nil
 }

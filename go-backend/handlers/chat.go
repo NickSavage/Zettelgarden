@@ -212,6 +212,33 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 	return insertedMessage, nil
 }
 
+func (s *Handler) RouteChatCompletion(
+	userID int,
+	option models.ChatOption,
+	messages []models.ChatCompletion,
+) (models.ChatCompletion, error) {
+
+	var completion models.ChatCompletion
+	var err error
+	lastMessage := messages[len(messages)-1].Content
+
+	if option == models.UserInfo {
+		user, _ := s.QueryUser(userID)
+		log.Printf("user %v", user)
+		completion, err = llms.AnswerUserInfoQuestion(s.Server.LLMClient, user, lastMessage)
+	} else if option == models.Cards {
+		embedding, _ := llms.GenerateSemanticSearchQuery(s.Server.LLMClient, lastMessage)
+		relatedCards, _ := s.GetRelatedCards(userID, embedding[0])
+		log.Printf("related cards %v", relatedCards)
+		completion, err = llms.CardSearchChatCompletion(s.Server.LLMClient, messages, relatedCards)
+
+	} else {
+		// Create the new completion
+		completion, err = llms.ChatCompletion(s.Server.LLMClient, messages)
+	}
+	return completion, err
+}
+
 func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.ChatCompletion, error) {
 
 	messages, err := s.GetChatMessagesInConversation(userID, conversationID)
@@ -231,15 +258,7 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 	lastMessage := messages[len(messages)-1].Content
 
 	option, err := llms.ChooseOptions(s.Server.LLMClient, lastMessage)
-	var completion models.ChatCompletion
-	if option == models.UserInfo {
-		user, _ := s.QueryUser(userID)
-		log.Printf("user %v", user)
-		completion, err = llms.AnswerUserInfoQuestion(s.Server.LLMClient, user, lastMessage)
-	} else {
-		// Create the new completion
-		completion, err = llms.ChatCompletion(s.Server.LLMClient, messages)
-	}
+	completion, err := s.RouteChatCompletion(userID, option, messages)
 
 	// Insert the completion into the database
 	query := `
