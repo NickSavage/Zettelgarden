@@ -12,17 +12,18 @@ type LLMClient struct {
 }
 
 type ChatCompletion struct {
-	ID              int       `json:"id"`
-	UserID          int       `json:"user_id"`
-	ConversationID  string    `json:"conversation_id"`
-	SequenceNumber  int       `json:"sequence_number"`
-	Role            string    `json:"role"`
-	Content         string    `json:"content"`
-	Refusal         *string   `json:"refusal"`
-	Model           string    `json:"model"`
-	Tokens          int       `json:"tokens"`
-	CreatedAt       time.Time `json:"created_at"`
-	ReferencedCards []int     `json:"card_pks"`
+	ID                int           `json:"id"`
+	UserID            int           `json:"user_id"`
+	ConversationID    string        `json:"conversation_id"`
+	SequenceNumber    int           `json:"sequence_number"`
+	Role              string        `json:"role"`
+	Content           string        `json:"content"`
+	Refusal           *string       `json:"refusal"`
+	Model             string        `json:"model"`
+	Tokens            int           `json:"tokens"`
+	CreatedAt         time.Time     `json:"created_at"`
+	ReferencedCardPKs []int         `json:"card_pks"`
+	ReferencedCards   []PartialCard `json:"cards"`
 }
 
 type ChatData struct {
@@ -46,14 +47,4 @@ const (
 	Chat     ChatOption = "Chat"
 	Cards    ChatOption = "Cards"
 	UserInfo ChatOption = "UserInfo"
-)
-
-type TechnologyType = string
-
-const (
-	PlantSpace     TechnologyType = "PlantSpace"
-	Seed           TechnologyType = "Seed"
-	Field          TechnologyType = "Field"
-	BuildingSpace  TechnologyType = "BuildingSpace"
-	CellTowerSpace TechnologyType = "CellTowerSpace"
 )

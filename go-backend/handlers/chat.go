@@ -260,34 +260,10 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 
 	option, err := llms.ChooseOptions(s.Server.LLMClient, lastMessage)
 	completion, err := s.RouteChatCompletion(userID, option, messages)
-
-	// Insert the completion into the database
-	query := `
-        INSERT INTO chat_completions (
-            user_id, conversation_id, sequence_number, role, 
-            content, model, tokens, card_chunks
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING id, created_at
-    `
-	err = s.DB.QueryRow(
-		query,
-		userID,
-		conversationID,
-		nextSequence,
-		completion.Role,
-		completion.Content,
-		completion.Model,
-		completion.Tokens,
-		pq.Array(completion.ReferencedCards), // Convert Go slice to PostgreSQL array
-
-	).Scan(&completion.ID, &completion.CreatedAt)
-
-	if err != nil {
-		log.Printf("error inserting completion: %v", err)
-		return models.ChatCompletion{}, fmt.Errorf("failed to save response")
-	}
 	completion.UserID = userID
 	completion.ConversationID = conversationID
+	completion.SequenceNumber = nextSequence
+	s.WriteChatCompletionToDatabase(userID, completion)
 
 	return completion, nil
 }
@@ -378,4 +354,34 @@ func (s *Handler) GetChatMessagesInConversation(userID int, conversationID strin
 
 	}
 	return messages, nil
+}
+
+func (s *Handler) WriteChatCompletionToDatabase(userID int, completion models.ChatCompletion) error {
+	// Insert the completion into the database
+	query := `
+        INSERT INTO chat_completions (
+            user_id, conversation_id, sequence_number, role, 
+            content, model, tokens, card_chunks
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, created_at
+    `
+	err := s.DB.QueryRow(
+		query,
+		userID,
+		completion.ConversationID,
+		completion.SequenceNumber,
+		completion.Role,
+		completion.Content,
+		completion.Model,
+		completion.Tokens,
+		pq.Array(completion.ReferencedCards), // Convert Go slice to PostgreSQL array
+
+	).Scan(&completion.ID, &completion.CreatedAt)
+
+	if err != nil {
+		log.Printf("error inserting completion: %v", err)
+		return fmt.Errorf("failed to save response")
+	}
+	return nil
+
 }
