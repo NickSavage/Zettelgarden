@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/lib/pq"
 )
 
 const MODEL = "gpt-4"
@@ -264,8 +265,8 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 	query := `
         INSERT INTO chat_completions (
             user_id, conversation_id, sequence_number, role, 
-            content, model, tokens
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+            content, model, tokens, card_chunks
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id, created_at
     `
 	err = s.DB.QueryRow(
@@ -277,6 +278,8 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 		completion.Content,
 		completion.Model,
 		completion.Tokens,
+		pq.Array(completion.ReferencedCards), // Convert Go slice to PostgreSQL array
+
 	).Scan(&completion.ID, &completion.CreatedAt)
 
 	if err != nil {

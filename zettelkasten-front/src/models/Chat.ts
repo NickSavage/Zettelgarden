@@ -12,7 +12,7 @@ export interface ChatCompletion {
 }
 
 export interface ConversationSummary {
-  conversation_id: string;
+  id: string;
   message_count: number;
   created_at: Date;
   model: string;
