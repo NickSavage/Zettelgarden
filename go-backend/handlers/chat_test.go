@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	// "bytes"
-	// "encoding/json"
+	"bytes"
+	"encoding/json"
 	"go-backend/models"
 	"go-backend/tests"
 	"log"
@@ -102,11 +102,11 @@ func TestGetChatConversation(t *testing.T) {
 // 	var finalMessages []models.ChatCompletion
 // 	tests.ParseJsonResponse(t, finalRr.Body.Bytes(), &finalMessages)
 
-// 	if len(finalMessages) != initialLength+1 {
-// 		t.Errorf("expected message count to increase by 1, got %d, want %d",
-// 			len(finalMessages), initialLength+1)
-// 	}
-// }
+//		if len(finalMessages) != initialLength+1 {
+//			t.Errorf("expected message count to increase by 1, got %d, want %d",
+//				len(finalMessages), initialLength+1)
+//		}
+// //	}
 // func TestCreateNewChatConversation(t *testing.T) {
 // 	s := setup()
 // 	defer tests.Teardown()
@@ -146,10 +146,6 @@ func TestGetChatConversation(t *testing.T) {
 // 	}
 // 	if responseMessage.SequenceNumber != 1 {
 // 		t.Errorf("First message should have sequence number 1, got %d", responseMessage.SequenceNumber)
-// 	}
-// 	if responseMessage.Content != newMessage.Content {
-// 		t.Errorf("Message content doesn't match: got %v want %v",
-// 			responseMessage.Content, newMessage.Content)
 // 	}
 // 	if responseMessage.UserID != 1 {
 // 		t.Errorf("Message should be associated with user 1, got %d", responseMessage.UserID)

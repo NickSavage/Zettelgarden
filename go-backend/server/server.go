@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"go-backend/mail"
-
-	openai "github.com/sashabaranov/go-openai"
+	"go-backend/models"
 )
 
 type Server struct {
@@ -17,7 +16,7 @@ type Server struct {
 	Mail          *mail.MailClient
 	TestInspector *TestInspector
 	SchemaDir     string
-	LLMClient     *openai.Client
+	LLMClient     *models.LLMClient
 }
 
 type TestInspector struct {

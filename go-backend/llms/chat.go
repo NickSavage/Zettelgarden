@@ -9,7 +9,23 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func ChatCompletion(c *openai.Client, pastMessages []models.ChatCompletion) (models.ChatCompletion, error) {
+func NewClient(config openai.ClientConfig) *models.LLMClient {
+	return &models.LLMClient{
+		Client:  openai.NewClientWithConfig(config),
+		Testing: false,
+	}
+}
+
+func ChatCompletion(c *models.LLMClient, pastMessages []models.ChatCompletion) (models.ChatCompletion, error) {
+	if c.Testing {
+		// Return mock response
+		return models.ChatCompletion{
+			Role:    "assistant",
+			Content: "This is a mock response for testing",
+			Model:   models.MODEL,
+			Tokens:  100,
+		}, nil
+	}
 	var messages []openai.ChatCompletionMessage
 
 	for _, message := range pastMessages {
@@ -21,7 +37,7 @@ func ChatCompletion(c *openai.Client, pastMessages []models.ChatCompletion) (mod
 	log.Printf("messages %v", messages)
 
 	// Create the OpenAI request
-	resp, err := c.CreateChatCompletion(
+	resp, err := c.Client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
 			Model:    models.MODEL,
@@ -47,7 +63,17 @@ func ChatCompletion(c *openai.Client, pastMessages []models.ChatCompletion) (mod
 
 }
 
-func CreateConversationSummary(c *openai.Client, message models.ChatCompletion) (models.ConversationSummary, error) {
+func CreateConversationSummary(c *models.LLMClient, message models.ChatCompletion) (models.ConversationSummary, error) {
+	// Check if in testing mode
+	if c.Testing {
+		// Return mock summary
+		return models.ConversationSummary{
+			ID:        message.ConversationID,
+			Title:     "🤖 Mock Summary Title",
+			CreatedAt: message.CreatedAt,
+			Model:     models.MODEL,
+		}, nil
+	}
 
 	content := message.Role + ": " + message.Content + "\n"
 	id := message.ConversationID
@@ -59,7 +85,7 @@ func CreateConversationSummary(c *openai.Client, message models.ChatCompletion) 
 			Content: fmt.Sprintf("Please generate a few words a title that summarizes the following quesiton and answer. Feel free to use emojis! Content: %v", content),
 		},
 	}
-	resp, err := c.CreateChatCompletion(
+	resp, err := c.Client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
 			Model:    models.MODEL,

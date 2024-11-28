@@ -2,7 +2,14 @@ package models
 
 import (
 	"time"
+
+	openai "github.com/sashabaranov/go-openai"
 )
+
+type LLMClient struct {
+	Client  *openai.Client
+	Testing bool
+}
 
 type ChatCompletion struct {
 	ID             int       `json:"id"`

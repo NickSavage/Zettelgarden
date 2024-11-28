@@ -44,6 +44,7 @@ func Setup() *server.Server {
 		TestingEmailsSent: 0,
 	}
 	S.TestInspector = &server.TestInspector{}
+	S.LLMClient = &models.LLMClient{Testing: true}
 
 	server.RunMigrations(S)
 	err = importTestData(S)

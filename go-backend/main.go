@@ -6,6 +6,7 @@ import (
 	//"encoding/json"
 	"fmt"
 	"go-backend/handlers"
+	"go-backend/llms"
 	"go-backend/mail"
 	"go-backend/models"
 	"go-backend/server"
@@ -130,9 +131,8 @@ func main() {
 	s.JwtSecretKey = []byte(os.Getenv("SECRET_KEY"))
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
 	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-	client := openai.NewClientWithConfig(config)
 
-	s.LLMClient = client
+	s.LLMClient = llms.NewClient(config)
 
 	go func() {
 		h.SyncStripePlans()
