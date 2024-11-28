@@ -288,7 +288,7 @@ Context: %s`
 	for i, card := range relatedCards {
 		cardIDs[i] = card.ID
 	}
-	completion.ReferencedCards = cardIDs
+	completion.ReferencedCardPKs = cardIDs
 
 	return completion, nil
 }

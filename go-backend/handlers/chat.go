@@ -230,8 +230,27 @@ func (s *Handler) RouteChatCompletion(
 	} else if option == models.Cards {
 		embedding, _ := llms.GenerateSemanticSearchQuery(s.Server.LLMClient, lastMessage)
 		relatedCards, _ := s.GetRelatedCards(userID, embedding[0])
+
+		scores, err := llms.RerankResults(s.Server.LLMClient.Client, lastMessage, relatedCards)
+		if err != nil {
+			return models.ChatCompletion{}, err
+		}
+		for i, score := range scores {
+			if i == len(scores)-1 {
+				break
+			}
+			relatedCards[i].Ranking = score
+
+		}
+		scoredCards := []models.CardChunk{}
+		for _, card := range relatedCards {
+			if card.Ranking < 1 {
+				continue
+			}
+			scoredCards = append(scoredCards, card)
+		}
 		log.Printf("related cards %v", relatedCards)
-		completion, err = llms.CardSearchChatCompletion(s.Server.LLMClient, messages, relatedCards)
+		completion, err = llms.CardSearchChatCompletion(s.Server.LLMClient, messages, scoredCards)
 
 	} else {
 		// Create the new completion
@@ -260,9 +279,17 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 
 	option, err := llms.ChooseOptions(s.Server.LLMClient, lastMessage)
 	completion, err := s.RouteChatCompletion(userID, option, messages)
+	cards := []models.PartialCard{}
+	for _, cardPK := range completion.ReferencedCardPKs {
+		card, _ := s.QueryPartialCardByID(userID, cardPK)
+		cards = append(cards, card)
+	}
+	completion.ReferencedCards = cards
+
 	completion.UserID = userID
 	completion.ConversationID = conversationID
 	completion.SequenceNumber = nextSequence
+
 	s.WriteChatCompletionToDatabase(userID, completion)
 
 	return completion, nil
