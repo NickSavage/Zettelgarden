@@ -1021,3 +1021,13 @@ WHERE card_pk = $1 AND user_id = $2
 	return chunks, nil
 
 }
+
+func (s *Handler) GetPartialCardsFromChunks(userID int, cardPKs []int) ([]models.PartialCard, error) {
+
+	cards := []models.PartialCard{}
+	for _, cardPK := range cardPKs {
+		card, _ := s.QueryPartialCardByID(userID, cardPK)
+		cards = append(cards, card)
+	}
+	return cards, nil
+}

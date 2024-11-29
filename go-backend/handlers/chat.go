@@ -73,12 +73,8 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 		}
 
 		log.Printf("cards %v %v %v", message.ID, conversationID, message.ReferencedCardPKs)
+		cards, err := s.GetPartialCardsFromChunks(userID, message.ReferencedCardPKs)
 
-		cards := []models.PartialCard{}
-		for _, cardPK := range message.ReferencedCardPKs {
-			card, _ := s.QueryPartialCardByID(userID, cardPK)
-			cards = append(cards, card)
-		}
 		message.ReferencedCards = cards
 		messages = append(messages, message)
 	}
@@ -294,11 +290,7 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 
 	option, err := llms.ChooseOptions(s.Server.LLMClient, lastMessage)
 	completion, err := s.RouteChatCompletion(userID, option, messages)
-	cards := []models.PartialCard{}
-	for _, cardPK := range completion.ReferencedCardPKs {
-		card, _ := s.QueryPartialCardByID(userID, cardPK)
-		cards = append(cards, card)
-	}
+	cards, _ := s.GetPartialCardsFromChunks(userID, completion.ReferencedCardPKs)
 	completion.ReferencedCards = cards
 
 	completion.UserID = userID
@@ -400,11 +392,7 @@ func (s *Handler) GetChatMessagesInConversation(userID int, conversationID strin
 		}
 		log.Printf("cards %v", msg.ReferencedCardPKs)
 
-		cards := []models.PartialCard{}
-		for _, cardPK := range msg.ReferencedCardPKs {
-			card, _ := s.QueryPartialCardByID(userID, cardPK)
-			cards = append(cards, card)
-		}
+		cards, _ := s.GetPartialCardsFromChunks(userID, msg.ReferencedCardPKs)
 		msg.ReferencedCards = cards
 		messages = append(messages, msg)
 
