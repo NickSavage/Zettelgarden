@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Link } from "react-router-dom";
-import logo from "../assets/logo.png";
 import landingImage from "../assets/landing.png";
 import { GithubIcon } from "../assets/icons/GithubIcon";
+import { LandingHeader } from "./LandingHeader";
 
 import { addToMailingList } from "../api/users";
 
@@ -28,25 +28,7 @@ function LandingPage() {
   return (
     <div className="w-full py-2 mx-auto max-w-screen-xl flex items-center">
       <div>
-        <div className="flex items-center">
-          <Link to="/" className="mr-2">
-            <img src={logo} alt="Company Logo" className="logo rounded-md" />
-          </Link>
-          <span className="text-2xl">Zettelgarden</span>
-          <div className="flex-grow">
-            <a href="#features" className="p-4">
-              <span className="text-1xl">Features</span>
-            </a>
-            <a href="https://nsavage.substack.com" className="p-4">
-              <span className="text-1xl">Blog</span>
-            </a>
-          </div>
-          <div className="flex-shrink">
-            <Link to="/app">
-              <span className="text-1xl">Login</span>
-            </Link>
-          </div>
-        </div>
+        <LandingHeader />
         <div className="flex gap-12 items-center">
           <div className="py-36 w-6/12">
             <p className="text-2xl">
