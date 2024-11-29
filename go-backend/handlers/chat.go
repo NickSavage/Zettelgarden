@@ -32,15 +32,13 @@ func (s *Handler) GetChatConversationRoute(w http.ResponseWriter, r *http.Reques
 
 func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]models.ChatCompletion, error) {
 	var messages []models.ChatCompletion
-
 	query := `
-    SELECT id, user_id, conversation_id, sequence_number, role, 
-           content, refusal, model, tokens, created_at
+    SELECT id, user_id, conversation_id, sequence_number, role,
+           content, refusal, model, tokens, created_at, card_chunks
     FROM chat_completions
     WHERE user_id = $1 AND conversation_id = $2
     ORDER BY sequence_number ASC
     `
-
 	rows, err := s.DB.Query(query, userID, conversationID)
 	if err != nil {
 		log.Printf("err querying chat conversation: %v", err)
@@ -50,6 +48,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 
 	for rows.Next() {
 		var message models.ChatCompletion
+		var cardChunks []int32 // Use int32 instead of int
 		if err := rows.Scan(
 			&message.ID,
 			&message.UserID,
@@ -61,10 +60,26 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 			&message.Model,
 			&message.Tokens,
 			&message.CreatedAt,
+			pq.Array(&cardChunks), // Use int32 array
 		); err != nil {
 			log.Printf("err scanning chat message: %v", err)
 			return nil, fmt.Errorf("unable to process chat message")
 		}
+
+		// Convert int32 to int
+		message.ReferencedCardPKs = make([]int, len(cardChunks))
+		for i, v := range cardChunks {
+			message.ReferencedCardPKs[i] = int(v)
+		}
+
+		log.Printf("cards %v %v %v", message.ID, conversationID, message.ReferencedCardPKs)
+
+		cards := []models.PartialCard{}
+		for _, cardPK := range message.ReferencedCardPKs {
+			card, _ := s.QueryPartialCardByID(userID, cardPK)
+			cards = append(cards, card)
+		}
+		message.ReferencedCards = cards
 		messages = append(messages, message)
 	}
 
@@ -357,7 +372,7 @@ func (s *Handler) GetChatMessagesInConversation(userID int, conversationID strin
 
 	// First, get all previous messages in this conversation
 	query := `
-        SELECT user_id, role, content, model
+        SELECT user_id, role, content, model, card_chunks
         FROM chat_completions
         WHERE conversation_id = $1 AND user_id = $2
         ORDER BY sequence_number ASC
@@ -373,10 +388,24 @@ func (s *Handler) GetChatMessagesInConversation(userID int, conversationID strin
 
 	for rows.Next() {
 		var msg models.ChatCompletion
-		if err := rows.Scan(&msg.UserID, &msg.Role, &msg.Content, &msg.Model); err != nil {
+		if err := rows.Scan(
+			&msg.UserID,
+			&msg.Role,
+			&msg.Content,
+			&msg.Model,
+			pq.Array(&msg.ReferencedCardPKs),
+		); err != nil {
 			log.Printf("error scanning message: %v", err)
 			return []models.ChatCompletion{}, fmt.Errorf("failed to process chat history")
 		}
+		log.Printf("cards %v", msg.ReferencedCardPKs)
+
+		cards := []models.PartialCard{}
+		for _, cardPK := range msg.ReferencedCardPKs {
+			card, _ := s.QueryPartialCardByID(userID, cardPK)
+			cards = append(cards, card)
+		}
+		msg.ReferencedCards = cards
 		messages = append(messages, msg)
 
 	}
