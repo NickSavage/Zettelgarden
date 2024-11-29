@@ -4,6 +4,8 @@ import "./index.css";
 import App from "./App";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BrowserRouter } from "react-router-dom";
+import { Buffer } from 'buffer';
+globalThis.Buffer = Buffer;
 
 const rootElement = document.getElementById("root");
 
