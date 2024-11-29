@@ -1,3 +1,5 @@
+import { PartialCard } from "./Card"
+
 export interface ChatCompletion {
   id: number;
   user_id: number;
@@ -9,6 +11,7 @@ export interface ChatCompletion {
   model: string;
   tokens: number;
   created_at: Date;
+  cards: PartialCard[];
 }
 
 export interface ConversationSummary {

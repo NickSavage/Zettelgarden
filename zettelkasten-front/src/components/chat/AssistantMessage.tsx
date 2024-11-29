@@ -1,8 +1,10 @@
 import React from "react";
 import Markdown from "react-markdown";
+import { ChatCompletion } from "../../models/Chat";
+import { CardItem } from "../../components/cards/CardItem";
 
 interface AssistantMessageProps {
-  message: string;
+  message: ChatCompletion;
   isStreaming?: boolean;
 }
 
@@ -12,7 +14,17 @@ export function AssistantMessage({
 }: AssistantMessageProps) {
   return (
     <div className={`${isStreaming ? "animate-pulse" : ""}`}>
-      <Markdown>{message}</Markdown>
+      <Markdown>{message.content}</Markdown>
+      <div>
+        <ul>
+          {message.cards &&
+            message.cards.map((card) => (
+              <li>
+                <CardItem card={card} />
+              </li>
+            ))}
+        </ul>
+      </div>
       {isStreaming && (
         <span className="inline-block w-2 h-4 ml-1 bg-gray-400 animate-blink">
           |

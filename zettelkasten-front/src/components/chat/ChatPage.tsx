@@ -5,6 +5,7 @@ import {
   getUserConversations,
   getChatConversation,
 } from "../../api/chat";
+import { ChatCompletion } from "../../models/Chat";
 import { useSearchParams } from "react-router-dom";
 import { useChatContext } from "../../contexts/ChatContext";
 
@@ -21,7 +22,7 @@ interface Message {
 export function ChatPage({}: ChatPageProps) {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatCompletion[]>([]);
   const [searchParams] = useSearchParams();
   const { conversationId, setConversationId } = useChatContext();
 
@@ -33,8 +34,24 @@ export function ChatPage({}: ChatPageProps) {
     if (!query.trim()) return;
 
     setIsLoading(true);
+
+    // Create a temporary user message that matches ChatCompletion structure
+    const tempUserMessage: ChatCompletion = {
+      id: Date.now(), // temporary ID
+      user_id: 0, // placeholder
+      conversation_id: conversationId || "",
+      sequence_number: messages.length,
+      role: "user",
+      content: query,
+      refusal: null,
+      model: "", // placeholder
+      tokens: 0, // placeholder
+      created_at: new Date(),
+      cards: [],
+    };
+
     // Add user message to UI immediately
-    setMessages((prev) => [...prev, { role: "user", content: query }]);
+    setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
       const response = await postChatMessage(query, conversationId);
@@ -46,10 +63,7 @@ export function ChatPage({}: ChatPageProps) {
       }
 
       // Add assistant's response to messages
-      setMessages((prev) => [
-        ...prev,
-        { role: response.role, content: response.content },
-      ]);
+      setMessages((prev) => [...prev, response]);
 
       // Clear input
       setQuery("");
@@ -73,10 +87,7 @@ export function ChatPage({}: ChatPageProps) {
       // Maybe load existing conversation messages
       getChatConversation(id).then((messages) => {
         messages.forEach((message) => {
-          setMessages((prev) => [
-            ...prev,
-            { role: message.role, content: message.content },
-          ]);
+          setMessages((prev) => [...prev, message]);
         });
       });
     }
@@ -102,7 +113,7 @@ export function ChatPage({}: ChatPageProps) {
             message.role === "user" ? (
               <UserMessage key={index} message={message.content} />
             ) : (
-              <AssistantMessage key={index} message={message.content} />
+              <AssistantMessage key={index} message={message} />
             ),
           )}
         </div>
