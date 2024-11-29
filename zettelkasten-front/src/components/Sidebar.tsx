@@ -233,22 +233,16 @@ export function Sidebar() {
         {/* Navigation Links */}
         <div className="p-2">
           <ul className="space-y-1">
-            <SidebarLink
-              to="/app/search"
-              className="flex items-center p-2 rounded-md hover:bg-gray-100"
-            >
+            <SidebarLink to="/app/search">
               <span className="mx-2">
-                <SearchIcon className="w-5 h-5" />
+                <SearchIcon />
               </span>
               <span className="flex-grow">Cards</span>
             </SidebarLink>
 
-            <SidebarLink
-              to="/app/tasks"
-              className="flex items-center p-2 rounded-md hover:bg-gray-100"
-            >
+            <SidebarLink to="/app/tasks">
               <span className="mx-2">
-                <TasksIcon className="w-5 h-5" />
+                <TasksIcon />
               </span>
               <span className="flex-grow">Tasks</span>
               <span className="px-2 py-1 text-xs bg-blue-100 rounded-full">
@@ -256,23 +250,17 @@ export function Sidebar() {
               </span>
             </SidebarLink>
 
-            <SidebarLink
-              to="/app/files"
-              className="flex items-center p-2 rounded-md hover:bg-gray-100"
-            >
+            <SidebarLink to="/app/files">
               <span className="mx-2">
-                <FileIcon className="w-5 h-5" />
+                <FileIcon />
               </span>
               <span className="flex-grow">Files</span>
             </SidebarLink>
 
             {import.meta.env.VITE_FEATURE_CHAT === "true" && (
-              <SidebarLink
-                to="/app/chat"
-                className="flex items-center p-2 rounded-md hover:bg-gray-100"
-              >
+              <SidebarLink to="/app/chat">
                 <span className="mx-2">
-                  <ChatIcon className="w-5 h-5" />
+                  <ChatIcon />
                 </span>
                 <span className="flex-grow">Chat</span>
               </SidebarLink>
