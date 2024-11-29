@@ -157,7 +157,7 @@ export function EditPage({ newCard }: EditPageProps) {
   }
 
   return (
-    <div className="px-20 py-4">
+    <div className="px-4 md:px-20 py-4">
       {editingCard && (
         <div>
           <div>{message && <span>{message}</span>}</div>

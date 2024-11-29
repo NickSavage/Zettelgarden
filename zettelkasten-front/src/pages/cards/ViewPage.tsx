@@ -102,7 +102,7 @@ export function ViewPage({}: ViewPageProps) {
   }, [id, setRefreshTasks]);
 
   return (
-    <div className="px-20 py-4">
+    <div className="px-4 md:px-20 py-4">
       {error && (
         <div>
           // <h3>Unauthorized</h3>
@@ -111,10 +111,10 @@ export function ViewPage({}: ViewPageProps) {
       )}
       {viewingCard && (
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div className="flex-grow">
-              <h1 className="">
-                <span style={{ fontWeight: "bold", color: "blue" }}>
+              <h1 className="text-lg md:text-xl break-words">
+                <span className="font-bold text-blue-500">
                   {viewingCard.card_id}
                 </span>
                 <HeaderTop text=": " />
