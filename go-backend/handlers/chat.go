@@ -73,7 +73,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 		}
 
 		log.Printf("cards %v %v %v", message.ID, conversationID, message.ReferencedCardPKs)
-		cards, err := s.GetPartialCardsFromChunks(userID, message.ReferencedCardPKs)
+		cards, _ := s.GetPartialCardsFromChunks(userID, message.ReferencedCardPKs)
 
 		message.ReferencedCards = cards
 		messages = append(messages, message)
