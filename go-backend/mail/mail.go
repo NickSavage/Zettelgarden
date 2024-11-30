@@ -127,7 +127,10 @@ func (m *MailClient) processQueue() {
 			// Handle error - maybe log it or requeue the email
 			log.Printf("Failed to send email: %v", err)
 			// Optional: requeue the failed email
-			m.Queue.Push(email)
+			email.Retries += 1
+			if email.Retries < 4 {
+				m.Queue.Push(email)
+			}
 		}
 
 		// Optional: add a small delay between sends
