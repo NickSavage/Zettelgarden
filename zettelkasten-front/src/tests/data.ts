@@ -175,6 +175,7 @@ const sampleCardData: Card[] = [
     files: [],
     is_deleted: false,
     tags: [],
+    tasks: [],
   },
   {
     id: 2,
@@ -192,5 +193,6 @@ const sampleCardData: Card[] = [
     files: [],
     is_deleted: false,
     tags: [],
+    tasks: [],
   },
 ];

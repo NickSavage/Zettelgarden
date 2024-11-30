@@ -73,6 +73,7 @@ export const defaultCard: Card = {
   children: [],
   references: [],
   tags: [],
+  tasks: [],
 };
 
 export interface NextIdResponse {
