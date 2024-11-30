@@ -16,7 +16,7 @@ function App() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   useEffect(() => {
-    if (isAuthenticated && location.pathname === "/") {
+    if (isAuthenticated && location.pathname !== "/blog" && location.pathname === "/") {
       navigate("/app");
     }
   }, [isAuthenticated, navigate]); // Add dependencies

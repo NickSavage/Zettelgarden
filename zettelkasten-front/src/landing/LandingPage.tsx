@@ -7,12 +7,13 @@ import landingImage from "../assets/landing.png";
 import { GithubIcon } from "../assets/icons/GithubIcon";
 import { LandingHeader } from "./LandingHeader";
 
-import { addToMailingList } from "../api/users";
 
+import { addToMailingList } from "../api/users";
 function LandingPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
 
   function handleSignUp() {
     navigate("/app");
