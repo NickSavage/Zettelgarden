@@ -1,1 +1,1 @@
-ALTER TABLE mailing_list ADD COLUMN subscribed DEFAULT TRUE;
+ALTER TABLE mailing_list ADD COLUMN subscribed BOOLEAN DEFAULT TRUE;
