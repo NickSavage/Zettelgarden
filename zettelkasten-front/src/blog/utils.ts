@@ -4,6 +4,7 @@ import { BlogPost, BlogPostMeta } from './models';
 interface PostFrontmatter {
   title: string;
   date: string;
+  author: string;
   excerpt?: string;
   tags?: string[];  // Added tags property
 }
