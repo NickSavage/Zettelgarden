@@ -167,20 +167,23 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={`
-          fixed md:relative
-          w-64
-          h-screen
-          bg-white
-          flex flex-col
-          border-r
-          transform
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0
-          transition-transform
-          duration-300
-          ease-in-out
-          z-[50]
-        `}
+    fixed md:relative
+    w-64
+    min-w-[16rem]    // Add this to set minimum width
+    max-w-[16rem]    // Add this to set maximum width
+    flex-shrink-0    // Add this to prevent shrinking
+    h-screen
+    bg-white
+    flex flex-col
+    border-r
+    transform
+    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    md:translate-x-0
+    transition-transform
+    duration-300
+    ease-in-out
+    z-[50]
+  `}
       >
         {/* Upper Section */}
         <div className="flex items-center p-4 border-b">

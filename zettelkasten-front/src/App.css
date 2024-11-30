@@ -44,10 +44,6 @@ option {
   background-color: #c7f9cc;
 }
 
-.main-content {
-  display: flex;
-  padding-top: 10;
-}
 .main-content p {
   margin-bottom: 20px;
 }
@@ -163,13 +159,6 @@ option {
 }
 
 
-.content {
-  flex-grow: 1; /* takes the remaining space */
-  height: calc(100vh);
-  overflow-y: auto; /* enables scrolling */
-  word-wrap: break-word; /* Added: ensures text wrapping */
-  overflow-x: hidden; /* Added: prevents horizontal scrolling */
-}
 .content-display {
   padding: 10px;
 }

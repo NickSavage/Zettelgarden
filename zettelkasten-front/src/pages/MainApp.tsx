@@ -62,10 +62,10 @@ function MainAppContent() {
     return <Navigate to="/login" replace />;
   }
   return (
-    <div className="main-content">
+    <div className="flex">
       {hasSubscription ? <Sidebar /> : <div></div>}
-      <div className="content">
-        <div className="content-display">
+      <div className="flex-grow h-screen overflow-y-auto break-words overflow-x-auto">
+        <div className="">
           {hasSubscription ? <EmailValidationBanner /> : <div></div>}
           <Routes>
             {!hasSubscription && (
