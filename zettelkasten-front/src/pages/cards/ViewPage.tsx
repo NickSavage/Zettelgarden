@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import { CardBody } from "../../components/cards/CardBody";
 import { CardItem } from "../../components/cards/CardItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
-import { getCard, saveExistingCard, fetchRelatedCards } from "../../api/cards";
+import { getCard, saveExistingCard } from "../../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import { Card, PartialCard } from "../../models/Card";
-import { File } from "../../models/File";
 import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { useTaskContext } from "../../contexts/TaskContext";
@@ -15,7 +14,6 @@ import { useTaskContext } from "../../contexts/TaskContext";
 import { Button } from "../../components/Button";
 import {
   HeaderTop,
-  HeaderSection,
   HeaderSubSection,
 } from "../../components/Header";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
@@ -23,7 +21,6 @@ import { convertCardToPartialCard } from "../../utils/cards";
 import { ViewCardTabbedDisplay } from "../../components/cards/ViewCardTabbedDisplay";
 
 import { ViewCardOptionsMenu } from "../../components/cards/ViewCardOptionsMenu";
-import { useTagContext } from "../../contexts/TagContext";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface ViewPageProps {}
@@ -34,15 +31,10 @@ export function ViewPage({}: ViewPageProps) {
   const [parentCard, setParentCard] = useState<Card | null>(null);
   const { tasks, setRefreshTasks } = useTaskContext();
   const { id } = useParams<{ id: string }>();
-  const cardId = id ? parseInt(id, 10) : null;
-  const cardTasks = cardId
-    ? tasks.filter((task) => task.card_pk === cardId)
-    : [];
 
   const navigate = useNavigate();
 
   const { setLastCard } = usePartialCardContext();
-  const { tags } = useTagContext();
 
   async function handleAddBacklink(selectedCard: PartialCard) {
     if (viewingCard === null) {
@@ -175,10 +167,10 @@ export function ViewPage({}: ViewPageProps) {
             </div>
           )}
           <hr />
-          {cardTasks.length > 0 && (
+          {viewingCard.tasks.length > 0 && (
             <div>
               <HeaderSubSection text="Tasks" />
-              {cardTasks.map((task, index) => (
+              {viewingCard.tasks.map((task, index) => (
                 <TaskListItem
                   task={task}
                   setRefresh={setRefreshTasks}

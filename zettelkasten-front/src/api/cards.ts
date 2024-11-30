@@ -161,12 +161,30 @@ export function getCard(id: string): Promise<Card> {
                   };
                 })
               : [];
+          let tasks =
+            card.tasks !== null
+              ? card.tasks.map((task) => {
+                  return {
+                    ...task,
+                    scheduled_date: task.scheduled_date
+                      ? new Date(task.scheduled_date)
+                      : null,
+                    dueDate: task.dueDate ? new Date(task.dueDate) : null,
+                    created_at: new Date(task.created_at),
+                    updated_at: new Date(task.updated_at),
+                    completed_at: task.completed_at
+                      ? new Date(task.completed_at)
+                      : null,
+                  };
+                })
+              : [];
           return {
             ...card,
             created_at: new Date(card.created_at),
             updated_at: new Date(card.updated_at),
             children: children,
             references: references,
+            tasks: tasks,
           };
         });
       } else {

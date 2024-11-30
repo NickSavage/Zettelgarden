@@ -1,5 +1,6 @@
 import { File } from "./File";
 import { Tag } from "./Tags";
+import { Task } from "./Task";
 
 export interface PartialCard {
   id: number;
@@ -28,6 +29,7 @@ export interface Card {
   children: PartialCard[];
   references: PartialCard[];
   tags: Tag[];
+  tasks: Task[];
 }
 
 export interface CardChunk {

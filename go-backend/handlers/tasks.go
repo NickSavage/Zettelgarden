@@ -97,6 +97,51 @@ func (s *Handler) QueryTasks(userID int, includeCompleted bool) ([]models.Task, 
 	}
 	return tasks, nil
 }
+func (s *Handler) QueryTasksByCard(userID int, cardPK int) ([]models.Task, error) {
+	var tasks []models.Task
+	query := `
+	SELECT id, card_pk, user_id, scheduled_date, due_date,
+	created_at, updated_at, completed_at, title, is_complete
+	FROM
+	tasks
+	WHERE user_id = $1 AND is_deleted = FALSE AND card_pk = $2
+`
+	rows, err := s.DB.Query(query, userID, cardPK)
+	if err != nil {
+		log.Printf("err %v", err)
+		return []models.Task{}, err
+	}
+	for rows.Next() {
+		var task models.Task
+		if err := rows.Scan(
+			&task.ID,
+			&task.CardPK,
+			&task.UserID,
+			&task.ScheduledDate,
+			&task.DueDate,
+			&task.CreatedAt,
+			&task.UpdatedAt,
+			&task.CompletedAt,
+			&task.Title,
+			&task.IsComplete,
+		); err != nil {
+			log.Printf("err %v", err)
+			return []models.Task{}, fmt.Errorf("unable to access task")
+		}
+		if task.CardPK > 0 {
+			card, err := s.QueryPartialCardByID(userID, task.CardPK)
+			if err == nil {
+				task.Card = card
+			}
+		}
+		tags, err := s.QueryTagsForTask(userID, task.ID)
+		if err == nil {
+			task.Tags = tags
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
+}
 
 func (s *Handler) GetTaskRoute(w http.ResponseWriter, r *http.Request) {
 

@@ -488,6 +488,14 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 
 	card.Tags = tags
 
+	tasks, err := s.QueryTasksByCard(userID, card.ID)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	card.Tasks = tasks
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
 }

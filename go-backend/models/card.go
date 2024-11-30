@@ -24,6 +24,7 @@ type Card struct {
 	References []PartialCard `json:"references"`
 	Keywords   []Keyword     `json:"keywords"`
 	Tags       []Tag         `json:"tags"`
+	Tasks      []Task        `json:"tasks"`
 	Embedding  pgvector.Vector
 }
 

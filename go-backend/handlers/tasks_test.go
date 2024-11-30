@@ -407,3 +407,19 @@ func TestUpdateTaskCompleteRecurringTask(t *testing.T) {
 		t.Errorf("wrong task count, got %v want %v", taskCount+1, newTaskCount)
 	}
 }
+
+func TestGetTasksForCardSuccess(t *testing.T) {
+
+	s := setup()
+	defer tests.Teardown()
+
+	rr := makeTasksRequestSuccess(s, t, "")
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+	tasks, _ := s.QueryTasksByCard(1, 1)
+	if len(tasks) != 1 {
+		t.Errorf("wrong number of tasks returned, got %v want %v", len(tasks), 1)
+	}
+}
