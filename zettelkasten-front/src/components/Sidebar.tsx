@@ -302,20 +302,19 @@ export function Sidebar() {
             </div>
           )}
         </div>
-
-        {/* Modal Windows */}
-        {showCreateTaskWindow && (
-          <CreateTaskWindow
-            currentCard={getCurrentCard()}
-            setRefresh={(refresh: boolean) => {}}
-            setShowTaskWindow={setShowCreateTaskWindow}
-          />
-        )}
-
-        {showQuickSearchWindow && (
-          <QuickSearchWindow setShowWindow={setShowQuickSearchWindow} />
-        )}
       </div>
+      {/* Modal Windows */}
+      {showCreateTaskWindow && (
+        <CreateTaskWindow
+          currentCard={getCurrentCard()}
+          setRefresh={(refresh: boolean) => {}}
+          setShowTaskWindow={setShowCreateTaskWindow}
+        />
+      )}
+
+      {showQuickSearchWindow && (
+        <QuickSearchWindow setShowWindow={setShowQuickSearchWindow} />
+      )}
     </>
   );
 }
