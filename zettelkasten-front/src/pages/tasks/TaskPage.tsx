@@ -135,11 +135,11 @@ export function TaskPage({}: TaskListProps) {
         <div className="flex">
           <Button onClick={toggleShowTaskWindow} children="Add Task" />
 
-          <SearchTagMenu
+          <TaskPageOptionsMenu
+
             tags={tags.filter((tag) => tag.task_count > 0)}
             handleTagClick={handleTagClick}
-          />
-          <TaskPageOptionsMenu />
+	  />
         </div>
       </div>
       <div>
