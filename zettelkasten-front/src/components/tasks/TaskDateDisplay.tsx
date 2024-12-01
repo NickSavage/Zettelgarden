@@ -107,7 +107,6 @@ export function TaskDateDisplay({
     updateTask(editedTask);
     setDisplayDatePicker(false);
     setSelectedDate("");
-    
   }
 
   function handleTextClick() {
@@ -154,19 +153,32 @@ export function TaskDateDisplay({
       {displayDatePicker && (
         <div className="dropdown">
           <div className="popup-menu-left-aligned">
-            <div>
-              <button onClick={setNoDate}>No Date</button>
-              <button onClick={setToday}>Today</button>
-              <button onClick={setTomorrow}>Tomorrow</button>
-	      { isFriday() ? (
-		
-              <button onClick={setNextMonday}>Next Monday</button>
-	      ) : <div></div>}
-              <button onClick={setNextWeek}>Next Week</button>
+            <div className="flex flex-col space-y-2">
+              {" "}
+              {/* This creates vertical spacing between children */}
+              <button onClick={setNoDate} className="w-full">
+                No Date
+              </button>
+              <button onClick={setToday} className="w-full">
+                Today
+              </button>
+              <button onClick={setTomorrow} className="w-full">
+                Tomorrow
+              </button>
+              {isFriday() ? (
+                <button onClick={setNextMonday} className="w-full">
+                  Next Monday
+                </button>
+              ) : (
+                <div></div>
+              )}
+              <button onClick={setNextWeek} className="w-full">
+                Next Week
+              </button>
               <input
                 aria-label="Date"
                 type="date"
-                className="p-2"
+                className="p-2 w-full"
                 value={selectedDate}
                 onChange={handleScheduledDateChange}
               />
