@@ -191,7 +191,7 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 		Chunk: searchTerm,
 	}
 
-	embeddings, err := llms.GenerateEmbeddings(chunk, true)
+	embeddings, err := llms.GenerateChunkEmbeddings(chunk, true)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

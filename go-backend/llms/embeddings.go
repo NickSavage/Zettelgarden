@@ -88,7 +88,7 @@ func GenerateEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvector.Ve
 func GenerateEmbeddingsFromCard(db *sql.DB, chunks []models.CardChunk) ([][]pgvector.Vector, error) {
 	results := [][]pgvector.Vector{}
 	for _, chunk := range chunks {
-		vec, err := GenerateEmbeddings(chunk, false)
+		vec, err := GenerateChunkEmbeddings(chunk, false)
 		if err != nil {
 			log.Printf("error generating embeddings %v", err)
 			return [][]pgvector.Vector{}, err
@@ -161,7 +161,7 @@ func GenerateSemanticSearchQuery(c *models.LLMClient, userQuery string) ([]pgvec
 		Chunk: optimizedQuery,
 	}
 
-	embeddings, err := GenerateEmbeddings(chunk, true)
+	embeddings, err := GenerateChunkEmbeddings(chunk, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate embeddings: %w", err)
 	}

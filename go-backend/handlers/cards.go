@@ -758,6 +758,16 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	s.ChunkCard(card)
 
 	if !s.Server.Testing {
+
+		entities, err := llms.FindEntities(s.Server.LLMClient, card)
+		if err != nil {
+			log.Printf("entity error %v", err)
+		} else {
+			err = s.UpsertEntities(userID, cardPK, entities)
+			if err != nil {
+				log.Printf("error upserting entities: %v", err)
+			}
+		}
 		go func() {
 			s.ChunkEmbedCard(userID, card.ID)
 		}()
@@ -795,6 +805,16 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	s.ChunkCard(card)
 
 	if !s.Server.Testing {
+
+		entities, err := llms.FindEntities(s.Server.LLMClient, card)
+		if err != nil {
+			log.Printf("entity error %v", err)
+		} else {
+			err = s.UpsertEntities(userID, card.ID, entities)
+			if err != nil {
+				log.Printf("error upserting entities: %v", err)
+			}
+		}
 		go func() {
 			s.ChunkEmbedCard(userID, card.ID)
 		}()
