@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"go-backend/models"
 	"log"
+	"strings"
+	"time"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -40,6 +42,7 @@ Return only valid JSON matching the specified structure.`
     Body: %s
     
     Return only a JSON array of entities matching this structure:
+[
     
         {
             "name": "entity name",
@@ -58,25 +61,128 @@ Return only valid JSON matching the specified structure.`
 			Content: fmt.Sprintf(prompt, card.Title, card.Body),
 		},
 	}
-
-	resp, err := c.Client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:    models.MODEL,
-			Messages: messages,
-		},
-	)
-	if err != nil {
-		log.Printf("error getting completion: %v", err)
-		return []models.Entity{}, err
-	}
-	log.Printf("resp %v", resp.Choices[0].Message.Content)
 	var entities []models.Entity
-	if err := json.Unmarshal([]byte(resp.Choices[0].Message.Content), &entities); err != nil {
-		return nil, fmt.Errorf("failed to parse JSON response: %v", err)
+	var jsonErr error
+	for range 3 {
+
+		resp, err := c.Client.CreateChatCompletion(
+			context.Background(),
+			openai.ChatCompletionRequest{
+				Model:    models.MODEL,
+				Messages: messages,
+			},
+		)
+		if err != nil {
+			log.Printf("error getting completion: %v", err)
+			return []models.Entity{}, err
+		}
+		content := resp.Choices[0].Message.Content
+		content = strings.TrimPrefix(content, "```json")
+		content = strings.TrimSuffix(content, "```")
+		content = strings.TrimSpace(content)
+
+		jsonErr = json.Unmarshal([]byte(content), &entities)
+		if jsonErr == nil {
+			break
+		} else {
+			time.Sleep(1000 * time.Millisecond)
+
+		}
+	}
+	var results []models.Entity
+	for _, entity := range entities {
+		text := fmt.Sprintf("%v - %v - %v", entity.Name, entity.Type, entity.Description)
+		embedding, err := GetEmbedding(text, false)
+		if err != nil {
+			continue
+		}
+		entity.Embedding = embedding
+		results = append(results, entity)
 	}
 
-	log.Printf("entitites %v", entities)
-	return entities, nil
+	return results, nil
 
+}
+
+func CheckExistingEntities(c *models.LLMClient, similar []models.Entity, entity models.Entity) (models.Entity, error) {
+	if len(similar) == 0 {
+		return entity, nil
+	}
+
+	// System prompt to explain the task
+	systemPrompt := `You are an AI specialized in determining if entities refer to the same thing.
+Consider names, descriptions, and entity types carefully.
+Return a JSON response indicating if they are the same and explaining why.
+Be strict - only indicate they are the same if you are highly confident they refer to the exact same entity.`
+
+	// Check each similar entity
+	for _, sim := range similar {
+		prompt := fmt.Sprintf(`Compare these two entities and determine if they refer to the same thing:
+
+Entity 1:
+Name: %s
+Type: %s
+Description: %s
+
+Entity 2:
+Name: %s
+Type: %s
+Description: %s
+
+Return JSON in this format:
+{
+    "areSame": boolean,
+    "explanation": "brief explanation of decision",
+    "preferredEntity": "1" or "2"
+}`,
+			entity.Name, entity.Type, entity.Description,
+			sim.Name, sim.Type, sim.Description)
+
+		messages := []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleSystem,
+				Content: systemPrompt,
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: prompt,
+			},
+		}
+
+		type Response struct {
+			AreSame         bool   `json:"areSame"`
+			Explanation     string `json:"explanation"`
+			PreferredEntity string `json:"preferredEntity"`
+		}
+
+		// Make the API call
+		resp, err := c.Client.CreateChatCompletion(
+			context.Background(),
+			openai.ChatCompletionRequest{
+				Model:    models.MODEL,
+				Messages: messages,
+			},
+		)
+		if err != nil {
+			log.Printf("error getting completion: %v", err)
+			continue
+		}
+
+		var result Response
+		err = json.Unmarshal([]byte(resp.Choices[0].Message.Content), &result)
+		if err != nil {
+			log.Printf("error parsing response: %v", err)
+			continue
+		}
+
+		// If the LLM thinks they're the same
+		if result.AreSame {
+			// log.Printf("Found matching entity: %s and %s. Explanation: %s",
+			// 	entity.Name, sim.Name, result.Explanation)
+			return sim, nil
+		}
+	}
+
+	// If no matches found or new entity is always preferred
+	return entity, nil
 }

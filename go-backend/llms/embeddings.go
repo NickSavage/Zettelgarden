@@ -33,13 +33,14 @@ func chunkInput(input string) []string {
 	return chunks
 }
 
-func GenerateChunkEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvector.Vector, error) {
-	var results []pgvector.Vector
+// GetEmbedding generates an embedding vector for a given text string
+func GetEmbedding(text string, useForQuery bool) (pgvector.Vector, error) {
 	url := os.Getenv("ZETTEL_EMBEDDING_API")
 	if url == "" {
-		return results, errors.New("no embedding url given - set ZETTEL_EMBEDDING_API")
+		return pgvector.Vector{}, errors.New("no embedding url given - set ZETTEL_EMBEDDING_API")
 	}
-	prompt := chunk.Chunk
+
+	prompt := text
 	if useForQuery {
 		prompt = "Represent this sentence for searching relevant passages:" + prompt
 	}
@@ -51,38 +52,42 @@ func GenerateChunkEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvect
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return results, fmt.Errorf("error creating JSON payload: %w", err)
+		return pgvector.Vector{}, fmt.Errorf("error creating JSON payload: %w", err)
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return results, fmt.Errorf("error creating request: %w", err)
+		return pgvector.Vector{}, fmt.Errorf("error creating request: %w", err)
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return results, fmt.Errorf("error communicating with the embedding API: %w", err)
+		return pgvector.Vector{}, fmt.Errorf("error communicating with the embedding API: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return results, fmt.Errorf("error generating embeddings: %d - %s", resp.StatusCode, resp.Status)
+		return pgvector.Vector{}, fmt.Errorf("error generating embeddings: %d - %s", resp.StatusCode, resp.Status)
 	}
 
 	var response struct {
 		Embedding []float32 `json:"embedding"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return results, errors.New("error decoding the embedding API response")
+		return pgvector.Vector{}, errors.New("error decoding the embedding API response")
 	}
 
-	result := pgvector.NewVector(response.Embedding)
+	return pgvector.NewVector(response.Embedding), nil
+}
 
-	results = append(results, result)
-
-	return results, nil
-
+func GenerateChunkEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvector.Vector, error) {
+	embedding, err := GetEmbedding(chunk.Chunk, useForQuery)
+	if err != nil {
+		return nil, err
+	}
+	return []pgvector.Vector{embedding}, nil
 }
 
 func GenerateEmbeddingsFromCard(db *sql.DB, chunks []models.CardChunk) ([][]pgvector.Vector, error) {

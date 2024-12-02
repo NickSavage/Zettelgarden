@@ -2,15 +2,25 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
+	"go-backend/llms"
 	"go-backend/models"
 	"log"
 )
 
+const SIMILARITY_THRESHOLD = 0.15
+
 func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entity) error {
 	for _, entity := range entities {
+		similarEntities, err := s.FindPotentialDuplicates(userID, entity)
+		if err != nil {
+			return err
+		}
+		entity, err = llms.CheckExistingEntities(s.Server.LLMClient, similarEntities, entity)
+
 		var entityID int
 		// First try to find if the entity exists
-		err := s.DB.QueryRow(`
+		err = s.DB.QueryRow(`
             SELECT id 
             FROM entities 
             WHERE user_id = $1 AND name = $2
@@ -19,10 +29,10 @@ func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entit
 		if err == sql.ErrNoRows {
 			// Entity doesn't exist, insert it
 			err = s.DB.QueryRow(`
-                INSERT INTO entities (user_id, name, description, type)
-                VALUES ($1, $2, $3, $4)
+                INSERT INTO entities (user_id, name, description, type, embedding)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING id
-            `, userID, entity.Name, entity.Description, entity.Type).Scan(&entityID)
+            `, userID, entity.Name, entity.Description, entity.Type, entity.Embedding).Scan(&entityID)
 			if err != nil {
 				log.Printf("error inserting entity: %v", err)
 				continue
@@ -58,4 +68,32 @@ func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entit
 		}
 	}
 	return nil
+}
+
+func (s *Handler) FindPotentialDuplicates(userID int, entity models.Entity) ([]models.Entity, error) {
+	const query = `
+        SELECT id, name, description, type
+        FROM entities
+        WHERE user_id = $1 AND (embedding <=> $2) < $3
+        ORDER BY embedding <=> $2
+        LIMIT 5;
+    `
+
+	rows, err := s.DB.Query(query, userID, entity.Embedding, SIMILARITY_THRESHOLD)
+	if err != nil {
+		return nil, fmt.Errorf("error querying similar entities: %w", err)
+	}
+	defer rows.Close()
+
+	var similarEntities []models.Entity
+	for rows.Next() {
+		var e models.Entity
+		err := rows.Scan(&e.ID, &e.Name, &e.Description, &e.Type)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning entity: %w", err)
+		}
+		similarEntities = append(similarEntities, e)
+	}
+
+	return similarEntities, nil
 }

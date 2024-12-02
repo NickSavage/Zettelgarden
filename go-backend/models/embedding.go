@@ -13,10 +13,11 @@ type Embedding struct {
 }
 
 type Entity struct {
-	ID          int    `json:"id"`
-	CardPK      int    `json:"card_id"`
-	UserID      int    `json:"user_id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
+	ID          int             `json:"id"`
+	CardPK      int             `json:"card_id"`
+	UserID      int             `json:"user_id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Type        string          `json:"type"`
+	Embedding   pgvector.Vector `json:"embedding"`
 }
