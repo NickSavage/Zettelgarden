@@ -10,6 +10,30 @@ import (
 
 const SIMILARITY_THRESHOLD = 0.15
 
+func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
+
+	chunks, err := s.GetCardChunks(userID, card.ID)
+	if err != nil {
+		log.Printf("error in chunking %v", err)
+		return err
+	}
+	for _, chunk := range chunks {
+		entities, err := llms.FindEntities(s.Server.LLMClient, chunk)
+		if err != nil {
+			log.Printf("entity error %v", err)
+			return err
+		} else {
+			err = s.UpsertEntities(userID, card.ID, entities)
+			if err != nil {
+				log.Printf("error upserting entities: %v", err)
+				return err
+			}
+		}
+	}
+	return nil
+
+}
+
 func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entity) error {
 	for _, entity := range entities {
 		similarEntities, err := s.FindPotentialDuplicates(userID, entity)

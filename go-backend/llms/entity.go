@@ -12,7 +12,7 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func FindEntities(c *models.LLMClient, card models.Card) ([]models.Entity, error) {
+func FindEntities(c *models.LLMClient, chunk models.CardChunk) ([]models.Entity, error) {
 	systemPrompt := `You are an AI specialized in analyzing zettelkasten cards and extracting entities.
 Follow these rules strictly:
 
@@ -50,6 +50,7 @@ Return only valid JSON matching the specified structure.`
             "type": "entity type"
         }
     ]`
+	log.Printf("find entities: %v %v", chunk.Title, chunk.Chunk)
 
 	messages := []openai.ChatCompletionMessage{
 		{
@@ -58,7 +59,7 @@ Return only valid JSON matching the specified structure.`
 		},
 		{
 			Role:    openai.ChatMessageRoleUser,
-			Content: fmt.Sprintf(prompt, card.Title, card.Body),
+			Content: fmt.Sprintf(prompt, chunk.Title, chunk.Chunk),
 		},
 	}
 	var entities []models.Entity
@@ -169,7 +170,12 @@ Return JSON in this format:
 		}
 
 		var result Response
-		err = json.Unmarshal([]byte(resp.Choices[0].Message.Content), &result)
+
+		content := resp.Choices[0].Message.Content
+		content = strings.TrimPrefix(content, "```json")
+		content = strings.TrimSuffix(content, "```")
+		content = strings.TrimSpace(content)
+		err = json.Unmarshal([]byte(content), &result)
 		if err != nil {
 			log.Printf("error parsing response: %v", err)
 			continue
