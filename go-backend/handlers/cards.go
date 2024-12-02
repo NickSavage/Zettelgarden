@@ -151,7 +151,6 @@ func (s *Handler) getChildren(userID int, cardID string) ([]models.PartialCard, 
 	}
 
 	cards, err := models.ScanPartialCards(rows)
-	log.Printf("cards %v", cards)
 	if err != nil {
 		log.Printf("err %v", err)
 		return []models.PartialCard{}, err

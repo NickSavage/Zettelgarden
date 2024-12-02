@@ -72,7 +72,6 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 			message.ReferencedCardPKs[i] = int(v)
 		}
 
-		log.Printf("cards %v %v %v", message.ID, conversationID, message.ReferencedCardPKs)
 		cards, _ := s.GetPartialCardsFromChunks(userID, message.ReferencedCardPKs)
 
 		message.ReferencedCards = cards
@@ -260,7 +259,6 @@ func (s *Handler) RouteChatCompletion(
 			}
 			scoredCards = append(scoredCards, card)
 		}
-		log.Printf("related cards %v", relatedCards)
 		completion, err = llms.CardSearchChatCompletion(s.Server.LLMClient, messages, scoredCards)
 
 	} else {
@@ -390,7 +388,6 @@ func (s *Handler) GetChatMessagesInConversation(userID int, conversationID strin
 			log.Printf("error scanning message: %v", err)
 			return []models.ChatCompletion{}, fmt.Errorf("failed to process chat history")
 		}
-		log.Printf("cards %v", msg.ReferencedCardPKs)
 
 		cards, _ := s.GetPartialCardsFromChunks(userID, msg.ReferencedCardPKs)
 		msg.ReferencedCards = cards
