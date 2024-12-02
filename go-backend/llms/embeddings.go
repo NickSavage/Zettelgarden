@@ -33,7 +33,7 @@ func chunkInput(input string) []string {
 	return chunks
 }
 
-func GenerateEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvector.Vector, error) {
+func GenerateChunkEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvector.Vector, error) {
 	var results []pgvector.Vector
 	url := os.Getenv("ZETTEL_EMBEDDING_API")
 	if url == "" {
