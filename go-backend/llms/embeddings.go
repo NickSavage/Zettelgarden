@@ -32,6 +32,43 @@ func chunkInput(input string) []string {
 	return chunks
 }
 
+func StartProcessingQueue(c *models.LLMClient) {
+	log.Printf("start processing")
+	c.EmbeddingQueue.Mu.Lock()
+	if c.EmbeddingQueue.IsProcessing {
+		c.EmbeddingQueue.Mu.Unlock()
+		return
+	}
+	c.EmbeddingQueue.IsProcessing = true
+	c.EmbeddingQueue.Mu.Unlock()
+
+	go ProcessQueue(c)
+}
+
+func ProcessQueue(c *models.LLMClient) {
+	for {
+		request, ok := c.EmbeddingQueue.Pop()
+		if !ok {
+			c.EmbeddingQueue.Mu.Lock()
+			c.EmbeddingQueue.IsProcessing = false
+			c.EmbeddingQueue.Mu.Unlock()
+			return
+		}
+		embeddings, err := GenerateChunkEmbeddings(request.Chunk, false)
+		if err != nil {
+			// handle error
+			log.Printf("failed to generate embeddings for %v", request.Chunk.ID)
+			request.Retries += 1
+			if request.Retries < 4 {
+				c.EmbeddingQueue.Push(request)
+			}
+		}
+		err = StoreEmbeddings(db, request.UserID, request.CardPK, embeddings)
+
+	}
+
+}
+
 // GetEmbedding generates an embedding vector for a given text string
 func GetEmbedding(text string, useForQuery bool) (pgvector.Vector, error) {
 	url := os.Getenv("ZETTEL_EMBEDDING_API")

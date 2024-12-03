@@ -2,15 +2,17 @@ package llms
 
 import (
 	"context"
+	"database/sql"
 	"go-backend/models"
 
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func NewClient(config openai.ClientConfig) *models.LLMClient {
+func NewClient(db *sql.DB, config openai.ClientConfig) *models.LLMClient {
 	return &models.LLMClient{
-		Client:  openai.NewClientWithConfig(config),
-		Testing: false,
+		Client:         openai.NewClientWithConfig(config),
+		Testing:        false,
+		EmbeddingQueue: models.NewEmbeddingQueue(db),
 	}
 }
 

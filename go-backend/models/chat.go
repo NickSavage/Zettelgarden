@@ -1,14 +1,71 @@
 package models
 
 import (
+	"database/sql"
+	"sync"
 	"time"
 
 	openai "github.com/sashabaranov/go-openai"
 )
 
+type LLMRequest struct {
+	UserID  int
+	Text    string
+	CardPK  int
+	Chunk   CardChunk
+	Retries int
+}
+
+type LLMRequestQueue struct {
+	Queue        []LLMRequest
+	Mu           sync.Mutex
+	IsProcessing bool
+	DB           *sql.DB
+}
+
 type LLMClient struct {
-	Client  *openai.Client
-	Testing bool
+	Client         *openai.Client
+	Testing        bool
+	EmbeddingQueue *LLMRequestQueue
+}
+
+func NewEmbeddingQueue(db *sql.DB) *LLMRequestQueue {
+	return &LLMRequestQueue{
+		Queue: make([]LLMRequest, 0),
+		DB:    db,
+	}
+}
+
+// Push adds an email to the queue
+func (q *LLMRequestQueue) Push(email LLMRequest) {
+	q.Mu.Lock()
+	defer q.Mu.Unlock()
+	q.Queue = append(q.Queue, email)
+}
+
+// Pop removes and returns the first email from the queue
+// Returns false if queue is empty
+func (q *LLMRequestQueue) Pop() (LLMRequest, bool) {
+	q.Mu.Lock()
+	defer q.Mu.Unlock()
+
+	if len(q.Queue) == 0 {
+		return LLMRequest{}, false
+	}
+
+	// Get the first email
+	request := q.Queue[0]
+	// Remove it from the queue
+	q.Queue = q.Queue[1:]
+
+	return request, true
+}
+
+// Length returns the current size of the queue
+func (eq *LLMRequestQueue) Length() int {
+	eq.Mu.Lock()
+	defer eq.Mu.Unlock()
+	return len(eq.Queue)
 }
 
 type ChatCompletion struct {
