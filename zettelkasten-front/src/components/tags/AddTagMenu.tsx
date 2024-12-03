@@ -42,15 +42,19 @@ export function AddTagMenu({ task, handleAddTag }: AddTagMenuProps) {
         }}
       />
       {tags &&
-        tags.map((tag) =>
-          task.title.includes(tag.name) ? (
-            <div key={tag.id}></div>
-          ) : (
-            <button key={tag.id} onClick={() => handleExistingTagClick(tag)}>
-              {"#" + tag.name}
-            </button>
-          ),
-        )}
+        tags
+          .filter((tag) =>
+            tag.name.toLowerCase().includes(textInput.toLowerCase()),
+          )
+          .map((tag) =>
+            task.title.includes(tag.name) ? (
+              <div key={tag.id}></div>
+            ) : (
+              <button key={tag.id} onClick={() => handleExistingTagClick(tag)}>
+                {"#" + tag.name}
+              </button>
+            ),
+          )}
     </div>
   );
 }
