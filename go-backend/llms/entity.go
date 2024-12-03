@@ -1,7 +1,6 @@
 package llms
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
@@ -66,13 +65,7 @@ Return only valid JSON matching the specified structure.`
 	var jsonErr error
 	for range 3 {
 
-		resp, err := c.Client.CreateChatCompletion(
-			context.Background(),
-			openai.ChatCompletionRequest{
-				Model:    models.MODEL,
-				Messages: messages,
-			},
-		)
+		resp, err := ExecuteLLMRequest(c, messages)
 		if err != nil {
 			log.Printf("error getting completion: %v", err)
 			return []models.Entity{}, err
@@ -157,13 +150,8 @@ Return JSON in this format:
 		}
 
 		// Make the API call
-		resp, err := c.Client.CreateChatCompletion(
-			context.Background(),
-			openai.ChatCompletionRequest{
-				Model:    models.MODEL,
-				Messages: messages,
-			},
-		)
+
+		resp, err := ExecuteLLMRequest(c, messages)
 		if err != nil {
 			log.Printf("error getting completion: %v", err)
 			continue

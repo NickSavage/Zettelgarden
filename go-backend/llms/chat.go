@@ -1,7 +1,6 @@
 package llms
 
 import (
-	"context"
 	"fmt"
 	"go-backend/models"
 	"log"
@@ -9,13 +8,6 @@ import (
 
 	openai "github.com/sashabaranov/go-openai"
 )
-
-func NewClient(config openai.ClientConfig) *models.LLMClient {
-	return &models.LLMClient{
-		Client:  openai.NewClientWithConfig(config),
-		Testing: false,
-	}
-}
 
 func ChatCompletion(c *models.LLMClient, pastMessages []models.ChatCompletion) (models.ChatCompletion, error) {
 	if c.Testing {
@@ -38,13 +30,8 @@ func ChatCompletion(c *models.LLMClient, pastMessages []models.ChatCompletion) (
 	log.Printf("messages %v", messages)
 
 	// Create the OpenAI request
-	resp, err := c.Client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:    models.MODEL,
-			Messages: messages,
-		},
-	)
+
+	resp, err := ExecuteLLMRequest(c, messages)
 	if err != nil {
 		log.Printf("error getting completion: %v", err)
 		return models.ChatCompletion{}, fmt.Errorf("failed to get AI response")
@@ -86,13 +73,7 @@ func CreateConversationSummary(c *models.LLMClient, message models.ChatCompletio
 			Content: fmt.Sprintf("Please generate a few words a title that summarizes the following quesiton and answer. Please start with an emoji that you think covers the topic as well. Respond only in the format: Emoji Title, nothing else. Please no quotation marks. Content: %v", content),
 		},
 	}
-	resp, err := c.Client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:    models.MODEL,
-			Messages: new,
-		},
-	)
+	resp, err := ExecuteLLMRequest(c, new)
 	if err != nil {
 		log.Printf("error getting completion: %v", err)
 		return models.ConversationSummary{}, fmt.Errorf("failed to get AI response")
@@ -125,14 +106,7 @@ Respond with only one of these exact strings, nothing else. If you are not sure,
 		},
 	}
 
-	resp, err := c.Client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:       models.MODEL,
-			Messages:    messages,
-			Temperature: 0, // Keep it deterministic
-		},
-	)
+	resp, err := ExecuteLLMRequest(c, messages)
 	if err != nil {
 		log.Printf("error getting completion: %v", err)
 		return "", fmt.Errorf("failed to get AI response: %w", err)
@@ -193,14 +167,7 @@ The user data is this: %v'
 		},
 	}
 
-	resp, err := c.Client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:       models.MODEL,
-			Messages:    messages,
-			Temperature: 0, // Keep it deterministic
-		},
-	)
+	resp, err := ExecuteLLMRequest(c, messages)
 	if err != nil {
 		log.Printf("error getting completion: %v", err)
 		return models.ChatCompletion{}, fmt.Errorf("failed to get AI response: %w", err)
@@ -258,14 +225,8 @@ Context: %s`
 	}
 
 	// Get completion from OpenAI
-	resp, err := c.Client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:       models.MODEL,
-			Messages:    openAIMessages,
-			Temperature: 0.3, // Slightly creative but mostly factual
-		},
-	)
+
+	resp, err := ExecuteLLMRequest(c, openAIMessages)
 	if err != nil {
 		log.Printf("error getting completion: %v", err)
 		return models.ChatCompletion{}, fmt.Errorf("failed to get AI response: %w", err)

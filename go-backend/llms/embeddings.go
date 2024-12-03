@@ -2,7 +2,6 @@ package llms
 
 import (
 	"bytes"
-	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -143,13 +142,8 @@ func GenerateSemanticSearchQuery(c *models.LLMClient, userQuery string) ([]pgvec
 	}
 
 	// Generate the optimized search query
-	resp, err := c.Client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:    openai.GPT3Dot5Turbo,
-			Messages: messages,
-		},
-	)
+
+	resp, err := ExecuteLLMRequest(c, messages)
 	if err != nil {
 		return []pgvector.Vector{}, fmt.Errorf("failed to generate optimized search query: %w", err)
 	}

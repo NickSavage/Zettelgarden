@@ -241,7 +241,7 @@ func (s *Handler) RouteChatCompletion(
 		embedding, _ := llms.GenerateSemanticSearchQuery(s.Server.LLMClient, lastMessage)
 		relatedCards, _ := s.GetRelatedCards(userID, embedding[0])
 
-		scores, err := llms.RerankResults(s.Server.LLMClient.Client, lastMessage, relatedCards)
+		scores, err := llms.RerankResults(s.Server.LLMClient, lastMessage, relatedCards)
 		if err != nil {
 			return models.ChatCompletion{}, err
 		}

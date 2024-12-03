@@ -206,7 +206,7 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	scores, err := llms.RerankResults(s.Server.LLMClient.Client, searchTerm, relatedCards)
+	scores, err := llms.RerankResults(s.Server.LLMClient, searchTerm, relatedCards)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
