@@ -12,10 +12,7 @@ import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { useTaskContext } from "../../contexts/TaskContext";
 
 import { Button } from "../../components/Button";
-import {
-  HeaderTop,
-  HeaderSubSection,
-} from "../../components/Header";
+import { HeaderTop, HeaderSubSection } from "../../components/Header";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { convertCardToPartialCard } from "../../utils/cards";
 import { ViewCardTabbedDisplay } from "../../components/cards/ViewCardTabbedDisplay";
@@ -105,19 +102,17 @@ export function ViewPage({}: ViewPageProps) {
         <div>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div className="flex-grow">
-              <h1 className="text-lg md:text-xl break-words">
-                <span className="font-bold text-blue-500">
-                  {viewingCard.card_id}
-                </span>
-                <HeaderTop text=": " />
-                <HeaderTop className="pr-2" text={viewingCard.title} />
-                {viewingCard.tags.length > 0 &&
-                  viewingCard.tags.map((tag) => (
-                    <span className="pl-2 text-purple-500 text-sm">
-                      #{tag.name}
-                    </span>
-                  ))}
-              </h1>
+              <span className="font-bold text-blue-600">
+                {viewingCard.card_id}
+              </span>
+              <HeaderTop text=": " />
+              <HeaderTop className="pr-2" text={viewingCard.title} />
+              {viewingCard.tags.length > 0 &&
+                viewingCard.tags.map((tag) => (
+                  <span className="pl-2 text-purple-500 text-sm">
+                    #{tag.name}
+                  </span>
+                ))}
             </div>
             <div className="p-2">
               <Button onClick={handleEditCard} children="Edit" />

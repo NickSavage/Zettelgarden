@@ -14,7 +14,6 @@ module.exports = {
           light: '#80ed99',
           lighest: '#c7f9cc'
         },
-        'blue': '#0000ff',
       },
       typography: {
         DEFAULT: {
