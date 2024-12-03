@@ -37,10 +37,10 @@ func NewEmbeddingQueue(db *sql.DB) *LLMRequestQueue {
 }
 
 // Push adds an email to the queue
-func (q *LLMRequestQueue) Push(email LLMRequest) {
+func (q *LLMRequestQueue) Push(request LLMRequest) {
 	q.Mu.Lock()
 	defer q.Mu.Unlock()
-	q.Queue = append(q.Queue, email)
+	q.Queue = append(q.Queue, request)
 }
 
 // Pop removes and returns the first email from the queue

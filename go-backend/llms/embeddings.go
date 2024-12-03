@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/pgvector/pgvector-go"
 	openai "github.com/sashabaranov/go-openai"
@@ -62,9 +63,25 @@ func ProcessQueue(c *models.LLMClient) {
 			if request.Retries < 4 {
 				c.EmbeddingQueue.Push(request)
 			}
+			continue
 		}
-		err = StoreEmbeddings(db, request.UserID, request.CardPK, embeddings)
+		log.Printf("mainembeddings %v", request.Chunk)
+		err = StoreEmbeddings(
+			c.EmbeddingQueue.DB,
+			request.UserID,
+			request.CardPK,
+			[][]pgvector.Vector{embeddings},
+		)
+		if err != nil {
+			log.Printf("failed to store embed")
+			request.Retries += 1
+			if request.Retries < 4 {
+				c.EmbeddingQueue.Push(request)
+			}
+			continue
+		}
 
+		time.Sleep(1000 * time.Millisecond)
 	}
 
 }

@@ -815,12 +815,15 @@ func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
 		log.Printf("error in chunking %v", err)
 		return err
 	}
-	embeddings, err := llms.GenerateEmbeddingsFromCard(s.DB, chunks)
-	if err != nil {
-		log.Printf("error generating embeddings: %v", err)
-		return err
+	for _, chunk := range chunks {
+		log.Printf("push chunk %v", chunk)
+		s.Server.LLMClient.EmbeddingQueue.Push(models.LLMRequest{
+			UserID: userID,
+			CardPK: cardPK,
+			Chunk:  chunk,
+		})
 	}
-	llms.StoreEmbeddings(s.DB, userID, cardPK, embeddings)
+	llms.StartProcessingQueue(s.Server.LLMClient)
 	return nil
 }
 

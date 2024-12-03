@@ -132,7 +132,7 @@ func main() {
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
 	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
 
-	s.LLMClient = llms.NewClient(config)
+	s.LLMClient = llms.NewClient(s.DB, config)
 
 	go func() {
 		h.SyncStripePlans()
