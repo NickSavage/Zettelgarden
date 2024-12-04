@@ -3,15 +3,13 @@ import { fetchPartialCards, getCard } from "../api/cards";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PartialCard, Card } from "../models/Card";
-import { isTodayOrPast } from "../utils/dates";
 import { useTaskContext } from "../contexts/TaskContext";
 import { usePartialCardContext } from "../contexts/CardContext";
-import { H4, H6 } from "../components/Header";
 import { CardList } from "../components/cards/CardList";
-import { TaskList } from "../components/tasks/TaskList";
 import { useAuth } from "../contexts/AuthContext";
 import { CardBody } from "../components/cards/CardBody";
 import { useNavigate } from "react-router-dom";
+import { TasksIcon } from "../assets/icons/TasksIcon";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
@@ -43,18 +41,59 @@ export function DashboardPage() {
 
   return (
     <div>
-      <div className="px-10 py-10">
-        <ul>
+      <div className="p-6 bg-white rounded-lg shadow-sm">
+        <ul className="space-y-3">
           <li>
-            <span onClick={handleNewCard} className="cursor-pointer">
+            <span
+              onClick={handleNewCard}
+              className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 
+        bg-blue-50 hover:bg-blue-100 cursor-pointer"
+            >
+              <svg
+                className="w-5 h-5 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
               Create a Card
             </span>
           </li>
           <li>
-            <span className="cursor-pointer">Create a Task</span>
+            <span
+              className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 
+        bg-green-50 hover:bg-green-100 cursor-pointer"
+            >
+              <TasksIcon />
+              Create a Task
+            </span>
           </li>
           <li>
-            <span className="cursor-pointer">Upload a File</span>
+            <span
+              className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 
+        bg-purple-50 hover:bg-purple-100 cursor-pointer"
+            >
+              <svg
+                className="w-5 h-5 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                />
+              </svg>
+              Upload a File
+            </span>
           </li>
         </ul>
       </div>
@@ -63,15 +102,16 @@ export function DashboardPage() {
           <div>
             <div>
               <hr />
-
-              {displayCard && (
-                <div>
-                  <CardBody viewingCard={displayCard} />
-                  <Link to={"/app/card/" + displayCard.id.toString() + "/edit"}>
-                    Edit Dashboard
-                  </Link>
-                </div>
-              )}
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                  Welcome to Zettelgarden 🌱
+                </h1>
+                <p className="text-lg text-gray-600 max-w-2xl">
+                  Your personal space for growing ideas. Create cards, connect
+                  thoughts, and watch your knowledge garden flourish. Get
+                  started with the quick actions below.
+                </p>
+              </div>
             </div>
           </div>
         </div>
