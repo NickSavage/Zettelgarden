@@ -57,10 +57,13 @@ export function FileVault() {
         <FilterInput handleFilterHook={handleFilter} />
 
         <FileUpload
+							 
           setRefresh={setRefreshFiles}
           setMessage={(message: string) => {}}
           card={defaultCard}
-        />
+        >
+	<button>Select File To Upload</button>
+	</FileUpload>
       </div>
       <FileRenameModal
         isOpen={isRenameModalOpen}

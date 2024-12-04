@@ -74,7 +74,9 @@ export function ViewCardOptionsMenu({
               setRefresh={(refresh: boolean) => {}}
               setMessage={setMessage}
               card={viewingCard}
-            />
+            >
+              <button>Select File To Upload</button>
+            </FileUpload>
             <button onClick={toggleTagMenu}>Add Tags</button>
           </div>
         )}

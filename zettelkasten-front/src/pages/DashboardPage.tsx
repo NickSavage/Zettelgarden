@@ -11,12 +11,16 @@ import { CardBody } from "../components/cards/CardBody";
 import { useNavigate } from "react-router-dom";
 import { TasksIcon } from "../assets/icons/TasksIcon";
 
+import { defaultCard } from "../models/Card";
+import { FileUpload } from "../components/files/FileUpload";
+
 import { useShortcutContext } from "../contexts/ShortcutContext";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
   const [refresh, setRefresh] = React.useState<boolean>(false);
   const { tasks, setRefreshTasks } = useTaskContext();
+  const { message, setMessage } = React.useState<string>("");
   const { currentUser } = useAuth();
 
   const { showCreateTaskWindow, setShowCreateTaskWindow } =
@@ -102,7 +106,13 @@ export function DashboardPage() {
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                 />
               </svg>
-              Upload a File
+              <FileUpload
+                setRefresh={(refresh: boolean) => {}}
+                setMessage={setMessage}
+                card={defaultCard}
+              >
+                Upload a File
+              </FileUpload>
             </span>
           </li>
         </ul>

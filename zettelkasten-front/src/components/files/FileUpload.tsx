@@ -5,12 +5,18 @@ import { uploadFile } from "../../api/files";
 import { Button } from "../../components/Button";
 
 interface FileUploadProps {
-  setRefresh: (refresh:boolean) => void;
+  setRefresh: (refresh: boolean) => void;
   setMessage: (message: string) => void;
   card: Card;
+  children: React.ReactNode; // This will be your button/trigger element
 }
 
-export function FileUpload({ setRefresh, setMessage, card }: FileUploadProps) {
+export function FileUpload({
+  setRefresh,
+  setMessage,
+  card,
+  children,
+}: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileSelect = async (
@@ -27,7 +33,7 @@ export function FileUpload({ setRefresh, setMessage, card }: FileUploadProps) {
             setMessage(
               "File uploaded successfully: " + response["file"]["name"],
             );
-	    setRefresh(true);
+            setRefresh(true);
           }
         } catch (error) {
           setMessage("Error uploading file: " + error);
@@ -35,14 +41,16 @@ export function FileUpload({ setRefresh, setMessage, card }: FileUploadProps) {
       }
     }
   };
+
   const handleButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
+
   return (
     <div>
-    <button onClick={handleButtonClick}>Select File to Upload</button>
+      <div onClick={handleButtonClick}>{children}</div>
       <input
         type="file"
         ref={fileInputRef}
