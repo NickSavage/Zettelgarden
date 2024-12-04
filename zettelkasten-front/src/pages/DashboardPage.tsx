@@ -20,7 +20,7 @@ export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
   const [refresh, setRefresh] = React.useState<boolean>(false);
   const { tasks, setRefreshTasks } = useTaskContext();
-  const { message, setMessage } = React.useState<string>("");
+  const [ message, setMessage ] = React.useState<string>("");
   const { currentUser } = useAuth();
 
   const { showCreateTaskWindow, setShowCreateTaskWindow } =
