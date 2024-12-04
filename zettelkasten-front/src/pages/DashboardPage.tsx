@@ -11,11 +11,16 @@ import { CardBody } from "../components/cards/CardBody";
 import { useNavigate } from "react-router-dom";
 import { TasksIcon } from "../assets/icons/TasksIcon";
 
+import { useShortcutContext } from "../contexts/ShortcutContext";
+
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
   const [refresh, setRefresh] = React.useState<boolean>(false);
   const { tasks, setRefreshTasks } = useTaskContext();
   const { currentUser } = useAuth();
+
+  const { showCreateTaskWindow, setShowCreateTaskWindow } =
+    useShortcutContext();
 
   const navigate = useNavigate();
 
@@ -29,6 +34,10 @@ export function DashboardPage() {
 
   function handleNewCard() {
     navigate("/app/card/new", { state: { cardType: "standard" } });
+  }
+
+  function handleClickNewTask() {
+    setShowCreateTaskWindow(true);
   }
 
   useEffect(() => {
@@ -67,6 +76,7 @@ export function DashboardPage() {
           </li>
           <li>
             <span
+              onClick={handleClickNewTask}
               className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 
         bg-green-50 hover:bg-green-100 cursor-pointer"
             >
