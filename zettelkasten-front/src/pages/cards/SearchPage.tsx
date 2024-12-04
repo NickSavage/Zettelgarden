@@ -30,6 +30,7 @@ export function SearchPage({
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [chunks, setChunks] = useState<CardChunk[]>([]);
+  const [error, setError] = useState<string>("");
 
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -39,11 +40,13 @@ export function SearchPage({
 
   async function handleSearch(inputTerm = "") {
     setIsLoading(true);
+    setError("")
     setCards([]);
     let term = inputTerm == "" ? searchTerm : inputTerm;
 
     try {
       if (useClassicSearch) {
+	setError("")
         const data = await fetchCards(term);
         if (data === null) {
           setCards([]);
@@ -64,7 +67,7 @@ export function SearchPage({
       }
     } catch (error) {
       console.error("Search error:", error);
-      // Handle error appropriately
+      setError(error);
     } finally {
       setIsLoading(false);
     }
@@ -203,8 +206,16 @@ export function SearchPage({
                 </div>
               </div>
             ) : (
-              <div className="flex justify-center w-full py-20">
-                Search returned no results
+              <div>
+                {error === "" ? (
+                  <div className="flex justify-center w-full py-20">
+                    Search returned no results
+                  </div>
+                ) : (
+                  <div className="flex justify-center w-full py-20">
+                    Search returned an error: {error.message}
+                  </div>
+                )}
               </div>
             )}
           </div>
