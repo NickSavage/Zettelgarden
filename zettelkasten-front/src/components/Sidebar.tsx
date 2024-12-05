@@ -26,12 +26,16 @@ import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 import { PartialCard, Card } from "../models/Card";
 import { fetchPartialCards } from "../api/cards";
 
+import { defaultCard } from "../models/Card";
+import { FileUpload } from "../components/files/FileUpload";
+
 export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const { partialCards, lastCard } = usePartialCardContext();
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
@@ -214,14 +218,23 @@ export function Sidebar() {
                   onClick={handleNewStandardCard}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
-                  New Card
+                  Create A Card
                 </button>
                 <button
                   onClick={handleNewTask}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
-                  New Task
+                  Create A Task
                 </button>
+                <FileUpload
+                  setRefresh={(refresh) => {}}
+                  setMessage={setMessage}
+                  card={defaultCard}
+                >
+                  <button className="w-full text-left px-4 py-2 hover:bg-gray-100">
+                    Upload A File
+                  </button>
+                </FileUpload>
                 <button
                   onClick={handleNewChat}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -270,38 +283,32 @@ export function Sidebar() {
             )}
           </ul>
         </div>
+        <hr />
+        <div className="p-2">
+          <ul className="space-y-1">
+            <SidebarLink to="/app/search?recent=true">
+              <span className="mx-2">
+                <SearchIcon />
+              </span>
+              <span className="flex-grow">Recent Cards</span>
+            </SidebarLink>
 
-        {/* Scrollable Content Section */}
-        <div className="flex-grow overflow-y-auto">
-          {currentPath === "/app/chat" ? (
-            <div className="flex flex-col">
-              <span className="px-2.5 py-2 font-bold text-sm">
-                Recent Chats
+            <SidebarLink to="/app/settings">
+              <span className="mx-2">
+                <TasksIcon />
               </span>
-              {chatConversations.map((summary) => (
-                <div key={summary.id} className="py-2 px-2.5 hover:bg-gray-100">
-                  <Link to={`/app/chat?id=${summary.id}`}>
-                    <span className="text-sm">{summary.title}</span>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              <span className="px-2.5 py-2 font-bold text-sm">
-                Recent Cards
+              <span className="flex-grow">Settings</span>
+            </SidebarLink>
+
+            <SidebarLink to="/">
+              <span className="mx-2">
+                <FileIcon />
               </span>
-              <div className="m-1">
-                <FilterInput handleFilterHook={handleFilter} />
-              </div>
-              <div className="space-y-1">
-                {filteredCards.map((card) => (
-                  <CardItem key={card.id} card={card} />
-                ))}
-              </div>
-            </div>
-          )}
+              <span className="flex-grow">Help</span>
+            </SidebarLink>
+          </ul>
         </div>
+        <hr />
       </div>
       {/* Modal Windows */}
       {showCreateTaskWindow && (

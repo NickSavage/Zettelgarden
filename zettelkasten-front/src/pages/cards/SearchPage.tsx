@@ -28,9 +28,10 @@ export function SearchPage({
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(false);
+  const [onlyParentCards, setOnlyParentCards] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [chunks, setChunks] = useState<CardChunk[]>([]);
-  const [error, setError] = useState<Error|null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -39,19 +40,22 @@ export function SearchPage({
   }
 
   async function handleSearch(inputTerm = "") {
+    console.log("handling search");
     setIsLoading(true);
-    setError(null)
-    setCards([]);
-    let term = inputTerm == "" ? searchTerm : inputTerm;
-
+    setError(null);
+    let term = inputTerm === "" ? searchTerm : inputTerm;
     try {
       if (useClassicSearch) {
-	setError(null)
+        setError(null);
         const data = await fetchCards(term);
         if (data === null) {
           setCards([]);
         } else {
-          setCards(data);
+          let cards = data;
+          if (onlyParentCards) {
+            cards = cards.filter((card) => !card.card_id.includes("/"));
+          }
+          setCards(cards);
         }
       } else {
         if (term === "") {
@@ -70,6 +74,7 @@ export function SearchPage({
       setError(error);
     } finally {
       setIsLoading(false);
+      console.log("loaded");
     }
   }
 
@@ -87,8 +92,6 @@ export function SearchPage({
   async function fetchTags() {
     fetchUserTags().then((data) => {
       if (data !== null) {
-        console.log("tags");
-        console.log(data);
         setTags(data);
       }
     });
@@ -100,7 +103,14 @@ export function SearchPage({
   }
 
   useEffect(() => {
+    document.title = "Zettelgarden - Search";
+
     const params = new URLSearchParams(location.search);
+    const recent = params.get("recent");
+    if (recent !== "") {
+      setUseClassicSearch(true);
+    }
+
     const term = params.get("term");
     if (term) {
       setSearchTerm(term);
@@ -109,13 +119,15 @@ export function SearchPage({
       fetchTags();
       handleSearch();
     }
-    document.title = "Zettelgarden - Search";
   }, []);
 
   const currentItems = getSortedAndPagedCards();
 
   const handleCheckboxChange = (event) => {
     setUseClassicSearch(event.target.checked);
+  };
+  const handleOnlyParentCardsChange = (event) => {
+    setOnlyParentCards(event.target.checked);
   };
 
   return (
@@ -155,6 +167,14 @@ export function SearchPage({
                 onChange={handleCheckboxChange}
               />
               Use Classic Search
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={onlyParentCards}
+                onChange={handleOnlyParentCardsChange}
+              />
+              Only Parent Cards
             </label>
           </div>
         </div>
