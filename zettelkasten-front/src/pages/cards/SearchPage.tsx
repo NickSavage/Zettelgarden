@@ -38,16 +38,21 @@ export function SearchPage({
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
   }
-
-  async function handleSearch(inputTerm = "") {
+  async function handleSearch(classicSearch, inputTerm) {
     console.log("handling search");
     setIsLoading(true);
     setError(null);
-    let term = inputTerm === "" ? searchTerm : inputTerm;
+
+    // Use inputTerm directly instead of comparing with searchTerm
+    const term = inputTerm || "";
+
+    console.log("searching for term:", term);
+
     try {
-      if (useClassicSearch) {
+      if (classicSearch) {
         setError(null);
         const data = await fetchCards(term);
+        console.log("cards", data);
         if (data === null) {
           setCards([]);
         } else {
@@ -74,9 +79,36 @@ export function SearchPage({
       setError(error);
     } finally {
       setIsLoading(false);
-      console.log("loaded");
     }
   }
+
+  useEffect(() => {
+    const initializeSearch = async () => {
+      document.title = "Zettelgarden - Search";
+      const params = new URLSearchParams(location.search);
+      const recent = params.get("recent");
+      const term = params.get("term") || "";
+
+      let classicSearch = useClassicSearch;
+
+      if (recent !== null) {
+        classicSearch = true;
+        setUseClassicSearch(true);
+        setSearchTerm("");
+        await handleSearch(true, "");
+      } else if (term) {
+        classicSearch = true;
+        setUseClassicSearch(true);
+        setSearchTerm(term);
+        await handleSearch(true, term);
+      } else {
+        await fetchTags();
+        await handleSearch(classicSearch, "");
+      }
+    };
+
+    initializeSearch();
+  }, []);
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSortBy(e.target.value);
@@ -99,26 +131,34 @@ export function SearchPage({
 
   function handleTagClick(tagName: string) {
     setSearchTerm("#" + tagName);
-    handleSearch(tagName);
+    handleSearch(useClassicSearch, tagName);
   }
 
   useEffect(() => {
     document.title = "Zettelgarden - Search";
 
+    let classicSearch = useClassicSearch;
     const params = new URLSearchParams(location.search);
     const recent = params.get("recent");
-    if (recent !== "") {
-      setUseClassicSearch(true);
+    let term = params.get("term");
+    if (term === null) {
+      term = "";
     }
+    console.log("recent", recent, "term", term);
 
-    const term = params.get("term");
-    if (term) {
+    if (recent !== null) {
+      classicSearch = true;
+      setUseClassicSearch(true);
+      term = "";
+    } else if (term !== "") {
+      classicSearch = true;
+      setUseClassicSearch(true);
       setSearchTerm(term);
-      handleSearch(term);
     } else {
       fetchTags();
-      handleSearch();
     }
+    console.log(classicSearch, term);
+    handleSearch(classicSearch, term);
   }, []);
 
   const currentItems = getSortedAndPagedCards();
@@ -129,6 +169,33 @@ export function SearchPage({
   const handleOnlyParentCardsChange = (event) => {
     setOnlyParentCards(event.target.checked);
   };
+  useEffect(() => {
+    const initializeSearch = async () => {
+      document.title = "Zettelgarden - Search";
+      const params = new URLSearchParams(location.search);
+      const recent = params.get("recent");
+      const term = params.get("term") || "";
+
+      let classicSearch = useClassicSearch;
+
+      if (recent !== null) {
+        classicSearch = true;
+        setUseClassicSearch(true);
+        setSearchTerm("");
+        await handleSearch(true, "");
+      } else if (term) {
+        classicSearch = true;
+        setUseClassicSearch(true);
+        setSearchTerm(term);
+        await handleSearch(true, term);
+      } else {
+        await fetchTags();
+        await handleSearch(classicSearch, "");
+      }
+    };
+
+    initializeSearch();
+  }, []);
 
   return (
     <div>
@@ -143,13 +210,16 @@ export function SearchPage({
             onChange={handleSearchUpdate}
             onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
               if (event.key === "Enter") {
-                handleSearch();
+                handleSearch(useClassicSearch, searchTerm);
               }
             }}
           />
 
           <div className="flex">
-            <Button onClick={() => handleSearch()} children={"Search"} />
+            <Button
+              onClick={() => handleSearch(useClassicSearch, searchTerm)}
+              children={"Search"}
+            />
             <select value={sortBy} onChange={handleSortChange}>
               <option value="sortNewOld">Newest</option>
               <option value="sortOldNew">Oldest</option>
