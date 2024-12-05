@@ -3,12 +3,9 @@ import { fetchPartialCards, getCard } from "../api/cards";
 import { sortCards } from "../utils/cards";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { PartialCard, Card } from "../models/Card";
 import { useTaskContext } from "../contexts/TaskContext";
 import { usePartialCardContext } from "../contexts/CardContext";
 import { CardList } from "../components/cards/CardList";
-import { useAuth } from "../contexts/AuthContext";
-import { CardBody } from "../components/cards/CardBody";
 import { useNavigate } from "react-router-dom";
 import { TasksIcon } from "../assets/icons/TasksIcon";
 
@@ -25,7 +22,7 @@ export function DashboardPage() {
 
   const navigate = useNavigate();
 
-  const recentCards = sortCards(partialCards.slice(0, 10), "sortOldNew");
+  const recentCards = sortCards(partialCards.slice(0, 10), "sortNewOld");
 
   return (
     <div>
@@ -47,8 +44,10 @@ export function DashboardPage() {
         {/* Left Section */}
 
         <div className="flex-grow md:w-8/12 border-r p-4">
-          <span className="font-bold">Recent Cards</span>
-          {partialCards && <CardList cards={partialCards.slice(0, 10)} />}
+          <a href="/app/search?recent=true">
+            <span className="font-bold">Recent Cards</span>
+          </a>
+          {partialCards && <CardList sort={false} cards={recentCards} />}
           <hr />
         </div>
 
