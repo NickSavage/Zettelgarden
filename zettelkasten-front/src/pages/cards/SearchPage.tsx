@@ -230,22 +230,24 @@ export function SearchPage({
               tags={tags.filter((tag) => tag.card_count > 0)}
               handleTagClick={handleTagClick}
             />
-            <label>
-              <input
-                type="checkbox"
-                checked={useClassicSearch}
-                onChange={handleCheckboxChange}
-              />
-              Use Classic Search
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={onlyParentCards}
-                onChange={handleOnlyParentCardsChange}
-              />
-              Only Parent Cards
-            </label>
+            <div className="flex flex-col">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={useClassicSearch}
+                  onChange={handleCheckboxChange}
+                />
+                Use Classic Search
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={onlyParentCards}
+                  onChange={handleOnlyParentCardsChange}
+                />
+                Only Parent Cards
+              </label>
+            </div>
           </div>
         </div>
         {isLoading ? (
