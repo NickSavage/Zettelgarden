@@ -20,7 +20,7 @@ export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
   const [refresh, setRefresh] = React.useState<boolean>(false);
   const { tasks, setRefreshTasks } = useTaskContext();
-  const [ message, setMessage ] = React.useState<string>("");
+  const [message, setMessage] = React.useState<string>("");
   const { currentUser } = useAuth();
 
   const { showCreateTaskWindow, setShowCreateTaskWindow } =
@@ -54,88 +54,30 @@ export function DashboardPage() {
 
   return (
     <div>
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <ul className="space-y-3">
-          <li>
-            <span
-              onClick={handleNewCard}
-              className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 
-        bg-blue-50 hover:bg-blue-100 cursor-pointer"
-            >
-              <svg
-                className="w-5 h-5 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Create a Card
-            </span>
-          </li>
-          <li>
-            <span
-              onClick={handleClickNewTask}
-              className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 
-        bg-green-50 hover:bg-green-100 cursor-pointer"
-            >
-              <TasksIcon />
-              Create a Task
-            </span>
-          </li>
-          <li>
-            <span
-              className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 
-        bg-purple-50 hover:bg-purple-100 cursor-pointer"
-            >
-              <svg
-                className="w-5 h-5 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                />
-              </svg>
-              <FileUpload
-                setRefresh={(refresh: boolean) => {}}
-                setMessage={setMessage}
-                card={defaultCard}
-              >
-                Upload a File
-              </FileUpload>
-            </span>
-          </li>
-        </ul>
-      </div>
-      <div className="flex border-t">
-        <div className="flex grow border-r w-8/12 p-2">
-          <div>
-            <div>
-              <hr />
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                  Welcome to Zettelgarden 🌱
-                </h1>
-                <p className="text-lg text-gray-600 max-w-2xl">
-                  Your personal space for growing ideas. Create cards, connect
-                  thoughts, and watch your knowledge garden flourish. Get
-                  started with the quick actions below.
-                </p>
-              </div>
-            </div>
+      {/* Main Content Section */}
+      <div className="p-2">
+        <div>
+          <hr />
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              Welcome to Zettelgarden 🌱
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl">
+              Your personal space for growing ideas. Create cards, connect
+              thoughts, and watch your knowledge garden flourish.
+            </p>
           </div>
         </div>
-        <div className="flex w-4/12 border-l m-2 truncate">
+      </div>
+      <div className="flex flex-col md:flex-row border-t">
+        {/* Left Section */}
+
+        <div className="flex-grow md:w-8/12 border-r p-4">
+          <span className="font-bold">Recent Cards</span>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex-shrink-0 md:w-4/12 border-l p-4">
           <div>
             <span className="font-bold">Unsorted Cards</span>
             {partialCards && (

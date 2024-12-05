@@ -52,8 +52,6 @@ function MainAppContent() {
     setRefreshPartialCards(true);
   }, []);
 
-  console.log();
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
