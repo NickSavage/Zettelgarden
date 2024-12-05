@@ -10,13 +10,17 @@ export function SidebarLink({ to, children }: SidebarLinkProps) {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Conditionally apply 'active' class if the current path matches the link's path
-  const linkClassName = `sidebar-nav-link ${currentPath === to ? "active" : ""}`;
-
   return (
     <div>
-      <li className="sidebar-nav-item">
-        <Link className={linkClassName} to={to}>
+      <li className="relative">
+        <Link
+          className={`flex items-center justify-between text-gray-800 no-underline p-1 rounded-md transition duration-150 ${
+            currentPath === to
+              ? "bg-green-100"
+              : "hover:bg-green-100" // Hover or active styling
+          }`}
+          to={to}
+        >
           {children}
         </Link>
       </li>
