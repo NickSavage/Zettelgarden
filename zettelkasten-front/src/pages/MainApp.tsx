@@ -18,6 +18,7 @@ import { ChatPage } from "../components/chat/ChatPage";
 
 import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
+import { TagsPage } from "./TagsPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
 import { TagProvider } from "../contexts/TagContext";
 import { ChatProvider } from "../contexts/ChatContext";
@@ -102,6 +103,7 @@ function MainAppContent() {
                 <Route path="settings" element={<UserSettingsPage />} />
                 <Route path="files" element={<FileVault />} />
                 <Route path="tasks" element={<TaskPage />} />
+                <Route path="tags" element={<TagsPage />} />
                 <Route path="chat" element={<ChatPage />} />
                 <Route path="*" element={<DashboardPage />} />
               </>

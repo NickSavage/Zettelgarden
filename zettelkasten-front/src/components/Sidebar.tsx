@@ -293,6 +293,13 @@ export function Sidebar() {
               <span className="flex-grow">Recent Cards</span>
             </SidebarLink>
 
+            <SidebarLink to="/app/tags">
+              <span className="mx-2">
+                <TasksIcon />
+              </span>
+              <span className="flex-grow">Tags</span>
+            </SidebarLink>
+
             <SidebarLink to="/app/settings">
               <span className="mx-2">
                 <TasksIcon />

@@ -20,9 +20,6 @@ export function UserSettingsPage() {
   );
   const [error, setError] = useState<string | null>(null);
 
-  const [dashboardPK, setDashboardPK] = useState<number>(0);
-  const [dashboardCard, setDashboardCard] = useState<Card | null>(null);
-
   const navigate = useNavigate();
   const { logoutUser } = useAuth();
 
@@ -44,7 +41,6 @@ export function UserSettingsPage() {
       username: updatedUsername,
       email: updatedEmail,
       is_admin: user.is_admin,
-      dashboard_card_pk: dashboardPK,
     };
 
     try {
@@ -64,20 +60,12 @@ export function UserSettingsPage() {
     navigate("/login");
   }
 
-  function handleAddBacklink(selectedCard: PartialCard) {
-    setDashboardPK(selectedCard.id);
-    fetchDashboardCard(selectedCard.id);
-  }
-
   useEffect(() => {
     async function fetchUserAndSubscription() {
       let userResponse = await getCurrentUser();
       console.log(userResponse);
       setUser(userResponse);
       console.log(userResponse);
-
-      setDashboardPK(userResponse.dashboard_card_pk);
-      fetchDashboardCard(userResponse.dashboard_card_pk);
 
       // Now that we have the user, fetch their subscription using the user ID
       if (userResponse && userResponse["id"]) {
@@ -92,20 +80,6 @@ export function UserSettingsPage() {
     document.title = "Zettelgarden - Settings";
     fetchUserAndSubscription();
   }, []);
-
-  async function fetchDashboardCard(id: number) {
-    console.log("?");
-    console.log(id);
-    if (id == 0 || id == undefined) {
-      return;
-    }
-
-    let card = await getCard(id.toString());
-
-    if (!isErrorResponse(card)) {
-      setDashboardCard(card);
-    }
-  }
 
   return (
     <div>
@@ -133,20 +107,6 @@ export function UserSettingsPage() {
                 <input type="email" name="email" defaultValue={user.email} />
               </label>
             </div>
-            <div className="mb-4">
-              <label>Set Dashboard Card:</label>
-	      <div className="flex items-center">
-              <BacklinkInput addBacklink={handleAddBacklink} />
-
-              {dashboardCard && (
-                <CardLink
-                  card={dashboardCard}
-                  handleViewBacklink={(id: number) => {}}
-                  showTitle={true}
-                />
-              )}
-	      </div>
-            </div>
             <button type="submit">Save Changes</button>
           </form>
           {subscription && (
@@ -170,7 +130,6 @@ export function UserSettingsPage() {
           )}
           <span onClick={handleLogout}>Logout</span>
           <hr />
-          <TagList />
         </div>
       )}
     </div>
