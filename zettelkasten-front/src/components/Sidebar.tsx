@@ -150,7 +150,7 @@ export function Sidebar() {
     <>
       {/* Mobile Menu Button */}
       <button
-        className="md:hidden fixed top-4 left-4 z-[60] p-2 bg-white rounded-md shadow-md"
+        className="md:hidden fixed top-4 right-4 z-[60] p-2 bg-white rounded shadow"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         <MenuIcon />
