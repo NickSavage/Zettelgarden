@@ -32,7 +32,7 @@ export function ChatPage({}: ChatPageProps) {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
+  function handleSearchUpdate(e: ChangeEvent<HTMLTextAreaElement>) {
     setQuery(e.target.value);
   }
 
@@ -149,21 +149,32 @@ export function ChatPage({}: ChatPageProps) {
               />
             </svg>
           </button>
-          <input
-            className={`w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 ${
+          <textarea
+            className={`w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 resize-none min-h-[24px] max-h-[200px] ${
               isLoading ? "cursor-not-allowed opacity-50" : ""
             }`}
-            type="text"
             id="title"
             value={query}
+            rows={1}
             placeholder="How can I help you today?"
-            onChange={handleSearchUpdate}
-            onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+              handleSearchUpdate(e);
+              // Automatically adjust height
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
               if (event.key === "Enter") {
-                handleQuery();
+                // If shift key is not pressed, submit
+                if (!event.shiftKey) {
+                  event.preventDefault();
+                  handleQuery();
+                  // Reset height after submission
+                  event.currentTarget.style.height = "24px"; // or whatever your initial height is
+                }
               }
             }}
-            disabled={isLoading} // Add this line
+            disabled={isLoading}
           />
           {isLoading && (
             <button

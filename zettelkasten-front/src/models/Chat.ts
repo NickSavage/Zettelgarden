@@ -11,6 +11,7 @@ export interface ChatCompletion {
   model: string;
   tokens: number;
   created_at: Date;
+  updated_at: Date;
   cards: PartialCard[];
 }
 
