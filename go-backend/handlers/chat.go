@@ -148,7 +148,7 @@ func (s *Handler) WriteConversationSummary(userID int, summary models.Conversati
             created_at,
             model,
             title
-        ) VALUES ($1, $2, $3, $4, $5, $6)
+        ) VALUES ($1, $2, $3, NOW(), $5, $6)
     `
 
 	_, err := s.DB.Exec(
@@ -305,13 +305,13 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
             c.id as conversation_id,
             c.title,
             COUNT(m.id) as message_count,
-            c.created_at,
+            c.updated_at,
             c.model
         FROM chat_conversations c
         LEFT JOIN chat_completions m ON c.id = m.conversation_id
         WHERE c.user_id = $1
-        GROUP BY c.id, c.title, c.created_at, c.model
-        ORDER BY c.created_at DESC
+        GROUP BY c.id, c.title, c.updated_at, c.model
+        ORDER BY c.updated_at DESC
     `
 
 	rows, err := s.DB.Query(query, userID)
@@ -328,7 +328,7 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
 			&conversation.ID,
 			&conversation.Title,
 			&conversation.MessageCount,
-			&conversation.CreatedAt,
+			&conversation.UpdatedAt,
 			&conversation.Model,
 		); err != nil {
 			log.Printf("err scanning conversation summary: %v", err)

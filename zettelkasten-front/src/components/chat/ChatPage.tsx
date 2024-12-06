@@ -54,6 +54,7 @@ export function ChatPage({}: ChatPageProps) {
       model: "", // placeholder
       tokens: 0, // placeholder
       created_at: new Date(),
+      updated_at: new Date(),
       cards: [],
     };
 
@@ -203,7 +204,7 @@ export function ChatPage({}: ChatPageProps) {
                   </h3>
                   <div className="mt-1 flex items-center text-sm text-gray-500 gap-2">
                     <span>
-                      {new Date(conversation.created_at).toLocaleDateString()}
+                      {new Date(conversation.updated_at).toLocaleDateString()}
                     </span>
                     <span>•</span>
                     <span>{conversation.message_count} messages</span>

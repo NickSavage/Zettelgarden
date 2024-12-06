@@ -18,6 +18,7 @@ export interface ConversationSummary {
   id: string;
   message_count: number;
   created_at: Date;
+  updated_at: Date;
   model: string;
   title: string;
   user_id: number;

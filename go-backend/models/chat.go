@@ -93,6 +93,7 @@ type ConversationSummary struct {
 	ID           string    `json:"id"`
 	MessageCount int       `json:"message_count"`
 	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 	Model        string    `json:"model"`
 	Title        string    `json:"title"`
 	UserID       int       `json:"user_id"`
