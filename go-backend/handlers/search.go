@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/pgvector/pgvector-go"
@@ -124,6 +125,64 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 	return result
 }
 
+func (s *Handler) GetRelatedChunksFromEntity(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
+
+	query := `
+SELECT
+    c.id,
+    c.card_id,
+    c.user_id,
+    c.title,
+    c.body,
+    c.created_at,
+    c.updated_at,
+    c.parent_id
+FROM
+    entities e
+    INNER JOIN entity_card_junction ecj ON e.id = ecj.entity_id
+    INNER JOIN cards c ON ecj.card_pk = c.id
+WHERE
+    e.user_id = $1
+    AND c.is_deleted = FALSE
+GROUP BY
+    c.id,
+    c.card_id,
+    c.user_id,
+    c.title,
+    c.created_at,
+    c.updated_at,
+    c.parent_id
+ORDER BY
+    AVG(e.embedding <=> $2)
+LIMIT 50;
+`
+	var rows *sql.Rows
+	var err error
+	rows, err = s.DB.Query(query, userID, embedding)
+	if err != nil {
+		log.Printf("err related chunks %v", err)
+		return []models.CardChunk{}, err
+	}
+
+	cards, err := models.ScanCardChunks(rows)
+	log.Printf("err %v", err)
+
+	return cards, err
+
+	// var seen = make(map[int]bool)
+	// var results []models.CardChunk
+
+	// // for _, card := range cards {
+	// // 	if _, exists := seen[card.ID]; !exists {
+	// // 		results = append(results, card)
+	// // 		seen[card.ID] = true
+	// // 	}
+	// // }
+
+	// return results, nil
+
+}
+
 func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
 
 	query := `
@@ -184,6 +243,8 @@ LIMIT 50;
 }
 
 func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
 
@@ -192,6 +253,10 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 	}
 
 	embeddings, err := llms.GenerateChunkEmbeddings(chunk, true)
+	elapsed := time.Since(start)
+	start = time.Now()
+	fmt.Printf("embedding took %.2f seconds\n", elapsed.Seconds())
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -205,6 +270,10 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	elapsed = time.Since(start)
+	fmt.Printf("related cards took %.2f seconds\n", elapsed.Seconds())
+
+	start = time.Now()
 
 	scores, err := llms.RerankResults(s.Server.LLMClient, searchTerm, relatedCards)
 	if err != nil {
@@ -220,6 +289,8 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 	sort.Slice(relatedCards, func(i, j int) bool {
 		return relatedCards[i].Ranking > relatedCards[j].Ranking
 	})
+	elapsed = time.Since(start)
+	fmt.Printf("reranking cards took %.2f seconds\n", elapsed.Seconds())
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(relatedCards)
