@@ -29,6 +29,11 @@ export function TaskPage({}: TaskListProps) {
 
   const { tags } = useTagContext();
 
+  const tasksToDisplay = filterTasks(
+    tasks.filter(changeDateView),
+    filterString,
+  ).sort((a, b) => a.id - b.id);
+
   function handleFilterChange(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) {
@@ -136,10 +141,9 @@ export function TaskPage({}: TaskListProps) {
           <Button onClick={toggleShowTaskWindow} children="Add Task" />
 
           <TaskPageOptionsMenu
-
             tags={tags.filter((tag) => tag.task_count > 0)}
             handleTagClick={handleTagClick}
-	  />
+          />
         </div>
       </div>
       <div>
@@ -154,14 +158,12 @@ export function TaskPage({}: TaskListProps) {
       </div>
       <div className="p-4">
         <ul>
-          {tasks && (
-            <TaskList
-              onTagClick={handleTagClick}
-              tasks={filterTasks(
-                tasks.filter(changeDateView),
-                filterString,
-              ).sort((a, b) => a.id - b.id)}
-            />
+          {tasksToDisplay.length > 0 ? (
+            <TaskList onTagClick={handleTagClick} tasks={tasksToDisplay} />
+          ) : (
+            <div className="flex justify-center items-center">
+              No tasks, you're done for the day!
+            </div>
           )}
         </ul>
       </div>
