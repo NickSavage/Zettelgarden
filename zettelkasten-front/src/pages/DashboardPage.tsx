@@ -55,7 +55,13 @@ export function DashboardPage() {
         <div className="flex-shrink-0 md:w-4/12 border-l p-4">
           <div>
             <span className="font-bold">Unsorted Cards</span>
-            {partialCards && <CardList cards={recentCards} />}
+            {partialCards && (
+              <CardList
+                cards={partialCards
+                  .filter((card) => card.card_id === "")
+                  .slice(0, 10)}
+              />
+            )}
           </div>
           <hr />
         </div>
