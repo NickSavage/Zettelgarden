@@ -306,12 +306,13 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
             c.title,
             COUNT(m.id) as message_count,
             c.updated_at,
+            c.created_at,
             c.model
         FROM chat_conversations c
         LEFT JOIN chat_completions m ON c.id = m.conversation_id
         WHERE c.user_id = $1
-        GROUP BY c.id, c.title, c.updated_at, c.model
-        ORDER BY c.updated_at DESC
+        GROUP BY c.id, c.title, c.updated_at, c.created_at, c.model
+        ORDER BY c.created_at DESC
     `
 
 	rows, err := s.DB.Query(query, userID)
@@ -329,6 +330,7 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
 			&conversation.Title,
 			&conversation.MessageCount,
 			&conversation.UpdatedAt,
+			&conversation.CreatedAt,
 			&conversation.Model,
 		); err != nil {
 			log.Printf("err scanning conversation summary: %v", err)
