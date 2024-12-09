@@ -24,6 +24,9 @@ export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
     .then((response) => {
       if (response) {
         return response.json().then((cards: CardChunk[]) => {
+          if (cards === null) {
+            return [];
+          }
           let results = cards.map((card) => {
             return {
               ...card,
@@ -53,6 +56,9 @@ export function fetchCards(searchTerm = ""): Promise<Card[]> {
     .then((response) => {
       if (response) {
         return response.json().then((cards: Card[]) => {
+          if (cards === null) {
+            return [];
+          }
           let results = cards.map((card) => {
             return {
               ...card,
@@ -117,6 +123,9 @@ export function fetchRelatedCards(id: string): Promise<CardChunk[]> {
     .then((response) => {
       if (response) {
         return response.json().then((cards: CardChunk[]) => {
+          if (cards === null) {
+            return [];
+          }
           let results = cards.map((card) => ({
             ...card,
             created_at: new Date(card.created_at),
