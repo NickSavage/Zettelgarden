@@ -5,6 +5,8 @@ import { quickFilterCards } from "../../utils/cards";
 import { PartialCard } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
 
+import { fetchPartialCards } from "../../api/cards";
+
 interface QuickSearchWindowProps {
   setShowWindow: (showWindow: boolean) => void;
 }
@@ -21,15 +23,18 @@ export function QuickSearchWindow({ setShowWindow }: QuickSearchWindowProps) {
     navigate(`/app/card/${card.id}`);
   }
 
-  function handleLinkInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleLinkInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     setLink(e.target.value);
     const search = e.target.value; // assuming you want case-insensitive matching
     console.log(search);
     setSearchTerm(search);
     if (search !== "") {
-      let results = quickFilterCards(partialCards, search);
-      console.log(results);
-      setTopResults(results);
+
+      await fetchPartialCards(search, "date").then((data) => {
+	setTopResults(
+          data === null ? [] : data.filter((card) => !card.card_id.includes("/")),
+	);
+      });
     } else {
       setTopResults([]);
     }

@@ -32,15 +32,11 @@ import { FileUpload } from "../components/files/FileUpload";
 export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const currentPath = location.pathname;
-
-  const [filter, setFilter] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const { partialCards, lastCard } = usePartialCardContext();
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
-  const [filteredCards, setFilteredCards] = useState<PartialCard[]>([]);
   const [chatConversations, setChatConversations] = useState<
     ConversationSummary[]
   >([]);
@@ -53,15 +49,6 @@ export function Sidebar() {
     showQuickSearchWindow,
     setShowQuickSearchWindow,
   } = useShortcutContext();
-
-  const mainCards = useMemo(
-    () => partialCards.filter((card) => !card.card_id.includes("/")),
-    [partialCards],
-  );
-
-  useEffect(() => {
-    setFilteredCards(mainCards.slice(0, 100));
-  }, [mainCards]);
 
   function getCurrentCard(): PartialCard | Card | null {
     const location = useLocation();
@@ -100,18 +87,6 @@ export function Sidebar() {
       ),
     [tasks],
   );
-
-  async function handleFilter(text: string) {
-    setFilter(text);
-    if (text == "") {
-      setFilteredCards(mainCards.slice(0, 100));
-    }
-    await fetchPartialCards(text, "date").then((data) => {
-      setFilteredCards(
-        data === null ? [] : data.filter((card) => !card.card_id.includes("/")),
-      );
-    });
-  }
 
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
