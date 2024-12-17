@@ -13,6 +13,16 @@ export interface PartialCard {
   tags: Tag[];
 }
 
+export interface Entity {
+  id: number;
+  user_id: number;
+  name: string;
+  description: string;
+  type: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface Card {
   id: number;
   card_id: string;
@@ -30,6 +40,7 @@ export interface Card {
   references: PartialCard[];
   tags: Tag[];
   tasks: Task[];
+  entities: Entity[];
 }
 
 export interface CardChunk {
@@ -74,6 +85,7 @@ export const defaultCard: Card = {
   references: [],
   tags: [],
   tasks: [],
+  entities: [],
 };
 
 export interface NextIdResponse {

@@ -36,6 +36,7 @@ export function ViewCardTabbedDisplay({
     { label: "References" },
     { label: "Related" },
     { label: "Files" },
+    { label: "Entities" },
   ];
 
   function onFileDelete(file_id: number) {}
@@ -95,6 +96,7 @@ export function ViewCardTabbedDisplay({
               {tab.label === "References" && viewingCard.references.length}
               {tab.label === "Related" && relatedCards.length}
               {tab.label === "Files" && viewingCard.files.length}
+              {tab.label === "Entities" && viewingCard.entities && viewingCard.entities.length}
             </span>
           </span>
         ))}
@@ -148,6 +150,20 @@ export function ViewCardTabbedDisplay({
               </ul>
             </div>
           )}
+        </div>
+      )}
+      {activeTab === "Entities" && (
+        <div>
+          <HeaderSubSection text="Entities" />
+          <ul>
+            {viewingCard.entities && viewingCard.entities.map((entity) => (
+              <li key={entity.id} className="mb-2">
+                <div className="font-semibold">{entity.name}</div>
+                <div className="text-sm text-gray-600">{entity.description}</div>
+                <div className="text-xs text-gray-500">Type: {entity.type}</div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

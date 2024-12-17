@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -71,6 +72,7 @@ func (s *Handler) checkIsCardIDUnique(userID int, cardID string) bool {
 }
 
 func extractBacklinks(text string) []string {
+	// Match all text within square brackets
 	re := regexp.MustCompile(`\[([^\]]+)\]`)
 
 	// Find all matches
@@ -80,11 +82,28 @@ func extractBacklinks(text string) []string {
 	var backlinks []string
 	for _, match := range matches {
 		if len(match) > 1 {
-			backlinks = append(backlinks, match[1])
+			// Check if the match is not followed by a parenthesis
+			if !isMarkdownLink(text, match[0]) {
+				backlinks = append(backlinks, match[1])
+			}
 		}
 	}
 
 	return backlinks
+}
+
+// Helper function to check if a match is part of a markdown link
+func isMarkdownLink(text, match string) bool {
+	// Find the position of the match in the text
+	pos := strings.Index(text, match)
+	if pos == -1 {
+		return false
+	}
+	// Check if the match is followed by an opening parenthesis
+	if pos+len(match) < len(text) && text[pos+len(match)] == '(' {
+		return true
+	}
+	return false
 }
 
 func (s *Handler) updateBacklinks(cardPK int, backlinks []string) error {
@@ -126,6 +145,7 @@ func (s *Handler) getDirectlinks(userID int, card models.Card) []models.PartialC
 	var directLinks []models.PartialCard
 
 	for _, value := range backlinks {
+		log.Printf("value %v", value)
 		card, err := s.QueryPartialCard(userID, value)
 		if err == nil {
 			directLinks = append(directLinks, card)
@@ -347,6 +367,14 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Tasks = tasks
+
+	entities, err := s.QueryEntitiesForCard(userID, card.ID)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	card.Entities = entities
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
@@ -615,7 +643,7 @@ func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, erro
 		&card.UpdatedAt,
 	)
 	if err != nil {
-		log.Printf("query partial err %v", err)
+		log.Printf("query partial by id err %v", err)
 		return models.PartialCard{}, fmt.Errorf("something went wrong")
 	}
 	return card, nil
@@ -900,4 +928,41 @@ func (s *Handler) GetPartialCardsFromChunks(userID int, cardPKs []int) ([]models
 		cards = append(cards, card)
 	}
 	return cards, nil
+}
+
+func (s *Handler) QueryEntitiesForCard(userID int, cardPK int) ([]models.Entity, error) {
+	query := `
+	SELECT 
+		e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at
+	FROM 
+		entities e
+	JOIN 
+		entity_card_junction ecj ON e.id = ecj.entity_id
+	WHERE 
+		ecj.card_pk = $1 AND e.user_id = $2`
+
+	rows, err := s.DB.Query(query, cardPK, userID)
+	if err != nil {
+		log.Printf("err %v", err)
+		return []models.Entity{}, err
+	}
+
+	var entities []models.Entity
+	for rows.Next() {
+		var entity models.Entity
+		if err := rows.Scan(
+			&entity.ID,
+			&entity.UserID,
+			&entity.Name,
+			&entity.Description,
+			&entity.Type,
+			&entity.CreatedAt,
+			&entity.UpdatedAt,
+		); err != nil {
+			log.Printf("err %v", err)
+			return entities, err
+		}
+		entities = append(entities, entity)
+	}
+	return entities, nil
 }

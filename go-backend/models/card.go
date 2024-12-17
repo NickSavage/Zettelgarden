@@ -2,9 +2,10 @@ package models
 
 import (
 	"database/sql"
-	"github.com/pgvector/pgvector-go"
 	"log"
 	"time"
+
+	"github.com/pgvector/pgvector-go"
 )
 
 type Card struct {
@@ -26,6 +27,7 @@ type Card struct {
 	Tags       []Tag         `json:"tags"`
 	Tasks      []Task        `json:"tasks"`
 	Embedding  pgvector.Vector
+	Entities   []Entity `json:"entities"`
 }
 
 func ScanCards(rows *sql.Rows) ([]Card, error) {
@@ -184,4 +186,15 @@ func ConvertCardToChunk(input Card) CardChunk {
 		CreatedAt: input.CreatedAt,
 		UpdatedAt: input.UpdatedAt,
 	}
+}
+
+type Entity struct {
+	ID          int             `json:"id"`
+	UserID      int             `json:"user_id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Type        string          `json:"type"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+	Embedding   pgvector.Vector `json:"embedding"`
 }
