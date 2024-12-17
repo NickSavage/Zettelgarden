@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Entity } from '../../models/Card';
 import { fetchEntities } from '../../api/cards';
 import { HeaderSection } from '../Header';
+import { useNavigate } from 'react-router-dom';
 
 export function EntityList() {
   const [entities, setEntities] = useState<Entity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -21,6 +23,11 @@ export function EntityList() {
         console.error('Error fetching entities:', err);
       });
   }, []);
+
+  const handleEntityClick = (entity: Entity) => {
+    // Navigate to search page with entity query
+    navigate(`/app/search?term=@[${entity.name}]`);
+  };
 
   if (loading) {
     return <div className="p-4">Loading entities...</div>;
@@ -38,7 +45,8 @@ export function EntityList() {
         {entities.map((entity) => (
           <div 
             key={entity.id}
-            className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
+            className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => handleEntityClick(entity)}
           >
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-gray-800">{entity.name}</h3>
