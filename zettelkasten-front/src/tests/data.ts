@@ -1,6 +1,7 @@
 import { Task } from "../models/Task";
 import { Tag } from "../models/Tags";
 import { Card, PartialCard } from "../models/Card";
+import { Entity } from "../models/Card";
 
 export function sampleTasks(): Task[] {
   return sampleTaskData;
@@ -134,6 +135,26 @@ export const sampleTaskData: Task[] = [
     ],
   },
 ];
+export const sampleEntityData: Entity[] = [
+  {
+    id: 1,
+    user_id: 1,
+    name: "Entity One",
+    description: "Description for entity one",
+    type: "Type A",
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 2,
+    user_id: 1,
+    name: "Entity Two",
+    description: "Description for entity two",
+    type: "Type B",
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+];
 
 const samplePartialCardData: PartialCard[] = [
   {
@@ -176,6 +197,7 @@ const sampleCardData: Card[] = [
     is_deleted: false,
     tags: [],
     tasks: [],
+    entities: sampleEntityData,
   },
   {
     id: 2,
@@ -194,5 +216,8 @@ const sampleCardData: Card[] = [
     is_deleted: false,
     tags: [],
     tasks: [],
+    entities: sampleEntityData,
   },
 ];
+
+
