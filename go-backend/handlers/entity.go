@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"go-backend/llms"
 	"go-backend/models"
 	"log"
+	"net/http"
 )
 
 const SIMILARITY_THRESHOLD = 0.15
@@ -120,4 +122,62 @@ func (s *Handler) FindPotentialDuplicates(userID int, entity models.Entity) ([]m
 	}
 
 	return similarEntities, nil
+}
+
+func (s *Handler) GetEntitiesRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	query := `
+        SELECT 
+            e.id,
+            e.user_id,
+            e.name,
+            e.description,
+            e.type,
+            e.created_at,
+            e.updated_at,
+            COUNT(DISTINCT ecj.card_pk) as card_count
+        FROM 
+            entities e
+            LEFT JOIN entity_card_junction ecj ON e.id = ecj.entity_id
+            LEFT JOIN cards c ON ecj.card_pk = c.id AND c.is_deleted = FALSE
+        WHERE 
+            e.user_id = $1
+        GROUP BY 
+            e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at
+        ORDER BY 
+            e.name ASC
+    `
+
+	rows, err := s.DB.Query(query, userID)
+	if err != nil {
+		log.Printf("error querying entities: %v", err)
+		http.Error(w, "Failed to query entities", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var entities []models.Entity
+	for rows.Next() {
+		var entity models.Entity
+		err := rows.Scan(
+			&entity.ID,
+			&entity.UserID,
+			&entity.Name,
+			&entity.Description,
+			&entity.Type,
+			&entity.CreatedAt,
+			&entity.UpdatedAt,
+			&entity.CardCount,
+		)
+		if err != nil {
+			log.Printf("error scanning entity: %v", err)
+			http.Error(w, "Failed to scan entities", http.StatusInternalServerError)
+			return
+		}
+		entities = append(entities, entity)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(entities)
 }

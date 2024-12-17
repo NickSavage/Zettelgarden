@@ -187,14 +187,3 @@ func ConvertCardToChunk(input Card) CardChunk {
 		UpdatedAt: input.UpdatedAt,
 	}
 }
-
-type Entity struct {
-	ID          int             `json:"id"`
-	UserID      int             `json:"user_id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Type        string          `json:"type"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
-	Embedding   pgvector.Vector `json:"embedding"`
-}
