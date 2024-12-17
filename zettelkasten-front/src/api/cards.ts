@@ -5,6 +5,7 @@ import {
   NextIdResponse,
   FlashcardRecordNextParams,
   getRatingValue,
+  Entity,
 } from "../models/Card";
 import { checkStatus } from "./common";
 
@@ -325,6 +326,32 @@ export async function getNextId(cardType: string): Promise<NextIdResponse> {
     .then((response) => {
       if (response) {
         return response.json() as Promise<NextIdResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+export function fetchEntities(): Promise<Entity[]> {
+  let token = localStorage.getItem("token");
+  const url = base_url + "/entities";
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((entities: Entity[]) => {
+          if (entities === null) {
+            return [];
+          }
+          return entities.map((entity) => ({
+            ...entity,
+            created_at: new Date(entity.created_at),
+            updated_at: new Date(entity.updated_at),
+          }));
+        });
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }

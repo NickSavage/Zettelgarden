@@ -28,6 +28,7 @@ import { fetchPartialCards } from "../api/cards";
 
 import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
+import { EntityIcon } from "../assets/icons/EntityIcon";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -246,6 +247,13 @@ export function Sidebar() {
                 <FileIcon />
               </span>
               <span className="flex-grow">Files</span>
+            </SidebarLink>
+
+            <SidebarLink to="/app/entities">
+              <span className="mx-2">
+                <EntityIcon />
+              </span>
+              <span className="flex-grow">Entities</span>
             </SidebarLink>
 
             {import.meta.env.VITE_FEATURE_CHAT === "true" && (
