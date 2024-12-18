@@ -21,7 +21,10 @@ export function CreateTaskWindow({
   setShowTaskWindow,
   currentFilter,
 }: CreateTaskWindowProps) {
-  const [newTask, setNewTask] = useState<Task>(emptyTask);
+  const [newTask, setNewTask] = useState<Task>({
+    ...emptyTask,
+    scheduled_date: new Date(),
+  });
   const [selectedCard, setSelectedCard] = useState<PartialCard | null>(null);
 
   const [showMenu, setShowMenu] = useState<boolean>(false);
@@ -41,8 +44,7 @@ export function CreateTaskWindow({
       setRefresh(true);
       setShowTaskWindow(false);
       setSelectedCard(null);
-      let date = newTask.scheduled_date;
-      setNewTask({ ...emptyTask, scheduled_date: date });
+      setNewTask({ ...emptyTask, scheduled_date: new Date() });
       if (currentCard) {
         setNewTask({ ...emptyTask, card_pk: currentCard.id });
       }
