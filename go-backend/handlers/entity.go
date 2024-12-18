@@ -220,3 +220,111 @@ func (s *Handler) QueryEntitiesForCard(userID int, cardPK int) ([]models.Entity,
 	}
 	return entities, nil
 }
+
+func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error {
+	// Start transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() // Will be ignored if transaction is committed
+
+	// Verify both entities exist and belong to the user
+	var entity1, entity2 models.Entity
+	err = tx.QueryRow(`
+		SELECT id, user_id, name, description, type, embedding
+		FROM entities
+		WHERE id = $1 AND user_id = $2`,
+		entity1ID, userID).Scan(
+		&entity1.ID, &entity1.UserID, &entity1.Name,
+		&entity1.Description, &entity1.Type, &entity1.Embedding)
+	if err != nil {
+		return fmt.Errorf("failed to find entity1: %w", err)
+	}
+
+	err = tx.QueryRow(`
+		SELECT id, user_id, name, description, type, embedding
+		FROM entities
+		WHERE id = $1 AND user_id = $2`,
+		entity2ID, userID).Scan(
+		&entity2.ID, &entity2.UserID, &entity2.Name,
+		&entity2.Description, &entity2.Type, &entity2.Embedding)
+	if err != nil {
+		return fmt.Errorf("failed to find entity2: %w", err)
+	}
+
+	// Move all card relationships from entity2 to entity1
+	_, err = tx.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		SELECT user_id, $1, card_pk
+		FROM entity_card_junction
+		WHERE entity_id = $2
+		ON CONFLICT (entity_id, card_pk) DO NOTHING`,
+		entity1.ID, entity2.ID)
+	if err != nil {
+		return fmt.Errorf("failed to merge card relationships: %w", err)
+	}
+
+	// Delete entity2's relationships
+	_, err = tx.Exec(`
+		DELETE FROM entity_card_junction
+		WHERE entity_id = $1`,
+		entity2.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete entity2 relationships: %w", err)
+	}
+
+	// Delete entity2
+	_, err = tx.Exec(`
+		DELETE FROM entities
+		WHERE id = $1 AND user_id = $2`,
+		entity2.ID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete entity2: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+type MergeEntitiesRequest struct {
+	Entity1ID int `json:"entity1_id"`
+	Entity2ID int `json:"entity2_id"`
+}
+
+func (s *Handler) MergeEntitiesRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	var req MergeEntitiesRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.Entity1ID == 0 || req.Entity2ID == 0 {
+		http.Error(w, "Both entity IDs are required", http.StatusBadRequest)
+		return
+	}
+
+	if req.Entity1ID == req.Entity2ID {
+		http.Error(w, "Cannot merge an entity with itself", http.StatusBadRequest)
+		return
+	}
+
+	err := s.MergeEntities(userID, req.Entity1ID, req.Entity2ID)
+	if err != nil {
+		log.Printf("Error merging entities: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Entities merged successfully",
+	})
+}

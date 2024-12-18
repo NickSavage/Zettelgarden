@@ -216,6 +216,7 @@ func main() {
 	addRoute(r, "/api/webhook", h.HandleWebhook, "POST")
 
 	addProtectedRoute(r, "/api/entities", h.GetEntitiesRoute, "GET")
+	addProtectedRoute(r, "/api/entities/merge", h.MergeEntitiesRoute, "POST")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},
