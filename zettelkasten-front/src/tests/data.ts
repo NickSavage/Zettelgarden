@@ -144,6 +144,7 @@ export const sampleEntityData: Entity[] = [
     type: "Type A",
     created_at: new Date(),
     updated_at: new Date(),
+    card_count: 1
   },
   {
     id: 2,
@@ -153,6 +154,7 @@ export const sampleEntityData: Entity[] = [
     type: "Type B",
     created_at: new Date(),
     updated_at: new Date(),
+    card_count: 2
   },
 ];
 
