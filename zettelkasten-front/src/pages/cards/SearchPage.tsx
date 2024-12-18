@@ -27,7 +27,7 @@ export function SearchPage({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
-  const [useClassicSearch, setUseClassicSearch] = useState<boolean>(false);
+  const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
   const [onlyParentCards, setOnlyParentCards] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [chunks, setChunks] = useState<CardChunk[]>([]);

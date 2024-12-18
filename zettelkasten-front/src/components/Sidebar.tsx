@@ -28,6 +28,8 @@ import { fetchPartialCards } from "../api/cards";
 
 import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
+import { EntityIcon } from "../assets/icons/EntityIcon";
+import { SettingsIcon } from "../assets/icons/SettingsIcon";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -223,18 +225,15 @@ export function Sidebar() {
 
         {/* Navigation Links */}
         <div className="p-2">
+
           <ul className="space-y-1">
             <SidebarLink to="/app/search">
-              <span className="mx-2">
-                <SearchIcon />
-              </span>
+              <SearchIcon />
               <span className="flex-grow">Cards</span>
             </SidebarLink>
 
             <SidebarLink to="/app/tasks">
-              <span className="mx-2">
-                <TasksIcon />
-              </span>
+              <TasksIcon />
               <span className="flex-grow">Tasks</span>
               <span className="px-2 py-1 text-xs bg-blue-100 rounded-full">
                 {todayTasks.length}
@@ -242,17 +241,13 @@ export function Sidebar() {
             </SidebarLink>
 
             <SidebarLink to="/app/files">
-              <span className="mx-2">
                 <FileIcon />
-              </span>
               <span className="flex-grow">Files</span>
             </SidebarLink>
 
             {import.meta.env.VITE_FEATURE_CHAT === "true" && (
               <SidebarLink to="/app/chat">
-                <span className="mx-2">
                   <ChatIcon />
-                </span>
                 <span className="flex-grow">Chat</span>
               </SidebarLink>
             )}
@@ -262,30 +257,27 @@ export function Sidebar() {
         <div className="p-2">
           <ul className="space-y-1">
             <SidebarLink to="/app/search?recent=true">
-              <span className="mx-2">
                 <SearchIcon />
-              </span>
               <span className="flex-grow">Recent Cards</span>
             </SidebarLink>
 
             <SidebarLink to="/app/tags">
-              <span className="mx-2">
                 <TasksIcon />
-              </span>
               <span className="flex-grow">Tags</span>
             </SidebarLink>
 
+            <SidebarLink to="/app/entities">
+                <EntityIcon />
+              <span className="flex-grow">Entities</span>
+            </SidebarLink>
+
             <SidebarLink to="/app/settings">
-              <span className="mx-2">
-                <TasksIcon />
-              </span>
+                <SettingsIcon />
               <span className="flex-grow">Settings</span>
             </SidebarLink>
 
             <SidebarLink to="/">
-              <span className="mx-2">
                 <FileIcon />
-              </span>
               <span className="flex-grow">Help</span>
             </SidebarLink>
           </ul>

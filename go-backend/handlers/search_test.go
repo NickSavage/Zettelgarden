@@ -101,3 +101,64 @@ AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%')) AND (NOT EXISTS (
 		t.Errorf("wrong string returned, got %v want %v", output, expectedOutput)
 	}
 }
+
+func TestBuildPartialCardSqlSearchTermStringWithEntities(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    string
+		fullText bool
+		contains []string // Strings that should be present in the output
+	}{
+		{
+			name:     "single entity",
+			input:    "@[John Smith]",
+			fullText: false,
+			contains: []string{
+				"EXISTS(SELECT1FROMentity_card_junctionecj",
+				"JOINentitieseONecj.entity_id=e.id",
+				"WHEREecj.card_pk=cards.idANDe.name='JohnSmith'",
+			},
+		},
+		{
+			name:     "negated entity",
+			input:    "!@[Project Alpha]",
+			fullText: false,
+			contains: []string{
+				"NOTEXISTS(SELECT1FROMentity_card_junctionecj",
+				"JOINentitieseONecj.entity_id=e.id",
+				"WHEREecj.card_pk=cards.idANDe.name='ProjectAlpha'",
+			},
+		},
+		{
+			name:     "mixed entities and terms",
+			input:    "hello @[John Smith] !@[Project Beta]",
+			fullText: false,
+			contains: []string{
+				"card_idILIKE'%hello%'ORtitleILIKE'%hello%'",
+				"EXISTS(SELECT1FROMentity_card_junctionecj",
+				"WHEREecj.card_pk=cards.idANDe.name='JohnSmith'",
+				"NOTEXISTS(SELECT1FROMentity_card_junctionecj",
+				"WHEREecj.card_pk=cards.idANDe.name='ProjectBeta'",
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := BuildPartialCardSqlSearchTermString(tc.input, tc.fullText)
+
+			// Normalize the result by removing all whitespace
+			normalizedResult := strings.ReplaceAll(result, " ", "")
+			normalizedResult = strings.ReplaceAll(normalizedResult, "\n", "")
+			normalizedResult = strings.ReplaceAll(normalizedResult, "\t", "")
+			t.Logf("Normalized SQL: %s", normalizedResult)
+
+			// Check that all expected strings are present in the result
+			for _, str := range tc.contains {
+				if !strings.Contains(normalizedResult, str) {
+					t.Errorf("Expected SQL to contain '%s', but it didn't.\nGot: %s", str, result)
+				}
+			}
+		})
+	}
+}

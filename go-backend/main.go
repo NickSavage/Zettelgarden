@@ -215,6 +215,8 @@ func main() {
 	addRoute(r, "/api/billing/success", h.GetSuccessfulSessionData, "GET")
 	addRoute(r, "/api/webhook", h.HandleWebhook, "POST")
 
+	addProtectedRoute(r, "/api/entities", h.GetEntitiesRoute, "GET")
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},
 		AllowCredentials: true,

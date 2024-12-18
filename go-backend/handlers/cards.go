@@ -369,6 +369,7 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	card.Tasks = tasks
 
 	entities, err := s.QueryEntitiesForCard(userID, card.ID)
+	log.Printf("entities %v, %v", entities, card.ID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -928,41 +929,4 @@ func (s *Handler) GetPartialCardsFromChunks(userID int, cardPKs []int) ([]models
 		cards = append(cards, card)
 	}
 	return cards, nil
-}
-
-func (s *Handler) QueryEntitiesForCard(userID int, cardPK int) ([]models.Entity, error) {
-	query := `
-	SELECT 
-		e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at
-	FROM 
-		entities e
-	JOIN 
-		entity_card_junction ecj ON e.id = ecj.entity_id
-	WHERE 
-		ecj.card_pk = $1 AND e.user_id = $2`
-
-	rows, err := s.DB.Query(query, cardPK, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return []models.Entity{}, err
-	}
-
-	var entities []models.Entity
-	for rows.Next() {
-		var entity models.Entity
-		if err := rows.Scan(
-			&entity.ID,
-			&entity.UserID,
-			&entity.Name,
-			&entity.Description,
-			&entity.Type,
-			&entity.CreatedAt,
-			&entity.UpdatedAt,
-		); err != nil {
-			log.Printf("err %v", err)
-			return entities, err
-		}
-		entities = append(entities, entity)
-	}
-	return entities, nil
 }

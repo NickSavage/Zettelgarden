@@ -27,6 +27,7 @@ import {
   usePartialCardContext,
 } from "../contexts/CardContext";
 import { ShortcutProvider } from "../contexts/ShortcutContext";
+import { EntityList } from "../components/entities/EntityList";
 
 function MainAppContent() {
   const navigate = useNavigate();
@@ -105,6 +106,7 @@ function MainAppContent() {
                 <Route path="tasks" element={<TaskPage />} />
                 <Route path="tags" element={<TagsPage />} />
                 <Route path="chat" element={<ChatPage />} />
+                <Route path="entities" element={<EntityList />} />
                 <Route path="*" element={<DashboardPage />} />
               </>
             ) : (

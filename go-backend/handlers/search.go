@@ -18,10 +18,12 @@ import (
 )
 
 type SearchParams struct {
-	Tags        []string
-	Terms       []string
-	NegateTags  []string
-	NegateTerms []string
+	Tags           []string
+	Terms          []string
+	NegateTags     []string
+	NegateTerms    []string
+	Entities       []string
+	NegateEntities []string
 }
 
 func contains[T comparable](collection []T, target T) bool {
@@ -34,21 +36,79 @@ func contains[T comparable](collection []T, target T) bool {
 }
 func ParseSearchText(input string) SearchParams {
 	var searchParams SearchParams
+	var currentEntity strings.Builder
+	inEntity := false
 
-	// Split the input string by spaces
+	// Split the input string by spaces, but preserve spaces within @[...]
 	parts := strings.Fields(input)
 
-	for _, part := range parts {
+	for i := 0; i < len(parts); i++ {
+		part := parts[i]
+
+		// Handle entity start
+		if strings.HasPrefix(part, "@[") {
+			inEntity = true
+			// Remove @[ prefix
+			currentEntity.WriteString(strings.TrimPrefix(part, "@["))
+
+			// If the entity name ends in this part
+			if strings.HasSuffix(part, "]") {
+				entityName := currentEntity.String()
+				entityName = strings.TrimSuffix(entityName, "]")
+				searchParams.Entities = append(searchParams.Entities, entityName)
+				currentEntity.Reset()
+				inEntity = false
+				continue
+			}
+			continue
+		}
+
+		// Handle entity start with negation
+		if strings.HasPrefix(part, "!@[") {
+			inEntity = true
+			// Remove !@[ prefix
+			currentEntity.WriteString(strings.TrimPrefix(part, "!@["))
+
+			// If the entity name ends in this part
+			if strings.HasSuffix(part, "]") {
+				entityName := currentEntity.String()
+				entityName = strings.TrimSuffix(entityName, "]")
+				searchParams.NegateEntities = append(searchParams.NegateEntities, entityName)
+				currentEntity.Reset()
+				inEntity = false
+				continue
+			}
+			continue
+		}
+
+		// Handle middle or end of entity name
+		if inEntity {
+			if strings.HasSuffix(part, "]") {
+				currentEntity.WriteString(" ")
+				currentEntity.WriteString(strings.TrimSuffix(part, "]"))
+				entityName := currentEntity.String()
+				if strings.HasPrefix(parts[i-1], "!") {
+					searchParams.NegateEntities = append(searchParams.NegateEntities, entityName)
+				} else {
+					searchParams.Entities = append(searchParams.Entities, entityName)
+				}
+				currentEntity.Reset()
+				inEntity = false
+				continue
+			}
+			currentEntity.WriteString(" ")
+			currentEntity.WriteString(part)
+			continue
+		}
+
+		// Handle existing conditions
 		if strings.HasPrefix(part, "#") {
 			searchParams.Tags = append(searchParams.Tags, strings.TrimPrefix(part, "#"))
 		} else if strings.HasPrefix(part, "!#") {
 			searchParams.NegateTags = append(searchParams.NegateTags, strings.TrimPrefix(part, "!#"))
-
 		} else if strings.HasPrefix(part, "!") {
-
 			searchParams.NegateTerms = append(searchParams.NegateTerms, strings.TrimPrefix(part, "!"))
 		} else {
-			// Add to terms
 			searchParams.Terms = append(searchParams.Terms, part)
 		}
 	}
@@ -63,6 +123,8 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 	var tagConditions []string
 	var negateTagsConditions []string
 	var excludeTerms []string
+	var entityConditions []string
+	var negateEntityConditions []string
 
 	// Add conditions for terms that search both card_id and title
 	for _, term := range searchParams.Terms {
@@ -107,6 +169,27 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 		negateTagsConditions = append(negateTagsConditions, tagCondition)
 	}
 
+	log.Printf("searchParams %v", searchParams.Entities)
+	// Add conditions for entities
+	for _, entity := range searchParams.Entities {
+		entityCondition := fmt.Sprintf(`EXISTS (
+            SELECT 1 FROM entity_card_junction ecj
+            JOIN entities e ON ecj.entity_id = e.id
+            WHERE ecj.card_pk = cards.id AND e.name = '%s'
+        )`, entity)
+		entityConditions = append(entityConditions, entityCondition)
+	}
+
+	// Add conditions for negated entities
+	for _, entity := range searchParams.NegateEntities {
+		entityCondition := fmt.Sprintf(`NOT EXISTS (
+            SELECT 1 FROM entity_card_junction ecj
+            JOIN entities e ON ecj.entity_id = e.id
+            WHERE ecj.card_pk = cards.id AND e.name = '%s'
+        )`, entity)
+		negateEntityConditions = append(negateEntityConditions, entityCondition)
+	}
+
 	if len(tagConditions) > 0 {
 		result = " AND (" + strings.Join(tagConditions, " AND ") + ")"
 	}
@@ -121,6 +204,12 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 	if len(negateTagsConditions) > 0 {
 		negateTagClause := strings.Join(negateTagsConditions, " AND ")
 		result += " AND (" + negateTagClause + ")"
+	}
+	if len(entityConditions) > 0 {
+		result += " AND (" + strings.Join(entityConditions, " AND ") + ")"
+	}
+	if len(negateEntityConditions) > 0 {
+		result += " AND (" + strings.Join(negateEntityConditions, " AND ") + ")"
 	}
 	return result
 }

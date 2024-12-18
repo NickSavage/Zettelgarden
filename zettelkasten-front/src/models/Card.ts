@@ -21,6 +21,7 @@ export interface Entity {
   type: string;
   created_at: Date;
   updated_at: Date;
+  card_count: number;
 }
 
 export interface Card {
