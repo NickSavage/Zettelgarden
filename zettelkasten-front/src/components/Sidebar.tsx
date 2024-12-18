@@ -249,13 +249,6 @@ export function Sidebar() {
               <span className="flex-grow">Files</span>
             </SidebarLink>
 
-            <SidebarLink to="/app/entities">
-              <span className="mx-2">
-                <EntityIcon />
-              </span>
-              <span className="flex-grow">Entities</span>
-            </SidebarLink>
-
             {import.meta.env.VITE_FEATURE_CHAT === "true" && (
               <SidebarLink to="/app/chat">
                 <span className="mx-2">
@@ -281,6 +274,13 @@ export function Sidebar() {
                 <TasksIcon />
               </span>
               <span className="flex-grow">Tags</span>
+            </SidebarLink>
+
+            <SidebarLink to="/app/entities">
+              <span className="mx-2">
+                <EntityIcon />
+              </span>
+              <span className="flex-grow">Entities</span>
             </SidebarLink>
 
             <SidebarLink to="/app/settings">
