@@ -211,6 +211,34 @@ func importTestData(s *server.Server) error {
 			return err
 		}
 	}
+
+	for _, entity := range data["entities"].([]models.Entity) {
+		_, err := tx.Exec(`
+			INSERT INTO entities 
+			(id, user_id, name, description, type, embedding, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+			entity.ID, entity.UserID, entity.Name, entity.Description, entity.Type,
+			entity.Embedding, entity.CreatedAt, entity.UpdatedAt,
+		)
+		if err != nil {
+			log.Printf("error inserting entity: %v", err)
+			return err
+		}
+	}
+
+	for _, junction := range data["entity_cards"].([]models.EntityCardJunction) {
+		_, err := tx.Exec(`
+			INSERT INTO entity_card_junction 
+			(user_id, entity_id, card_pk)
+			VALUES ($1, $2, $3)`,
+			junction.UserID, junction.EntityID, junction.CardPK,
+		)
+		if err != nil {
+			log.Printf("error inserting entity_card_junction: %v", err)
+			return err
+		}
+	}
+
 	if err := loadChatData(tx); err != nil {
 		return err
 	}
@@ -438,16 +466,80 @@ func generateData() map[string]interface{} {
 		embeddings = append(embeddings, embedding)
 	}
 
+	vectorData = make([]float32, 1024)
+	for i := range vectorData {
+		vectorData[i] = float32(i)
+	}
+	vector = pgvector.NewVector(vectorData)
+
+	entities := []models.Entity{
+		{
+			ID:          1,
+			UserID:      1,
+			Name:        "Test Entity 1",
+			Description: "Original entity",
+			Type:        "person",
+			Embedding:   vector,
+			CreatedAt:   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt:   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		},
+		{
+			ID:          2,
+			UserID:      1,
+			Name:        "Test Entity 2",
+			Description: "Duplicate entity",
+			Type:        "person",
+			Embedding:   vector,
+			CreatedAt:   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt:   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		},
+		{
+			ID:          3,
+			UserID:      2,
+			Name:        "Other User Entity",
+			Description: "Entity for different user",
+			Type:        "person",
+			Embedding:   vector,
+			CreatedAt:   randomDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			UpdatedAt:   randomDate(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+		},
+	}
+
+	entity_cards := []models.EntityCardJunction{
+		{
+			UserID:   1,
+			EntityID: 1,
+			CardPK:   1,
+		},
+		{
+			UserID:   1,
+			EntityID: 1,
+			CardPK:   2,
+		},
+		{
+			UserID:   1,
+			EntityID: 2,
+			CardPK:   1,
+		},
+		{
+			UserID:   1,
+			EntityID: 2,
+			CardPK:   2,
+		},
+	}
+
 	results := map[string]interface{}{
-		"users":      users,
-		"cards":      cards,
-		"backlinks":  backlinks,
-		"files":      files,
-		"tasks":      tasks,
-		"keywords":   keywords,
-		"tags":       tags,
-		"card_tags":  card_tags,
-		"embeddings": embeddings,
+		"users":        users,
+		"cards":        cards,
+		"backlinks":    backlinks,
+		"files":        files,
+		"tasks":        tasks,
+		"keywords":     keywords,
+		"tags":         tags,
+		"card_tags":    card_tags,
+		"embeddings":   embeddings,
+		"entities":     entities,
+		"entity_cards": entity_cards,
 	}
 	return results
 }
