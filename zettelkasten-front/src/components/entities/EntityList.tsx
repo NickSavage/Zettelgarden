@@ -120,6 +120,10 @@ export function EntityList() {
     }
   };
 
+  const handleDeselectAll = () => {
+    setSelectedEntities([]);
+  };
+
   const getSelectionInfo = (entityId: number) => {
     const index = selectedEntities.indexOf(entityId);
     if (index === -1) return null;
@@ -187,35 +191,43 @@ export function EntityList() {
       </div>
 
       {selectedEntities.length > 0 && (
-        <div className="mb-4 flex gap-2">
-          {selectedEntities.length === 1 ? (
-            <button
-              onClick={handleDeleteClick}
-              disabled={isDeleting}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-            >
-              {isDeleting ? "Deleting..." : "Delete Entity"}
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={handleMergeClick}
-                disabled={isMerging}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-              >
-                {isMerging ? "Merging..." : `Merge ${selectedEntities.length} Entities`}
-              </button>
+        <div className="mb-4">
+          <div className="flex gap-2 mb-2">
+            {selectedEntities.length === 1 ? (
               <button
                 onClick={handleDeleteClick}
                 disabled={isDeleting}
                 className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
               >
-                {isDeleting ? "Deleting..." : `Delete ${selectedEntities.length} Entities`}
+                {isDeleting ? "Deleting..." : "Delete Entity"}
               </button>
-            </>
-          )}
+            ) : (
+              <>
+                <button
+                  onClick={handleMergeClick}
+                  disabled={isMerging}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                >
+                  {isMerging ? "Merging..." : `Merge ${selectedEntities.length} Entities`}
+                </button>
+                <button
+                  onClick={handleDeleteClick}
+                  disabled={isDeleting}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                >
+                  {isDeleting ? "Deleting..." : `Delete ${selectedEntities.length} Entities`}
+                </button>
+              </>
+            )}
+            <button
+              onClick={handleDeselectAll}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+            >
+              Deselect All
+            </button>
+          </div>
           {selectedEntities.length > 1 && (
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="text-sm text-gray-600">
               For merging: First selected entity will be kept, others will be merged into it.
             </p>
           )}
