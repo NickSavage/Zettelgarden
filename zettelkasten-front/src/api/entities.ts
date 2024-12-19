@@ -70,4 +70,31 @@ export function deleteEntity(entityId: number): Promise<void> {
       }
       return;
     });
+}
+
+export interface UpdateEntityRequest {
+  name: string;
+  description: string;
+  type: string;
+}
+
+export function updateEntity(entityId: number, data: UpdateEntityRequest): Promise<void> {
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/id/${entityId}`;
+
+  return fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (!response) {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+      return;
+    });
 } 
