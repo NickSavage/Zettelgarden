@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
-import { Entity } from "../../models/Card";
+import { Entity, PartialCard } from "../../models/Card";
 import { UpdateEntityRequest, updateEntity } from "../../api/entities";
+import { BacklinkInput } from "../cards/BacklinkInput";
+import { CardTag } from "../cards/CardTag";
 
 interface EditEntityDialogProps {
   entity: Entity | null;
@@ -14,6 +16,8 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
+  const [linkedCard, setLinkedCard] = useState<PartialCard | null>(null);
+  const [showCardLink, setShowCardLink] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,8 +26,18 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
       setName(entity.name);
       setDescription(entity.description);
       setType(entity.type);
+      setLinkedCard(entity.card || null);
     }
   }, [entity]);
+
+  const handleBacklink = (card: PartialCard) => {
+    setLinkedCard(card);
+    setShowCardLink(false);
+  };
+
+  const handleRemoveCard = () => {
+    setLinkedCard(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +51,7 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
         name: name.trim(),
         description: description.trim(),
         type: type.trim(),
+        card_pk: linkedCard?.id || null,
       };
 
       await updateEntity(entity.id, data);
@@ -102,6 +117,40 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
                 onChange={(e) => setType(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Linked Card
+              </label>
+              {linkedCard ? (
+                <div className="flex items-center gap-2">
+                  <CardTag card={linkedCard} showTitle={true} />
+                  <button
+                    type="button"
+                    onClick={handleRemoveCard}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  {showCardLink ? (
+                    <BacklinkInput addBacklink={handleBacklink} />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowCardLink(true)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      + Link Card
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             {error && (

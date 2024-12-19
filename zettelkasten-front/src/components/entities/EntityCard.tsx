@@ -1,5 +1,7 @@
 import React from "react";
 import { Entity } from "../../models/Card";
+import { Link } from "react-router-dom";
+import { CardTag } from "../cards/CardTag";
 
 interface EntityCardProps {
   entity: Entity;
@@ -39,7 +41,15 @@ export function EntityCard({ entity, isSelected, selectionInfo, onEdit, onClick 
 
       <div className="flex justify-between items-center text-xs text-gray-500">
         <span>Cards: {entity.card_count}</span>
-        <span>Updated: {entity.updated_at.toLocaleDateString()}</span>
+        {entity.card && (
+          <Link
+            to={`/app/card/${entity.card.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-blue-600 hover:text-blue-800"
+          >
+            <CardTag card={entity.card} showTitle={false} />
+          </Link>
+        )}
       </div>
 
       {selectionInfo && (

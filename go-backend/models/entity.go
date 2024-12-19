@@ -16,6 +16,8 @@ type Entity struct {
 	UpdatedAt   time.Time       `json:"updated_at"`
 	Embedding   pgvector.Vector `json:"embedding"`
 	CardCount   int             `json:"card_count"`
+	CardPK      *int            `json:"card_pk"`
+	Card        *PartialCard    `json:"card,omitempty"`
 }
 
 type EntityCardJunction struct {

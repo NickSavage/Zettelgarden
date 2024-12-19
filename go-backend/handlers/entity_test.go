@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"go-backend/models"
 	"go-backend/tests"
 	"strings"
 	"testing"
@@ -213,5 +214,77 @@ func TestUpdateEntityNonExistent(t *testing.T) {
 	err := s.UpdateEntity(1, 99999, params)
 	if err == nil {
 		t.Error("Expected error when updating non-existent entity")
+	}
+}
+
+func TestUpdateEntityWithCardPK(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Create a test card
+	var cardID int
+	err := s.DB.QueryRow(`
+		INSERT INTO cards (user_id, title, body)
+		VALUES ($1, 'Test Card', 'Test Content')
+		RETURNING id
+	`, 1).Scan(&cardID)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	// Update entity with card_pk
+	params := UpdateEntityRequest{
+		Name:        "Updated Entity",
+		Description: "Updated Description",
+		Type:        "person",
+		CardPK:      &cardID,
+	}
+
+	err = s.UpdateEntity(1, 1, params)
+	if err != nil {
+		t.Errorf("UpdateEntity failed: %v", err)
+	}
+
+	// Verify the update
+	var entity models.Entity
+	err = s.DB.QueryRow(`
+		SELECT id, user_id, name, description, type, card_pk
+		FROM entities
+		WHERE id = $1
+	`, 1).Scan(
+		&entity.ID,
+		&entity.UserID,
+		&entity.Name,
+		&entity.Description,
+		&entity.Type,
+		&entity.CardPK,
+	)
+	if err != nil {
+		t.Errorf("Failed to verify entity update: %v", err)
+	}
+	if *entity.CardPK != cardID {
+		t.Errorf("Expected card_pk to be %d, got %d", cardID, *entity.CardPK)
+	}
+}
+
+func TestUpdateEntityWithInvalidCardPK(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Try to update with non-existent card
+	invalidCardID := 99999
+	params := UpdateEntityRequest{
+		Name:        "Updated Entity",
+		Description: "Updated Description",
+		Type:        "person",
+		CardPK:      &invalidCardID,
+	}
+
+	err := s.UpdateEntity(1, 1, params)
+	if err == nil {
+		t.Error("Expected error when updating with invalid card_pk")
+	}
+	if !strings.Contains(err.Error(), "card not found") {
+		t.Errorf("Expected 'card not found' error, got: %v", err)
 	}
 }

@@ -76,6 +76,7 @@ export interface UpdateEntityRequest {
   name: string;
   description: string;
   type: string;
+  card_pk: number | null;
 }
 
 export function updateEntity(entityId: number, data: UpdateEntityRequest): Promise<void> {

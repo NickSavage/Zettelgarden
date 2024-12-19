@@ -22,6 +22,8 @@ export interface Entity {
   created_at: Date;
   updated_at: Date;
   card_count: number;
+  card_pk: number | null;
+  card?: PartialCard;
 }
 
 export interface Card {
