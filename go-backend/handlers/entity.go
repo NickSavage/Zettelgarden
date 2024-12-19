@@ -8,6 +8,9 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 const SIMILARITY_THRESHOLD = 0.15
@@ -324,5 +327,79 @@ func (s *Handler) MergeEntitiesRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Entities merged successfully",
+	})
+}
+
+func (s *Handler) DeleteEntity(userID int, entityID int) error {
+	// Start transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() // Will be ignored if transaction is committed
+
+	// Verify entity exists and belongs to the user
+	var exists bool
+	err = tx.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM entities 
+			WHERE id = $1 AND user_id = $2
+		)`,
+		entityID, userID).Scan(&exists)
+	if err != nil {
+		return fmt.Errorf("failed to check entity existence: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("entity not found or does not belong to user")
+	}
+
+	// Delete entity-card relationships first
+	_, err = tx.Exec(`
+		DELETE FROM entity_card_junction
+		WHERE entity_id = $1 AND user_id = $2`,
+		entityID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete entity relationships: %w", err)
+	}
+
+	// Delete the entity
+	_, err = tx.Exec(`
+		DELETE FROM entities
+		WHERE id = $1 AND user_id = $2`,
+		entityID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete entity: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Handler) DeleteEntityRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Extract entityID from URL parameters using mux instead of chi
+	entityID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid entity ID", http.StatusBadRequest)
+		return
+	}
+
+	err = s.DeleteEntity(userID, entityID)
+	if err != nil {
+		log.Printf("Error deleting entity: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Entity deleted successfully",
 	})
 }

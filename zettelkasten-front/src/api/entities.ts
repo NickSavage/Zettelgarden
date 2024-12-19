@@ -51,4 +51,23 @@ export function mergeEntities(entity1Id: number, entity2Id: number): Promise<voi
       }
       return;
     });
+}
+
+export function deleteEntity(entityId: number): Promise<void> {
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/id/${entityId}`;
+
+  return fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (!response) {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+      return;
+    });
 } 

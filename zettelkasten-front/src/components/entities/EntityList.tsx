@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Entity } from "../../models/Card";
-import { fetchEntities, mergeEntities } from "../../api/entities";
+import { fetchEntities, mergeEntities, deleteEntity } from "../../api/entities";
 import { HeaderSection } from "../Header";
 import { useNavigate } from "react-router-dom";
 import { Dialog } from "@headlessui/react";
@@ -16,6 +16,8 @@ export function EntityList() {
   const [selectedEntities, setSelectedEntities] = useState<number[]>([]);
   const [isMerging, setIsMerging] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const loadEntities = () => {
@@ -93,6 +95,31 @@ export function EntityList() {
     }
   };
 
+  const handleDeleteClick = () => {
+    if (selectedEntities.length === 0) return;
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedEntities.length === 0) return;
+    setShowDeleteDialog(false);
+    setIsDeleting(true);
+
+    try {
+      // Delete all selected entities
+      for (const entityId of selectedEntities) {
+        await deleteEntity(entityId);
+      }
+      setSelectedEntities([]);
+      loadEntities();
+    } catch (err) {
+      setError("Failed to delete entities");
+      console.error("Error deleting entities:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const getSelectionInfo = (entityId: number) => {
     const index = selectedEntities.indexOf(entityId);
     if (index === -1) return null;
@@ -159,20 +186,39 @@ export function EntityList() {
         </select>
       </div>
 
-      {selectedEntities.length > 1 && (
-        <div className="mb-4">
-          <button
-            onClick={handleMergeClick}
-            disabled={isMerging}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-          >
-            {isMerging
-              ? "Merging..."
-              : `Merge ${selectedEntities.length} Entities`}
-          </button>
-          <p className="mt-2 text-sm text-gray-600">
-            First selected entity will be kept, others will be merged into it.
-          </p>
+      {selectedEntities.length > 0 && (
+        <div className="mb-4 flex gap-2">
+          {selectedEntities.length === 1 ? (
+            <button
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              {isDeleting ? "Deleting..." : "Delete Entity"}
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleMergeClick}
+                disabled={isMerging}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              >
+                {isMerging ? "Merging..." : `Merge ${selectedEntities.length} Entities`}
+              </button>
+              <button
+                onClick={handleDeleteClick}
+                disabled={isDeleting}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : `Delete ${selectedEntities.length} Entities`}
+              </button>
+            </>
+          )}
+          {selectedEntities.length > 1 && (
+            <p className="mt-2 text-sm text-gray-600">
+              For merging: First selected entity will be kept, others will be merged into it.
+            </p>
+          )}
         </div>
       )}
 
@@ -280,6 +326,58 @@ export function EntityList() {
                   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Merge
+                </button>
+              </div>
+            </Dialog.Panel>
+          </Dialog>
+        </div>
+      )}
+
+      {showDeleteDialog && selectedEntities.length > 0 && (
+        <div>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30"
+            aria-hidden="true"
+          />
+          <Dialog
+            open={showDeleteDialog}
+            onClose={() => setShowDeleteDialog(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+          >
+            <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto">
+              <Dialog.Title className="text-lg font-semibold mb-4">
+                Confirm Delete
+              </Dialog.Title>
+              <div className="mb-4">
+                <p className="text-gray-600 mb-2">
+                  Are you sure you want to delete {selectedEntities.length === 1 ? 'this entity' : 'these entities'}?
+                </p>
+                <ul className="list-disc pl-5">
+                  {selectedEntities.map((id) => {
+                    const entity = entities.find((e) => e.id === id);
+                    return entity ? (
+                      <li key={id} className="text-gray-700">
+                        {entity.name} ({entity.type})
+                      </li>
+                    ) : null;
+                  })}
+                </ul>
+              </div>
+              <p className="text-red-600 text-sm mb-4">
+                This action cannot be undone. {selectedEntities.length === 1 ? 'The entity' : 'These entities'} will be permanently deleted.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setShowDeleteDialog(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Delete
                 </button>
               </div>
             </Dialog.Panel>
