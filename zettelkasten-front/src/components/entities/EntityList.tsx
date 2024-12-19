@@ -216,7 +216,8 @@ export function EntityList() {
           onClose={() => setShowConfirmDialog(false)}
           className="fixed inset-0 z-50 flex items-center justify-center"
         >
-          <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
+          <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto relative">
             <Dialog.Title className="text-lg font-semibold mb-4">
               Confirm Merge
             </Dialog.Title>
@@ -269,7 +270,8 @@ export function EntityList() {
           onClose={() => setShowDeleteDialog(false)}
           className="fixed inset-0 z-50 flex items-center justify-center"
         >
-          <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
+          <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto relative">
             <Dialog.Title className="text-lg font-semibold mb-4">
               Confirm Delete
             </Dialog.Title>
