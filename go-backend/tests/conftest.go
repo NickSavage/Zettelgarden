@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 
@@ -21,16 +22,22 @@ import (
 
 var S *server.Server
 
+var setupOnce sync.Once
+var db *sql.DB
+
 func Setup() *server.Server {
 	var err error
-	dbConfig := models.DatabaseConfig{}
-	dbConfig.Host = os.Getenv("DB_HOST")
-	dbConfig.Port = os.Getenv("DB_PORT")
-	dbConfig.User = os.Getenv("DB_USER")
-	dbConfig.Password = os.Getenv("DB_PASS")
-	dbConfig.DatabaseName = "zettelkasten_testing"
+	setupOnce.Do(func() {
+		dbConfig := models.DatabaseConfig{}
+		dbConfig.Host = os.Getenv("DB_HOST")
+		dbConfig.Port = os.Getenv("DB_PORT")
+		dbConfig.User = os.Getenv("DB_USER")
+		dbConfig.Password = os.Getenv("DB_PASS")
+		dbConfig.DatabaseName = "zettelkasten_testing"
 
-	db, err := server.ConnectToDatabase(dbConfig)
+		db, err = server.ConnectToDatabase(dbConfig)
+	})
+
 	if err != nil {
 		log.Fatalf("Unable to connect to the database: %v\n", err)
 	}
@@ -204,7 +211,6 @@ func importTestData(s *server.Server) error {
 			return err
 		}
 	}
-	log.Printf("starting chat")
 	if err := loadChatData(tx); err != nil {
 		return err
 	}
@@ -541,7 +547,6 @@ func loadChatConversationsData(tx *sql.Tx) error {
 
 	// Insert each chat conversation
 	for _, conversation := range conversationsData {
-		log.Printf("conversation %v", conversation)
 		_, err := tx.Exec(`
             INSERT INTO chat_conversations
             (id, title, user_id, model, message_count, created_at)

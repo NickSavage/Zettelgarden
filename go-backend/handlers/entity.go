@@ -193,7 +193,6 @@ func (s *Handler) QueryEntitiesForCard(userID int, cardPK int) ([]models.Entity,
 	WHERE 
 		ecj.card_pk = $1 AND e.user_id = $2`
 
-	log.Printf("query %v, %v, %v", query, cardPK, userID)
 	rows, err := s.DB.Query(query, cardPK, userID)
 	if err != nil {
 		log.Printf("err %v", err)
@@ -215,7 +214,6 @@ func (s *Handler) QueryEntitiesForCard(userID int, cardPK int) ([]models.Entity,
 			log.Printf("err %v", err)
 			return entities, err
 		}
-		log.Printf("entity %v", entity)
 		entities = append(entities, entity)
 	}
 	return entities, nil

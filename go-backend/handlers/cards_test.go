@@ -340,7 +340,7 @@ func TestGetCardsOtherUsersBodyNoResults(t *testing.T) {
 
 func TestGetCardsSuccessPartial(t *testing.T) {
 	s := setup()
-	//defer tests.Teardown()
+	defer tests.Teardown()
 
 	rr := makeCardsRequestSuccess(s, t, "partial=true")
 

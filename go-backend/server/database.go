@@ -37,15 +37,18 @@ func ResetDatabase(S *Server) error {
 			DROP TABLE IF EXISTS migrations CASCADE;
 			DROP TABLE IF EXISTS stripe_plans CASCADE;
 			DROP TABLE IF EXISTS tasks CASCADE;
-                        DROP TABLE IF EXISTS keywords CASCADE;
-                        DROP TABLE IF EXISTS card_tags CASCADE;
-                        DROP TABLE IF EXISTS tags CASCADE;
-                        DROP TABLE IF EXISTS task_tags CASCADE;
-                        DROP TABLE IF EXISTS card_embeddings CASCADE;
-                        DROP TABLE IF EXISTS card_chunks CASCADE;
-                        DROP TABLE IF EXISTS mailing_list CASCADE;
-                        DROP TABLE IF EXISTS chat_completions CASCADE;
-                        DROP TABLE IF EXISTS chat_conversations CASCADE;
+            DROP TABLE IF EXISTS keywords CASCADE;
+			DROP TABLE IF EXISTS card_tags CASCADE;
+			DROP TABLE IF EXISTS tags CASCADE;
+			DROP TABLE IF EXISTS task_tags CASCADE;
+			DROP TABLE IF EXISTS card_embeddings CASCADE;
+			DROP TABLE IF EXISTS card_chunks CASCADE;
+			DROP TABLE IF EXISTS mailing_list CASCADE;
+			DROP TABLE IF EXISTS chat_completions CASCADE;
+			DROP TABLE IF EXISTS chat_conversations CASCADE;
+			DROP TABLE IF EXISTS entities CASCADE;
+			DROP TABLE IF EXISTS entity_card_junction CASCADE;
+
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,
 				migration_name VARCHAR(255) NOT NULL,
