@@ -9,11 +9,18 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
 
 const SIMILARITY_THRESHOLD = 0.15
+
+type UpdateEntityRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+}
 
 func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 
@@ -401,5 +408,137 @@ func (s *Handler) DeleteEntityRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Entity deleted successfully",
+	})
+}
+
+func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequest) error {
+	// Start transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// Verify entity exists and belongs to user
+	var exists bool
+	err = tx.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM entities 
+			WHERE id = $1 AND user_id = $2
+		)`,
+		entityID, userID).Scan(&exists)
+	if err != nil {
+		return fmt.Errorf("failed to check entity existence: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("entity not found or does not belong to user")
+	}
+
+	// Check if name is unique for this user
+	var nameExists bool
+	err = tx.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM entities 
+			WHERE user_id = $1 AND name = $2 AND id != $3
+		)`,
+		userID, params.Name, entityID).Scan(&nameExists)
+	if err != nil {
+		return fmt.Errorf("failed to check name uniqueness: %w", err)
+	}
+	if nameExists {
+		return fmt.Errorf("an entity with this name already exists")
+	}
+
+	// Generate new embedding
+	entity := models.Entity{
+		ID:          entityID,
+		UserID:      userID,
+		Name:        params.Name,
+		Description: params.Description,
+		Type:        params.Type,
+	}
+
+	var updateQuery string
+	var queryArgs []interface{}
+
+	if s.Server.Testing {
+		// In test mode, don't update the embedding
+		updateQuery = `
+			UPDATE entities 
+			SET name = $1, 
+				description = $2,
+				type = $3,
+				updated_at = NOW()
+			WHERE id = $4 AND user_id = $5`
+		queryArgs = []interface{}{params.Name, params.Description, params.Type, entityID, userID}
+	} else {
+		// In normal mode, update with new embedding
+		embedding, err := llms.GenerateEntityEmbedding(s.Server.LLMClient, entity)
+		if err != nil {
+			return fmt.Errorf("failed to generate embedding: %w", err)
+		}
+		updateQuery = `
+			UPDATE entities 
+			SET name = $1, 
+				description = $2,
+				type = $3,
+				embedding = $4,
+				updated_at = NOW()
+			WHERE id = $5 AND user_id = $6`
+		queryArgs = []interface{}{params.Name, params.Description, params.Type, embedding, entityID, userID}
+	}
+
+	// Update the entity
+	_, err = tx.Exec(updateQuery, queryArgs...)
+	if err != nil {
+		return fmt.Errorf("failed to update entity: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Handler) UpdateEntityRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Extract entityID from URL parameters
+	entityID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid entity ID", http.StatusBadRequest)
+		return
+	}
+
+	var params UpdateEntityRequest
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if params.Name == "" {
+		http.Error(w, "Name is required", http.StatusBadRequest)
+		return
+	}
+
+	err = s.UpdateEntity(userID, entityID, params)
+	if err != nil {
+		if strings.Contains(err.Error(), "already exists") {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
+		log.Printf("Error updating entity: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Entity updated successfully",
 	})
 }

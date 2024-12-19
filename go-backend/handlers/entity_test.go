@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"go-backend/tests"
+	"strings"
 	"testing"
 )
 
@@ -126,5 +127,91 @@ func TestDeleteEntityNonExistent(t *testing.T) {
 	err := s.DeleteEntity(1, 99999)
 	if err == nil {
 		t.Error("Expected error when deleting non-existent entity")
+	}
+}
+
+func TestUpdateEntitySuccess(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Update entity using pre-loaded test data
+	params := UpdateEntityRequest{
+		Name:        "Updated Entity",
+		Description: "Updated description",
+		Type:        "Updated type",
+	}
+	err := s.UpdateEntity(1, 1, params)
+	if err != nil {
+		t.Errorf("UpdateEntity failed: %v", err)
+	}
+
+	// Verify entity was updated
+	var name, description, entityType string
+	err = s.DB.QueryRow("SELECT name, description, type FROM entities WHERE id = $1", 1).Scan(&name, &description, &entityType)
+	if err != nil {
+		t.Errorf("Failed to check entity update: %v", err)
+	}
+	if name != params.Name || description != params.Description || entityType != params.Type {
+		t.Errorf("Entity was not updated correctly")
+	}
+}
+
+func TestUpdateEntityDuplicateName(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// First create another entity with a known name, using a high ID to avoid conflicts
+	_, err := s.DB.Exec(`
+		INSERT INTO entities (id, user_id, name, description, type, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
+		9999, 1, "Existing Entity", "Test description", "concept")
+	if err != nil {
+		t.Fatalf("Failed to create test entity: %v", err)
+	}
+
+	// Try to update entity with a name that already exists
+	params := UpdateEntityRequest{
+		Name:        "Existing Entity", // Try to update to the name we just created
+		Description: "Updated description",
+		Type:        "Updated type",
+	}
+	err = s.UpdateEntity(1, 1, params)
+	if err == nil {
+		t.Error("Expected error when updating entity with duplicate name")
+	}
+	if !strings.Contains(err.Error(), "already exists") {
+		t.Errorf("Expected 'already exists' error, got: %v", err)
+	}
+}
+
+func TestUpdateEntityWrongUser(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Try to update entity belonging to different user
+	params := UpdateEntityRequest{
+		Name:        "Updated Entity",
+		Description: "Updated description",
+		Type:        "Updated type",
+	}
+	err := s.UpdateEntity(2, 1, params) // Assuming entity 1 belongs to user 1
+	if err == nil {
+		t.Error("Expected error when updating entity belonging to different user")
+	}
+}
+
+func TestUpdateEntityNonExistent(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Try to update non-existent entity
+	params := UpdateEntityRequest{
+		Name:        "Updated Entity",
+		Description: "Updated description",
+		Type:        "Updated type",
+	}
+	err := s.UpdateEntity(1, 99999, params)
+	if err == nil {
+		t.Error("Expected error when updating non-existent entity")
 	}
 }
