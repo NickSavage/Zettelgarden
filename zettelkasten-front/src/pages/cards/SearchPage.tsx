@@ -23,7 +23,7 @@ export function SearchPage({
   cards,
   setCards,
 }: SearchPageProps) {
-  const [sortBy, setSortBy] = useState("sortNewOld");
+  const [sortBy, setSortBy] = useState("sortCreatedNewOld");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
@@ -221,8 +221,10 @@ export function SearchPage({
               children={"Search"}
             />
             <select value={sortBy} onChange={handleSortChange}>
-              <option value="sortNewOld">Newest</option>
-              <option value="sortOldNew">Oldest</option>
+              <option value="sortCreatedNewOld">Creation Date (Newest)</option>
+              <option value="sortCreatedOldNew">Creation Date (Oldest)</option>
+              <option value="sortNewOld">Last Updated (Newest)</option>
+              <option value="sortOldNew">Last Updated (Oldest)</option>
               <option value="sortBigSmall">A to Z</option>
               <option value="sortSmallBig">Z to A</option>
             </select>

@@ -72,17 +72,20 @@ export function sortCards(cards, value) {
     });
   } else if (value === "sortNewOld") {
     temp.sort((a, b) => {
-      return (
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      );
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
     });
   } else if (value === "sortOldNew") {
     temp.sort((a, b) => {
-      return (
-        new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
-      );
+      return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
     });
-  } else {
+  } else if (value === "sortCreatedNewOld") {
+    temp.sort((a, b) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  } else if (value === "sortCreatedOldNew") {
+    temp.sort((a, b) => {
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
   }
   return temp;
 }
