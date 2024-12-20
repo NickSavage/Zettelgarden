@@ -1,24 +1,17 @@
 import React, { useState, useEffect, FormEvent } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getUserSubscription } from "../api/users";
-import { getCurrentUser } from "../api/users";
-import { editUser } from "../api/users";
+import { useNavigate } from "react-router-dom";
+import { getUserSubscription, getCurrentUser, editUser } from "../api/users";
+import { requestPasswordReset } from "../api/auth";
 import { User, EditUserParams, UserSubscription } from "../models/User";
-import { PartialCard, Card } from "../models/Card";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
-import { TagList } from "../components/tags/TagList";
-import { BacklinkInput } from "../components/cards/BacklinkInput";
-import { getCard } from "../api/cards";
-import { isErrorResponse } from "../models/common";
-import { CardLink } from "../components/cards/CardLink";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [subscription, setSubscription] = useState<UserSubscription | null>(
-    null,
-  );
+  const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { logoutUser } = useAuth();
@@ -55,10 +48,24 @@ export function UserSettingsPage() {
       setError(error.message);
     }
   }
-  function handleLogout() {
-    logoutUser();
-    navigate("/login");
-  }
+
+  const handlePasswordReset = async () => {
+    if (!user?.email) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await requestPasswordReset(user.email);
+      if (response.error) {
+        setError(response.message);
+      } else {
+        setSuccess("Password reset link has been sent to your email address.");
+      }
+    } catch (error) {
+      setError("Failed to initiate password reset.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchUserAndSubscription() {
@@ -82,10 +89,11 @@ export function UserSettingsPage() {
   }, []);
 
   return (
-    <div>
-      {error && <span>{error}</span>}
+    <div className="max-w-4xl mx-auto p-6">
+      <H6>Settings</H6>
 
-      {user && (
+      <div className="space-y-6">
+        {/* Profile Settings Card */}
         <div>
           <div>
             <H6 children="Settings" />
@@ -97,41 +105,70 @@ export function UserSettingsPage() {
                 <input
                   type="text"
                   name="username"
-                  defaultValue={user.username}
+                  defaultValue={user?.username}
                 />
               </label>
             </div>
             <div>
               <label>
                 Email:
-                <input type="email" name="email" defaultValue={user.email} />
+                <input type="email" name="email" defaultValue={user?.email} />
               </label>
             </div>
             <button type="submit">Save Changes</button>
           </form>
-          {subscription && (
-            <div>
-              <h2>Subscription</h2>
-              <p>
-                Subscription Status:{" "}
-                {subscription["stripe_subscription_status"]}
-              </p>
-              <p>
-                Current Plan: {subscription["stripe_subscription_frequency"]}
-              </p>
-              <p>
-                Visit the{" "}
-                <a href="https://billing.stripe.com/p/login/test_28og184xZe4b51ecMM">
-                  billing portal
-                </a>{" "}
-                to manage or cancel your plan.
-              </p>
-            </div>
-          )}
-          <span onClick={handleLogout}>Logout</span>
-          <hr />
         </div>
-      )}
+
+        {/* Password Settings Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Password Settings</h2>
+          <p className="text-gray-600 mb-4">
+            To change your password, we'll send a password reset link to your email address.
+          </p>
+          <button
+            onClick={handlePasswordReset}
+            disabled={isLoading}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            {isLoading ? "Sending..." : "Send Password Reset Link"}
+          </button>
+          {success && <div className="mt-2 text-green-600 text-sm">{success}</div>}
+          {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
+        </div>
+
+        {/* Subscription Card */}
+        {subscription && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">Subscription</h2>
+            <div className="space-y-2">
+              <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
+              <p>Plan: <span className="font-medium">{subscription.stripe_subscription_frequency}</span></p>
+              <a
+                href="https://billing.stripe.com/p/login/test_28og184xZe4b51ecMM"
+                className="text-blue-500 hover:underline"
+              >
+                Manage Subscription →
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Account Actions Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Account Actions</h2>
+          <button
+            onClick={() => {
+              if (window.confirm("Are you sure you want to logout?")) {
+                logoutUser();
+                navigate("/login");
+              }
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
