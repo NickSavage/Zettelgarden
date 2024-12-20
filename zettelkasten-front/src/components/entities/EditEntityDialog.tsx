@@ -10,9 +10,10 @@ interface EditEntityDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  onDelete: (entity: Entity) => void;
 }
 
-export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEntityDialogProps) {
+export function EditEntityDialog({ entity, isOpen, onClose, onSuccess, onDelete }: EditEntityDialogProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
@@ -69,18 +70,20 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center">
+    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
       
-      <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto relative">
-        <Dialog.Title className="text-lg font-semibold mb-4">
-          Edit Entity
-        </Dialog.Title>
+      <Dialog.Panel className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-auto relative">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <Dialog.Title className="text-xl font-semibold text-gray-900">
+            Edit Entity
+          </Dialog.Title>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                 Name *
               </label>
               <input
@@ -88,26 +91,26 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30 transition-colors"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                 Description
               </label>
               <textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                rows={4}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30 transition-colors"
               />
             </div>
 
             <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
                 Type
               </label>
               <input
@@ -115,7 +118,7 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
                 id="type"
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30 transition-colors"
               />
             </div>
 
@@ -124,12 +127,12 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
                 Linked Card
               </label>
               {linkedCard ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
                   <CardTag card={linkedCard} showTitle={true} />
                   <button
                     type="button"
                     onClick={handleRemoveCard}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded-full transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -144,9 +147,12 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
                     <button
                       type="button"
                       onClick={() => setShowCardLink(true)}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
                     >
-                      + Link Card
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                      Link Card
                     </button>
                   )}
                 </div>
@@ -154,25 +160,37 @@ export function EditEntityDialog({ entity, isOpen, onClose, onSuccess }: EditEnt
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm">{error}</div>
+              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                {error}
+              </div>
             )}
           </div>
 
-          <div className="mt-6 flex justify-end gap-4">
+          <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              onClick={() => entity && onDelete(entity)}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
             >
-              Cancel
+              Delete Entity
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !name.trim()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-              {isSubmitting ? "Saving..." : "Save"}
-            </button>
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !name.trim()}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              >
+                {isSubmitting ? "Saving..." : "Save"}
+              </button>
+            </div>
           </div>
         </form>
       </Dialog.Panel>

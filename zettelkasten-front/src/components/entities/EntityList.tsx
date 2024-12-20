@@ -25,6 +25,7 @@ export function EntityList() {
   const [editingEntity, setEditingEntity] = useState<Entity | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
+  const [entityToDelete, setEntityToDelete] = useState<Entity | null>(null);
   const navigate = useNavigate();
 
   const loadEntities = () => {
@@ -106,16 +107,21 @@ export function EntityList() {
   };
 
   const handleConfirmDelete = async () => {
-    if (selectedEntities.length === 0) return;
+    const entitiesToDelete = entityToDelete 
+      ? [entityToDelete.id] 
+      : selectedEntities;
+
+    if (entitiesToDelete.length === 0) return;
+    
     setShowDeleteDialog(false);
     setIsDeleting(true);
 
     try {
-      // Delete all selected entities
-      for (const entityId of selectedEntities) {
+      for (const entityId of entitiesToDelete) {
         await deleteEntity(entityId);
       }
       setSelectedEntities([]);
+      setEntityToDelete(null);
       loadEntities();
     } catch (err) {
       setError("Failed to delete entities");
@@ -166,6 +172,13 @@ export function EntityList() {
     if (selectionMode) {
       setSelectedEntities([]);
     }
+  };
+
+  const handleSingleDelete = (entity: Entity) => {
+    setEditingEntity(null);
+    setShowEditDialog(false);
+    setEntityToDelete(entity);
+    setShowDeleteDialog(true);
   };
 
   if (loading) return <div className="p-4">Loading entities...</div>;
@@ -305,10 +318,13 @@ export function EntityList() {
         </Dialog>
       )}
 
-      {showDeleteDialog && selectedEntities.length > 0 && (
+      {showDeleteDialog && (
         <Dialog
           open={showDeleteDialog}
-          onClose={() => setShowDeleteDialog(false)}
+          onClose={() => {
+            setShowDeleteDialog(false);
+            setEntityToDelete(null);
+          }}
           className="fixed inset-0 z-50 flex items-center justify-center"
         >
           <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
@@ -318,13 +334,12 @@ export function EntityList() {
             </Dialog.Title>
             <div className="mb-4">
               <p className="text-gray-600 mb-2">
-                Are you sure you want to delete {selectedEntities.length === 1 ? 'this entity' : 'these entities'}?
+                Are you sure you want to delete {entityToDelete ? 'this entity' : 'these entities'}?
               </p>
               <ul className="list-disc pl-5">
-                {selectedEntities.map((id) => {
-                  const entity = entities.find((e) => e.id === id);
+                {(entityToDelete ? [entityToDelete] : selectedEntities.map(id => entities.find(e => e.id === id))).map((entity) => {
                   return entity ? (
-                    <li key={id} className="text-gray-700">
+                    <li key={entity.id} className="text-gray-700">
                       {entity.name} ({entity.type})
                     </li>
                   ) : null;
@@ -332,11 +347,14 @@ export function EntityList() {
               </ul>
             </div>
             <p className="text-red-600 text-sm mb-4">
-              This action cannot be undone. {selectedEntities.length === 1 ? 'The entity' : 'These entities'} will be permanently deleted.
+              This action cannot be undone. {entityToDelete ? 'The entity' : 'These entities'} will be permanently deleted.
             </p>
             <div className="flex justify-end gap-4">
               <button
-                onClick={() => setShowDeleteDialog(false)}
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setEntityToDelete(null);
+                }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
                 Cancel
@@ -360,6 +378,7 @@ export function EntityList() {
           setEditingEntity(null);
         }}
         onSuccess={handleEditSuccess}
+        onDelete={handleSingleDelete}
       />
     </div>
   );
