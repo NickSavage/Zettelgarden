@@ -91,53 +91,61 @@ export function ViewPage({}: ViewPageProps) {
   }, [id, setRefreshTasks]);
 
   return (
-    <div className="px-4 md:px-20 py-4">
+    <div className="max-w-4xl mx-auto px-4 py-6">
       {error && (
-        <div>
-          // <h3>Unauthorized</h3>
-          <div>{error}</div>
+        <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+          <div className="text-red-700">{error}</div>
         </div>
       )}
       {viewingCard && (
-        <div>
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg p-3 shadow-sm">
             <div className="flex-grow">
-              <span className="font-bold text-blue-600">
-                {viewingCard.card_id}
-              </span>
-              <HeaderTop text=": " />
-              <HeaderTop className="pr-2" text={viewingCard.title} />
-              {viewingCard.tags.length > 0 &&
-                viewingCard.tags.map((tag) => (
-                  <span className="pl-2 text-purple-500 text-sm">
-                    #{tag.name}
-                  </span>
-                ))}
+              <div className="flex items-center flex-wrap gap-2">
+                <span className="font-mono text-sm text-blue-600 font-semibold">
+                  {viewingCard.card_id}
+                </span>
+                <span className="text-gray-600">:</span>
+                <h1 className="text-lg font-bold">
+                  {viewingCard.title}
+                </h1>
+                {viewingCard.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {viewingCard.tags.map((tag) => (
+                      <span key={tag.name} className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full">
+                        #{tag.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="p-2">
-              <Button onClick={handleEditCard} children="Edit" />
+            <div className="mt-2 md:mt-0 md:ml-4">
+              <Button onClick={handleEditCard} size="sm">Edit</Button>
             </div>
           </div>
 
-          <hr />
-          <div className="p-4">
+          {/* Card Body */}
+          <div className="bg-white rounded-lg p-6 shadow-sm prose max-w-none">
             <CardBody viewingCard={viewingCard} />
           </div>
-          <div>
-            {viewingCard.link && (
-              <div>
-                <span style={{ fontWeight: "bold" }}>{"Link: "}</span>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: linkifyWithDefaultOptions(viewingCard.link),
-                  }}
-                />
-              </div>
-            )}
-          </div>
-          <hr />
-          <div className="py-4">
-            <div className="flex align-center pb-2 pr-2">
+
+          {/* Link Section */}
+          {viewingCard.link && (
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <span className="font-medium">Link: </span>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: linkifyWithDefaultOptions(viewingCard.link),
+                }}
+              />
+            </div>
+          )}
+
+          {/* Backlink and Options Section */}
+          <div className="bg-white rounded-lg p-4 shadow-sm space-y-4">
+            <div className="flex items-center gap-2">
               <BacklinkInput addBacklink={handleAddBacklink} />
               <ViewCardOptionsMenu
                 viewingCard={viewingCard}
@@ -145,41 +153,53 @@ export function ViewPage({}: ViewPageProps) {
                 setMessage={setError}
               />
             </div>
-            <div className="text-xs">
-              <span className="font-bold">Created At:</span>
-              <span> {viewingCard.created_at.toISOString()}</span>
-              <br />
-              <span className="font-bold">Updated At:</span>
-              <span> {viewingCard.updated_at.toISOString()}</span>
+            <div className="text-xs text-gray-600 space-y-1">
+              <div>
+                <span className="font-medium">Created At:</span>
+                <span> {viewingCard.created_at.toISOString()}</span>
+              </div>
+              <div>
+                <span className="font-medium">Updated At:</span>
+                <span> {viewingCard.updated_at.toISOString()}</span>
+              </div>
             </div>
           </div>
+
+          {/* Parent Card Section */}
           {parentCard && (
-            <div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
               <HeaderSubSection text="Parent" />
-              <ul>
+              <ul className="mt-2">
                 <CardItem card={parentCard} />
               </ul>
             </div>
           )}
-          <hr />
+
+          {/* Tasks Section */}
           {viewingCard.tasks.length > 0 && (
-            <div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
               <HeaderSubSection text="Tasks" />
-              {viewingCard.tasks.map((task, index) => (
-                <TaskListItem
-                  task={task}
-                  setRefresh={setRefreshTasks}
-                  onTagClick={(tag: string) => {}}
-                />
-              ))}
-              <hr />
+              <div className="mt-2 space-y-2">
+                {viewingCard.tasks.map((task, index) => (
+                  <TaskListItem
+                    key={task.id}
+                    task={task}
+                    setRefresh={setRefreshTasks}
+                    onTagClick={(tag: string) => {}}
+                  />
+                ))}
+              </div>
             </div>
           )}
-          <ViewCardTabbedDisplay
-            viewingCard={viewingCard}
-            setViewCard={setViewCard}
-            setError={setError}
-          />
+
+          {/* Tabbed Display */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <ViewCardTabbedDisplay
+              viewingCard={viewingCard}
+              setViewCard={setViewCard}
+              setError={setError}
+            />
+          </div>
         </div>
       )}
     </div>
