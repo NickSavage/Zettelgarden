@@ -24,6 +24,7 @@ export function EntityList() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [editingEntity, setEditingEntity] = useState<Entity | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
   const navigate = useNavigate();
 
   const loadEntities = () => {
@@ -58,7 +59,7 @@ export function EntityList() {
   }, [filterText, entities]);
 
   const handleEntityClick = (entity: Entity, event: React.MouseEvent) => {
-    if (event.ctrlKey || event.metaKey) {
+    if (selectionMode || event.ctrlKey || event.metaKey) {
       event.preventDefault();
       setSelectedEntities((prev) => {
         const index = prev.indexOf(entity.id);
@@ -68,7 +69,7 @@ export function EntityList() {
           return [...prev, entity.id];
         }
       });
-    } else if (selectedEntities.length === 0) {
+    } else {
       navigate(`/app/search?term=@[${entity.name}]`);
     }
   };
@@ -160,6 +161,13 @@ export function EntityList() {
     loadEntities(); // Reload the entities list
   };
 
+  const handleSelectionModeToggle = () => {
+    setSelectionMode(!selectionMode);
+    if (selectionMode) {
+      setSelectedEntities([]);
+    }
+  };
+
   if (loading) return <div className="p-4">Loading entities...</div>;
   if (error) return <div className="p-4 text-red-600">{error}</div>;
 
@@ -182,14 +190,46 @@ export function EntityList() {
         }}
       />
 
-      <EntitySelectionActions
-        selectedCount={selectedEntities.length}
-        onMerge={handleMergeClick}
-        onDelete={handleDeleteClick}
-        onDeselect={handleDeselectAll}
-        isMerging={isMerging}
-        isDeleting={isDeleting}
-      />
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <button
+          onClick={handleSelectionModeToggle}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+            ${selectionMode 
+              ? 'bg-blue-500 text-white hover:bg-blue-600' 
+              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+            }`}
+        >
+          {selectionMode ? (
+            <span className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+              Exit Selection
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
+              </svg>
+              Select Mode
+            </span>
+          )}
+        </button>
+        
+        {(selectionMode || selectedEntities.length > 0) && (
+          <>
+            <div className="h-6 w-px bg-gray-300"></div>
+            <EntitySelectionActions
+              selectedCount={selectedEntities.length}
+              onMerge={handleMergeClick}
+              onDelete={handleDeleteClick}
+              isMerging={isMerging}
+              isDeleting={isDeleting}
+            />
+          </>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {getSortedEntities(filteredEntities).map((entity) => (
@@ -198,6 +238,7 @@ export function EntityList() {
             entity={entity}
             isSelected={selectedEntities.includes(entity.id)}
             selectionInfo={getSelectionInfo(entity.id)}
+            selectionMode={selectionMode}
             onEdit={handleEditClick}
             onClick={handleEntityClick}
           />
