@@ -122,7 +122,7 @@ export function ViewPage({}: ViewPageProps) {
               </div>
             </div>
             <div className="mt-2 md:mt-0 md:ml-4">
-              <Button onClick={handleEditCard} size="sm">Edit</Button>
+              <Button onClick={handleEditCard} >Edit</Button>
             </div>
           </div>
 
