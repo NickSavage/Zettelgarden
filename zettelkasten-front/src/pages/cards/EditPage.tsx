@@ -27,7 +27,7 @@ function onFileDelete(file_id: number) {}
 function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
   if (!editingCard.card_id) return null;
   if (!isCardIdUnique(cards, editingCard.card_id)) {
-    return <span style={{ color: "red" }}>Card ID is not unique!</span>;
+    return <span className="text-red-600 text-sm font-medium">Card ID is not unique!</span>;
   }
   return null;
 }
@@ -157,73 +157,112 @@ export function EditPage({ newCard }: EditPageProps) {
   }
 
   return (
-    <div className="px-4 md:px-20 py-4">
+    <div className="px-4 md:px-20 py-8 max-w-4xl mx-auto">
       {editingCard && (
-        <div>
-          <div>{message && <span>{message}</span>}</div>
-          <label htmlFor="title">Card ID:</label>
-          <div style={{ display: "flex" }}>
-            <input
-              type="text"
-              value={editingCard.card_id}
-              onChange={(e) =>
-                setEditingCard({ ...editingCard, card_id: e.target.value })
-              }
-              placeholder="ID"
-              style={{ display: "block", marginBottom: "10px" }}
-            />
-            {newCard && renderWarningLabel(partialCards, editingCard)}
-          </div>
-          <label htmlFor="title">Title:</label>
-          <input
-            style={{ display: "block", width: "100%", marginBottom: "10px" }}
-            type="text"
-            id="title"
-            value={editingCard.title}
-            onChange={(e) =>
-              setEditingCard({ ...editingCard, title: e.target.value })
-            }
-            placeholder="Title"
-          />
-
-          <label htmlFor="body">Body:</label>
-          <CardBodyTextArea
-            editingCard={editingCard}
-            setEditingCard={setEditingCard}
-            setMessage={setMessage}
-            newCard={newCard}
-            filesToUpdate={filesToUpdate}
-            setFilesToUpdate={setFilesToUpdate}
-          />
-          <div className="flex">
-            <BacklinkInput addBacklink={addBacklink} />
-            <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
-          </div>
-
-          <label htmlFor="title">Source/URL:</label>
-
-          <div className="flex">
-            <input
-              style={{ display: "block", width: "100%", marginBottom: "10px" }}
-              type="text"
-              id="link"
-              value={editingCard.link}
-              onChange={(e) =>
-                setEditingCard({ ...editingCard, link: e.target.value })
-              }
-              placeholder="Source/URL"
-            />
-            <span onClick={handleClickFillCard}>{"Fill Card From URL"}</span>
-          </div>
-          <Button onClick={handleSaveCard} children={"Save"} />
-          <Button onClick={handleCancelButtonClick} children={"Cancel"} />
-          {!newCard && (
-            <ButtonCardDelete card={editingCard} setMessage={setMessage} />
+        <div className="space-y-6">
+          {(message || error) && (
+            <div className={`p-4 rounded-md ${
+              error ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
+            }`}>
+              {message || error}
+            </div>
           )}
+          
+          <div className="space-y-2">
+            <label htmlFor="card_id" className="block text-sm font-medium text-gray-700">
+              Card ID:
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                id="card_id"
+                value={editingCard.card_id}
+                onChange={(e) =>
+                  setEditingCard({ ...editingCard, card_id: e.target.value })
+                }
+                placeholder="ID"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+              {newCard && renderWarningLabel(partialCards, editingCard)}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              Title:
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={editingCard.title}
+              onChange={(e) =>
+                setEditingCard({ ...editingCard, title: e.target.value })
+              }
+              placeholder="Title"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="body" className="block text-sm font-medium text-gray-700">
+              Body:
+            </label>
+            <CardBodyTextArea
+              editingCard={editingCard}
+              setEditingCard={setEditingCard}
+              setMessage={setMessage}
+              newCard={newCard}
+              filesToUpdate={filesToUpdate}
+              setFilesToUpdate={setFilesToUpdate}
+            />
+            <div className="flex gap-3 mt-2">
+              <div className="flex-1">
+                <BacklinkInput addBacklink={addBacklink} />
+              </div>
+              <div className="flex-1">
+                <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="link" className="block text-sm font-medium text-gray-700">
+              Source/URL:
+            </label>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                id="link"
+                value={editingCard.link}
+                onChange={(e) =>
+                  setEditingCard({ ...editingCard, link: e.target.value })
+                }
+                placeholder="Source/URL"
+                className="block flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+              <Button 
+                onClick={handleClickFillCard}
+                variant="secondary"
+                size="medium"
+                className="whitespace-nowrap"
+              >
+                Fill Card From URL
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button onClick={handleSaveCard} variant="primary">Save</Button>
+            <Button onClick={handleCancelButtonClick} variant="outline">Cancel</Button>
+            {!newCard && (
+              <ButtonCardDelete card={editingCard} setMessage={setMessage} />
+            )}
+          </div>
+
           {!newCard && (
-            <div>
-              <h4>Files:</h4>
-              <ul>
+            <div className="mt-8">
+              <h4 className="text-lg font-medium text-gray-900 mb-4">Files:</h4>
+              <ul className="divide-y divide-gray-200 border border-gray-200 rounded-md overflow-hidden">
                 {editingCard.files.map((file, index) => (
                   <FileListItem
                     key={index}
