@@ -535,95 +535,52 @@ func (s *Handler) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *Handler) getNextIDReference(userID int) string {
+func (s *Handler) GetNextRootCardIDRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	nextID := s.getNextRootCardID(userID)
+
+	response := models.NextIDResponse{
+		NextID: nextID,
+		Error:  false,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func (s *Handler) getNextRootCardID(userID int) string {
 	var result string
 
+	// Query to get the highest numeric card_id
 	query := `
-        SELECT card_id FROM cards 
-		WHERE card_id LIKE 'REF%' AND is_deleted = FALSE AND user_id = $1
-
-        ORDER BY CAST(SUBSTRING(card_id FROM 'REF(.*)$') AS INTEGER) DESC
+        SELECT card_id 
+        FROM cards 
+        WHERE user_id = $1 
+        AND is_deleted = FALSE 
+        AND card_id ~ '^[0-9]+$'  -- Only match pure numeric card_ids
+        ORDER BY CAST(card_id AS INTEGER) DESC
         LIMIT 1
-	`
+    `
+
 	err := s.DB.QueryRow(query, userID).Scan(&result)
 	if err != nil && err != sql.ErrNoRows {
-		log.Fatal(err)
-		return ""
+		log.Printf("Error finding next root card ID: %v", err)
+		return "1" // Default to 1 if there's an error
 	}
 
-	var newCardID string
-	if result != "" {
-		re := regexp.MustCompile(`REF(\d+)`)
-		matches := re.FindStringSubmatch(result)
-		if len(matches) > 1 {
-			highestNumber, _ := strconv.Atoi(matches[1])
-			nextNumber := highestNumber + 1
-			newCardID = fmt.Sprintf("REF%03d", nextNumber)
-		}
-	} else {
-		newCardID = "REF001"
-	}
-	return newCardID
-}
-
-func (s *Handler) getNextIDMeeting(userID int) string {
-	var result string
-	query := `
-        SELECT card_id FROM cards WHERE card_id LIKE 'MM%' AND is_deleted = FALSE
-        ORDER BY CAST(SUBSTRING(card_id FROM 'MM(.*)$') AS INTEGER) DESC
-        LIMIT 1`
-
-	err := s.DB.QueryRow(query).Scan(&result)
-	if err != nil && err != sql.ErrNoRows {
-		log.Fatal(err)
+	if result == "" {
+		return "1" // If no cards exist, start with 1
 	}
 
-	var newCardID string
-	if result != "" {
-		re := regexp.MustCompile(`MM(\d+)`)
-		matches := re.FindStringSubmatch(result)
-		if len(matches) > 1 {
-			highestNumber, _ := strconv.Atoi(matches[1])
-			nextNumber := highestNumber + 1
-			newCardID = fmt.Sprintf("MM%03d", nextNumber)
-		}
-	} else {
-		newCardID = "MM001"
-	}
-	return newCardID
-}
-
-func (s *Handler) NextIDRoute(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	var response models.NextIDResponse
-	var params models.NextIDParams
-
-	userID := r.Context().Value("current_user").(int)
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&params)
+	// Convert the highest card_id to int and increment
+	highestNumber, err := strconv.Atoi(result)
 	if err != nil {
-		log.Printf("err? %v", err)
-		response.Error = true
-		json.NewEncoder(w).Encode(response)
-		response.Message = err.Error()
-		return
+		log.Printf("Error converting card_id to number: %v", err)
+		return "1"
 	}
 
-	if params.CardType == "reference" {
-		response.NextID = s.getNextIDReference(userID)
-		w.WriteHeader(http.StatusOK)
-	} else if params.CardType == "meeting" {
-		response.NextID = s.getNextIDMeeting(userID)
-		w.WriteHeader(http.StatusOK)
-	} else {
-		response.Error = true
-		response.Message = "Unknown or unsupported card type. Supported card types are 'reference' and 'meeting', was provided: " + params.CardType
-		w.WriteHeader(http.StatusBadRequest)
-	}
-	json.NewEncoder(w).Encode(response)
-
+	nextNumber := highestNumber + 1
+	return strconv.Itoa(nextNumber)
 }
 
 func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, error) {
