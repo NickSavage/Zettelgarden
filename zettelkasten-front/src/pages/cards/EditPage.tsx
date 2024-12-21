@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { isCardIdUnique } from "../../utils/cards";
 import { uploadFile } from "../../api/files";
 import { parseURL } from "../../api/references";
-import { saveNewCard, saveExistingCard, getCard } from "../../api/cards";
+import { saveNewCard, saveExistingCard, getCard, getNextRootId } from "../../api/cards";
 import { editFile } from "../../api/files";
 import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
@@ -173,16 +173,36 @@ export function EditPage({ newCard }: EditPageProps) {
               Card ID:
             </label>
             <div className="flex items-center gap-3">
-              <input
-                type="text"
-                id="card_id"
-                value={editingCard.card_id}
-                onChange={(e) =>
-                  setEditingCard({ ...editingCard, card_id: e.target.value })
-                }
-                placeholder="ID"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              />
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  id="card_id"
+                  value={editingCard.card_id}
+                  onChange={(e) =>
+                    setEditingCard({ ...editingCard, card_id: e.target.value })
+                  }
+                  placeholder="ID"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pr-24"
+                />
+                {newCard && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await getNextRootId();
+                        if (!response.error) {
+                          setEditingCard({ ...editingCard, card_id: response.new_id });
+                        }
+                      } catch (error) {
+                        console.error("Failed to get next ID:", error);
+                      }
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:text-blue-800"
+                    type="button"
+                  >
+                    Get Next ID
+                  </button>
+                )}
+              </div>
               {newCard && renderWarningLabel(partialCards, editingCard)}
             </div>
           </div>

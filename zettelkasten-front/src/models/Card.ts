@@ -94,7 +94,7 @@ export const defaultCard: Card = {
 export interface NextIdResponse {
   error: boolean;
   message: string;
-  new_id: string;
+  new_id: string;  // Matches the actual backend response
 }
 
 export interface FlashcardRecordNextParams {

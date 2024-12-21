@@ -154,39 +154,39 @@ export function getCard(id: string): Promise<Card> {
           let children =
             card.children !== null
               ? card.children.map((child) => {
-                  return {
-                    ...child,
-                    created_at: new Date(child.created_at),
-                    updated_at: new Date(child.updated_at),
-                  };
-                })
+                return {
+                  ...child,
+                  created_at: new Date(child.created_at),
+                  updated_at: new Date(child.updated_at),
+                };
+              })
               : [];
           let references =
             card.references !== null
               ? card.references.map((ref) => {
-                  return {
-                    ...ref,
-                    created_at: new Date(ref.created_at),
-                    updated_at: new Date(ref.updated_at),
-                  };
-                })
+                return {
+                  ...ref,
+                  created_at: new Date(ref.created_at),
+                  updated_at: new Date(ref.updated_at),
+                };
+              })
               : [];
           let tasks =
             card.tasks !== null
               ? card.tasks.map((task) => {
-                  return {
-                    ...task,
-                    scheduled_date: task.scheduled_date
-                      ? new Date(task.scheduled_date)
-                      : null,
-                    dueDate: task.dueDate ? new Date(task.dueDate) : null,
-                    created_at: new Date(task.created_at),
-                    updated_at: new Date(task.updated_at),
-                    completed_at: task.completed_at
-                      ? new Date(task.completed_at)
-                      : null,
-                  };
-                })
+                return {
+                  ...task,
+                  scheduled_date: task.scheduled_date
+                    ? new Date(task.scheduled_date)
+                    : null,
+                  dueDate: task.dueDate ? new Date(task.dueDate) : null,
+                  created_at: new Date(task.created_at),
+                  updated_at: new Date(task.updated_at),
+                  completed_at: task.completed_at
+                    ? new Date(task.completed_at)
+                    : null,
+                };
+              })
               : [];
           return {
             ...card,
@@ -309,18 +309,12 @@ export function deleteCard(id: number): Promise<Card | null> {
       }
     });
 }
-export async function getNextId(cardType: string): Promise<NextIdResponse> {
-  const url = `${base_url}/cards/next`;
-
+export async function getNextRootId(): Promise<NextIdResponse> {
+  const url = `${base_url}/cards/next-root-id`;
   let token = localStorage.getItem("token");
 
   return await fetch(url, {
-    method: "POST",
-    body: JSON.stringify({ card_type: cardType }),
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${token}` },
   })
     .then(checkStatus)
     .then((response) => {
