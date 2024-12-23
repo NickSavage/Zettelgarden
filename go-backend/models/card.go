@@ -139,15 +139,18 @@ type NextIDResponse struct {
 }
 
 type CardChunk struct {
-	ID        int       `json:"id"`
-	CardID    string    `json:"card_id"`
-	UserID    int       `json:"user_id"`
-	Title     string    `json:"title"`
-	Chunk     string    `json:"body"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ParentID  int       `json:"parent_id"`
-	Ranking   float64   `json:"ranking"`
+	ID               int       `json:"id"`
+	CardID           string    `json:"card_id"`
+	UserID           int       `json:"user_id"`
+	Title            string    `json:"title"`
+	Chunk            string    `json:"body"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+	ParentID         int       `json:"parent_id"`
+	Ranking          float64   `json:"ranking"`
+	SharedEntities   int       `json:"shared_entities"`
+	EntitySimilarity float64   `json:"entity_similarity"`
+	CombinedScore    float64   `json:"combined_score"`
 }
 
 func ScanCardChunks(rows *sql.Rows) ([]CardChunk, error) {
@@ -164,15 +167,16 @@ func ScanCardChunks(rows *sql.Rows) ([]CardChunk, error) {
 			&card.CreatedAt,
 			&card.UpdatedAt,
 			&card.ParentID,
+			&card.Ranking,
+			&card.SharedEntities,
+			&card.EntitySimilarity,
+			&card.CombinedScore,
 		); err != nil {
-			log.Printf("err %v", err)
 			return cards, err
 		}
 		cards = append(cards, card)
-
 	}
 	return cards, nil
-
 }
 
 func ConvertCardToChunk(input Card) CardChunk {

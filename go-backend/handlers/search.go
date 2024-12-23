@@ -273,37 +273,61 @@ LIMIT 50;
 }
 
 func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
-
+	// Combine results from both semantic and entity-based searches
 	query := `
-SELECT 
-    c.id,
-    c.card_id,
-    c.user_id,
-    c.title,
-    cc.chunk_text as chunk,
-    c.created_at,
-    c.updated_at,
-    c.parent_id
-FROM 
-    card_embeddings ce
-    INNER JOIN cards c ON ce.card_pk = c.id
-    INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.chunk_id
-WHERE 
-    ce.user_id = $1 
-    AND c.is_deleted = FALSE
-GROUP BY 
-    c.id, 
-    c.card_id, 
-    c.user_id, 
-    c.title, 
-    cc.chunk_text,
-    c.created_at, 
-    c.updated_at,
-    c.parent_id
-ORDER BY 
-    AVG(ce.embedding <=> $2)
-LIMIT 50;
-`
+	WITH semantic_scores AS (
+		SELECT 
+			c.id,
+			c.card_id,
+			c.user_id,
+			c.title,
+			cc.chunk_text as chunk,
+			c.created_at,
+			c.updated_at,
+			c.parent_id,
+			AVG(ce.embedding <=> $2) as semantic_score
+		FROM 
+			card_embeddings ce
+			INNER JOIN cards c ON ce.card_pk = c.id
+			INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.chunk_id
+		WHERE 
+			ce.user_id = $1 
+			AND c.is_deleted = FALSE
+		GROUP BY 
+			c.id, c.card_id, c.user_id, c.title, cc.chunk_text, c.created_at, c.updated_at, c.parent_id
+	),
+	entity_scores AS (
+		SELECT 
+			c.id,
+			COUNT(DISTINCT e.id) as shared_entities,
+			AVG(e.embedding <=> $2) as entity_similarity
+		FROM 
+			cards c
+			INNER JOIN entity_card_junction ecj ON c.id = ecj.card_pk
+			INNER JOIN entities e ON ecj.entity_id = e.id
+		WHERE 
+			c.user_id = $1 
+			AND c.is_deleted = FALSE
+		GROUP BY 
+			c.id
+	)
+	SELECT 
+		s.*,
+		COALESCE(es.shared_entities, 0) as shared_entities,
+		COALESCE(es.entity_similarity, 1) as entity_similarity,
+		(
+			0.4 * (1 - LEAST(s.semantic_score, 1)) + 
+			0.4 * (1 - LEAST(COALESCE(es.entity_similarity, 1), 1)) +
+			0.2 * (LEAST(COALESCE(es.shared_entities, 0) / 5.0, 1))
+		) as combined_score
+	FROM 
+		semantic_scores s
+		LEFT JOIN entity_scores es ON s.id = es.id
+	ORDER BY 
+		combined_score DESC
+	LIMIT 50;
+	`
+
 	var rows *sql.Rows
 	var err error
 	rows, err = s.DB.Query(query, userID, embedding)
@@ -316,19 +340,6 @@ LIMIT 50;
 	log.Printf("err %v", err)
 
 	return cards, err
-
-	// var seen = make(map[int]bool)
-	// var results []models.CardChunk
-
-	// // for _, card := range cards {
-	// // 	if _, exists := seen[card.ID]; !exists {
-	// // 		results = append(results, card)
-	// // 		seen[card.ID] = true
-	// // 	}
-	// // }
-
-	// return results, nil
-
 }
 
 func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
