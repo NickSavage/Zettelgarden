@@ -36,7 +36,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 			log.Printf("entity error %v", err)
 			return err
 		} else {
-			err = s.UpsertEntities(userID, card.ID, entities)
+			err = s.UpsertEntitiesFromCards(userID, card.ID, entities, chunk)
 			if err != nil {
 				log.Printf("error upserting entities: %v", err)
 				return err
@@ -47,7 +47,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 
 }
 
-func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entity) error {
+func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []models.Entity, chunk models.CardChunk) error {
 	for _, entity := range entities {
 		similarEntities, err := s.FindPotentialDuplicates(userID, entity)
 		if err != nil {
@@ -95,11 +95,11 @@ func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entit
 
 		// Create or update the entity-card relationship
 		_, err = s.DB.Exec(`
-            INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
-            VALUES ($1, $2, $3)
+            INSERT INTO entity_card_junction (user_id, entity_id, card_pk, chunk_id)
+            VALUES ($1, $2, $3, $4)
             ON CONFLICT (entity_id, card_pk)
             DO UPDATE SET updated_at = NOW()
-        `, userID, entityID, cardPK)
+        `, userID, entityID, cardPK, chunk.ID)
 		if err != nil {
 			log.Printf("error linking entity to card: %v", err)
 			continue
