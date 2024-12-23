@@ -57,6 +57,9 @@ export interface CardChunk {
   updated_at: Date;
   tags: Tag[];
   ranking: number;
+  combined_score: number;
+  shared_entities: number;
+  entity_similarity: number;
 }
 
 
