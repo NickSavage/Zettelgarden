@@ -7,6 +7,7 @@ import {
   getRatingValue,
   Entity,
   SearchResult,
+  defaultPartialCard,
 } from "../models/Card";
 import { checkStatus } from "./common";
 
@@ -52,27 +53,26 @@ export function semanticSearchCards(searchTerm = "", useClassicSearch = false): 
 
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
   return semanticSearchCards(searchTerm, true).then((results) => {
-    // Convert SearchResults back to Cards for backward compatibility
-    return results.map((result) => ({
-      id: parseInt(result.id),
+    if (results === null) return [];
+    return results.map(result => ({
+      id: Number(result.metadata?.id) || 0,
       card_id: result.id,
       title: result.title,
-      body: result.preview,
-      created_at: result.created_at,
-      updated_at: result.updated_at,
-      parent_id: result.metadata?.parent_id,
-      // Add other required Card fields with defaults
-      user_id: 0, // This will be filled by the backend
+      body: result.preview || "",
       link: "",
       is_deleted: false,
+      created_at: result.created_at,
+      updated_at: result.updated_at,
+      parent_id: result.metadata?.parent_id || 0,
+      user_id: 0,
+      parent: defaultPartialCard,
       files: [],
       children: [],
       references: [],
-      keywords: [],
       tags: [],
       tasks: [],
       entities: [],
-    }));
+    } as Card));
   });
 }
 
