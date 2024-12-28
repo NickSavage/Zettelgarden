@@ -24,7 +24,7 @@ export function SearchPage({
 }: SearchPageProps) {
   const [sortBy, setSortBy] = useState("sortCreatedNewOld");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [itemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
   const [onlyParentCards, setOnlyParentCards] = useState<boolean>(false);
@@ -161,13 +161,61 @@ export function SearchPage({
     handleSearch(classicSearch, term);
   }, []);
 
-  const currentItems = getSortedAndPagedCards();
+  function getPagedResults(): (PartialCard | CardChunk)[] {
+    if (useClassicSearch) {
+      const filteredCards = onlyParentCards 
+        ? cards.filter(card => !card.card_id.includes("/"))
+        : cards;
+      const indexOfLastItem = currentPage * itemsPerPage;
+      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+      return filteredCards.slice(indexOfFirstItem, indexOfLastItem);
+    } else {
+      const filteredResults = onlyParentCards 
+        ? searchResults.filter(result => !result.id.includes("/"))
+        : searchResults;
+      const indexOfLastItem = currentPage * itemsPerPage;
+      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+      return filteredResults.slice(indexOfFirstItem, indexOfLastItem).map(result => ({
+        id: Number(result.metadata?.id) || 0,
+        card_id: result.id,
+        title: result.title,
+        preview: result.preview,
+        body: result.preview,
+        user_id: 0,
+        created_at: result.created_at,
+        updated_at: result.updated_at,
+        parent_id: result.metadata?.parent_id || 0,
+        ranking: result.score,
+        tags: [],
+        combined_score: result.score,
+        shared_entities: result.metadata?.shared_entities || 0,
+        entity_similarity: result.metadata?.entity_similarity || 0,
+      } as CardChunk));
+    }
+  }
+
+  function getTotalPages() {
+    const totalItems = useClassicSearch 
+      ? (onlyParentCards ? cards.filter(card => !card.card_id.includes("/")).length : cards.length)
+      : (onlyParentCards ? searchResults.filter(result => !result.id.includes("/")).length : searchResults.length);
+    return Math.ceil(totalItems / itemsPerPage);
+  }
 
   const handleCheckboxChange = (event) => {
-    setUseClassicSearch(event.target.checked);
+    const newClassicSearch = event.target.checked;
+    setUseClassicSearch(newClassicSearch);
+    // Clear existing results
+    setSearchResults([]);
+    setCards([]);
+    // Reset page
+    setCurrentPage(1);
+    // Perform new search with current term
+    handleSearch(newClassicSearch, searchTerm);
   };
   const handleOnlyParentCardsChange = (event) => {
     setOnlyParentCards(event.target.checked);
+    // Reset to first page when changing filter
+    setCurrentPage(1);
   };
   const handleShowPreviewChange = (event) => {
     setShowPreview(event.target.checked);
@@ -267,52 +315,25 @@ export function SearchPage({
           <div className="flex justify-center w-full py-20">Loading</div>
         ) : (
           <div>
-            {currentItems.length > 0 || searchResults.length > 0 ? (
+            {(useClassicSearch ? cards.length : searchResults.length) > 0 ? (
               <div>
                 <SearchResultList
-                  results={useClassicSearch ? currentItems : searchResults.map(result => ({
-                    id: Number(result.metadata?.id) || 0,
-                    card_id: result.id,
-                    title: result.title,
-                    preview: result.preview,
-                    body: result.preview,
-                    user_id: 0,
-                    created_at: result.created_at,
-                    updated_at: result.updated_at,
-                    parent_id: result.metadata?.parent_id || 0,
-                    ranking: result.score,
-                    tags: [],
-                    combined_score: result.score,
-                    shared_entities: result.metadata?.shared_entities || 0,
-                    entity_similarity: result.metadata?.entity_similarity || 0,
-                  } as CardChunk))}
+                  results={getPagedResults()}
                   showAddButton={false}
                   showPreview={showPreview}
                 />
-                <div>
+                <div className="flex justify-center gap-4 mt-4">
                   <Button
                     onClick={() => setCurrentPage(currentPage - 1)}
                     disabled={currentPage === 1}
                     children={"Previous"}
                   />
-                  <span>
-                    {" "}
-                    Page {currentPage} of{" "}
-                    {Math.ceil(
-                      (cards.length > 0 ? cards.length : partialCards.length) /
-                        itemsPerPage,
-                    )}{" "}
+                  <span className="flex items-center">
+                    Page {currentPage} of {getTotalPages()}
                   </span>
                   <Button
                     onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={
-                      currentPage ===
-                      Math.ceil(
-                        (cards.length > 0
-                          ? cards.length
-                          : partialCards.length) / itemsPerPage,
-                      )
-                    }
+                    disabled={currentPage === getTotalPages()}
                     children={"Next"}
                   />
                 </div>
