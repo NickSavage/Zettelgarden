@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTaskContext } from "../contexts/TaskContext";
 import { usePartialCardContext } from "../contexts/CardContext";
-import { CardList } from "../components/cards/CardList";
+import { SearchResultList } from "../components/cards/SearchResultList";
 import { useNavigate } from "react-router-dom";
 import { TasksIcon } from "../assets/icons/TasksIcon";
 
@@ -47,7 +47,7 @@ export function DashboardPage() {
           <a href="/app/search?recent=true">
             <span className="font-bold">Recent Cards</span>
           </a>
-          {partialCards && <CardList sort={false} cards={recentCards} />}
+          {partialCards && <SearchResultList sort={false} cards={recentCards} />}
           <hr />
         </div>
 
@@ -56,7 +56,7 @@ export function DashboardPage() {
           <div>
             <span className="font-bold">Unsorted Cards</span>
             {partialCards && (
-              <CardList
+              <SearchResultList
                 cards={partialCards
                   .filter((card) => card.card_id === "")
                   .slice(0, 10)}

@@ -12,7 +12,7 @@ import { compareCardIds } from "../../utils/cards";
 import { isErrorResponse } from "../../models/common";
 
 import { saveExistingCard, fetchRelatedCards } from "../../api/cards";
-import { CardList } from "../../components/cards/CardList";
+import { SearchResultList } from "../../components/cards/SearchResultList";
 
 import { FileListItem } from "../../components/files/FileListItem";
 
@@ -106,7 +106,7 @@ export function ViewCardTabbedDisplay({
       {activeTab === "References" && (
         <div>
           <HeaderSubSection text="References" />
-          <CardList
+          <SearchResultList
             cards={viewingCard.references.sort((a, b) =>
               compareCardIds(a.card_id, b.card_id),
             )}
@@ -131,7 +131,7 @@ export function ViewCardTabbedDisplay({
       {activeTab === "Related" && (
         <div>
           <HeaderSubSection text="Related Cards" />
-          <CardList cards={relatedCards} />
+          <SearchResultList cards={relatedCards} />
         </div>
       )}
       {activeTab === "Files" && (

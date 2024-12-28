@@ -5,8 +5,7 @@ import { CardChunk, Card, PartialCard, SearchResult } from "../../models/Card";
 import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
-import { CardList } from "../../components/cards/CardList";
-import { CardChunkList } from "../../components/cards/CardChunkList";
+import { SearchResultList } from "../../components/cards/SearchResultList";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
@@ -258,34 +257,27 @@ export function SearchPage({
           <div>
             {currentItems.length > 0 || searchResults.length > 0 ? (
               <div>
-                {useClassicSearch ? (
-                  <CardList
-                    cards={currentItems}
-                    sort={false}
-                    showAddButton={false}
-                  />
-                ) : (
-                  <CardChunkList
-                    cards={searchResults.map(result => ({
-                      id: Number(result.metadata?.id) || 0,
-                      card_id: result.id,
-                      title: result.title,
-                      chunk: result.preview,
-                      body: result.preview,
-                      user_id: 0,
-                      created_at: result.created_at,
-                      updated_at: result.updated_at,
-                      parent_id: result.metadata?.parent_id || 0,
-                      ranking: result.score,
-                      tags: [],
-                      combined_score: result.score,
-                      shared_entities: result.metadata?.shared_entities || 0,
-                      entity_similarity: result.metadata?.entity_similarity || 0,
-                    } as CardChunk))}
-                    sort={false}
-                    showAddButton={false}
-                  />
-                )}
+                <SearchResultList
+                  cards={useClassicSearch ? currentItems : searchResults.map(result => ({
+                    id: Number(result.metadata?.id) || 0,
+                    card_id: result.id,
+                    title: result.title,
+                    chunk: result.preview,
+                    body: result.preview,
+                    user_id: 0,
+                    created_at: result.created_at,
+                    updated_at: result.updated_at,
+                    parent_id: result.metadata?.parent_id || 0,
+                    ranking: result.score,
+                    tags: [],
+                    combined_score: result.score,
+                    shared_entities: result.metadata?.shared_entities || 0,
+                    entity_similarity: result.metadata?.entity_similarity || 0,
+                  } as CardChunk))}
+                  sort={false}
+                  showAddButton={false}
+                  variant={useClassicSearch ? 'default' : 'chunk'}
+                />
                 <div>
                   <Button
                     onClick={() => setCurrentPage(currentPage - 1)}
