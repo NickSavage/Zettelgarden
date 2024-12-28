@@ -6,16 +6,26 @@ import {
   FlashcardRecordNextParams,
   getRatingValue,
   Entity,
+  SearchResult,
 } from "../models/Card";
 import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
-export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
+export function semanticSearchCards(searchTerm = "", useClassicSearch = false): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
+  const params = new URLSearchParams();
+  
   if (searchTerm) {
-    url += `?search_term=${encodeURIComponent(searchTerm)}`;
+    params.append("search_term", searchTerm);
+  }
+  if (useClassicSearch) {
+    params.append("type", "classic");
+  }
+  
+  if (params.toString()) {
+    url += `?${params.toString()}`;
   }
 
   return fetch(url, {
@@ -24,18 +34,15 @@ export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json().then((cards: CardChunk[]) => {
-          if (cards === null) {
+        return response.json().then((results: SearchResult[]) => {
+          if (results === null) {
             return [];
           }
-          let results = cards.map((card) => {
-            return {
-              ...card,
-              created_at: new Date(card.created_at),
-              updated_at: new Date(card.updated_at),
-            };
-          });
-          return results;
+          return results.map((result) => ({
+            ...result,
+            created_at: new Date(result.created_at),
+            updated_at: new Date(result.updated_at),
+          }));
         });
       } else {
         return Promise.reject(new Error("Response is undefined"));
@@ -44,35 +51,29 @@ export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
 }
 
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
-  let token = localStorage.getItem("token");
-  let url = base_url + "/cards";
-  if (searchTerm) {
-    url += `?search_term=${encodeURIComponent(searchTerm)}`;
-  }
-
-  return fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(checkStatus)
-    .then((response) => {
-      if (response) {
-        return response.json().then((cards: Card[]) => {
-          if (cards === null) {
-            return [];
-          }
-          let results = cards.map((card) => {
-            return {
-              ...card,
-              created_at: new Date(card.created_at),
-              updated_at: new Date(card.updated_at),
-            };
-          });
-          return results;
-        });
-      } else {
-        return Promise.reject(new Error("Response is undefined"));
-      }
-    });
+  return semanticSearchCards(searchTerm, true).then((results) => {
+    // Convert SearchResults back to Cards for backward compatibility
+    return results.map((result) => ({
+      id: parseInt(result.id),
+      card_id: result.id,
+      title: result.title,
+      body: result.preview,
+      created_at: result.created_at,
+      updated_at: result.updated_at,
+      parent_id: result.metadata?.parent_id,
+      // Add other required Card fields with defaults
+      user_id: 0, // This will be filled by the backend
+      link: "",
+      is_deleted: false,
+      files: [],
+      children: [],
+      references: [],
+      keywords: [],
+      tags: [],
+      tasks: [],
+      entities: [],
+    }));
+  });
 }
 
 export function fetchPartialCards(

@@ -382,11 +382,6 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
-
-	var cards []models.Card
-	var partialCards []models.PartialCard
-	var err error
-
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
 	partial := r.URL.Query().Get("partial")
@@ -396,44 +391,46 @@ func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 		sortMethod = "date"
 	}
 
+	// Use the shared ClassicSearch function
+	cards, err := s.ClassicSearch(userID, searchTerm)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Sort the results
+	if sortMethod == "id" {
+		sort.Slice(cards, func(x, y int) bool {
+			return cards[x].ID > cards[y].ID
+		})
+	} else if sortMethod == "date" {
+		sort.Slice(cards, func(x, y int) bool {
+			return cards[y].CreatedAt.Before(cards[x].CreatedAt)
+		})
+	}
+
+	// Convert to partial cards if requested
 	if partial == "true" {
-		partialCards, err = s.QueryPartialCards(userID, searchTerm)
-		if err != nil {
-			log.Printf("err %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		if sortMethod == "id" {
-			sort.Slice(partialCards, func(x, y int) bool {
-				return partialCards[x].CardID > partialCards[y].CardID
-			})
-		} else if sortMethod == "date" {
-			sort.Slice(partialCards, func(x, y int) bool {
-				return partialCards[y].CreatedAt.Before(partialCards[x].CreatedAt)
-			})
+		partialCards := make([]models.PartialCard, len(cards))
+		for i, card := range cards {
+			partialCards[i] = models.PartialCard{
+				ID:        card.ID,
+				CardID:    card.CardID,
+				UserID:    card.UserID,
+				Title:     card.Title,
+				ParentID:  card.ParentID,
+				CreatedAt: card.CreatedAt,
+				UpdatedAt: card.UpdatedAt,
+			}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(partialCards)
 		return
-	} else {
-		cards, err = s.QueryFullCards(userID, searchTerm)
-		if err != nil {
-			log.Printf("err %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		if sortMethod == "id" {
-			sort.Slice(cards, func(x, y int) bool {
-				return cards[x].ID > cards[y].ID
-			})
-		} else if sortMethod == "date" {
-			sort.Slice(cards, func(x, y int) bool {
-				return cards[y].CreatedAt.Before(cards[x].CreatedAt)
-			})
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(cards)
-		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(cards)
 }
 
 func (s *Handler) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
@@ -662,51 +659,6 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 	s.logCardView(id, userID)
 	return card, nil
 
-}
-
-func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, error) {
-	query := `
-    SELECT 
-		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at
-    FROM 
-        cards
-    WHERE
-		user_id = $1 AND is_deleted = FALSE`
-
-	var rows *sql.Rows
-	var err error
-
-	query = query + BuildPartialCardSqlSearchTermString(searchTerm, true)
-	rows, err = s.DB.Query(query, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return []models.Card{}, err
-	}
-
-	cards, err := models.ScanCards(rows)
-	return cards, nil
-}
-
-func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.PartialCard, error) {
-	query := `
-    SELECT 
-        id, card_id, user_id, title, parent_id, created_at, updated_at
-    FROM 
-        cards
-    WHERE
-		user_id = $1 AND is_deleted = FALSE`
-
-	query = query + BuildPartialCardSqlSearchTermString(searchTerm, false)
-	var rows *sql.Rows
-	var err error
-	rows, err = s.DB.Query(query, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return []models.PartialCard{}, err
-	}
-
-	cards, err := models.ScanPartialCards(rows)
-	return cards, nil
 }
 
 func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {

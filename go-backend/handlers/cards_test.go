@@ -759,36 +759,39 @@ func TestCheckCardLinkedOrRelated(t *testing.T) {
 	var mainCard models.Card
 	var testCard models.Card
 
-	cards, err := s.QueryFullCards(userID, "")
+	cards, err := s.ClassicSearch(userID, "")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	mainCard, err = getCardById(cards, 1)
 	if err != nil {
-		t.Errorf("getting card returned error: %v", err)
+		t.Fatal(err)
 	}
-	testCard, err = getCardById(cards, 21)
+	testCard, err = getCardById(cards, 2)
 	if err != nil {
-		t.Errorf("getting card returned error: %v", err)
-	}
-	result := s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
-	if !result {
-		t.Errorf("expected card to be linked, returned false")
+		t.Fatal(err)
 	}
 
-	testCard, err = getCardById(cards, 22)
-	if err != nil {
-		t.Errorf("getting chunk returned error: %v", err)
-	}
-	result = s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
-	if !result {
-		t.Errorf("expected card to be linked, returned false")
+	// Test parent-child relationship
+	if !s.checkChunkLinkedOrRelated(userID, mainCard, models.CardChunk{
+		ID:       testCard.ID,
+		ParentID: mainCard.ID,
+	}) {
+		t.Error("Failed to detect parent-child relationship")
 	}
 
-	testCard, err = getCardById(cards, 4)
-	if err != nil {
-		t.Errorf("getting card returned error: %v", err)
+	// Test reference relationship
+	if !s.checkChunkLinkedOrRelated(userID, mainCard, models.CardChunk{
+		ID: testCard.ID,
+	}) {
+		t.Error("Failed to detect reference relationship")
 	}
-	result = s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
-	if result {
-		t.Errorf("expected card to not be linked, returned true")
+
+	// Test unrelated cards
+	if s.checkChunkLinkedOrRelated(userID, testCard, models.CardChunk{
+		ID: mainCard.ID,
+	}) {
+		t.Error("Incorrectly detected relationship between unrelated cards")
 	}
 }

@@ -342,12 +342,62 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 	return cards, err
 }
 
+func (s *Handler) ClassicSearch(userID int, searchTerm string) ([]models.Card, error) {
+	searchString := BuildPartialCardSqlSearchTermString(searchTerm, true)
+	query := `
+		SELECT 
+			c.id, c.card_id, c.user_id, c.title, c.body, c.link, c.parent_id, c.created_at, c.updated_at
+		FROM cards c
+		WHERE c.user_id = $1 AND c.is_deleted = FALSE` + searchString
+
+	rows, err := s.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return models.ScanCards(rows)
+}
+
 func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
+	searchType := r.URL.Query().Get("type")
 
+	if searchType == "classic" {
+		// Handle classic search using shared function
+		cards, err := s.ClassicSearch(userID, searchTerm)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Convert to SearchResults
+		searchResults := make([]models.SearchResult, len(cards))
+		for i, card := range cards {
+			searchResults[i] = models.SearchResult{
+				ID:        card.CardID,
+				Type:      "card",
+				Title:     card.Title,
+				Preview:   card.Body,
+				Score:     1.0, // Classic search doesn't have scoring
+				CreatedAt: card.CreatedAt,
+				UpdatedAt: card.UpdatedAt,
+				Metadata: map[string]interface{}{
+					"id":        card.ID,
+					"parent_id": card.ParentID,
+				},
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(searchResults)
+		return
+	}
+
+	// Handle semantic search (existing code)
 	chunk := models.CardChunk{
 		Chunk: searchTerm,
 	}
@@ -392,8 +442,14 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 	elapsed = time.Since(start)
 	fmt.Printf("reranking cards took %.2f seconds\n", elapsed.Seconds())
 
+	// Convert CardChunks to SearchResults
+	searchResults := make([]models.SearchResult, len(relatedCards))
+	for i, card := range relatedCards {
+		searchResults[i] = models.CardChunkToSearchResult(card)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(relatedCards)
+	json.NewEncoder(w).Encode(searchResults)
 }
 
 func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {

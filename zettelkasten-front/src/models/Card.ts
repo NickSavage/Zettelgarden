@@ -62,6 +62,22 @@ export interface CardChunk {
   entity_similarity: number;
 }
 
+export interface SearchResult {
+  id: string;
+  type: string;
+  title: string;
+  preview: string;
+  score: number;
+  created_at: Date;
+  updated_at: Date;
+  metadata: {
+    parent_id?: number;
+    shared_entities?: number;
+    entity_similarity?: number;
+    semantic_ranking?: number;
+    [key: string]: any;
+  };
+}
 
 export const defaultPartialCard: PartialCard = {
   id: -1,

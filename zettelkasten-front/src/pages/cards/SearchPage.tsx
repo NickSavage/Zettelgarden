@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards, semanticSearchCards } from "../../api/cards";
 import { fetchUserTags } from "../../api/tags";
-import { CardChunk, Card, PartialCard } from "../../models/Card";
+import { CardChunk, Card, PartialCard, SearchResult } from "../../models/Card";
 import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
@@ -34,44 +34,44 @@ export function SearchPage({
   const [error, setError] = useState<Error | null>(null);
 
   const [tags, setTags] = useState<Tag[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
   }
-  async function handleSearch(classicSearch, inputTerm) {
+  async function handleSearch(classicSearch: boolean, inputTerm: string) {
     console.log("handling search");
     setIsLoading(true);
     setError(null);
 
-    // Use inputTerm directly instead of comparing with searchTerm
     const term = inputTerm || "";
-
     console.log("searching for term:", term);
 
     try {
-      if (classicSearch) {
-        setError(null);
-        const data = await fetchCards(term);
-        console.log("cards", data);
-        if (data === null) {
-          setCards([]);
-        } else {
-          let cards = data;
-          if (onlyParentCards) {
-            cards = cards.filter((card) => !card.card_id.includes("/"));
-          }
-          setCards(cards);
-        }
+      const results = await semanticSearchCards(term, classicSearch);
+      if (results === null) {
+        setSearchResults([]);
+        setCards([]);
       } else {
-        if (term === "") {
-          setIsLoading(false);
-          return;
-        }
-        const data = await semanticSearchCards(term);
-        if (data === null) {
-          setChunks([]);
-        } else {
-          setChunks(data);
+        setSearchResults(results);
+        // Convert search results to cards for backward compatibility
+        if (classicSearch) {
+          const convertedCards = results.map(result => ({
+            id: Number(result.metadata?.id) || 0,
+            card_id: result.id,
+            title: result.title,
+            user_id: 0,
+            parent_id: result.metadata?.parent_id,
+            created_at: result.created_at,
+            updated_at: result.updated_at,
+            tags: [],
+          } as PartialCard));
+          
+          if (onlyParentCards) {
+            setCards(convertedCards.filter(card => !card.card_id.includes("/")));
+          } else {
+            setCards(convertedCards);
+          }
         }
       }
     } catch (error) {
@@ -256,7 +256,7 @@ export function SearchPage({
           <div className="flex justify-center w-full py-20">Loading</div>
         ) : (
           <div>
-            {currentItems.length > 0 || chunks.length > 0 ? (
+            {currentItems.length > 0 || searchResults.length > 0 ? (
               <div>
                 {useClassicSearch ? (
                   <CardList
@@ -266,7 +266,22 @@ export function SearchPage({
                   />
                 ) : (
                   <CardChunkList
-                    cards={chunks}
+                    cards={searchResults.map(result => ({
+                      id: Number(result.metadata?.id) || 0,
+                      card_id: result.id,
+                      title: result.title,
+                      chunk: result.preview,
+                      body: result.preview,
+                      user_id: 0,
+                      created_at: result.created_at,
+                      updated_at: result.updated_at,
+                      parent_id: result.metadata?.parent_id || 0,
+                      ranking: result.score,
+                      tags: [],
+                      combined_score: result.score,
+                      shared_entities: result.metadata?.shared_entities || 0,
+                      entity_similarity: result.metadata?.entity_similarity || 0,
+                    } as CardChunk))}
                     sort={false}
                     showAddButton={false}
                   />
