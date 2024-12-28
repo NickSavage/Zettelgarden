@@ -13,6 +13,7 @@ import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
 
 import { useShortcutContext } from "../contexts/ShortcutContext";
+import { CardList } from "../components/cards/CardList";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
@@ -47,7 +48,7 @@ export function DashboardPage() {
           <a href="/app/search?recent=true">
             <span className="font-bold">Recent Cards</span>
           </a>
-          {partialCards && <SearchResultList sort={false} cards={recentCards} />}
+          {partialCards && <CardList sort={false} cards={recentCards} />}
           <hr />
         </div>
 
@@ -56,7 +57,7 @@ export function DashboardPage() {
           <div>
             <span className="font-bold">Unsorted Cards</span>
             {partialCards && (
-              <SearchResultList
+              <CardList
                 cards={partialCards
                   .filter((card) => card.card_id === "")
                   .slice(0, 10)}

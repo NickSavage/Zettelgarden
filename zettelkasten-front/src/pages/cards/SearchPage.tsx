@@ -34,6 +34,7 @@ export function SearchPage({
 
   const [tags, setTags] = useState<Tag[]>([]);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [showPreview, setShowPreview] = useState<boolean>(true);
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -168,6 +169,9 @@ export function SearchPage({
   const handleOnlyParentCardsChange = (event) => {
     setOnlyParentCards(event.target.checked);
   };
+  const handleShowPreviewChange = (event) => {
+    setShowPreview(event.target.checked);
+  };
   useEffect(() => {
     const initializeSearch = async () => {
       document.title = "Zettelgarden - Search";
@@ -248,6 +252,14 @@ export function SearchPage({
                 />
                 Only Parent Cards
               </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showPreview}
+                  onChange={handleShowPreviewChange}
+                />
+                Show Preview
+              </label>
             </div>
           </div>
         </div>
@@ -258,11 +270,11 @@ export function SearchPage({
             {currentItems.length > 0 || searchResults.length > 0 ? (
               <div>
                 <SearchResultList
-                  cards={useClassicSearch ? currentItems : searchResults.map(result => ({
+                  results={useClassicSearch ? currentItems : searchResults.map(result => ({
                     id: Number(result.metadata?.id) || 0,
                     card_id: result.id,
                     title: result.title,
-                    chunk: result.preview,
+                    preview: result.preview,
                     body: result.preview,
                     user_id: 0,
                     created_at: result.created_at,
@@ -274,9 +286,8 @@ export function SearchPage({
                     shared_entities: result.metadata?.shared_entities || 0,
                     entity_similarity: result.metadata?.entity_similarity || 0,
                   } as CardChunk))}
-                  sort={false}
                   showAddButton={false}
-                  variant={useClassicSearch ? 'default' : 'chunk'}
+                  showPreview={showPreview}
                 />
                 <div>
                   <Button

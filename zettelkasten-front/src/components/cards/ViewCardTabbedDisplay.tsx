@@ -17,6 +17,7 @@ import { SearchResultList } from "../../components/cards/SearchResultList";
 import { FileListItem } from "../../components/files/FileListItem";
 
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
+import { CardList } from "../../components/cards/CardList";
 
 interface ViewCardTabbedDisplay {
   viewingCard: Card;
@@ -106,7 +107,7 @@ export function ViewCardTabbedDisplay({
       {activeTab === "References" && (
         <div>
           <HeaderSubSection text="References" />
-          <SearchResultList
+          <CardList
             cards={viewingCard.references.sort((a, b) =>
               compareCardIds(a.card_id, b.card_id),
             )}
@@ -131,7 +132,7 @@ export function ViewCardTabbedDisplay({
       {activeTab === "Related" && (
         <div>
           <HeaderSubSection text="Related Cards" />
-          <SearchResultList cards={relatedCards} />
+          <CardList cards={relatedCards} />
         </div>
       )}
       {activeTab === "Files" && (
