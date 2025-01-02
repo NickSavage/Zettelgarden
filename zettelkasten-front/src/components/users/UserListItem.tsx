@@ -20,6 +20,7 @@ export function UserListItem({ user }: UserListItemProps) {
       <td>{user["email_validated"] ? "Yes" : "No"}</td>
       <td>{user["stripe_subscription_status"]}</td>
       <td>{user["created_at"]}</td>
+      <td>{user["card_count"]}</td>
     </tr>
   );
 }

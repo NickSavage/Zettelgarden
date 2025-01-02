@@ -21,6 +21,7 @@ type User struct {
 	StripeCurrentPlan           string     `json:"stripe_current_plan"`
 	IsActive                    bool       `json:"is_active"`
 	DashboardCardPK             int        `json:"dashboard_card_pk"`
+	CardCount                   int        `json:"card_count"`
 }
 
 type UserSubscription struct {

@@ -281,12 +281,21 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 
 	users := []models.User{}
 	rows, err := s.DB.Query(`
-	SELECT 
-	id, username, email, password, created_at, updated_at, 
-	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage, last_login,
-        dashboard_card_pk
-	FROM users`)
+
+		SELECT 
+	u.id, u.username, u.email, u.created_at, u.updated_at,
+	u.is_admin, u.email_validated, u.can_upload_files,
+	u.stripe_subscription_status, u.max_file_storage, u.last_login,
+	u.dashboard_card_pk, COUNT(c.*) as cards
+	FROM users u 
+	LEFT JOIN cards c ON u.id = c.user_id
+	GROUP BY u.id, u.username, u.email, u.created_at, u.updated_at,
+	u.is_admin, u.email_validated, u.can_upload_files,
+	u.stripe_subscription_status, u.max_file_storage, u.last_login,
+	u.dashboard_card_pk
+	ORDER BY u.id
+	
+	`)
 	if err != nil {
 		return users, err
 	}
@@ -297,7 +306,6 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.ID,
 			&user.Username,
 			&user.Email,
-			&user.Password,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 			&user.IsAdmin,
@@ -307,6 +315,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.MaxFileStorage,
 			&user.LastLogin,
 			&user.DashboardCardPK,
+			&user.CardCount,
 		); err != nil {
 			return users, err
 		}
