@@ -17,6 +17,7 @@ export interface User {
   stripe_current_plan: string;
   is_active: boolean;
   dashboard_card_pk: number;
+  card_count: number;
 }
 export const defaultUser: User = {
   id: 0,
@@ -37,6 +38,7 @@ export const defaultUser: User = {
   stripe_current_plan: "",
   is_active: false,
   dashboard_card_pk: 0,
+  card_count: 0,
 };
 
 export interface UserSubscription {
