@@ -38,9 +38,10 @@ function LandingPage() {
               Plant Your Thoughts, Cultivate Your Ideas
             </p>
             <p className="text-xl">
-              Zettelgarden is your dynamic 'second brain,' seamlessly blending
-              task management with knowledge curation through the zettelkasten
-              method.
+            Zettelgarden is an open-source personal knowledge management system 
+              that preserves human insight while leveraging modern technology. 
+              Built on zettelkasten principles, it helps you develop and maintain 
+              your own understanding of the world.
             </p>
 
             <button onClick={handleSignUp} type="submit">
@@ -59,55 +60,52 @@ function LandingPage() {
         <div id="features" className="text-lg">
           <div className="pt-20">
             <p className="font-bold">
-              AI-Powered Knowledge Navigation (Coming Soon)
+              Thoughtful AI Integration
             </p>
             <p>
-              Transform your knowledge base into an intelligent companion with
-              our integrated AI system. Easily search, analyze, and discover
-              connections across your cards using natural language queries.
-              Vector search technology helps you uncover hidden insights and
-              patterns within your personal knowledge ecosystem, making your
-              information more accessible and actionable than ever before.
+              While other tools rush to automate everything with LLMs, Zettelgarden 
+              takes a measured approach. AI features are designed to augment your 
+              thinking process, not replace it. Find connections and patterns while 
+              maintaining the critical human element of knowledge management.
             </p>
           </div>
+          
           <div className="pt-20">
-            <p className="font-bold">Atomic Card System</p>
+            <p className="font-bold">Human-Centric Knowledge Organization</p>
             <p>
-              Break down your thoughts and tasks into manageable, atomic units
-              with our intuitive card system. Each card holds a single piece of
-              information or task, helping you focus on the essentials and
-              maintain clarity in your knowledge ecosystem.
+              Create and connect atomic notes that reflect your understanding, not 
+              just store information. Built on time-tested zettelkasten principles, 
+              Zettelgarden helps you develop genuine insights rather than just 
+              collecting automated summaries.
             </p>
           </div>
 
           <div className="pt-20">
-            <p className="font-bold">Dynamic Linking and File Attachment</p>
+            <p className="font-bold">Built for Scale</p>
             <p>
-              Enhance your cards with the ability to upload and attach files,
-              creating comprehensive nodes of information. Effortlessly build a
-              rich network by linking cards and their associated files, enabling
-              you to seamlessly integrate and organize diverse content.
+              Whether you're managing personal notes or building a company 
+              knowledge base, Zettelgarden is designed to grow with you. 
+              Powerful linking and organization features help maintain clarity 
+              even as your knowledge base expands.
             </p>
           </div>
 
           <div className="pt-20">
             <p className="font-bold">
-              Integrated Task and Knowledge Management
+              Open Source and Transparent
             </p>
             <p>
-              Seamlessly blend short-term tasks with long-term knowledge
-              storage. Zettelgarden’s dual-focused approach ensures that your
-              immediate to-dos and evolving ideas coexist harmoniously,
-              providing you a comprehensive personal management solution that
-              adapts as you do.
+              Zettelgarden is built in the open, using TypeScript and Go, with an 
+              experimental iOS app in Swift. Your knowledge belongs to you - no 
+              vendor lock-in, no black boxes, just clean, efficient knowledge 
+              management.
             </p>
           </div>
         </div>
         <div className="pt-36">
           <p>
-            We're excited to announce that Zettelgarden is launching soon! Sign
-            up for our mailing list to receive the latest updates and be the
-            first to know.
+          Stay updated with Zettelgarden's development. Sign up for occasional 
+          updates about new features and releases.
           </p>
           {!submitted ? (
             <div>
