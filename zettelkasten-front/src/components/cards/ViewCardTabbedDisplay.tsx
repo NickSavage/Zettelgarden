@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, PartialCard } from "../../models/Card";
 import { File } from "../../models/File";
 
@@ -11,11 +12,12 @@ import { compareCardIds } from "../../utils/cards";
 import { isErrorResponse } from "../../models/common";
 
 import { saveExistingCard, fetchRelatedCards } from "../../api/cards";
-import { CardList } from "../../components/cards/CardList";
+import { SearchResultList } from "../../components/cards/SearchResultList";
 
 import { FileListItem } from "../../components/files/FileListItem";
 
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
+import { CardList } from "../../components/cards/CardList";
 
 interface ViewCardTabbedDisplay {
   viewingCard: Card;
@@ -28,6 +30,7 @@ export function ViewCardTabbedDisplay({
   setViewCard,
   setError,
 }: ViewCardTabbedDisplay) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("Children");
   const [relatedCards, setRelatedCards] = useState<PartialCard[]>([]);
 
@@ -157,7 +160,11 @@ export function ViewCardTabbedDisplay({
           <HeaderSubSection text="Entities" />
           <ul>
             {viewingCard.entities && viewingCard.entities.map((entity) => (
-              <li key={entity.id} className="mb-2">
+              <li 
+                key={entity.id} 
+                className="mb-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
+                onClick={() => navigate(`/app/search?term=@[${entity.name}]`)}
+              >
                 <div className="font-semibold">{entity.name}</div>
                 <div className="text-sm text-gray-600">{entity.description}</div>
                 <div className="text-xs text-gray-500">Type: {entity.type}</div>

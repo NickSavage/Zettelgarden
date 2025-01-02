@@ -1,12 +1,11 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { fetchCards, semanticSearchCards } from "../../api/cards";
 import { fetchUserTags } from "../../api/tags";
-import { CardChunk, Card, PartialCard } from "../../models/Card";
+import { CardChunk, Card, PartialCard, SearchResult } from "../../models/Card";
 import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
-import { CardList } from "../../components/cards/CardList";
-import { CardChunkList } from "../../components/cards/CardChunkList";
+import { SearchResultList } from "../../components/cards/SearchResultList";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
@@ -23,9 +22,9 @@ export function SearchPage({
   cards,
   setCards,
 }: SearchPageProps) {
-  const [sortBy, setSortBy] = useState("sortNewOld");
+  const [sortBy, setSortBy] = useState("sortCreatedNewOld");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [itemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
   const [onlyParentCards, setOnlyParentCards] = useState<boolean>(false);
@@ -34,44 +33,45 @@ export function SearchPage({
   const [error, setError] = useState<Error | null>(null);
 
   const [tags, setTags] = useState<Tag[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [showPreview, setShowPreview] = useState<boolean>(true);
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
   }
-  async function handleSearch(classicSearch, inputTerm) {
+  async function handleSearch(classicSearch: boolean, inputTerm: string) {
     console.log("handling search");
     setIsLoading(true);
     setError(null);
 
-    // Use inputTerm directly instead of comparing with searchTerm
     const term = inputTerm || "";
-
     console.log("searching for term:", term);
 
     try {
-      if (classicSearch) {
-        setError(null);
-        const data = await fetchCards(term);
-        console.log("cards", data);
-        if (data === null) {
-          setCards([]);
-        } else {
-          let cards = data;
-          if (onlyParentCards) {
-            cards = cards.filter((card) => !card.card_id.includes("/"));
-          }
-          setCards(cards);
-        }
+      const results = await semanticSearchCards(term, classicSearch);
+      if (results === null) {
+        setSearchResults([]);
+        setCards([]);
       } else {
-        if (term === "") {
-          setIsLoading(false);
-          return;
-        }
-        const data = await semanticSearchCards(term);
-        if (data === null) {
-          setChunks([]);
-        } else {
-          setChunks(data);
+        setSearchResults(results);
+        // Convert search results to cards for backward compatibility
+        if (classicSearch) {
+          const convertedCards = results.map(result => ({
+            id: Number(result.metadata?.id) || 0,
+            card_id: result.id,
+            title: result.title,
+            user_id: 0,
+            parent_id: result.metadata?.parent_id,
+            created_at: result.created_at,
+            updated_at: result.updated_at,
+            tags: [],
+          } as PartialCard));
+          
+          if (onlyParentCards) {
+            setCards(convertedCards.filter(card => !card.card_id.includes("/")));
+          } else {
+            setCards(convertedCards);
+          }
         }
       }
     } catch (error) {
@@ -161,13 +161,64 @@ export function SearchPage({
     handleSearch(classicSearch, term);
   }, []);
 
-  const currentItems = getSortedAndPagedCards();
+  function getPagedResults(): (PartialCard | CardChunk)[] {
+    if (useClassicSearch) {
+      const filteredCards = onlyParentCards 
+        ? cards.filter(card => !card.card_id.includes("/"))
+        : cards;
+      const indexOfLastItem = currentPage * itemsPerPage;
+      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+      return filteredCards.slice(indexOfFirstItem, indexOfLastItem);
+    } else {
+      const filteredResults = onlyParentCards 
+        ? searchResults.filter(result => !result.id.includes("/"))
+        : searchResults;
+      const indexOfLastItem = currentPage * itemsPerPage;
+      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+      return filteredResults.slice(indexOfFirstItem, indexOfLastItem).map(result => ({
+        id: Number(result.metadata?.id) || 0,
+        card_id: result.id,
+        title: result.title,
+        preview: result.preview,
+        body: result.preview,
+        user_id: 0,
+        created_at: result.created_at,
+        updated_at: result.updated_at,
+        parent_id: result.metadata?.parent_id || 0,
+        ranking: result.score,
+        tags: [],
+        combined_score: result.score,
+        shared_entities: result.metadata?.shared_entities || 0,
+        entity_similarity: result.metadata?.entity_similarity || 0,
+      } as CardChunk));
+    }
+  }
+
+  function getTotalPages() {
+    const totalItems = useClassicSearch 
+      ? (onlyParentCards ? cards.filter(card => !card.card_id.includes("/")).length : cards.length)
+      : (onlyParentCards ? searchResults.filter(result => !result.id.includes("/")).length : searchResults.length);
+    return Math.ceil(totalItems / itemsPerPage);
+  }
 
   const handleCheckboxChange = (event) => {
-    setUseClassicSearch(event.target.checked);
+    const newClassicSearch = event.target.checked;
+    setUseClassicSearch(newClassicSearch);
+    // Clear existing results
+    setSearchResults([]);
+    setCards([]);
+    // Reset page
+    setCurrentPage(1);
+    // Perform new search with current term
+    handleSearch(newClassicSearch, searchTerm);
   };
   const handleOnlyParentCardsChange = (event) => {
     setOnlyParentCards(event.target.checked);
+    // Reset to first page when changing filter
+    setCurrentPage(1);
+  };
+  const handleShowPreviewChange = (event) => {
+    setShowPreview(event.target.checked);
   };
   useEffect(() => {
     const initializeSearch = async () => {
@@ -221,8 +272,10 @@ export function SearchPage({
               children={"Search"}
             />
             <select value={sortBy} onChange={handleSortChange}>
-              <option value="sortNewOld">Newest</option>
-              <option value="sortOldNew">Oldest</option>
+              <option value="sortCreatedNewOld">Creation Date (Newest)</option>
+              <option value="sortCreatedOldNew">Creation Date (Oldest)</option>
+              <option value="sortNewOld">Last Updated (Newest)</option>
+              <option value="sortOldNew">Last Updated (Oldest)</option>
               <option value="sortBigSmall">A to Z</option>
               <option value="sortSmallBig">Z to A</option>
             </select>
@@ -247,6 +300,14 @@ export function SearchPage({
                 />
                 Only Parent Cards
               </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showPreview}
+                  onChange={handleShowPreviewChange}
+                />
+                Show Preview
+              </label>
             </div>
           </div>
         </div>
@@ -254,45 +315,25 @@ export function SearchPage({
           <div className="flex justify-center w-full py-20">Loading</div>
         ) : (
           <div>
-            {currentItems.length > 0 || chunks.length > 0 ? (
+            {(useClassicSearch ? cards.length : searchResults.length) > 0 ? (
               <div>
-                {useClassicSearch ? (
-                  <CardList
-                    cards={currentItems}
-                    sort={false}
-                    showAddButton={false}
-                  />
-                ) : (
-                  <CardChunkList
-                    cards={chunks}
-                    sort={false}
-                    showAddButton={false}
-                  />
-                )}
-                <div>
+                <SearchResultList
+                  results={getPagedResults()}
+                  showAddButton={false}
+                  showPreview={showPreview}
+                />
+                <div className="flex justify-center gap-4 mt-4">
                   <Button
                     onClick={() => setCurrentPage(currentPage - 1)}
                     disabled={currentPage === 1}
                     children={"Previous"}
                   />
-                  <span>
-                    {" "}
-                    Page {currentPage} of{" "}
-                    {Math.ceil(
-                      (cards.length > 0 ? cards.length : partialCards.length) /
-                        itemsPerPage,
-                    )}{" "}
+                  <span className="flex items-center">
+                    Page {currentPage} of {getTotalPages()}
                   </span>
                   <Button
                     onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={
-                      currentPage ===
-                      Math.ceil(
-                        (cards.length > 0
-                          ? cards.length
-                          : partialCards.length) / itemsPerPage,
-                      )
-                    }
+                    disabled={currentPage === getTotalPages()}
                     children={"Next"}
                   />
                 </div>

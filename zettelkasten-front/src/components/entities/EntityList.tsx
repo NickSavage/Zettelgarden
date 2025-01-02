@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Entity } from "../../models/Card";
-import { fetchEntities, mergeEntities } from "../../api/entities";
+import { fetchEntities, mergeEntities, deleteEntity } from "../../api/entities";
 import { HeaderSection } from "../Header";
 import { useNavigate } from "react-router-dom";
 import { Dialog } from "@headlessui/react";
+import { EditEntityDialog } from "./EditEntityDialog";
+import { EntityCard } from "./EntityCard";
+import { EntityListToolbar } from "./EntityListToolbar";
+import { EntitySelectionActions } from "./EntitySelectionActions";
 
 export function EntityList() {
   const [entities, setEntities] = useState<Entity[]>([]);
@@ -16,6 +20,12 @@ export function EntityList() {
   const [selectedEntities, setSelectedEntities] = useState<number[]>([]);
   const [isMerging, setIsMerging] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [editingEntity, setEditingEntity] = useState<Entity | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [entityToDelete, setEntityToDelete] = useState<Entity | null>(null);
   const navigate = useNavigate();
 
   const loadEntities = () => {
@@ -50,19 +60,17 @@ export function EntityList() {
   }, [filterText, entities]);
 
   const handleEntityClick = (entity: Entity, event: React.MouseEvent) => {
-    if (event.ctrlKey || event.metaKey) {
+    if (selectionMode || event.ctrlKey || event.metaKey) {
       event.preventDefault();
       setSelectedEntities((prev) => {
         const index = prev.indexOf(entity.id);
         if (index !== -1) {
-          // Remove from selection
           return prev.filter((id) => id !== entity.id);
         } else {
-          // Add to selection
           return [...prev, entity.id];
         }
       });
-    } else if (selectedEntities.length === 0) {
+    } else {
       navigate(`/app/search?term=@[${entity.name}]`);
     }
   };
@@ -93,6 +101,40 @@ export function EntityList() {
     }
   };
 
+  const handleDeleteClick = () => {
+    if (selectedEntities.length === 0) return;
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const entitiesToDelete = entityToDelete 
+      ? [entityToDelete.id] 
+      : selectedEntities;
+
+    if (entitiesToDelete.length === 0) return;
+    
+    setShowDeleteDialog(false);
+    setIsDeleting(true);
+
+    try {
+      for (const entityId of entitiesToDelete) {
+        await deleteEntity(entityId);
+      }
+      setSelectedEntities([]);
+      setEntityToDelete(null);
+      loadEntities();
+    } catch (err) {
+      setError("Failed to delete entities");
+      console.error("Error deleting entities:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedEntities([]);
+  };
+
   const getSelectionInfo = (entityId: number) => {
     const index = selectedEntities.indexOf(entityId);
     if (index === -1) return null;
@@ -115,111 +157,105 @@ export function EntityList() {
     });
   };
 
-  if (loading) {
-    return <div className="p-4">Loading entities...</div>;
-  }
+  const handleEditClick = (entity: Entity, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setEditingEntity(entity);
+    setShowEditDialog(true);
+  };
 
-  if (error) {
-    return <div className="p-4 text-red-600">{error}</div>;
-  }
+  const handleEditSuccess = () => {
+    loadEntities(); // Reload the entities list
+  };
 
-  const primaryEntity =
-    selectedEntities.length > 0
-      ? entities.find((e) => e.id === selectedEntities[0])
-      : null;
+  const handleSelectionModeToggle = () => {
+    setSelectionMode(!selectionMode);
+    if (selectionMode) {
+      setSelectedEntities([]);
+    }
+  };
+
+  const handleSingleDelete = (entity: Entity) => {
+    setEditingEntity(null);
+    setShowEditDialog(false);
+    setEntityToDelete(entity);
+    setShowDeleteDialog(true);
+  };
+
+  if (loading) return <div className="p-4">Loading entities...</div>;
+  if (error) return <div className="p-4 text-red-600">{error}</div>;
+
+  const primaryEntity = selectedEntities.length > 0
+    ? entities.find((e) => e.id === selectedEntities[0])
+    : null;
 
   return (
     <div className="p-4">
       <HeaderSection text="Entities" />
 
-      <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="Filter entities..."
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <select
-          value={`${sortBy}-${sortDirection}`}
-          onChange={(e) => {
-            const [newSortBy, newDirection] = e.target.value.split("-") as [
-              "name" | "cards",
-              "asc" | "desc",
-            ];
-            setSortBy(newSortBy);
-            setSortDirection(newDirection);
-          }}
-          className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <EntityListToolbar
+        filterText={filterText}
+        onFilterChange={setFilterText}
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        onSortChange={(newSortBy, newDirection) => {
+          setSortBy(newSortBy);
+          setSortDirection(newDirection);
+        }}
+      />
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <button
+          onClick={handleSelectionModeToggle}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+            ${selectionMode 
+              ? 'bg-blue-500 text-white hover:bg-blue-600' 
+              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+            }`}
         >
-          <option value="name-asc">Name (A-Z)</option>
-          <option value="name-desc">Name (Z-A)</option>
-          <option value="cards-desc">Most Cards</option>
-          <option value="cards-asc">Least Cards</option>
-        </select>
+          {selectionMode ? (
+            <span className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+              Exit Selection
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
+              </svg>
+              Select Mode
+            </span>
+          )}
+        </button>
+        
+        {(selectionMode || selectedEntities.length > 0) && (
+          <>
+            <div className="h-6 w-px bg-gray-300"></div>
+            <EntitySelectionActions
+              selectedCount={selectedEntities.length}
+              onMerge={handleMergeClick}
+              onDelete={handleDeleteClick}
+              isMerging={isMerging}
+              isDeleting={isDeleting}
+            />
+          </>
+        )}
       </div>
 
-      {selectedEntities.length > 1 && (
-        <div className="mb-4">
-          <button
-            onClick={handleMergeClick}
-            disabled={isMerging}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-          >
-            {isMerging
-              ? "Merging..."
-              : `Merge ${selectedEntities.length} Entities`}
-          </button>
-          <p className="mt-2 text-sm text-gray-600">
-            First selected entity will be kept, others will be merged into it.
-          </p>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {getSortedEntities(filteredEntities).map((entity) => {
-          const selectionInfo = getSelectionInfo(entity.id);
-          return (
-            <div
-              key={entity.id}
-              className={`bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer
-                ${
-                  selectedEntities.includes(entity.id)
-                    ? "ring-2 ring-blue-500"
-                    : ""
-                }`}
-              onClick={(e) => handleEntityClick(entity, e)}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {entity.name}
-                </h3>
-                <span className="text-sm px-2 py-1 bg-gray-100 rounded-full text-gray-600">
-                  {entity.type}
-                </span>
-              </div>
-
-              <p className="text-gray-600 text-sm mb-2">{entity.description}</p>
-
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <span>Cards: {entity.card_count}</span>
-                <span>Updated: {entity.updated_at.toLocaleDateString()}</span>
-              </div>
-
-              {selectionInfo && (
-                <div
-                  className={`mt-2 text-sm ${
-                    selectionInfo === "Primary"
-                      ? "text-green-600 font-semibold"
-                      : "text-blue-600"
-                  }`}
-                >
-                  {selectionInfo}
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {getSortedEntities(filteredEntities).map((entity) => (
+          <EntityCard
+            key={entity.id}
+            entity={entity}
+            isSelected={selectedEntities.includes(entity.id)}
+            selectionInfo={getSelectionInfo(entity.id)}
+            selectionMode={selectionMode}
+            onEdit={handleEditClick}
+            onClick={handleEntityClick}
+          />
+        ))}
       </div>
 
       {filteredEntities.length === 0 && (
@@ -229,63 +265,121 @@ export function EntityList() {
       )}
 
       {showConfirmDialog && primaryEntity && (
-        <div>
-          <div
-            className="fixed inset-0 bg-black bg-opacity-30"
-            aria-hidden="true"
-          />
-          <Dialog
-            open={showConfirmDialog}
-            onClose={() => setShowConfirmDialog(false)}
-            className="fixed inset-0 z-50 flex items-center justify-center"
-          >
-            <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto">
-              <Dialog.Title className="text-lg font-semibold mb-4">
-                Confirm Merge
-              </Dialog.Title>
-              <div className="mb-4">
-                <p className="font-medium text-green-600 mb-2">
-                  Primary Entity (will be kept):
-                  <br />
-                  {primaryEntity.name} ({primaryEntity.type})
-                </p>
-                <p className="text-gray-600 mb-2">
-                  The following entities will be merged into{" "}
-                  {primaryEntity.name}:
-                </p>
-                <ul className="list-disc pl-5">
-                  {selectedEntities.slice(1).map((id) => {
-                    const entity = entities.find((e) => e.id === id);
-                    return entity ? (
-                      <li key={id} className="text-gray-700">
-                        {entity.name} ({entity.type})
-                      </li>
-                    ) : null;
-                  })}
-                </ul>
-              </div>
-              <p className="text-red-600 text-sm mb-4">
-                This action cannot be undone. The merged entities will be
-                deleted.
+        <Dialog
+          open={showConfirmDialog}
+          onClose={() => setShowConfirmDialog(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
+          <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto relative">
+            <Dialog.Title className="text-lg font-semibold mb-4">
+              Confirm Merge
+            </Dialog.Title>
+            <div className="mb-4">
+              <p className="font-medium text-green-600 mb-2">
+                Primary Entity (will be kept):
+                <br />
+                {primaryEntity.name} ({primaryEntity.type})
               </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setShowConfirmDialog(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmMerge}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Merge
-                </button>
-              </div>
-            </Dialog.Panel>
-          </Dialog>
-        </div>
+              <p className="text-gray-600 mb-2">
+                The following entities will be merged into{" "}
+                {primaryEntity.name}:
+              </p>
+              <ul className="list-disc pl-5">
+                {selectedEntities.slice(1).map((id) => {
+                  const entity = entities.find((e) => e.id === id);
+                  return entity ? (
+                    <li key={id} className="text-gray-700">
+                      {entity.name} ({entity.type})
+                    </li>
+                  ) : null;
+                })}
+              </ul>
+            </div>
+            <p className="text-red-600 text-sm mb-4">
+              This action cannot be undone. The merged entities will be
+              deleted.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmMerge}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Merge
+              </button>
+            </div>
+          </Dialog.Panel>
+        </Dialog>
       )}
+
+      {showDeleteDialog && (
+        <Dialog
+          open={showDeleteDialog}
+          onClose={() => {
+            setShowDeleteDialog(false);
+            setEntityToDelete(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
+          <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto relative">
+            <Dialog.Title className="text-lg font-semibold mb-4">
+              Confirm Delete
+            </Dialog.Title>
+            <div className="mb-4">
+              <p className="text-gray-600 mb-2">
+                Are you sure you want to delete {entityToDelete ? 'this entity' : 'these entities'}?
+              </p>
+              <ul className="list-disc pl-5">
+                {(entityToDelete ? [entityToDelete] : selectedEntities.map(id => entities.find(e => e.id === id))).map((entity) => {
+                  return entity ? (
+                    <li key={entity.id} className="text-gray-700">
+                      {entity.name} ({entity.type})
+                    </li>
+                  ) : null;
+                })}
+              </ul>
+            </div>
+            <p className="text-red-600 text-sm mb-4">
+              This action cannot be undone. {entityToDelete ? 'The entity' : 'These entities'} will be permanently deleted.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setEntityToDelete(null);
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </Dialog.Panel>
+        </Dialog>
+      )}
+
+      <EditEntityDialog
+        entity={editingEntity}
+        isOpen={showEditDialog}
+        onClose={() => {
+          setShowEditDialog(false);
+          setEditingEntity(null);
+        }}
+        onSuccess={handleEditSuccess}
+        onDelete={handleSingleDelete}
+      />
     </div>
   );
 }

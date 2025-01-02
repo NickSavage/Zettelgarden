@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CardList } from "../../components/cards/CardList";
+import { SearchResultList } from "../../components/cards/SearchResultList";
 import { CardListItem } from "./CardListItem";
 import { TriangleDownIcon } from "../../assets/icons/TriangleDown";
 import { TriangleRightIcon } from "../../assets/icons/TriangleRight";

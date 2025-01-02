@@ -50,22 +50,25 @@ export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
   }
 
   return (
-    <div className="flex relative inline">
-      <div>
-        <div>
+    <div className="relative w-full max-w-md">
+      <div className="w-full">
+        <div className="relative">
           <input
             type="text"
             value={link}
             onChange={handleLinkInputChange}
             placeholder="Add Backlink"
             onKeyDown={handleEnterPress}
+            className="w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
           />
         </div>
         {topResults.length > 0 && (
-          <BacklinkInputDropdownList
-            addBacklink={handleDropdownClick}
-            cards={topResults}
-          />
+          <div className="absolute w-full mt-1 z-50">
+            <BacklinkInputDropdownList
+              addBacklink={handleDropdownClick}
+              cards={topResults}
+            />
+          </div>
         )}
       </div>
     </div>

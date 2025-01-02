@@ -51,4 +51,51 @@ export function mergeEntities(entity1Id: number, entity2Id: number): Promise<voi
       }
       return;
     });
+}
+
+export function deleteEntity(entityId: number): Promise<void> {
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/id/${entityId}`;
+
+  return fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (!response) {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+      return;
+    });
+}
+
+export interface UpdateEntityRequest {
+  name: string;
+  description: string;
+  type: string;
+  card_pk: number | null;
+}
+
+export function updateEntity(entityId: number, data: UpdateEntityRequest): Promise<void> {
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/id/${entityId}`;
+
+  return fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (!response) {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+      return;
+    });
 } 

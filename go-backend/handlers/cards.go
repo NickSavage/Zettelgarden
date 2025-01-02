@@ -382,11 +382,6 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
-
-	var cards []models.Card
-	var partialCards []models.PartialCard
-	var err error
-
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
 	partial := r.URL.Query().Get("partial")
@@ -396,44 +391,46 @@ func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 		sortMethod = "date"
 	}
 
+	// Use the shared ClassicSearch function
+	cards, err := s.ClassicSearch(userID, searchTerm)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Sort the results
+	if sortMethod == "id" {
+		sort.Slice(cards, func(x, y int) bool {
+			return cards[x].ID > cards[y].ID
+		})
+	} else if sortMethod == "date" {
+		sort.Slice(cards, func(x, y int) bool {
+			return cards[y].CreatedAt.Before(cards[x].CreatedAt)
+		})
+	}
+
+	// Convert to partial cards if requested
 	if partial == "true" {
-		partialCards, err = s.QueryPartialCards(userID, searchTerm)
-		if err != nil {
-			log.Printf("err %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		if sortMethod == "id" {
-			sort.Slice(partialCards, func(x, y int) bool {
-				return partialCards[x].CardID > partialCards[y].CardID
-			})
-		} else if sortMethod == "date" {
-			sort.Slice(partialCards, func(x, y int) bool {
-				return partialCards[y].CreatedAt.Before(partialCards[x].CreatedAt)
-			})
+		partialCards := make([]models.PartialCard, len(cards))
+		for i, card := range cards {
+			partialCards[i] = models.PartialCard{
+				ID:        card.ID,
+				CardID:    card.CardID,
+				UserID:    card.UserID,
+				Title:     card.Title,
+				ParentID:  card.ParentID,
+				CreatedAt: card.CreatedAt,
+				UpdatedAt: card.UpdatedAt,
+			}
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(partialCards)
 		return
-	} else {
-		cards, err = s.QueryFullCards(userID, searchTerm)
-		if err != nil {
-			log.Printf("err %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		if sortMethod == "id" {
-			sort.Slice(cards, func(x, y int) bool {
-				return cards[x].ID > cards[y].ID
-			})
-		} else if sortMethod == "date" {
-			sort.Slice(cards, func(x, y int) bool {
-				return cards[y].CreatedAt.Before(cards[x].CreatedAt)
-			})
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(cards)
-		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(cards)
 }
 
 func (s *Handler) UpdateCardRoute(w http.ResponseWriter, r *http.Request) {
@@ -535,95 +532,52 @@ func (s *Handler) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *Handler) getNextIDReference(userID int) string {
+func (s *Handler) GetNextRootCardIDRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	nextID := s.getNextRootCardID(userID)
+
+	response := models.NextIDResponse{
+		NextID: nextID,
+		Error:  false,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func (s *Handler) getNextRootCardID(userID int) string {
 	var result string
 
+	// Query to get the highest numeric card_id
 	query := `
-        SELECT card_id FROM cards 
-		WHERE card_id LIKE 'REF%' AND is_deleted = FALSE AND user_id = $1
-
-        ORDER BY CAST(SUBSTRING(card_id FROM 'REF(.*)$') AS INTEGER) DESC
+        SELECT card_id 
+        FROM cards 
+        WHERE user_id = $1 
+        AND is_deleted = FALSE 
+        AND card_id ~ '^[0-9]+$'  -- Only match pure numeric card_ids
+        ORDER BY CAST(card_id AS INTEGER) DESC
         LIMIT 1
-	`
+    `
+
 	err := s.DB.QueryRow(query, userID).Scan(&result)
 	if err != nil && err != sql.ErrNoRows {
-		log.Fatal(err)
-		return ""
+		log.Printf("Error finding next root card ID: %v", err)
+		return "1" // Default to 1 if there's an error
 	}
 
-	var newCardID string
-	if result != "" {
-		re := regexp.MustCompile(`REF(\d+)`)
-		matches := re.FindStringSubmatch(result)
-		if len(matches) > 1 {
-			highestNumber, _ := strconv.Atoi(matches[1])
-			nextNumber := highestNumber + 1
-			newCardID = fmt.Sprintf("REF%03d", nextNumber)
-		}
-	} else {
-		newCardID = "REF001"
-	}
-	return newCardID
-}
-
-func (s *Handler) getNextIDMeeting(userID int) string {
-	var result string
-	query := `
-        SELECT card_id FROM cards WHERE card_id LIKE 'MM%' AND is_deleted = FALSE
-        ORDER BY CAST(SUBSTRING(card_id FROM 'MM(.*)$') AS INTEGER) DESC
-        LIMIT 1`
-
-	err := s.DB.QueryRow(query).Scan(&result)
-	if err != nil && err != sql.ErrNoRows {
-		log.Fatal(err)
+	if result == "" {
+		return "1" // If no cards exist, start with 1
 	}
 
-	var newCardID string
-	if result != "" {
-		re := regexp.MustCompile(`MM(\d+)`)
-		matches := re.FindStringSubmatch(result)
-		if len(matches) > 1 {
-			highestNumber, _ := strconv.Atoi(matches[1])
-			nextNumber := highestNumber + 1
-			newCardID = fmt.Sprintf("MM%03d", nextNumber)
-		}
-	} else {
-		newCardID = "MM001"
-	}
-	return newCardID
-}
-
-func (s *Handler) NextIDRoute(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	var response models.NextIDResponse
-	var params models.NextIDParams
-
-	userID := r.Context().Value("current_user").(int)
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&params)
+	// Convert the highest card_id to int and increment
+	highestNumber, err := strconv.Atoi(result)
 	if err != nil {
-		log.Printf("err? %v", err)
-		response.Error = true
-		json.NewEncoder(w).Encode(response)
-		response.Message = err.Error()
-		return
+		log.Printf("Error converting card_id to number: %v", err)
+		return "1"
 	}
 
-	if params.CardType == "reference" {
-		response.NextID = s.getNextIDReference(userID)
-		w.WriteHeader(http.StatusOK)
-	} else if params.CardType == "meeting" {
-		response.NextID = s.getNextIDMeeting(userID)
-		w.WriteHeader(http.StatusOK)
-	} else {
-		response.Error = true
-		response.Message = "Unknown or unsupported card type. Supported card types are 'reference' and 'meeting', was provided: " + params.CardType
-		w.WriteHeader(http.StatusBadRequest)
-	}
-	json.NewEncoder(w).Encode(response)
-
+	nextNumber := highestNumber + 1
+	return strconv.Itoa(nextNumber)
 }
 
 func (s *Handler) QueryPartialCardByID(userID, id int) (models.PartialCard, error) {
@@ -707,54 +661,9 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 
 }
 
-func (s *Handler) QueryFullCards(userID int, searchTerm string) ([]models.Card, error) {
-	query := `
-    SELECT 
-		id, card_id, user_id, title, body, link, parent_id, created_at, updated_at
-    FROM 
-        cards
-    WHERE
-		user_id = $1 AND is_deleted = FALSE`
-
-	var rows *sql.Rows
-	var err error
-
-	query = query + BuildPartialCardSqlSearchTermString(searchTerm, true)
-	rows, err = s.DB.Query(query, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return []models.Card{}, err
-	}
-
-	cards, err := models.ScanCards(rows)
-	return cards, nil
-}
-
-func (s *Handler) QueryPartialCards(userID int, searchTerm string) ([]models.PartialCard, error) {
-	query := `
-    SELECT 
-        id, card_id, user_id, title, parent_id, created_at, updated_at
-    FROM 
-        cards
-    WHERE
-		user_id = $1 AND is_deleted = FALSE`
-
-	query = query + BuildPartialCardSqlSearchTermString(searchTerm, false)
-	var rows *sql.Rows
-	var err error
-	rows, err = s.DB.Query(query, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return []models.PartialCard{}, err
-	}
-
-	cards, err := models.ScanPartialCards(rows)
-	return cards, nil
-}
-
 func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {
 	var parent_id int
-	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
+	parent, _ := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 
 	// set parent id to id if there's no parent
 	if parent.ID == 0 || params.CardID == "" {
@@ -763,17 +672,12 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 		parent_id = parent.ID
 	}
 
-	//	originalCard, err := s.QueryPartialCardByID(userID, cardPK)
-	if err != nil {
-		return models.Card{}, fmt.Errorf("unable to load original card %v", err)
-	}
-
 	query := `
 	UPDATE cards SET title = $1, body = $2, link = $3, parent_id = $4, updated_at = NOW(), card_id = $5
 	WHERE
 	id = $6
 	`
-	_, err = s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.CardID, cardPK)
+	_, err := s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.CardID, cardPK)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err

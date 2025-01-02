@@ -141,7 +141,7 @@ func main() {
 	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
 		go func() {
 			start := time.Now()
-			cards, _ := h.QueryFullCards(1, "")
+			cards, _ := h.ClassicSearch(1, "")
 			for _, card := range cards {
 				log.Printf("%v - %v", card.CardID, card.Title)
 				err := h.ChunkCard(card)
@@ -179,7 +179,7 @@ func main() {
 
 	addProtectedRoute(r, "/api/cards", h.GetCardsRoute, "GET")
 	addProtectedRoute(r, "/api/cards", h.CreateCardRoute, "POST")
-	addProtectedRoute(r, "/api/next", h.NextIDRoute, "POST")
+	addProtectedRoute(r, "/api/cards/next-root-id", h.GetNextRootCardIDRoute, "GET")
 	addProtectedRoute(r, "/api/search", h.SemanticSearchCardsRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}", h.GetCardRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}", h.UpdateCardRoute, "PUT")
@@ -217,6 +217,8 @@ func main() {
 
 	addProtectedRoute(r, "/api/entities", h.GetEntitiesRoute, "GET")
 	addProtectedRoute(r, "/api/entities/merge", h.MergeEntitiesRoute, "POST")
+	addProtectedRoute(r, "/api/entities/id/{id}", h.DeleteEntityRoute, "DELETE")
+	addProtectedRoute(r, "/api/entities/id/{id}", h.UpdateEntityRoute, "PUT")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},

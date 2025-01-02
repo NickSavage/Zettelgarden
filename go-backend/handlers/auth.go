@@ -194,6 +194,14 @@ func (s *Handler) ResetPasswordRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Send confirmation email
+	messageBody := fmt.Sprintf("Your password has been successfully reset. If you did not request this change, please contact info@zettelgarden.com immediately.")
+	err = s.Server.Mail.SendEmail("Password Reset Confirmation", user.Email, messageBody)
+	if err != nil {
+		// Log the error but don't return it to the user since the password was successfully reset
+		log.Printf("Error sending password reset confirmation email: %v", err)
+	}
+
 	response := models.ResetPasswordResponse{
 		Message: "Your password has been updated",
 	}

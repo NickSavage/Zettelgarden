@@ -340,7 +340,7 @@ func TestGetCardsOtherUsersBodyNoResults(t *testing.T) {
 
 func TestGetCardsSuccessPartial(t *testing.T) {
 	s := setup()
-	//defer tests.Teardown()
+	defer tests.Teardown()
 
 	rr := makeCardsRequestSuccess(s, t, "partial=true")
 
@@ -593,66 +593,6 @@ func TestDeleteCardWrongUser(t *testing.T) {
 	}
 }
 
-func TestGenerateNextIDReference(t *testing.T) {
-	s := setup()
-	defer tests.Teardown()
-
-	token, _ := tests.GenerateTestJWT(1)
-	data := models.NextIDParams{
-		CardType: "reference",
-	}
-	jsonData, _ := json.Marshal(data)
-	req, err := http.NewRequest("POST", "/api/cards/next", bytes.NewBuffer(jsonData))
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(s.JwtMiddleware(s.NextIDRoute))
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-	var response models.NextIDResponse
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
-	if response.NextID != "REF002" {
-		t.Errorf("wrong id returned, got %v want %v", response.NextID, "REF002")
-
-	}
-}
-
-func TestGenerateNextIDMeeting(t *testing.T) {
-	s := setup()
-	defer tests.Teardown()
-
-	token, _ := tests.GenerateTestJWT(1)
-	data := models.NextIDParams{
-		CardType: "meeting",
-	}
-	jsonData, _ := json.Marshal(data)
-	req, err := http.NewRequest("POST", "/api/cards/next", bytes.NewBuffer(jsonData))
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(s.JwtMiddleware(s.NextIDRoute))
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-	var response models.NextIDResponse
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
-	if response.NextID != "MM002" {
-		t.Errorf("wrong id returned, got %v want %v", response.NextID, "MM002")
-
-	}
-}
-
 func TestCreateCardLinkedParentId(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
@@ -730,6 +670,87 @@ func TestGetRelatedCardsSuccess(t *testing.T) {
 
 }
 
+func TestGetNextRootCardID(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Test when no cards exist
+	nextID := s.getNextRootCardID(1)
+	if nextID != "21" {
+		t.Errorf("Expected first ID to be 21 (after test data), got %v", nextID)
+	}
+
+	// Create a card with numeric ID
+	data := models.EditCardParams{
+		Title:  "Test Card",
+		Body:   "Test Body",
+		CardID: "5", // Using 5 to test non-sequential numbers
+		Link:   "",
+	}
+	var err error
+	_, err = s.CreateCard(1, data)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	// Test getting next ID after card exists (should still be 22 since 5 is lower)
+	nextID = s.getNextRootCardID(1)
+	if nextID != "21" {
+		t.Errorf("Expected next ID to still be 21 (5 is lower), got %v", nextID)
+	}
+
+	// Test that non-numeric IDs are ignored
+	data.CardID = "ABC123"
+	_, err = s.CreateCard(1, data)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	nextID = s.getNextRootCardID(1)
+	if nextID != "21" {
+		t.Errorf("Expected next ID to still be 21 (ignoring non-numeric ID), got %v", nextID)
+	}
+}
+
+func TestGetNextRootCardIDRoute(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
+
+	req, err := http.NewRequest("GET", "/api/cards/next-root-id", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(s.JwtMiddleware(s.GetNextRootCardIDRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var response models.NextIDResponse
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
+	if response.Error {
+		t.Errorf("Handler returned error response")
+	}
+	if response.NextID != "21" {
+		t.Errorf("Expected first ID to be 21 (after test data), got %v", response.NextID)
+	}
+
+	// Test unauthorized access
+	req, _ = http.NewRequest("GET", "/api/cards/next-root-id", nil)
+	rr = httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("Handler allowed unauthorized access: got %v want %v", status, http.StatusUnauthorized)
+	}
+}
+
 func TestCheckCardLinkedOrRelated(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
@@ -738,36 +759,39 @@ func TestCheckCardLinkedOrRelated(t *testing.T) {
 	var mainCard models.Card
 	var testCard models.Card
 
-	cards, err := s.QueryFullCards(userID, "")
+	cards, err := s.ClassicSearch(userID, "")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	mainCard, err = getCardById(cards, 1)
 	if err != nil {
-		t.Errorf("getting card returned error: %v", err)
+		t.Fatal(err)
 	}
-	testCard, err = getCardById(cards, 21)
+	testCard, err = getCardById(cards, 2)
 	if err != nil {
-		t.Errorf("getting card returned error: %v", err)
-	}
-	result := s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
-	if !result {
-		t.Errorf("expected card to be linked, returned false")
+		t.Fatal(err)
 	}
 
-	testCard, err = getCardById(cards, 22)
-	if err != nil {
-		t.Errorf("getting chunk returned error: %v", err)
-	}
-	result = s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
-	if !result {
-		t.Errorf("expected card to be linked, returned false")
+	// Test parent-child relationship
+	if !s.checkChunkLinkedOrRelated(userID, mainCard, models.CardChunk{
+		ID:       testCard.ID,
+		ParentID: mainCard.ID,
+	}) {
+		t.Error("Failed to detect parent-child relationship")
 	}
 
-	testCard, err = getCardById(cards, 4)
-	if err != nil {
-		t.Errorf("getting card returned error: %v", err)
+	// Test reference relationship
+	if !s.checkChunkLinkedOrRelated(userID, mainCard, models.CardChunk{
+		ID: testCard.ID,
+	}) {
+		t.Error("Failed to detect reference relationship")
 	}
-	result = s.checkChunkLinkedOrRelated(1, mainCard, models.ConvertCardToChunk(testCard))
-	if result {
-		t.Errorf("expected card to not be linked, returned true")
+
+	// Test unrelated cards
+	if s.checkChunkLinkedOrRelated(userID, testCard, models.CardChunk{
+		ID: mainCard.ID,
+	}) {
+		t.Error("Incorrectly detected relationship between unrelated cards")
 	}
 }

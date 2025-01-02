@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTaskContext } from "../contexts/TaskContext";
 import { usePartialCardContext } from "../contexts/CardContext";
-import { CardList } from "../components/cards/CardList";
+import { SearchResultList } from "../components/cards/SearchResultList";
 import { useNavigate } from "react-router-dom";
 import { TasksIcon } from "../assets/icons/TasksIcon";
 
@@ -13,6 +13,7 @@ import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
 
 import { useShortcutContext } from "../contexts/ShortcutContext";
+import { CardList } from "../components/cards/CardList";
 
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();

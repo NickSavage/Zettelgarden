@@ -22,6 +22,8 @@ export interface Entity {
   created_at: Date;
   updated_at: Date;
   card_count: number;
+  card_pk: number | null;
+  card?: PartialCard;
 }
 
 export interface Card {
@@ -55,8 +57,27 @@ export interface CardChunk {
   updated_at: Date;
   tags: Tag[];
   ranking: number;
+  combined_score: number;
+  shared_entities: number;
+  entity_similarity: number;
 }
 
+export interface SearchResult {
+  id: string;
+  type: string;
+  title: string;
+  preview: string;
+  score: number;
+  created_at: Date;
+  updated_at: Date;
+  metadata: {
+    parent_id?: number;
+    shared_entities?: number;
+    entity_similarity?: number;
+    semantic_ranking?: number;
+    [key: string]: any;
+  };
+}
 
 export const defaultPartialCard: PartialCard = {
   id: -1,
@@ -92,7 +113,7 @@ export const defaultCard: Card = {
 export interface NextIdResponse {
   error: boolean;
   message: string;
-  new_id: string;
+  new_id: string;  // Matches the actual backend response
 }
 
 export interface FlashcardRecordNextParams {

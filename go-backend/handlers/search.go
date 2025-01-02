@@ -273,37 +273,61 @@ LIMIT 50;
 }
 
 func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
-
+	// Combine results from both semantic and entity-based searches
 	query := `
-SELECT 
-    c.id,
-    c.card_id,
-    c.user_id,
-    c.title,
-    cc.chunk_text as chunk,
-    c.created_at,
-    c.updated_at,
-    c.parent_id
-FROM 
-    card_embeddings ce
-    INNER JOIN cards c ON ce.card_pk = c.id
-    INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.chunk_id
-WHERE 
-    ce.user_id = $1 
-    AND c.is_deleted = FALSE
-GROUP BY 
-    c.id, 
-    c.card_id, 
-    c.user_id, 
-    c.title, 
-    cc.chunk_text,
-    c.created_at, 
-    c.updated_at,
-    c.parent_id
-ORDER BY 
-    AVG(ce.embedding <=> $2)
-LIMIT 50;
-`
+	WITH semantic_scores AS (
+		SELECT 
+			c.id,
+			c.card_id,
+			c.user_id,
+			c.title,
+			cc.chunk_text as chunk,
+			c.created_at,
+			c.updated_at,
+			c.parent_id,
+			AVG(ce.embedding <=> $2) as semantic_score
+		FROM 
+			card_embeddings ce
+			INNER JOIN cards c ON ce.card_pk = c.id
+			INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.chunk_id
+		WHERE 
+			ce.user_id = $1 
+			AND c.is_deleted = FALSE
+		GROUP BY 
+			c.id, c.card_id, c.user_id, c.title, cc.chunk_text, c.created_at, c.updated_at, c.parent_id
+	),
+	entity_scores AS (
+		SELECT 
+			c.id,
+			COUNT(DISTINCT e.id) as shared_entities,
+			AVG(e.embedding <=> $2) as entity_similarity
+		FROM 
+			cards c
+			INNER JOIN entity_card_junction ecj ON c.id = ecj.card_pk
+			INNER JOIN entities e ON ecj.entity_id = e.id
+		WHERE 
+			c.user_id = $1 
+			AND c.is_deleted = FALSE
+		GROUP BY 
+			c.id
+	)
+	SELECT 
+		s.*,
+		COALESCE(es.shared_entities, 0) as shared_entities,
+		COALESCE(es.entity_similarity, 1) as entity_similarity,
+		(
+			0.4 * (1 - LEAST(s.semantic_score, 1)) + 
+			0.4 * (1 - LEAST(COALESCE(es.entity_similarity, 1), 1)) +
+			0.2 * (LEAST(COALESCE(es.shared_entities, 0) / 5.0, 1))
+		) as combined_score
+	FROM 
+		semantic_scores s
+		LEFT JOIN entity_scores es ON s.id = es.id
+	ORDER BY 
+		combined_score DESC
+	LIMIT 50;
+	`
+
 	var rows *sql.Rows
 	var err error
 	rows, err = s.DB.Query(query, userID, embedding)
@@ -316,19 +340,23 @@ LIMIT 50;
 	log.Printf("err %v", err)
 
 	return cards, err
+}
 
-	// var seen = make(map[int]bool)
-	// var results []models.CardChunk
+func (s *Handler) ClassicSearch(userID int, searchTerm string) ([]models.Card, error) {
+	searchString := BuildPartialCardSqlSearchTermString(searchTerm, true)
+	query := `
+		SELECT 
+			c.id, c.card_id, c.user_id, c.title, c.body, c.link, c.parent_id, c.created_at, c.updated_at
+		FROM cards c
+		WHERE c.user_id = $1 AND c.is_deleted = FALSE` + searchString
 
-	// // for _, card := range cards {
-	// // 	if _, exists := seen[card.ID]; !exists {
-	// // 		results = append(results, card)
-	// // 		seen[card.ID] = true
-	// // 	}
-	// // }
+	rows, err := s.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-	// return results, nil
-
+	return models.ScanCards(rows)
 }
 
 func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
@@ -336,7 +364,40 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 
 	userID := r.Context().Value("current_user").(int)
 	searchTerm := r.URL.Query().Get("search_term")
+	searchType := r.URL.Query().Get("type")
 
+	if searchType == "classic" {
+		// Handle classic search using shared function
+		cards, err := s.ClassicSearch(userID, searchTerm)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Convert to SearchResults
+		searchResults := make([]models.SearchResult, len(cards))
+		for i, card := range cards {
+			searchResults[i] = models.SearchResult{
+				ID:        card.CardID,
+				Type:      "card",
+				Title:     card.Title,
+				Preview:   card.Body,
+				Score:     1.0, // Classic search doesn't have scoring
+				CreatedAt: card.CreatedAt,
+				UpdatedAt: card.UpdatedAt,
+				Metadata: map[string]interface{}{
+					"id":        card.ID,
+					"parent_id": card.ParentID,
+				},
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(searchResults)
+		return
+	}
+
+	// Handle semantic search (existing code)
 	chunk := models.CardChunk{
 		Chunk: searchTerm,
 	}
@@ -381,8 +442,14 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 	elapsed = time.Since(start)
 	fmt.Printf("reranking cards took %.2f seconds\n", elapsed.Seconds())
 
+	// Convert CardChunks to SearchResults
+	searchResults := make([]models.SearchResult, len(relatedCards))
+	for i, card := range relatedCards {
+		searchResults[i] = models.CardChunkToSearchResult(card)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(relatedCards)
+	json.NewEncoder(w).Encode(searchResults)
 }
 
 func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {

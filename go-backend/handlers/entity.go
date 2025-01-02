@@ -8,9 +8,20 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 const SIMILARITY_THRESHOLD = 0.15
+
+type UpdateEntityRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+	CardPK      *int   `json:"card_pk"`
+}
 
 func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 
@@ -25,7 +36,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 			log.Printf("entity error %v", err)
 			return err
 		} else {
-			err = s.UpsertEntities(userID, card.ID, entities)
+			err = s.UpsertEntitiesFromCards(userID, card.ID, entities, chunk)
 			if err != nil {
 				log.Printf("error upserting entities: %v", err)
 				return err
@@ -36,7 +47,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 
 }
 
-func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entity) error {
+func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []models.Entity, chunk models.CardChunk) error {
 	for _, entity := range entities {
 		similarEntities, err := s.FindPotentialDuplicates(userID, entity)
 		if err != nil {
@@ -55,10 +66,10 @@ func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entit
 		if err == sql.ErrNoRows {
 			// Entity doesn't exist, insert it
 			err = s.DB.QueryRow(`
-                INSERT INTO entities (user_id, name, description, type, embedding)
-                VALUES ($1, $2, $3, $4, $5)
+                INSERT INTO entities (user_id, name, description, type, embedding, card_pk)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id
-            `, userID, entity.Name, entity.Description, entity.Type, entity.Embedding).Scan(&entityID)
+            `, userID, entity.Name, entity.Description, entity.Type, entity.Embedding, entity.CardPK).Scan(&entityID)
 			if err != nil {
 				log.Printf("error inserting entity: %v", err)
 				continue
@@ -72,9 +83,10 @@ func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entit
                 UPDATE entities 
                 SET description = $1, 
                     type = $2,
+                    card_pk = $3,
                     updated_at = NOW()
-                WHERE id = $3
-            `, entity.Description, entity.Type, entityID)
+                WHERE id = $4
+            `, entity.Description, entity.Type, entity.CardPK, entityID)
 			if err != nil {
 				log.Printf("error updating entity: %v", err)
 				continue
@@ -83,11 +95,11 @@ func (s *Handler) UpsertEntities(userID int, cardPK int, entities []models.Entit
 
 		// Create or update the entity-card relationship
 		_, err = s.DB.Exec(`
-            INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
-            VALUES ($1, $2, $3)
+            INSERT INTO entity_card_junction (user_id, entity_id, card_pk, chunk_id)
+            VALUES ($1, $2, $3, $4)
             ON CONFLICT (entity_id, card_pk)
             DO UPDATE SET updated_at = NOW()
-        `, userID, entityID, cardPK)
+        `, userID, entityID, cardPK, chunk.ID)
 		if err != nil {
 			log.Printf("error linking entity to card: %v", err)
 			continue
@@ -136,15 +148,24 @@ func (s *Handler) GetEntitiesRoute(w http.ResponseWriter, r *http.Request) {
             e.type,
             e.created_at,
             e.updated_at,
-            COUNT(DISTINCT ecj.card_pk) as card_count
+            e.card_pk,
+            COUNT(DISTINCT ecj.card_pk) as card_count,
+            c.id as linked_card_id,
+            c.card_id as linked_card_card_id,
+            c.title as linked_card_title,
+            c.user_id as linked_card_user_id,
+            c.parent_id as linked_card_parent_id,
+            c.created_at as linked_card_created_at,
+            c.updated_at as linked_card_updated_at
         FROM 
             entities e
             LEFT JOIN entity_card_junction ecj ON e.id = ecj.entity_id
-            LEFT JOIN cards c ON ecj.card_pk = c.id AND c.is_deleted = FALSE
+            LEFT JOIN cards c ON e.card_pk = c.id AND c.is_deleted = FALSE
         WHERE 
             e.user_id = $1
         GROUP BY 
-            e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at
+            e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at, e.card_pk,
+            c.id, c.card_id, c.title, c.user_id, c.parent_id, c.created_at, c.updated_at
         ORDER BY 
             e.name ASC
     `
@@ -160,6 +181,11 @@ func (s *Handler) GetEntitiesRoute(w http.ResponseWriter, r *http.Request) {
 	var entities []models.Entity
 	for rows.Next() {
 		var entity models.Entity
+		var cardID sql.NullInt64
+		var cardCardID, cardTitle sql.NullString
+		var cardUserID, cardParentID sql.NullInt64
+		var cardCreatedAt, cardUpdatedAt sql.NullTime
+
 		err := rows.Scan(
 			&entity.ID,
 			&entity.UserID,
@@ -168,13 +194,36 @@ func (s *Handler) GetEntitiesRoute(w http.ResponseWriter, r *http.Request) {
 			&entity.Type,
 			&entity.CreatedAt,
 			&entity.UpdatedAt,
+			&entity.CardPK,
 			&entity.CardCount,
+			&cardID,
+			&cardCardID,
+			&cardTitle,
+			&cardUserID,
+			&cardParentID,
+			&cardCreatedAt,
+			&cardUpdatedAt,
 		)
 		if err != nil {
 			log.Printf("error scanning entity: %v", err)
 			http.Error(w, "Failed to scan entities", http.StatusInternalServerError)
 			return
 		}
+
+		// If we have a linked card, populate the card field
+		if cardID.Valid {
+			entity.Card = &models.PartialCard{
+				ID:        int(cardID.Int64),
+				CardID:    cardCardID.String,
+				Title:     cardTitle.String,
+				UserID:    int(cardUserID.Int64),
+				ParentID:  int(cardParentID.Int64),
+				CreatedAt: cardCreatedAt.Time,
+				UpdatedAt: cardUpdatedAt.Time,
+				Tags:      []models.Tag{}, // Empty tags array since we don't need them here
+			}
+		}
+
 		entities = append(entities, entity)
 	}
 
@@ -184,21 +233,22 @@ func (s *Handler) GetEntitiesRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Handler) QueryEntitiesForCard(userID int, cardPK int) ([]models.Entity, error) {
 	query := `
-	SELECT 
-		e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at
+	SELECT DISTINCT
+		e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at, e.card_pk
 	FROM 
 		entities e
-	JOIN 
+	LEFT JOIN 
 		entity_card_junction ecj ON e.id = ecj.entity_id
 	WHERE 
-		ecj.card_pk = $1 AND e.user_id = $2`
+		e.user_id = $2 
+		AND (ecj.card_pk = $1 OR e.card_pk = $1)`
 
-	log.Printf("query %v, %v, %v", query, cardPK, userID)
 	rows, err := s.DB.Query(query, cardPK, userID)
 	if err != nil {
 		log.Printf("err %v", err)
 		return []models.Entity{}, err
 	}
+	defer rows.Close()
 
 	var entities []models.Entity
 	for rows.Next() {
@@ -211,11 +261,11 @@ func (s *Handler) QueryEntitiesForCard(userID int, cardPK int) ([]models.Entity,
 			&entity.Type,
 			&entity.CreatedAt,
 			&entity.UpdatedAt,
+			&entity.CardPK,
 		); err != nil {
 			log.Printf("err %v", err)
 			return entities, err
 		}
-		log.Printf("entity %v", entity)
 		entities = append(entities, entity)
 	}
 	return entities, nil
@@ -326,5 +376,240 @@ func (s *Handler) MergeEntitiesRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Entities merged successfully",
+	})
+}
+
+func (s *Handler) DeleteEntity(userID int, entityID int) error {
+	// Start transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() // Will be ignored if transaction is committed
+
+	// Verify entity exists and belongs to the user
+	var exists bool
+	err = tx.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM entities 
+			WHERE id = $1 AND user_id = $2
+		)`,
+		entityID, userID).Scan(&exists)
+	if err != nil {
+		return fmt.Errorf("failed to check entity existence: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("entity not found or does not belong to user")
+	}
+
+	// Delete entity-card relationships first
+	_, err = tx.Exec(`
+		DELETE FROM entity_card_junction
+		WHERE entity_id = $1 AND user_id = $2`,
+		entityID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete entity relationships: %w", err)
+	}
+
+	// Delete the entity
+	_, err = tx.Exec(`
+		DELETE FROM entities
+		WHERE id = $1 AND user_id = $2`,
+		entityID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete entity: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Handler) DeleteEntityRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Extract entityID from URL parameters using mux instead of chi
+	entityID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid entity ID", http.StatusBadRequest)
+		return
+	}
+
+	err = s.DeleteEntity(userID, entityID)
+	if err != nil {
+		log.Printf("Error deleting entity: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Entity deleted successfully",
+	})
+}
+
+func (s *Handler) validateCardAccess(userID int, cardPK int) error {
+	var exists bool
+	err := s.DB.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM cards 
+			WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
+		)
+	`, cardPK, userID).Scan(&exists)
+
+	if err != nil {
+		return fmt.Errorf("error checking card access: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("card not found or access denied")
+	}
+
+	return nil
+}
+
+func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequest) error {
+	// Start transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// Verify entity exists and belongs to user
+	var exists bool
+	err = tx.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM entities 
+			WHERE id = $1 AND user_id = $2
+		)`,
+		entityID, userID).Scan(&exists)
+	if err != nil {
+		return fmt.Errorf("failed to check entity existence: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("entity not found or does not belong to user")
+	}
+
+	// Validate card access if CardPK is provided
+	if params.CardPK != nil {
+		if err := s.validateCardAccess(userID, *params.CardPK); err != nil {
+			return fmt.Errorf("invalid card reference: %w", err)
+		}
+	}
+
+	// Check if name is unique for this user
+	var nameExists bool
+	err = tx.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM entities 
+			WHERE user_id = $1 AND name = $2 AND id != $3
+		)`,
+		userID, params.Name, entityID).Scan(&nameExists)
+	if err != nil {
+		return fmt.Errorf("failed to check name uniqueness: %w", err)
+	}
+	if nameExists {
+		return fmt.Errorf("an entity with this name already exists")
+	}
+
+	// Generate new embedding
+	entity := models.Entity{
+		ID:          entityID,
+		UserID:      userID,
+		Name:        params.Name,
+		Description: params.Description,
+		Type:        params.Type,
+	}
+
+	var updateQuery string
+	var queryArgs []interface{}
+
+	if s.Server.Testing {
+		// In test mode, don't update the embedding
+		updateQuery = `
+			UPDATE entities 
+			SET name = $1, 
+				description = $2,
+				type = $3,
+				card_pk = $4,
+				updated_at = NOW()
+			WHERE id = $5 AND user_id = $6`
+		queryArgs = []interface{}{params.Name, params.Description, params.Type, params.CardPK, entityID, userID}
+	} else {
+		// In normal mode, update with new embedding
+		embedding, err := llms.GenerateEntityEmbedding(s.Server.LLMClient, entity)
+		if err != nil {
+			return fmt.Errorf("failed to generate embedding: %w", err)
+		}
+		updateQuery = `
+			UPDATE entities 
+			SET name = $1, 
+				description = $2,
+				type = $3,
+				card_pk = $4,
+				embedding = $5,
+				updated_at = NOW()
+			WHERE id = $6 AND user_id = $7`
+		queryArgs = []interface{}{params.Name, params.Description, params.Type, params.CardPK, embedding, entityID, userID}
+	}
+
+	// Update the entity
+	_, err = tx.Exec(updateQuery, queryArgs...)
+	if err != nil {
+		return fmt.Errorf("failed to update entity: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Handler) UpdateEntityRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Extract entityID from URL parameters
+	entityID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid entity ID", http.StatusBadRequest)
+		return
+	}
+
+	var params UpdateEntityRequest
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if params.Name == "" {
+		http.Error(w, "Name is required", http.StatusBadRequest)
+		return
+	}
+
+	err = s.UpdateEntity(userID, entityID, params)
+	if err != nil {
+		if strings.Contains(err.Error(), "already exists") {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
+		log.Printf("Error updating entity: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Entity updated successfully",
 	})
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pgvector/pgvector-go"
 	openai "github.com/sashabaranov/go-openai"
 )
 
@@ -179,4 +180,17 @@ Return JSON in this format:
 
 	// If no matches found or new entity is always preferred
 	return entity, nil
+}
+
+func GenerateEntityEmbedding(c *models.LLMClient, entity models.Entity) (pgvector.Vector, error) {
+	// Combine entity fields into a single text for embedding
+	text := fmt.Sprintf("%s - %s - %s", entity.Name, entity.Type, entity.Description)
+
+	// Generate embedding using existing function
+	embedding, err := GetEmbedding(text, false)
+	if err != nil {
+		return pgvector.Vector{}, fmt.Errorf("failed to generate embedding: %w", err)
+	}
+
+	return embedding, nil
 }

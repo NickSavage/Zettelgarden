@@ -14,11 +14,11 @@ export function BacklinkInputDropdownList({
 }: BacklinkInputDropdownListProps) {
   console.log("backlinks", cards);
   return (
-    <ul className="input-link-dropdown">
+    <ul className="overflow-hidden bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
       {cards.map((card, index) => (
         <li
           key={card.card_id}
-	  className="cursor-pointer bg-slate-200 hover:bg-slate-400 p-2"
+          className="cursor-pointer hover:bg-blue-50 p-3 border-b border-gray-100 last:border-b-0 transition-colors duration-150"
           onClick={(e) => addBacklink(card)}
         >
           <CardTag card={card} showTitle={true} />

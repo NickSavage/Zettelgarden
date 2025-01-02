@@ -6,16 +6,27 @@ import {
   FlashcardRecordNextParams,
   getRatingValue,
   Entity,
+  SearchResult,
+  defaultPartialCard,
 } from "../models/Card";
 import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
-export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
+export function semanticSearchCards(searchTerm = "", useClassicSearch = false): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
+  const params = new URLSearchParams();
+  
   if (searchTerm) {
-    url += `?search_term=${encodeURIComponent(searchTerm)}`;
+    params.append("search_term", searchTerm);
+  }
+  if (useClassicSearch) {
+    params.append("type", "classic");
+  }
+  
+  if (params.toString()) {
+    url += `?${params.toString()}`;
   }
 
   return fetch(url, {
@@ -24,18 +35,15 @@ export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        return response.json().then((cards: CardChunk[]) => {
-          if (cards === null) {
+        return response.json().then((results: SearchResult[]) => {
+          if (results === null) {
             return [];
           }
-          let results = cards.map((card) => {
-            return {
-              ...card,
-              created_at: new Date(card.created_at),
-              updated_at: new Date(card.updated_at),
-            };
-          });
-          return results;
+          return results.map((result) => ({
+            ...result,
+            created_at: new Date(result.created_at),
+            updated_at: new Date(result.updated_at),
+          }));
         });
       } else {
         return Promise.reject(new Error("Response is undefined"));
@@ -44,35 +52,28 @@ export function semanticSearchCards(searchTerm = ""): Promise<CardChunk[]> {
 }
 
 export function fetchCards(searchTerm = ""): Promise<Card[]> {
-  let token = localStorage.getItem("token");
-  let url = base_url + "/cards";
-  if (searchTerm) {
-    url += `?search_term=${encodeURIComponent(searchTerm)}`;
-  }
-
-  return fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(checkStatus)
-    .then((response) => {
-      if (response) {
-        return response.json().then((cards: Card[]) => {
-          if (cards === null) {
-            return [];
-          }
-          let results = cards.map((card) => {
-            return {
-              ...card,
-              created_at: new Date(card.created_at),
-              updated_at: new Date(card.updated_at),
-            };
-          });
-          return results;
-        });
-      } else {
-        return Promise.reject(new Error("Response is undefined"));
-      }
-    });
+  return semanticSearchCards(searchTerm, true).then((results) => {
+    if (results === null) return [];
+    return results.map(result => ({
+      id: Number(result.metadata?.id) || 0,
+      card_id: result.id,
+      title: result.title,
+      body: result.preview || "",
+      link: "",
+      is_deleted: false,
+      created_at: result.created_at,
+      updated_at: result.updated_at,
+      parent_id: result.metadata?.parent_id || 0,
+      user_id: 0,
+      parent: defaultPartialCard,
+      files: [],
+      children: [],
+      references: [],
+      tags: [],
+      tasks: [],
+      entities: [],
+    } as Card));
+  });
 }
 
 export function fetchPartialCards(
@@ -154,39 +155,39 @@ export function getCard(id: string): Promise<Card> {
           let children =
             card.children !== null
               ? card.children.map((child) => {
-                  return {
-                    ...child,
-                    created_at: new Date(child.created_at),
-                    updated_at: new Date(child.updated_at),
-                  };
-                })
+                return {
+                  ...child,
+                  created_at: new Date(child.created_at),
+                  updated_at: new Date(child.updated_at),
+                };
+              })
               : [];
           let references =
             card.references !== null
               ? card.references.map((ref) => {
-                  return {
-                    ...ref,
-                    created_at: new Date(ref.created_at),
-                    updated_at: new Date(ref.updated_at),
-                  };
-                })
+                return {
+                  ...ref,
+                  created_at: new Date(ref.created_at),
+                  updated_at: new Date(ref.updated_at),
+                };
+              })
               : [];
           let tasks =
             card.tasks !== null
               ? card.tasks.map((task) => {
-                  return {
-                    ...task,
-                    scheduled_date: task.scheduled_date
-                      ? new Date(task.scheduled_date)
-                      : null,
-                    dueDate: task.dueDate ? new Date(task.dueDate) : null,
-                    created_at: new Date(task.created_at),
-                    updated_at: new Date(task.updated_at),
-                    completed_at: task.completed_at
-                      ? new Date(task.completed_at)
-                      : null,
-                  };
-                })
+                return {
+                  ...task,
+                  scheduled_date: task.scheduled_date
+                    ? new Date(task.scheduled_date)
+                    : null,
+                  dueDate: task.dueDate ? new Date(task.dueDate) : null,
+                  created_at: new Date(task.created_at),
+                  updated_at: new Date(task.updated_at),
+                  completed_at: task.completed_at
+                    ? new Date(task.completed_at)
+                    : null,
+                };
+              })
               : [];
           return {
             ...card,
@@ -309,18 +310,12 @@ export function deleteCard(id: number): Promise<Card | null> {
       }
     });
 }
-export async function getNextId(cardType: string): Promise<NextIdResponse> {
-  const url = `${base_url}/cards/next`;
-
+export async function getNextRootId(): Promise<NextIdResponse> {
+  const url = `${base_url}/cards/next-root-id`;
   let token = localStorage.getItem("token");
 
   return await fetch(url, {
-    method: "POST",
-    body: JSON.stringify({ card_type: cardType }),
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${token}` },
   })
     .then(checkStatus)
     .then((response) => {
