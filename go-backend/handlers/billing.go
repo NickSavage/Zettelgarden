@@ -144,9 +144,7 @@ func (s *Handler) CreateCheckoutSession(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	log.Printf("%v", params.Interval)
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
-	log.Printf("%v", stripe.Key)
 
 	plan, err := s.fetchPlanInformation(params.Interval)
 	if err != nil {
@@ -219,12 +217,10 @@ func (s *Handler) handleCheckoutSessionComplete(event stripe.Event) error {
 		return err
 	}
 	customerID := resource.Customer.ID
-	log.Printf("cus_id %v", customerID)
 	customer, err := customer.Get(customerID, &stripe.CustomerParams{})
 	if err != nil {
 		return err
 	}
-	log.Printf("customer %v email %v", customer, customer.Email)
 	var frequency string
 	lineItemsIter := session.ListLineItems(&stripe.CheckoutSessionListLineItemsParams{})
 	for lineItemsIter.Next() {

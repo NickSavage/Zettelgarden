@@ -204,7 +204,6 @@ func (s *Handler) UpdateTask(userID int, id int, task models.Task) error {
 		completedAt = nil
 	}
 
-	log.Printf("completed_at: %v", completedAt)
 	_, err = s.DB.Exec(`
 		UPDATE tasks SET
 			card_pk = $1,
@@ -262,7 +261,6 @@ func (s *Handler) UpdateTaskRoute(w http.ResponseWriter, r *http.Request) {
 func (s *Handler) CreateTask(task models.Task) (int, error) {
 	var taskID int
 
-	log.Printf("user %v", task.UserID)
 	err := s.DB.QueryRow(`
 	INSERT INTO tasks (card_pk, user_id, scheduled_date, due_date, created_at, updated_at, completed_at, title, is_complete, is_deleted)
 	VALUES ($1, $2, $3, $4, NOW(), NOW(), $5, $6, $7, FALSE)
@@ -414,7 +412,6 @@ func (s *Handler) checkRecurringTasks(task models.Task) error {
 		Title:         task.Title,
 		IsComplete:    false,
 	}
-	log.Printf("creating recurring task - %v", newTask)
 	_, err := s.CreateTask(newTask)
 	if err != nil {
 		return err

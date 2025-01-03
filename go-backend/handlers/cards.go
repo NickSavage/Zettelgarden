@@ -59,7 +59,6 @@ func (s *Handler) checkIsCardIDUnique(userID int, cardID string) bool {
 	var count int
 	err := s.DB.QueryRow(`SELECT count(*) FROM cards 
 		WHERE user_id = $1 AND card_id = $2 AND is_deleted = FALSE`, userID, cardID).Scan(&count)
-	log.Printf("count %v", count)
 	if err != nil {
 		log.Printf("err %v", err)
 		return false
@@ -288,17 +287,14 @@ func (s *Handler) checkChunkLinkedOrRelated(
 	relatedCard models.CardChunk,
 ) bool {
 	if relatedCard.ParentID == mainCard.ID {
-		log.Printf("reject card, is child")
 		return true
 	}
 	references, err := s.getReferences(userID, mainCard)
 	if err != nil {
-		log.Printf("check card linked err %v", err)
 		return true
 	}
 	for _, ref := range references {
 		if ref.ID == relatedCard.ID {
-			log.Printf("reject card, is a reference")
 			return true
 		}
 	}
@@ -369,7 +365,6 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	card.Tasks = tasks
 
 	entities, err := s.QueryEntitiesForCard(userID, card.ID)
-	log.Printf("entities %v, %v", entities, card.ID)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

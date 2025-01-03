@@ -169,7 +169,6 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 		negateTagsConditions = append(negateTagsConditions, tagCondition)
 	}
 
-	log.Printf("searchParams %v", searchParams.Entities)
 	// Add conditions for entities
 	for _, entity := range searchParams.Entities {
 		entityCondition := fmt.Sprintf(`EXISTS (
@@ -337,7 +336,6 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 	}
 
 	cards, err := models.ScanCardChunks(rows)
-	log.Printf("err %v", err)
 
 	return cards, err
 }
@@ -453,7 +451,6 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
-	log.Printf("?")
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {

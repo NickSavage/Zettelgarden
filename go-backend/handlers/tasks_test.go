@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"go-backend/models"
 	"go-backend/tests"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -61,7 +60,6 @@ func TestGetTaskSuccess(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 	var task models.Task
-	log.Printf("%v", rr.Body.String())
 	tests.ParseJsonResponse(t, rr.Body.Bytes(), &task)
 	if task.ID != 1 {
 		t.Errorf("handler returned wrong task, got %v want %v", task.ID, 1)
