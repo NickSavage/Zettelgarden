@@ -20,7 +20,7 @@ export interface MailingListMessage {
   subject: string;
   body: string;
   sent_at: string;
-  recipient_count: number;
+  total_recipients: number;
 }
 
 export interface MailingListSubscriber {
