@@ -210,6 +210,7 @@ func main() {
 	addProtectedRoute(r, "/api/chat", h.PostChatMessageRoute, "POST")
 
 	addRoute(r, "/api/mailing-list", h.AddToMailingListRoute, "POST")
+	addProtectedRoute(r, "/api/mailing-list", h.GetMailingListSubscribersRoute, "GET") // Add this line
 
 	addRoute(r, "/api/billing/create_checkout_session", h.CreateCheckoutSession, "POST")
 	addRoute(r, "/api/billing/success", h.GetSuccessfulSessionData, "GET")
