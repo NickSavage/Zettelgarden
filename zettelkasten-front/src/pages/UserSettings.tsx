@@ -115,7 +115,12 @@ export function UserSettingsPage() {
                 <input type="email" name="email" defaultValue={user?.email} />
               </label>
             </div>
-            <button type="submit">Save Changes</button>
+            <button 
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              Save Changes
+            </button>
           </form>
         </div>
 
@@ -163,7 +168,7 @@ export function UserSettingsPage() {
                 navigate("/login");
               }
             }}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
           >
             Logout
           </button>
