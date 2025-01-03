@@ -41,14 +41,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'    # Date format in logs
 )
 
-def protected(func):
-    def mail_wrapper(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or auth_header != os.getenv("ZETTEL_MAIL_PASSWORD"):
-            return jsonify({"error": "Unauthorized"}), 401
-        return func(*args, **kwargs)
-    return mail_wrapper
-
 @app.route("/api/send", methods=["POST"])
 def send_mail():
     data = request.get_json()
@@ -70,6 +62,40 @@ def send_mail():
             return jsonify({"message": "Email sent successfully"}), 200
         except Exception as e:
             logging.error("Error sending email: %s", str(e))
+            return jsonify({"error": str(e)}), 500
+
+@app.route("/api/send/mailing-list", methods=["POST"])
+def send_mailing_list():
+    data = request.get_json()
+    subject = data.get("subject")
+    to_recipients = data.get("to_recipients", [])  # Main visible recipients
+    bcc_recipients = data.get("bcc_recipients", [])  # BCC recipients
+    body = data.get("body")
+
+    if not subject or (not to_recipients and not bcc_recipients):
+        return jsonify({"message": "Email needs a subject and at least one recipient (TO or BCC)"}), 400
+
+    # Create the email message with BCC support
+    message = Message(
+        subject,
+        sender=("Zettelgarden", app.config['DEFAULT_SENDER']),
+        recipients=to_recipients,
+        bcc=bcc_recipients,
+        body=body
+    )
+
+    # Send the email
+    with app.app_context():
+        try:
+            mail.send(message)
+            total_recipients = len(to_recipients) + len(bcc_recipients)
+            logging.info("Mailing list email sent successfully to %d recipients", total_recipients)
+            return jsonify({
+                "message": "Mailing list email sent successfully",
+                "recipients_count": total_recipients
+            }), 200
+        except Exception as e:
+            logging.error("Error sending mailing list email: %s", str(e))
             return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":

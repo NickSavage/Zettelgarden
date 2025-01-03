@@ -6,6 +6,7 @@ import { AdminUserIndex } from "./AdminUserIndex";
 import { AdminUserDetailPage } from "./AdminUserDetailPage";
 import { AdminEditUserPage } from "./AdminEditUserPage";
 import { AdminMailingListPage } from "./AdminMailingListPage";
+import { AdminMailingListSendPage } from "./AdminMailingListSendPage";
 
 import { Routes, Route } from "react-router-dom";
 
@@ -57,6 +58,14 @@ export function Admin() {
                 </li>
                 <li>
                   <Link 
+                    to="/admin/mailing-list/send" 
+                    className="block py-2 px-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                  >
+                    Send Newsletter
+                  </Link>
+                </li>
+                <li>
+                  <Link 
                     to="/app" 
                     className="block py-2 px-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
                   >
@@ -78,6 +87,7 @@ export function Admin() {
               <Route path="user/:id" element={<AdminUserDetailPage />} />
               <Route path="user/:id/edit" element={<AdminEditUserPage />} />
               <Route path="mailing-list" element={<AdminMailingListPage />} />
+              <Route path="mailing-list/send" element={<AdminMailingListSendPage />} />
             </Routes>
           </div>
         </div>
