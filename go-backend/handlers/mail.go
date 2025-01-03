@@ -42,7 +42,6 @@ func (s *Handler) GetAllSubscribers() ([]models.MailingList, error) {
 	query := `
         SELECT id, email, welcome_email_sent, created_at, updated_at, subscribed
         FROM mailing_list 
-        WHERE subscribed = true
         ORDER BY id DESC
     `
 
