@@ -460,7 +460,7 @@ func (s *Handler) getDefaultDashboardBody() string {
 func (s *Handler) createDefaultCards(userID int) error {
 	params := models.EditCardParams{
 		CardID: "1",
-		Title:  "Dashboard",
+		Title:  "Welcome to Zettelgarden!",
 		Body:   s.getDefaultDashboardBody(),
 		Link:   "",
 	}
