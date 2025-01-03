@@ -226,3 +226,25 @@ export function getMailingListSubscribers(): Promise<MailingListSubscriber[]> {
       }
     });
 }
+
+export function unsubscribeMailingList(email: string): Promise<{ message: string }> {
+  const url = `${base_url}/mailing-list/unsubscribe`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    method: 'POST',
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<{ message: string }>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}

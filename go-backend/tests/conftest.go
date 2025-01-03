@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -71,6 +72,11 @@ func ParseJsonResponse(t *testing.T, body []byte, x interface{}) {
 		t.Fatalf("could not unmarshal response: %v", err)
 	}
 }
+
+func StringToReader(s string) *strings.Reader {
+	return strings.NewReader(s)
+}
+
 func importTestData(s *server.Server) error {
 	data := generateData()
 	users := data["users"].([]models.User)

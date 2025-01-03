@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getMailingListSubscribers, MailingListSubscriber } from "../../api/users";
+import { getMailingListSubscribers, MailingListSubscriber, unsubscribeMailingList } from "../../api/users";
 import {
   useReactTable,
   getCoreRowModel,
@@ -23,18 +23,38 @@ export function AdminMailingListPage() {
   const [subscribers, setSubscribers] = useState<MailingListSubscriber[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchSubscribers = async () => {
+    try {
+      const data = await getMailingListSubscribers();
+      setSubscribers(data);
+    } catch (error) {
+      console.error("Error fetching subscribers:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchSubscribers = async () => {
-      try {
-        const data = await getMailingListSubscribers();
-        setSubscribers(data);
-      } catch (error) {
-        console.error("Error fetching subscribers:", error);
-      }
-    };
     fetchSubscribers();
   }, []);
+
+  const handleUnsubscribe = async (email: string) => {
+    if (!window.confirm(`Are you sure you want to unsubscribe ${email}?`)) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await unsubscribeMailingList(email);
+      // Refresh the subscribers list
+      await fetchSubscribers();
+    } catch (error) {
+      console.error("Error unsubscribing:", error);
+      alert("Failed to unsubscribe. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const columnHelper = createColumnHelper<MailingListSubscriber>();
 
@@ -84,8 +104,25 @@ export function AdminMailingListPage() {
         header: "Updated At",
         cell: (info) => new Date(info.getValue()).toLocaleString(),
       }),
+      columnHelper.display({
+        id: "actions",
+        header: "Actions",
+        cell: (info) => (
+          <button
+            onClick={() => handleUnsubscribe(info.row.original.email)}
+            disabled={!info.row.original.subscribed || isLoading}
+            className={`px-3 py-1 rounded text-sm ${
+              !info.row.original.subscribed || isLoading
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-red-500 text-white hover:bg-red-600"
+            }`}
+          >
+            {isLoading ? "..." : "Unsubscribe"}
+          </button>
+        ),
+      }),
     ],
-    []
+    [isLoading]
   );
 
   const table = useReactTable({

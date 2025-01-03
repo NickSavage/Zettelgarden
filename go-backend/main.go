@@ -218,6 +218,7 @@ func main() {
 	addProtectedRoute(r, "/api/mailing-list/messages", h.GetMailingListMessagesRoute, "GET")
 	addProtectedRoute(r, "/api/mailing-list/messages/send", h.SendMailingListMessageRoute, "POST")
 	addProtectedRoute(r, "/api/mailing-list/messages/recipients", h.GetMessageRecipientsRoute, "GET")
+	addProtectedRoute(r, "/api/mailing-list/unsubscribe", h.UnsubscribeMailingListRoute, "POST")
 
 	addRoute(r, "/api/billing/create_checkout_session", h.CreateCheckoutSession, "POST")
 	addRoute(r, "/api/billing/success", h.GetSuccessfulSessionData, "GET")

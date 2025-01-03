@@ -200,3 +200,46 @@ func (s *Handler) GetMessageRecipientsRoute(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(recipients)
 }
+
+func (s *Handler) UnsubscribeMailingListRoute(w http.ResponseWriter, r *http.Request) {
+	// Admin check
+	userID := r.Context().Value("current_user").(int)
+	user, err := s.QueryUser(userID)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusBadRequest)
+		return
+	}
+	if !user.IsAdmin {
+		http.Error(w, "Access denied", http.StatusUnauthorized)
+		return
+	}
+
+	// Parse the request body
+	var request struct {
+		Email string `json:"email"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Update the subscriber's status in the database
+	query := `
+		UPDATE mailing_list 
+		SET subscribed = false, updated_at = NOW() 
+		WHERE email = $1 AND subscribed = true
+		RETURNING id
+	`
+	var id int
+	err = s.DB.QueryRow(query, request.Email).Scan(&id)
+	if err != nil {
+		log.Printf("Error unsubscribing email %s: %v", request.Email, err)
+		http.Error(w, "Failed to unsubscribe email", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": fmt.Sprintf("Successfully unsubscribed %s", request.Email),
+	})
+}
