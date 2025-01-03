@@ -14,8 +14,3 @@ CREATE TABLE IF NOT EXISTS mailing_list_recipients (
     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (message_id) REFERENCES mailing_list_messages(id)
 );
-
--- Add indexes for better query performance
-CREATE INDEX idx_mailing_list_messages_sent_at ON mailing_list_messages(sent_at);
-CREATE INDEX idx_mailing_list_recipients_message_id ON mailing_list_recipients(message_id);
-CREATE INDEX idx_mailing_list_recipients_email ON mailing_list_recipients(recipient_email); 
