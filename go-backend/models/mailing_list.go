@@ -10,4 +10,5 @@ type MailingList struct {
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 	WelcomeEmailSent bool      `json:"welcome_email_sent"`
+	Subscribed       bool      `json:"subscribed"`
 }

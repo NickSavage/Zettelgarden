@@ -200,3 +200,29 @@ export function addToMailingList(email: string): Promise<{ email: string }> {
       }
     });
 }
+
+export interface MailingListSubscriber {
+  id: number;
+  email: string;
+  welcome_email_sent: boolean;
+  subscribed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export function getMailingListSubscribers(): Promise<MailingListSubscriber[]> {
+  const url = `${base_url}/mailing-list`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<MailingListSubscriber[]>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}

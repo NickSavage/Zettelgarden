@@ -47,7 +47,7 @@ type Subscriber struct {
 
 func (s *Handler) GetAllSubscribers() ([]models.MailingList, error) {
 	query := `
-        SELECT id, email, welcome_email_sent, created_at, updated_at
+        SELECT id, email, welcome_email_sent, created_at, updated_at, subscribed
         FROM mailing_list 
         ORDER BY id DESC
     `
@@ -62,7 +62,7 @@ func (s *Handler) GetAllSubscribers() ([]models.MailingList, error) {
 	var subscribers []models.MailingList
 	for rows.Next() {
 		var sub models.MailingList
-		if err := rows.Scan(&sub.ID, &sub.Email, &sub.WelcomeEmailSent, &sub.CreatedAt, &sub.UpdatedAt); err != nil {
+		if err := rows.Scan(&sub.ID, &sub.Email, &sub.WelcomeEmailSent, &sub.CreatedAt, &sub.UpdatedAt, &sub.Subscribed); err != nil {
 			log.Printf("Error scanning subscriber row: %v", err)
 			return nil, fmt.Errorf("error scanning subscriber row: %v", err)
 		}
