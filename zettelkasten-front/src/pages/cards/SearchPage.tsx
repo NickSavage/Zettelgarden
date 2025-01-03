@@ -166,16 +166,15 @@ export function SearchPage({
       const filteredCards = onlyParentCards 
         ? cards.filter(card => !card.card_id.includes("/"))
         : cards;
+      const sortedCards = sortCards(filteredCards, sortBy);
       const indexOfLastItem = currentPage * itemsPerPage;
       const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-      return filteredCards.slice(indexOfFirstItem, indexOfLastItem);
+      return sortedCards.slice(indexOfFirstItem, indexOfLastItem);
     } else {
       const filteredResults = onlyParentCards 
         ? searchResults.filter(result => !result.id.includes("/"))
         : searchResults;
-      const indexOfLastItem = currentPage * itemsPerPage;
-      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-      return filteredResults.slice(indexOfFirstItem, indexOfLastItem).map(result => ({
+      const sortedResults = sortCards(filteredResults.map(result => ({
         id: Number(result.metadata?.id) || 0,
         card_id: result.id,
         title: result.title,
@@ -190,7 +189,11 @@ export function SearchPage({
         combined_score: result.score,
         shared_entities: result.metadata?.shared_entities || 0,
         entity_similarity: result.metadata?.entity_similarity || 0,
-      } as CardChunk));
+      } as CardChunk)), sortBy);
+      
+      const indexOfLastItem = currentPage * itemsPerPage;
+      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+      return sortedResults.slice(indexOfFirstItem, indexOfLastItem);
     }
   }
 
