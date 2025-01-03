@@ -16,6 +16,8 @@ export function AdminMailingListSendPage() {
   const [sentMessages, setSentMessages] = useState<MailingListMessage[]>([]);
   const [expandedMessageId, setExpandedMessageId] = useState<number | null>(null);
   const [subscribers, setSubscribers] = useState<MailingListSubscriber[]>([]);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{ isTest: boolean } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,7 +37,18 @@ export function AdminMailingListSendPage() {
     fetchData();
   }, []);
 
-  const handleSubmit = async (isTest: boolean = false) => {
+  const handleSubmitClick = (isTest: boolean) => {
+    setPendingAction({ isTest });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmSend = async () => {
+    if (!pendingAction) return;
+    
+    const { isTest } = pendingAction;
+    setShowConfirmation(false);
+    setPendingAction(null);
+    
     setIsSending(true);
     setResult(null);
     
@@ -84,6 +97,11 @@ export function AdminMailingListSendPage() {
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleCancelSend = () => {
+    setShowConfirmation(false);
+    setPendingAction(null);
   };
 
   const toggleMessageExpand = (messageId: number) => {
@@ -152,7 +170,7 @@ export function AdminMailingListSendPage() {
 
         <div className="flex gap-4">
           <button
-            onClick={() => handleSubmit(false)}
+            onClick={() => handleSubmitClick(false)}
             disabled={isSending || !subject || !body || activeSubscriberCount === 0}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
           >
@@ -160,7 +178,7 @@ export function AdminMailingListSendPage() {
           </button>
           
           <button
-            onClick={() => handleSubmit(true)}
+            onClick={() => handleSubmitClick(true)}
             disabled={isSending || !subject || !body || !testEmail}
             className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
           >
@@ -168,6 +186,34 @@ export function AdminMailingListSendPage() {
           </button>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">Confirm Send</h2>
+            <p className="mb-6">
+              {pendingAction?.isTest 
+                ? `Are you sure you want to send a test email to ${testEmail}?`
+                : `Are you sure you want to send this message to ${activeSubscriberCount} subscribers?`}
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={handleCancelSend}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSend}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Yes, Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sent Messages History */}
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
@@ -188,7 +234,7 @@ export function AdminMailingListSendPage() {
                   <tr className="border-b hover:bg-gray-50">
                     <td className="px-4 py-2">{message.subject}</td>
                     <td className="px-4 py-2">{new Date(message.sent_at).toLocaleString()}</td>
-                    <td className="px-4 py-2">{message.recipient_count}</td>
+                    <td className="px-4 py-2">{message.total_recipients}</td>
                     <td className="px-4 py-2">
                       <button
                         onClick={() => toggleMessageExpand(message.id)}
