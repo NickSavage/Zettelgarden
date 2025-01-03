@@ -348,7 +348,7 @@ func TestCreateUserDashboardCardsSuccess(t *testing.T) {
 		t.Errorf("dashboard card not set, expected an id other than 0")
 	}
 
-	expectedTitle := "Dashboard"
+	expectedTitle := "Welcome to Zettelgarden!"
 	var title string
 	var body string
 	err = s.DB.QueryRow("SELECT title, body FROM cards where id = $1", cardPK).Scan(&title, &body)
