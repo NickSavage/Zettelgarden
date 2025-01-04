@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { MenuIcon } from "../../assets/icons/MenuIcon";
 
 import { AdminUserIndex } from "./AdminUserIndex";
 import { AdminUserDetailPage } from "./AdminUserDetailPage";
@@ -14,6 +15,7 @@ import { Routes, Route } from "react-router-dom";
 export function Admin() {
   const { isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -35,8 +37,42 @@ export function Admin() {
   
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Fixed Sidebar */}
-      <div className="w-64 flex-shrink-0 bg-gray-800">
+      {/* Mobile Menu Button */}
+      <button
+        className="md:hidden fixed top-4 right-4 z-[60] p-2 bg-white rounded shadow"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        <MenuIcon />
+      </button>
+
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 md:hidden z-[45]"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`
+          fixed md:relative
+          w-64
+          min-w-[16rem]
+          max-w-[16rem]
+          flex-shrink-0
+          h-screen
+          bg-gray-800
+          flex flex-col
+          transform
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+          transition-transform
+          duration-300
+          ease-in-out
+          z-[50]
+        `}
+      >
         <div className="h-full flex flex-col">
           <div className="flex-1 overflow-y-auto py-4">
             <nav className="px-4">
@@ -45,6 +81,7 @@ export function Admin() {
                   <Link 
                     to="/admin" 
                     className="block py-2 px-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                    onClick={() => setIsSidebarOpen(false)}
                   >
                     Users
                   </Link>
@@ -53,6 +90,7 @@ export function Admin() {
                   <Link 
                     to="/admin/mailing-list" 
                     className="block py-2 px-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                    onClick={() => setIsSidebarOpen(false)}
                   >
                     Mailing List Subscribers
                   </Link>
@@ -61,6 +99,7 @@ export function Admin() {
                   <Link 
                     to="/admin/mailing-list/send" 
                     className="block py-2 px-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                    onClick={() => setIsSidebarOpen(false)}
                   >
                     Send Mailing List Message
                   </Link>
@@ -69,6 +108,7 @@ export function Admin() {
                   <Link 
                     to="/admin/mailing-list/history" 
                     className="block py-2 px-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                    onClick={() => setIsSidebarOpen(false)}
                   >
                     Message History
                   </Link>
@@ -77,6 +117,7 @@ export function Admin() {
                   <Link 
                     to="/app" 
                     className="block py-2 px-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                    onClick={() => setIsSidebarOpen(false)}
                   >
                     Back to App
                   </Link>

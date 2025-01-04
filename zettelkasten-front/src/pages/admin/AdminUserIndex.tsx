@@ -47,24 +47,12 @@ export function AdminUserIndex() {
         cell: (info) => (
           <Link
             to={`/admin/user/${info.row.original.id}`}
-            className="text-blue-600 hover:text-blue-800"
+            className={`hover:text-blue-800 ${
+              info.row.original.is_admin ? "text-purple-600" : "text-blue-600"
+            }`}
           >
             {info.getValue()}
           </Link>
-        ),
-      }),
-      columnHelper.accessor("is_admin", {
-        header: "Admin",
-        cell: (info) => (
-          <span
-            className={`px-2 py-1 rounded text-sm ${
-              info.getValue()
-                ? "bg-purple-100 text-purple-800"
-                : "bg-gray-100 text-gray-800"
-            }`}
-          >
-            {info.getValue() ? "Yes" : "No"}
-          </span>
         ),
       }),
       columnHelper.accessor("last_login", {
