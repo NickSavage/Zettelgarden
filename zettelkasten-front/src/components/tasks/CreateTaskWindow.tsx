@@ -66,10 +66,11 @@ export function CreateTaskWindow({
     setShowMenu(false);
     setShowTagMenu(true);
   }
-  async function handleAddTag(tag: string) {
+  async function handleAddRecurring(tag: string) {
     let editedTask = { ...newTask, title: newTask.title + " " + tag };
     setNewTask(editedTask);
     setShowTagMenu(false);
+    setShowMenu(false);
   }
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
@@ -136,13 +137,45 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
                   ⋮
                 </button>
                 {showMenu && (
-                  <div className="popup-menu">
-                    <button onClick={() => handleAddTagClick()}>Add Tag</button>
+                  <div className="absolute right-0 top-full bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[200px]">
+                    <button 
+                      onClick={() => handleAddTagClick()} 
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50"
+                    >
+                      Add Tag
+                    </button>
+                    <div className="h-px bg-gray-200 my-1"></div>
+                    <div className="py-1">
+                      <div className="px-4 py-1 text-sm font-medium text-gray-600">
+                        Recurring Task
+                      </div>
+                      <button 
+                        onClick={() => handleAddRecurring("every day")} 
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50"
+                      >
+                        Daily
+                      </button>
+                      <button 
+                        onClick={() => handleAddRecurring("every week")} 
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50"
+                      >
+                        Weekly
+                      </button>
+                      <button 
+                        onClick={() => handleAddRecurring("every month")} 
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50"
+                      >
+                        Monthly
+                      </button>
+                      <div className="px-4 py-2 text-xs text-gray-600 border-t border-gray-100 bg-gray-50">
+                        Tip: You can type "every X days/weeks/months" for custom intervals
+                      </div>
+                    </div>
                   </div>
                 )}
                 {showTagMenu && (
                   <div className="popup-menu">
-                    <AddTagMenu task={newTask} handleAddTag={handleAddTag} />
+                    <AddTagMenu task={newTask} handleAddTag={handleAddRecurring} />
                   </div>
                 )}
               </div>
