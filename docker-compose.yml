@@ -1,34 +1,49 @@
-version: "3"
+version: '3'
 
 services:
   frontend:
-    build:
-      context: ./zettelkasten-front
-      dockerfile: Dockerfile
-      args:
-        VITE_URL: ${VITE_URL}
     image: nsavage/zettelgarden_frontend:latest
+    restart: always
     ports:
       - "3001:3000"
-    environment:
-      - VITE_URL=${VITE_URL}
+    depends_on:
+      - go_backend
 
-  go-backend:
-    build:
-      context: ./go-backend
-      dockerfile: Dockerfile
+  go_backend:
     image: nsavage/zettelgarden_go_backend:latest
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - zettel.env
+    volumes:
+      - /var/log/zettel:/app/logs
+  db:
+    image: pgvector/pgvector:pg16
+    restart: always
+    env_file:
+      - zettel.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - /opt/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zettelkasten"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   mail-service:
-    build:
-      context: ./python-mail
-      dockerfile: Dockerfile
-    image: nsavage/zettelgarden_python_mail:latest
-    ports:
-      - "8081:8081"
-    env_file:
-      - .env
+      image: nsavage/zettelgarden_python_mail:latest
+      restart: always
+      ports:
+        - "8081:8081"
+      env_file:
+        - zettel.env
+      volumes:
+        - /var/log/zettel:/app/logs
