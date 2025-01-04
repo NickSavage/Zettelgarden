@@ -65,7 +65,6 @@ func ProcessQueue(c *models.LLMClient) {
 			}
 			continue
 		}
-		log.Printf("mainembeddings %v", request.Chunk)
 		err = StoreEmbeddings(
 			c.EmbeddingQueue.DB,
 			request.UserID,

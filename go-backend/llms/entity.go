@@ -71,6 +71,9 @@ Return only valid JSON matching the specified structure.`
 			log.Printf("error getting completion: %v", err)
 			return []models.Entity{}, err
 		}
+		if len(resp.Choices) == 0 {
+			continue
+		}
 		content := resp.Choices[0].Message.Content
 		content = strings.TrimPrefix(content, "```json")
 		content = strings.TrimSuffix(content, "```")
