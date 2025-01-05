@@ -5,6 +5,7 @@ import { FileRenameModal } from "../components/files/FileRenameModal";
 import { FileListItem } from "../components/files/FileListItem";
 import { FileUpload } from "../components/files/FileUpload";
 import { FilterInput } from "../components/FilterInput";
+import { Button } from "../components/Button";
 
 import { File } from "../models/File";
 import { defaultCard } from "../models/Card";
@@ -57,13 +58,12 @@ export function FileVault() {
         <FilterInput handleFilterHook={handleFilter} />
 
         <FileUpload
-							 
           setRefresh={setRefreshFiles}
           setMessage={(message: string) => {}}
           card={defaultCard}
         >
-	<button>Select File To Upload</button>
-	</FileUpload>
+          <Button>Select File To Upload</Button>
+        </FileUpload>
       </div>
       <FileRenameModal
         isOpen={isRenameModalOpen}
