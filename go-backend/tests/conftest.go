@@ -50,6 +50,7 @@ func Setup() *server.Server {
 	S.Mail = &mail.MailClient{
 		Testing:           true,
 		TestingEmailsSent: 0,
+		DB:                db,
 	}
 	S.TestInspector = &server.TestInspector{}
 	S.LLMClient = &models.LLMClient{Testing: true}
