@@ -285,13 +285,12 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 	u.id, u.username, u.email, u.created_at, u.updated_at,
 	u.is_admin, u.email_validated, u.can_upload_files,
 	u.stripe_subscription_status, u.max_file_storage, u.last_login,
-	u.last_seen, u.dashboard_card_pk, COUNT(c.*) as cards
+	u.last_seen, u.dashboard_card_pk,
+	(SELECT COUNT(*) FROM cards c WHERE c.user_id = u.id AND c.is_deleted = false) as cards,
+	(SELECT COUNT(*) FROM tasks t WHERE t.user_id = u.id AND t.is_deleted = false) as tasks,
+	(SELECT COUNT(*) FROM files f WHERE f.created_by = u.id AND f.is_deleted = false) as files
 	FROM users u 
-	LEFT JOIN cards c ON u.id = c.user_id
-	GROUP BY u.id, u.username, u.email, u.created_at, u.updated_at,
-	u.is_admin, u.email_validated, u.can_upload_files,
-	u.stripe_subscription_status, u.max_file_storage, u.last_login,
-	u.last_seen, u.dashboard_card_pk
+	GROUP BY u.id
 	ORDER BY u.id
 	`)
 	if err != nil {
@@ -315,6 +314,8 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.LastSeen,
 			&user.DashboardCardPK,
 			&user.CardCount,
+			&user.TaskCount,
+			&user.FileCount,
 		); err != nil {
 			return users, err
 		}

@@ -23,6 +23,8 @@ type User struct {
 	IsActive                    bool       `json:"is_active"`
 	DashboardCardPK             int        `json:"dashboard_card_pk"`
 	CardCount                   int        `json:"card_count"`
+	TaskCount                   int        `json:"task_count"`
+	FileCount                   int        `json:"file_count"`
 }
 
 type UserSubscription struct {

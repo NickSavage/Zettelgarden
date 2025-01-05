@@ -97,6 +97,14 @@ export function AdminUserIndex() {
         header: "Cards",
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor("task_count", {
+        header: "Tasks",
+        cell: (info) => info.getValue(),
+      }),
+      columnHelper.accessor("file_count", {
+        header: "Files",
+        cell: (info) => info.getValue(),
+      }),
     ],
     []
   );

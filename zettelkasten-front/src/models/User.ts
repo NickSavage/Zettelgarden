@@ -19,6 +19,8 @@ export interface User {
   is_active: boolean;
   dashboard_card_pk: number;
   card_count: number;
+  task_count: number;
+  file_count: number;
 }
 export const defaultUser: User = {
   id: 0,
@@ -41,6 +43,8 @@ export const defaultUser: User = {
   is_active: false,
   dashboard_card_pk: 0,
   card_count: 0,
+  task_count: 0,
+  file_count: 0,
 };
 
 export interface UserSubscription {
