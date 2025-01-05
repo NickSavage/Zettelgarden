@@ -28,6 +28,7 @@ export interface MailingListSubscriber {
   email: string;
   welcome_email_sent: boolean;
   subscribed: boolean;
+  has_account: boolean;
   created_at: string;
   updated_at: string;
 }

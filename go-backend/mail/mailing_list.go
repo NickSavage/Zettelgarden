@@ -224,3 +224,33 @@ func (m *MailClient) GetMessageRecipients(messageID int) ([]models.MailingListRe
 
 	return recipients, nil
 }
+
+func (m *MailClient) GetMailingListSubscribers() ([]models.MailingList, error) {
+	query := `
+		SELECT ml.id, ml.email, ml.created_at, ml.updated_at, 
+		       ml.welcome_email_sent, ml.subscribed,
+		       CASE WHEN u.id IS NOT NULL THEN true ELSE false END as has_account
+		FROM mailing_list ml
+		LEFT JOIN users u ON LOWER(ml.email) = LOWER(u.email)
+		ORDER BY ml.created_at DESC
+	`
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("error querying mailing list: %v", err)
+	}
+	defer rows.Close()
+
+	var subscribers []models.MailingList
+	for rows.Next() {
+		var s models.MailingList
+		err := rows.Scan(&s.ID, &s.Email, &s.CreatedAt, &s.UpdatedAt,
+			&s.WelcomeEmailSent, &s.Subscribed, &s.HasAccount)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning subscriber: %v", err)
+		}
+		subscribers = append(subscribers, s)
+	}
+
+	return subscribers, nil
+}

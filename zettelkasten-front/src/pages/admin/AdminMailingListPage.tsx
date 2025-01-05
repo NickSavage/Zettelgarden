@@ -96,6 +96,20 @@ export function AdminMailingListPage() {
           </span>
         ),
       }),
+      columnHelper.accessor("has_account", {
+        header: "Account Status",
+        cell: (info) => (
+          <span
+            className={`px-2 py-1 rounded text-sm ${
+              info.getValue()
+                ? "bg-purple-100 text-purple-800"
+                : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {info.getValue() ? "Has Account" : "No Account"}
+          </span>
+        ),
+      }),
       columnHelper.accessor("created_at", {
         header: "Created At",
         cell: (info) => new Date(info.getValue()).toLocaleString(),

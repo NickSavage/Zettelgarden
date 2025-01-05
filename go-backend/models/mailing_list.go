@@ -11,6 +11,7 @@ type MailingList struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 	WelcomeEmailSent bool      `json:"welcome_email_sent"`
 	Subscribed       bool      `json:"subscribed"`
+	HasAccount       bool      `json:"has_account"`
 }
 
 type MailingListMessage struct {
