@@ -3,7 +3,7 @@ version: '3'
 services:
   frontend:
     image: nsavage/zettelgarden_frontend:latest
-          #image: 192.168.0.97:50000/zettelkasten_frontend:latest
+    restart: always
     ports:
       - "3001:3000"
     depends_on:
@@ -11,7 +11,7 @@ services:
 
   go_backend:
     image: nsavage/zettelgarden_go_backend:latest
-      #image: 192.168.0.97:50000/zettelkasten_go_backend:latest
+    restart: always
     depends_on:
       db:
         condition: service_healthy
@@ -20,8 +20,11 @@ services:
       - "8080:8080"
     env_file:
       - zettel.env
+    volumes:
+      - /var/log/zettel:/app/logs
   db:
-    image: postgres
+    image: pgvector/pgvector:pg16
+    restart: always
     env_file:
       - zettel.env
     ports:
@@ -34,3 +37,13 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+
+  mail-service:
+      image: nsavage/zettelgarden_python_mail:latest
+      restart: always
+      ports:
+        - "8081:8081"
+      env_file:
+        - zettel.env
+      volumes:
+        - /var/log/zettel:/app/logs
