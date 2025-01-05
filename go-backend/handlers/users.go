@@ -286,9 +286,9 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 	u.is_admin, u.email_validated, u.can_upload_files,
 	u.stripe_subscription_status, u.max_file_storage, u.last_login,
 	u.last_seen, u.dashboard_card_pk,
-	(SELECT COUNT(*) FROM cards c WHERE c.user_id = u.id AND c.is_deleted = false) as cards,
-	(SELECT COUNT(*) FROM tasks t WHERE t.user_id = u.id AND t.is_deleted = false) as tasks,
-	(SELECT COUNT(*) FROM files f WHERE f.created_by = u.id AND f.is_deleted = false) as files
+	(SELECT COUNT(*) FROM cards c WHERE c.user_id = u.id) as cards,
+	(SELECT COUNT(*) FROM tasks t WHERE t.user_id = u.id) as tasks,
+	(SELECT COUNT(*) FROM files f WHERE f.created_by = u.id) as files
 	FROM users u 
 	GROUP BY u.id
 	ORDER BY u.id
