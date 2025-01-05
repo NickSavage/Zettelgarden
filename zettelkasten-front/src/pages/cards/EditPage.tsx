@@ -78,6 +78,7 @@ export function EditPage({ newCard }: EditPageProps) {
     if (!newCard) {
       fetchCard(id!);
     } else {
+      document.title = "Zettelgarden - New Card";
       setEditingCard({
         ...defaultCard,
         card_id: lastCard ? lastCard.card_id : "",
