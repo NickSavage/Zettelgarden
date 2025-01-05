@@ -7,6 +7,7 @@ export interface User {
   updated_at: string;
   is_admin: boolean;
   last_login: string;
+  last_seen: string;
   email_validated: boolean;
   can_upload_files: boolean;
   max_file_storage: number;
@@ -28,6 +29,7 @@ export const defaultUser: User = {
   updated_at: "",
   is_admin: false,
   last_login: "",
+  last_seen: "",
   email_validated: false,
   can_upload_files: false,
   max_file_storage: 0,

@@ -281,20 +281,18 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 
 	users := []models.User{}
 	rows, err := s.DB.Query(`
-
 		SELECT 
 	u.id, u.username, u.email, u.created_at, u.updated_at,
 	u.is_admin, u.email_validated, u.can_upload_files,
 	u.stripe_subscription_status, u.max_file_storage, u.last_login,
-	u.dashboard_card_pk, COUNT(c.*) as cards
+	u.last_seen, u.dashboard_card_pk, COUNT(c.*) as cards
 	FROM users u 
 	LEFT JOIN cards c ON u.id = c.user_id
 	GROUP BY u.id, u.username, u.email, u.created_at, u.updated_at,
 	u.is_admin, u.email_validated, u.can_upload_files,
 	u.stripe_subscription_status, u.max_file_storage, u.last_login,
-	u.dashboard_card_pk
+	u.last_seen, u.dashboard_card_pk
 	ORDER BY u.id
-	
 	`)
 	if err != nil {
 		return users, err
@@ -314,6 +312,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.StripeSubscriptionStatus,
 			&user.MaxFileStorage,
 			&user.LastLogin,
+			&user.LastSeen,
 			&user.DashboardCardPK,
 			&user.CardCount,
 		); err != nil {
@@ -340,8 +339,8 @@ func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage, last_login,
-        dashboard_card_pk
+	stripe_subscription_status, max_file_storage, last_login,
+	last_seen, dashboard_card_pk
 	FROM users WHERE email = $1
 	`, email).Scan(
 		&user.ID,
@@ -356,6 +355,7 @@ func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 		&user.StripeSubscriptionStatus,
 		&user.MaxFileStorage,
 		&user.LastLogin,
+		&user.LastSeen,
 		&user.DashboardCardPK,
 	)
 	if err != nil {
@@ -376,8 +376,8 @@ func (s *Handler) QueryUser(id int) (models.User, error) {
 	SELECT 
 	id, username, email, password, created_at, updated_at, 
 	is_admin, email_validated, can_upload_files, 
-	stripe_subscription_status,max_file_storage, last_login,
-        dashboard_card_pk
+	stripe_subscription_status, max_file_storage, last_login,
+	last_seen, dashboard_card_pk
 	FROM users WHERE id = $1
 	`, id).Scan(
 		&user.ID,
@@ -392,6 +392,7 @@ func (s *Handler) QueryUser(id int) (models.User, error) {
 		&user.StripeSubscriptionStatus,
 		&user.MaxFileStorage,
 		&user.LastLogin,
+		&user.LastSeen,
 		&user.DashboardCardPK,
 	)
 	if err != nil {
@@ -546,4 +547,23 @@ func (s *Handler) sendEmailValidation(user models.User) error {
 
 	s.Server.Mail.SendEmail("Please confirm your Zettelgarden email", user.Email, messageBody)
 	return nil
+}
+
+func (s *Handler) UpdateLastSeen(userID int) error {
+	query := `
+		UPDATE users 
+		SET last_seen = NOW() 
+		WHERE id = $1
+	`
+	_, err := s.DB.Exec(query, userID)
+	return err
+}
+
+func (s *Handler) UpdateLastSeenMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if userID, ok := r.Context().Value("current_user").(int); ok {
+			go s.UpdateLastSeen(userID) // Run asynchronously to not block the request
+		}
+		next.ServeHTTP(w, r)
+	}
 }

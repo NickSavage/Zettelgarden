@@ -65,7 +65,13 @@ export function AdminUserDetailPage() {
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 font-medium w-32">Last Login:</span>
               <span className="text-gray-900">
-                {new Date(user.last_login).toLocaleString()}
+                {user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-600 font-medium w-32">Last Seen:</span>
+              <span className="text-gray-900">
+                {user.last_seen ? new Date(user.last_seen).toLocaleString() : 'Never'}
               </span>
             </div>
           </div>

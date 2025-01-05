@@ -74,6 +74,15 @@ func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		// Add the claims to the request context
 		ctx := context.WithValue(r.Context(), "current_user", claims.Sub)
+
+		// Update last_seen asynchronously
+		go func() {
+			_, err := s.DB.Exec("UPDATE users SET last_seen = NOW() WHERE id = $1", claims.Sub)
+			if err != nil {
+				log.Printf("Error updating last_seen: %v", err)
+			}
+		}()
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

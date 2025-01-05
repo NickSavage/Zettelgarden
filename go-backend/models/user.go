@@ -11,6 +11,7 @@ type User struct {
 	UpdatedAt                   time.Time  `json:"updated_at"`
 	IsAdmin                     bool       `json:"is_admin"`
 	LastLogin                   *time.Time `json:"last_login"`
+	LastSeen                    *time.Time `json:"last_seen"`
 	EmailValidated              bool       `json:"email_validated"`
 	CanUploadFiles              bool       `json:"can_upload_files"`
 	MaxFileStorage              int        `json:"max_file_storage"`

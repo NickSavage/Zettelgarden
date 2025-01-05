@@ -57,7 +57,11 @@ export function AdminUserIndex() {
       }),
       columnHelper.accessor("last_login", {
         header: "Last Login",
-        cell: (info) => new Date(info.getValue()).toLocaleString(),
+        cell: (info) => info.getValue() ? new Date(info.getValue()).toLocaleString() : 'Never',
+      }),
+      columnHelper.accessor("last_seen", {
+        header: "Last Seen",
+        cell: (info) => info.getValue() ? new Date(info.getValue()).toLocaleString() : 'Never',
       }),
       columnHelper.accessor("email", {
         header: "Email",
