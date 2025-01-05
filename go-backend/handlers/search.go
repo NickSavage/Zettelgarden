@@ -174,7 +174,7 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 		entityCondition := fmt.Sprintf(`EXISTS (
             SELECT 1 FROM entity_card_junction ecj
             JOIN entities e ON ecj.entity_id = e.id
-            WHERE ecj.card_pk = cards.id AND e.name = '%s'
+            WHERE ecj.card_pk = c.id AND e.name = '%s'
         )`, entity)
 		entityConditions = append(entityConditions, entityCondition)
 	}
@@ -184,7 +184,7 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 		entityCondition := fmt.Sprintf(`NOT EXISTS (
             SELECT 1 FROM entity_card_junction ecj
             JOIN entities e ON ecj.entity_id = e.id
-            WHERE ecj.card_pk = cards.id AND e.name = '%s'
+            WHERE ecj.card_pk = c.id AND e.name = '%s'
         )`, entity)
 		negateEntityConditions = append(negateEntityConditions, entityCondition)
 	}
