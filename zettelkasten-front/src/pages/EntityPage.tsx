@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Entity } from "../../models/Card";
-import { fetchEntities, mergeEntities, deleteEntity } from "../../api/entities";
-import { HeaderSection } from "../Header";
+import { Entity } from "../models/Card";
+import { fetchEntities, mergeEntities, deleteEntity } from "../api/entities";
+import { HeaderSection } from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { Dialog } from "@headlessui/react";
-import { EditEntityDialog } from "./EditEntityDialog";
-import { EntityCard } from "./EntityCard";
-import { EntityListToolbar } from "./EntityListToolbar";
-import { EntitySelectionActions } from "./EntitySelectionActions";
+import { EditEntityDialog } from "../components/entities/EditEntityDialog";
+import { EntityCard } from "../components/entities/EntityCard";
+import { EntityListToolbar } from "../components/entities/EntityListToolbar";
+import { EntitySelectionActions } from "../components/entities/EntitySelectionActions";
 
-export function EntityList() {
+export function EntityPage() {
   const [entities, setEntities] = useState<Entity[]>([]);
   const [filteredEntities, setFilteredEntities] = useState<Entity[]>([]);
   const [filterText, setFilterText] = useState("");
@@ -382,4 +382,4 @@ export function EntityList() {
       />
     </div>
   );
-}
+} 
