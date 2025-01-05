@@ -116,7 +116,7 @@ func TestBuildPartialCardSqlSearchTermStringWithEntities(t *testing.T) {
 			contains: []string{
 				"EXISTS(SELECT1FROMentity_card_junctionecj",
 				"JOINentitieseONecj.entity_id=e.id",
-				"WHEREecj.card_pk=cards.idANDe.name='JohnSmith'",
+				"WHEREecj.card_pk=c.idANDe.name='JohnSmith'",
 			},
 		},
 		{
@@ -126,7 +126,7 @@ func TestBuildPartialCardSqlSearchTermStringWithEntities(t *testing.T) {
 			contains: []string{
 				"NOTEXISTS(SELECT1FROMentity_card_junctionecj",
 				"JOINentitieseONecj.entity_id=e.id",
-				"WHEREecj.card_pk=cards.idANDe.name='ProjectAlpha'",
+				"WHEREecj.card_pk=c.idANDe.name='ProjectAlpha'",
 			},
 		},
 		{
@@ -136,9 +136,9 @@ func TestBuildPartialCardSqlSearchTermStringWithEntities(t *testing.T) {
 			contains: []string{
 				"card_idILIKE'%hello%'ORtitleILIKE'%hello%'",
 				"EXISTS(SELECT1FROMentity_card_junctionecj",
-				"WHEREecj.card_pk=cards.idANDe.name='JohnSmith'",
+				"WHEREecj.card_pk=c.idANDe.name='JohnSmith'",
 				"NOTEXISTS(SELECT1FROMentity_card_junctionecj",
-				"WHEREecj.card_pk=cards.idANDe.name='ProjectBeta'",
+				"WHEREecj.card_pk=c.idANDe.name='ProjectBeta'",
 			},
 		},
 	}
