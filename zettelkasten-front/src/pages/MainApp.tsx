@@ -15,7 +15,7 @@ import { BillingCancelled } from "./BillingCancelled";
 import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
 import { ChatPage } from "../components/chat/ChatPage";
-
+import { GettingStartedPage } from "./GettingStartedPage";
 import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
 import { TagsPage } from "./TagsPage";
@@ -102,6 +102,7 @@ function MainAppContent() {
 
                 <Route path="card/new" element={<EditPage newCard={true} />} />
                 <Route path="settings" element={<UserSettingsPage />} />
+                <Route path="help" element={<GettingStartedPage />} />
                 <Route path="files" element={<FileVault />} />
                 <Route path="tasks" element={<TaskPage />} />
                 <Route path="tags" element={<TagsPage />} />

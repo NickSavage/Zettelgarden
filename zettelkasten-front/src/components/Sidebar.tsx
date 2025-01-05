@@ -30,6 +30,7 @@ import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
 import { EntityIcon } from "../assets/icons/EntityIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
+import { BookOpenIcon } from "../assets/icons/BookOpenIcon";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -270,18 +271,24 @@ export function Sidebar() {
                 <EntityIcon />
               <span className="flex-grow">Entities</span>
             </SidebarLink>
+          </ul>
+        </div>
+        <hr />
+        <div className="p-2">
+          <ul className="space-y-1">
 
+            <SidebarLink to="/app/help">
+                <BookOpenIcon />
+              <span className="flex-grow">Getting Started</span>
+            </SidebarLink>
             <SidebarLink to="/app/settings">
                 <SettingsIcon />
               <span className="flex-grow">Settings</span>
             </SidebarLink>
 
-            <SidebarLink to="/">
-                <FileIcon />
-              <span className="flex-grow">Help</span>
-            </SidebarLink>
           </ul>
         </div>
+
         <hr />
       </div>
       {/* Modal Windows */}
