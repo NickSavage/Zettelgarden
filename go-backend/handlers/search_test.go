@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"go-backend/tests"
 	"strings"
 	"testing"
 )
@@ -59,7 +60,7 @@ func TestBuildPartialCardSqlSearchTermString(t *testing.T) {
 	AND (EXISTS (
 	            SELECT 1 FROM card_tags
 	            JOIN tags ON card_tags.tag_id = tags.id
-	            WHERE card_tags.card_pk = cards.id AND tags.name = 'world' AND tags.is_deleted = FALSE
+	            WHERE card_tags.card_pk = c.id AND tags.name = 'world' AND tags.is_deleted = FALSE
 	        )) AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%'))
 			`
 	expectedOutput = strings.ReplaceAll(expectedOutput, " ", "")
@@ -88,7 +89,7 @@ func TestBuildPartialCardSqlSearchTermStringNegate(t *testing.T) {
 AND ((card_id ILIKE '%hello%' OR title ILIKE '%hello%')) AND (NOT EXISTS (
             SELECT 1 FROM card_tags
             JOIN tags ON card_tags.tag_id = tags.id
-            WHERE card_tags.card_pk = cards.id AND tags.name = 'world' AND tags.is_deleted = FALSE
+            WHERE card_tags.card_pk = c.id AND tags.name = 'world' AND tags.is_deleted = FALSE
         ))
 `
 	expectedOutput = strings.ReplaceAll(expectedOutput, " ", "")
@@ -158,6 +159,46 @@ func TestBuildPartialCardSqlSearchTermStringWithEntities(t *testing.T) {
 				if !strings.Contains(normalizedResult, str) {
 					t.Errorf("Expected SQL to contain '%s', but it didn't.\nGot: %s", str, result)
 				}
+			}
+		})
+	}
+}
+
+// Add an integration test that actually executes the query
+func TestClassicSearch(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Create test data including entities
+	// ... setup code ...
+
+	testCases := []struct {
+		name       string
+		searchTerm string
+		wantCount  int
+	}{
+		{
+			name:       "entity search",
+			searchTerm: "@[Test Entity 1]",
+			wantCount:  2,
+		},
+		{
+			name:       "tag search",
+			searchTerm: "#test",
+			wantCount:  1,
+		},
+		// ... more test cases ...
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			cards, err := s.ClassicSearch(1, tc.searchTerm)
+			if err != nil {
+				t.Errorf("ClassicSearch() error = %v", err)
+				return
+			}
+			if len(cards) != tc.wantCount {
+				t.Errorf("ClassicSearch() got %v cards, want %v", len(cards), tc.wantCount)
 			}
 		})
 	}

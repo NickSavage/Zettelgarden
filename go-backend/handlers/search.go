@@ -155,7 +155,7 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 		tagCondition := fmt.Sprintf(`EXISTS (
             SELECT 1 FROM card_tags
             JOIN tags ON card_tags.tag_id = tags.id
-            WHERE card_tags.card_pk = cards.id AND tags.name = '%s' AND tags.is_deleted = FALSE
+            WHERE card_tags.card_pk = c.id AND tags.name = '%s' AND tags.is_deleted = FALSE
         )`, tag)
 		tagConditions = append(tagConditions, tagCondition)
 	}
@@ -164,7 +164,7 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 		tagCondition := fmt.Sprintf(`NOT EXISTS (
             SELECT 1 FROM card_tags
             JOIN tags ON card_tags.tag_id = tags.id
-            WHERE card_tags.card_pk = cards.id AND tags.name = '%s' AND tags.is_deleted = FALSE
+            WHERE card_tags.card_pk = c.id AND tags.name = '%s' AND tags.is_deleted = FALSE
         )`, tag)
 		negateTagsConditions = append(negateTagsConditions, tagCondition)
 	}
