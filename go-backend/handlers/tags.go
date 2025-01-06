@@ -135,6 +135,30 @@ func (s *Handler) GetTagsRoute(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *Handler) CreateTagRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	var tagData models.EditTagParams
+	if err := json.NewDecoder(r.Body).Decode(&tagData); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if tagData.Name == "" {
+		http.Error(w, "Tag name is required", http.StatusBadRequest)
+		return
+	}
+
+	tag, err := s.CreateTag(userID, tagData)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating tag: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tag)
+}
+
 func (s *Handler) CreateTag(userID int, tagData models.EditTagParams) (models.Tag, error) {
 
 	_, err := s.GetTagMaybeDeleted(userID, tagData.Name)

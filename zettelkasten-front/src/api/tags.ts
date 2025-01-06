@@ -42,3 +42,30 @@ export function deleteTag(id: number): Promise<Tag | null> {
       }
     });
 }
+
+interface CreateTagParams {
+  name: string;
+  color: string;
+}
+
+export function createTag(params: CreateTagParams): Promise<Tag> {
+  const url = base_url + `/tags`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<Tag>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}

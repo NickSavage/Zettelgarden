@@ -76,6 +76,44 @@ func TestGetTagsRoute(t *testing.T) {
 	}
 }
 
+func TestCreateTagRoute(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
+
+	tagData := models.EditTagParams{
+		Name:  "new-test-tag",
+		Color: "blue",
+	}
+	jsonData, _ := json.Marshal(tagData)
+
+	req, err := http.NewRequest("POST", "/api/tags", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(s.JwtMiddleware(s.CreateTagRoute))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var tag models.Tag
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &tag)
+
+	if tag.Name != tagData.Name {
+		t.Errorf("handler returned wrong tag name: got %v want %v", tag.Name, tagData.Name)
+	}
+	if tag.Color != tagData.Color {
+		t.Errorf("handler returned wrong tag color: got %v want %v", tag.Color, tagData.Color)
+	}
+}
+
 // create new tag
 
 func TestCreateTag(t *testing.T) {

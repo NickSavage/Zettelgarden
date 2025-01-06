@@ -1,15 +1,35 @@
 import React, { useState } from "react";
 import { useTagContext } from "../../contexts/TagContext";
 import { TagListItem } from "./TagListItem";
+import { createTag } from "../../api/tags";
 
 interface TagListInterface {}
 
 type SortOption = "name" | "name-desc" | "tasks-asc" | "tasks-desc" | "cards-asc" | "cards-desc";
 
 export function TagList({}: TagListInterface) {
-  const { tags } = useTagContext();
+  const { tags, setRefreshTags } = useTagContext();
   const [sortOption, setSortOption] = useState<SortOption>("name");
   const [filterText, setFilterText] = useState<string>("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newTagName, setNewTagName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCreateTag = async () => {
+    try {
+      setError(null);
+      if (!newTagName.trim()) {
+        setError("Tag name is required");
+        return;
+      }
+      await createTag({ name: newTagName.trim(), color: "black" });
+      setNewTagName("");
+      setIsCreateModalOpen(false);
+      setRefreshTags(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create tag");
+    }
+  };
 
   const filteredTags = (tags || []).filter(tag =>
     tag.name.toLowerCase().includes(filterText.toLowerCase())
@@ -36,7 +56,49 @@ export function TagList({}: TagListInterface) {
 
   return (
     <div className="p-4 max-w-full">
-      <h2 className="text-2xl font-bold mb-4">Tags</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Tags</h2>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Create Tag
+        </button>
+      </div>
+
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Create New Tag</h3>
+            {error && <div className="text-red-500 mb-4">{error}</div>}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Name</label>
+              <input
+                type="text"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                className="border border-gray-300 rounded px-3 py-2 w-full"
+                placeholder="Enter tag name"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateTag}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-4 flex flex-wrap items-center gap-4">
         <div className="flex-grow">
           <label className="mr-2">Filter:</label>
