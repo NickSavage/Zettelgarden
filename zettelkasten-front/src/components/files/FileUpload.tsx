@@ -1,24 +1,23 @@
 import React, { useRef, forwardRef, ForwardedRef } from "react";
-
 import { Card } from "../../models/Card";
 import { uploadFile } from "../../api/files";
 import { Button } from "../../components/Button";
+import { useFileContext } from "../../contexts/FileContext";
 
 interface FileUploadProps {
-  setRefresh: (refresh: boolean) => void;
   setMessage: (message: string) => void;
   card: Card;
-  children?: React.ReactNode; // Made optional since we might not always need it
+  children?: React.ReactNode;
 }
 
 export const FileUpload = forwardRef(({
-  setRefresh,
   setMessage,
   card,
   children,
 }: FileUploadProps, ref: ForwardedRef<HTMLInputElement>) => {
   const localFileInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = (ref || localFileInputRef) as React.RefObject<HTMLInputElement>;
+  const { setRefreshFiles } = useFileContext();
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -34,7 +33,7 @@ export const FileUpload = forwardRef(({
             setMessage(
               "File uploaded successfully: " + response["file"]["name"],
             );
-            setRefresh(true);
+            setRefreshFiles(true);
           }
         } catch (error) {
           setMessage("Error uploading file: " + error);
@@ -57,7 +56,7 @@ export const FileUpload = forwardRef(({
         ref={inputRef}
         style={{ display: "none" }}
         onChange={handleFileSelect}
-        multiple // Optional: allows multiple file selection
+        multiple
       />
     </div>
   );

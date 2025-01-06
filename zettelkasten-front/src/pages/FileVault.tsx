@@ -6,6 +6,7 @@ import { FileListItem } from "../components/files/FileListItem";
 import { FileUpload } from "../components/files/FileUpload";
 import { FilterInput } from "../components/FilterInput";
 import { Button } from "../components/Button";
+import { useFileContext } from "../contexts/FileContext";
 
 import { File } from "../models/File";
 import { defaultCard } from "../models/Card";
@@ -15,8 +16,8 @@ export function FileVault() {
   const [files, setFiles] = useState<File[]>([]);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState<File | null>(null);
-  const [refreshFiles, setRefreshFiles] = useState<boolean>(false);
   const [filterString, setFilterString] = useState<string>("");
+  const { refreshFiles, setRefreshFiles } = useFileContext();
 
   function onDelete(file_id: number) {
     setFiles(files.filter((file) => file.id !== file_id));
@@ -39,10 +40,9 @@ export function FileVault() {
     );
     setIsRenameModalOpen(false);
   }
+  
   useEffect(() => {
-    console.log("refresh?");
     if (refreshFiles) {
-      console.log("refresh!");
       getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
       setRefreshFiles(false);
     }
@@ -52,13 +52,13 @@ export function FileVault() {
     document.title = "Zettelgarden - Files";
     setRefreshFiles(true);
   }, []);
+
   return (
     <>
       <div className="bg-slate-200 p-2 border-slate-400 border">
         <FilterInput handleFilterHook={handleFilter} />
 
         <FileUpload
-          setRefresh={setRefreshFiles}
           setMessage={(message: string) => {}}
           card={defaultCard}
         >
@@ -76,6 +76,7 @@ export function FileVault() {
           <ul>
             {files.filter(filterFiles).map((file, index) => (
               <FileListItem
+                key={file.id}
                 file={file}
                 onDelete={onDelete}
                 setRefreshFiles={setRefreshFiles}
@@ -83,7 +84,7 @@ export function FileVault() {
             ))}
           </ul>
         ) : (
-          <p>No files to display.</p> // Custom message when files array is empty
+          <p>No files to display.</p>
         )}
       </div>
     </>

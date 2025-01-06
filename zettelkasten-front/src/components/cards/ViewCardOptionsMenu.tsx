@@ -85,7 +85,6 @@ export function ViewCardOptionsMenu({
       <PopupMenu options={menuOptions} isOpen={showMenu} />
       <FileUpload
         ref={fileUploadRef}
-        setRefresh={() => {}}
         setMessage={setMessage}
         card={viewingCard}
       />

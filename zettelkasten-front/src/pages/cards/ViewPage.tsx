@@ -10,6 +10,7 @@ import { Card, PartialCard } from "../../models/Card";
 import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { useTaskContext } from "../../contexts/TaskContext";
+import { useFileContext } from "../../contexts/FileContext";
 
 import { Button } from "../../components/Button";
 import { HeaderTop, HeaderSubSection } from "../../components/Header";
@@ -27,6 +28,7 @@ export function ViewPage({}: ViewPageProps) {
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
   const { refreshTasks, setRefreshTasks } = useTaskContext();
+  const { refreshFiles } = useFileContext();
   const { id } = useParams<{ id: string }>();
 
   const navigate = useNavigate();
@@ -87,7 +89,7 @@ export function ViewPage({}: ViewPageProps) {
   useEffect(() => {
     setError("");
     fetchCard(id!);
-  }, [id, refreshTasks]);
+  }, [id, refreshTasks, refreshFiles]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">

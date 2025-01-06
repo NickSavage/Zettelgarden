@@ -27,6 +27,7 @@ import {
   usePartialCardContext,
 } from "../contexts/CardContext";
 import { ShortcutProvider } from "../contexts/ShortcutContext";
+import { FileProvider } from "../contexts/FileContext";
 import { EntityPage } from "./EntityPage";
 
 function MainAppContent() {
@@ -130,7 +131,9 @@ function MainApp() {
         <PartialCardProvider>
           <TaskProvider>
             <ShortcutProvider>
-              <MainAppContent />
+              <FileProvider>
+                <MainAppContent />
+              </FileProvider>
             </ShortcutProvider>
           </TaskProvider>
         </PartialCardProvider>

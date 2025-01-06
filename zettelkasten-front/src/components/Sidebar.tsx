@@ -207,7 +207,6 @@ export function Sidebar() {
                   Create A Task
                 </button>
                 <FileUpload
-                  setRefresh={(refresh) => {}}
                   setMessage={setMessage}
                   card={defaultCard}
                 >
