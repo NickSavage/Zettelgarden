@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Tag } from "../../models/Tags";
 import { deleteTag } from "../../api/tags";
 import { useTagContext } from "../../contexts/TagContext";
+import { PopupMenu } from "../common/PopupMenu";
 
 interface TagListItemInterface {
   tag: Tag;
@@ -40,8 +41,14 @@ export function TagListItem({ tag }: TagListItemInterface) {
     setShowMenu(false);
   }
 
+  const menuOptions = [
+    { label: "View Cards", onClick: handleViewCards },
+    { label: "View Tasks", onClick: handleViewTasks },
+    { label: "Delete", onClick: handleDelete, className: "text-red-600" }
+  ];
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all cursor-pointer">
+    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all cursor-pointer relative">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold">{tag.name}</h3>
         <button onClick={toggleMenu} className="text-gray-600 hover:text-blue-600">
@@ -56,19 +63,7 @@ export function TagListItem({ tag }: TagListItemInterface) {
           Cards: {tag.card_count}
         </span>
       </div>
-      {showMenu && (
-        <div className="popup-menu mt-2">
-          <button onClick={handleViewCards} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-            View Cards
-          </button>
-          <button onClick={handleViewTasks} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-            View Tasks
-          </button>
-          <button onClick={handleDelete} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">
-            Delete
-          </button>
-        </div>
-      )}
+      <PopupMenu options={menuOptions} isOpen={showMenu} />
     </div>
   );
 }

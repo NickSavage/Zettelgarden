@@ -7,6 +7,7 @@ import { Button } from "../../components/Button";
 import { FileUpload } from "../../components/files/FileUpload";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { Card } from "../../models/Card";
+import { PopupMenu } from "../common/PopupMenu";
 
 interface ViewCardOptionsMenu {
   viewingCard: Card;
@@ -25,6 +26,9 @@ export function ViewCardOptionsMenu({
     useState<boolean>(false);
   const { setRefreshTasks } = useTaskContext();
   const { tags } = useTagContext();
+
+  // Create a ref for the file upload component
+  const fileUploadRef = React.useRef<HTMLInputElement>(null);
 
   function toggleCreateTaskWindow() {
     setShowCreateTaskWindow(!showCreateTaskWindow);
@@ -58,29 +62,36 @@ export function ViewCardOptionsMenu({
     setViewCard(editedCard);
   }
 
+  const menuOptions = [
+    { label: "Add Task", onClick: toggleCreateTaskWindow },
+    { 
+      label: "Select File To Upload", 
+      onClick: () => {
+        setShowMenu(false);
+        // Trigger the file upload input
+        if (fileUploadRef.current) {
+          fileUploadRef.current.click();
+        }
+      }
+    },
+    { label: "Add Tags", onClick: toggleTagMenu }
+  ];
+
   return (
-    <div>
-      <div className="dropdown">
-        <button
-          onClick={toggleMenu}
-          className="font-semibold rounded focus:outline-none focus:ring-2 focus:ring-offset-2 bg-palette-dark text-white hover:bg-palette-darkest focus:ring-blue-500"
-        >
-          Actions
-        </button>
-        {showMenu && (
-          <div className="popup-menu w-64">
-            <button onClick={toggleCreateTaskWindow}>Add Task</button>
-            <FileUpload
-              setRefresh={(refresh: boolean) => {}}
-              setMessage={setMessage}
-              card={viewingCard}
-            >
-              <button>Select File To Upload</button>
-            </FileUpload>
-            <button onClick={toggleTagMenu}>Add Tags</button>
-          </div>
-        )}
-      </div>
+    <div className="relative">
+      <button
+        onClick={toggleMenu}
+        className="font-semibold rounded focus:outline-none focus:ring-2 focus:ring-offset-2 bg-palette-dark text-white hover:bg-palette-darkest focus:ring-blue-500"
+      >
+        Actions
+      </button>
+      <PopupMenu options={menuOptions} isOpen={showMenu} />
+      <FileUpload
+        ref={fileUploadRef}
+        setRefresh={() => {}}
+        setMessage={setMessage}
+        card={viewingCard}
+      />
       {showTagMenu && (
         <SearchTagDropdown
           tags={tags}

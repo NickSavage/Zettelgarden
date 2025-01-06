@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, forwardRef, ForwardedRef } from "react";
 
 import { Card } from "../../models/Card";
 import { uploadFile } from "../../api/files";
@@ -8,16 +8,17 @@ interface FileUploadProps {
   setRefresh: (refresh: boolean) => void;
   setMessage: (message: string) => void;
   card: Card;
-  children: React.ReactNode; // This will be your button/trigger element
+  children?: React.ReactNode; // Made optional since we might not always need it
 }
 
-export function FileUpload({
+export const FileUpload = forwardRef(({
   setRefresh,
   setMessage,
   card,
   children,
-}: FileUploadProps) {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+}: FileUploadProps, ref: ForwardedRef<HTMLInputElement>) => {
+  const localFileInputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = (ref || localFileInputRef) as React.RefObject<HTMLInputElement>;
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -43,21 +44,21 @@ export function FileUpload({
   };
 
   const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+    if (inputRef.current) {
+      inputRef.current.click();
     }
   };
 
   return (
     <div>
-      <div onClick={handleButtonClick}>{children}</div>
+      {children && <div onClick={handleButtonClick}>{children}</div>}
       <input
         type="file"
-        ref={fileInputRef}
+        ref={inputRef}
         style={{ display: "none" }}
         onChange={handleFileSelect}
         multiple // Optional: allows multiple file selection
       />
     </div>
   );
-}
+});
