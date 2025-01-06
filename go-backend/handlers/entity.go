@@ -520,56 +520,67 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 		return fmt.Errorf("an entity with this name already exists")
 	}
 
-	// Generate new embedding
-	entity := models.Entity{
-		ID:          entityID,
-		UserID:      userID,
-		Name:        params.Name,
-		Description: params.Description,
-		Type:        params.Type,
-	}
-
-	var updateQuery string
-	var queryArgs []interface{}
-
-	if s.Server.Testing {
-		// In test mode, don't update the embedding
-		updateQuery = `
-			UPDATE entities 
-			SET name = $1, 
-				description = $2,
-				type = $3,
-				card_pk = $4,
-				updated_at = NOW()
-			WHERE id = $5 AND user_id = $6`
-		queryArgs = []interface{}{params.Name, params.Description, params.Type, params.CardPK, entityID, userID}
-	} else {
-		// In normal mode, update with new embedding
-		embedding, err := llms.GenerateEntityEmbedding(s.Server.LLMClient, entity)
-		if err != nil {
-			return fmt.Errorf("failed to generate embedding: %w", err)
-		}
-		updateQuery = `
-			UPDATE entities 
-			SET name = $1, 
-				description = $2,
-				type = $3,
-				card_pk = $4,
-				embedding = $5,
-				updated_at = NOW()
-			WHERE id = $6 AND user_id = $7`
-		queryArgs = []interface{}{params.Name, params.Description, params.Type, params.CardPK, embedding, entityID, userID}
-	}
-
-	// Update the entity
-	_, err = tx.Exec(updateQuery, queryArgs...)
+	// First update the entity without the embedding
+	_, err = tx.Exec(`
+		UPDATE entities 
+		SET name = $1, 
+			description = $2,
+			type = $3,
+			card_pk = $4,
+			updated_at = NOW()
+		WHERE id = $5 AND user_id = $6`,
+		params.Name, params.Description, params.Type, params.CardPK, entityID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to update entity: %w", err)
 	}
 
-	// Commit transaction
+	// Commit transaction for the basic update
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	// Only attempt to update embedding if not in test mode
+	if !s.Server.Testing {
+		// Launch goroutine to handle embedding update
+		go func() {
+			entity := models.Entity{
+				ID:          entityID,
+				UserID:      userID,
+				Name:        params.Name,
+				Description: params.Description,
+				Type:        params.Type,
+			}
+
+			embedding, err := llms.GenerateEntityEmbedding(s.Server.LLMClient, entity)
+			if err != nil {
+				log.Printf("Error generating embedding for entity %d: %v", entityID, err)
+				return
+			}
+
+			// Update the embedding in a new transaction
+			tx, err := s.DB.Begin()
+			if err != nil {
+				log.Printf("Error starting transaction for embedding update for entity %d: %v", entityID, err)
+				return
+			}
+			defer tx.Rollback()
+
+			_, err = tx.Exec(`
+				UPDATE entities 
+				SET embedding = $1,
+					updated_at = NOW()
+				WHERE id = $2 AND user_id = $3`,
+				embedding, entityID, userID)
+			if err != nil {
+				log.Printf("Error updating embedding for entity %d: %v", entityID, err)
+				return
+			}
+
+			if err = tx.Commit(); err != nil {
+				log.Printf("Error committing embedding update for entity %d: %v", entityID, err)
+				return
+			}
+		}()
 	}
 
 	return nil
