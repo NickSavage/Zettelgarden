@@ -3,7 +3,6 @@ package llms
 import (
 	"fmt"
 	"go-backend/models"
-	"log"
 	"strconv"
 	"strings"
 
@@ -11,7 +10,6 @@ import (
 )
 
 func RerankResults(c *models.LLMClient, query string, input []models.CardChunk) ([]float64, error) {
-	log.Printf("start")
 	summaries := make([]string, len(input))
 	for i, result := range input {
 		// Create a brief summary of each result
@@ -40,7 +38,6 @@ Documents to rate:
 			Content: prompt,
 		},
 	})
-	log.Printf("resp %v", resp)
 	scores := parseScores(resp.Choices[0].Message.Content)
 	if err != nil {
 		return []float64{}, err

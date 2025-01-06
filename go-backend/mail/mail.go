@@ -91,13 +91,11 @@ func (m *MailClient) SendEmail(subject, recipient, body string) error {
 	}
 	m.Queue.Push(email)
 	m.startProcessing()
-	log.Printf("?")
 
 	return nil
 }
 
 func (m *MailClient) startProcessing() {
-	log.Printf("start processing")
 	m.mu.Lock()
 	if m.isProcessing {
 		m.mu.Unlock()

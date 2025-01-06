@@ -84,7 +84,6 @@ func main() {
 		}
 
 		parent := getParentIdAlternating(cardID)
-		log.Printf("id %v card %v parent %v", id, cardID, parent)
 		query := `UPDATE cards c1
 SET parent_id = (
     SELECT c2.id

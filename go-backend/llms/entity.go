@@ -50,7 +50,6 @@ Return only valid JSON matching the specified structure.`
             "type": "entity type"
         }
     ]`
-	log.Printf("find entities: %v %v", chunk.Title, chunk.Chunk)
 
 	messages := []openai.ChatCompletionMessage{
 		{
