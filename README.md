@@ -1,34 +1,53 @@
 # Zettelgarden
 
-**NOTE: This is pretty experimental and designed for me to use. Things might break and change based on my whim, so be warned**
+A human-centric, open-source personal knowledge management system that preserves human insight while leveraging modern technology. Built on zettelkasten principles, it helps you develop and maintain your own understanding of the world.
 
-**Zettelgarden** is a personal knowledge management system implemented with React and Go, inspired by the idea of the [zettelkasten](https://zettelkasten.de/introduction/).
+**NOTE: This project is actively evolving. While stable for personal use, features may change based on community feedback and development priorities.**
 
-**Zettelgarden** started out as a digital implementation of Nick Savage's personal analog (i.e. on paper) zettelkasten and as a personal learning project.
+## Core Principles
+
+- **Human-Centric Knowledge Organization**: Create and connect atomic notes that reflect your understanding, not just store information.
+- **Thoughtful AI Integration**: AI features augment your thinking process without replacing human insight.
+- **Built for Scale**: Designed to grow from personal notes to company knowledge bases while maintaining clarity.
 
 ## Features
 
-- **Capture Information**: Zettelgarden can hold many different types of information, from long-term "Cards" (individual, atomic pieces of information), "Tasks" (short-term to-do items), and "Files" (upload your PDFs). Upload everything you have and link it together, creating a digital garden of thoughts.
-- **Connect Information**: Effortlessly link your content together to form a network of related ideas. Zettelgarden empowers you to create a web of knowledge where concepts and tasks are interconnected, ensuring you never lose context or insight.
-- **Find Information**: Utilize Zettelgarden's advanced retrieval-augmented generation (RAG) to efficiently locate items within your data. The app intelligently suggests links and helps you uncover meaningful connections between seemingly disparate pieces of information.
+- **Capture Information**: Store diverse content types including:
+  - Cards (atomic pieces of information)
+  - Tasks (with recurring capability)
+  - Files (PDF, images, etc.)
+  
+- **Connect Information**: Create meaningful links between your content, forming an interconnected web of knowledge that preserves context and insight.
+
+- **Smart Retrieval**: Utilizing advanced retrieval-augmented generation (RAG) and entity processing to:
+  - Efficiently locate information
+  - Suggest meaningful connections
+  - Pre-chunk information for optimal retrieval
 
 ## Why Zettelgarden?
 
-Zettelgarden is an opinionated implementation of the zettelkasten technique, designed to facilitate a structured and interconnected database of information. It specializes in handling small, atomic notes that encapsulate discrete pieces of information - akin to index cards in a traditional setup. The core philosophy of Zettelgarden is that the true value emerges from linking these cards together.
+Zettelgarden takes a measured approach to knowledge management, focusing on:
 
-There are two main benefits to keeping notes small: one, it enables you to curate information yourself. The point is not to dump articles in, but to read **and write** atomic thoughts that matter to the user. Then, using embeddings and retrival-augmented generation (RAG), information in Zettelgarden comes **pre-chunked**. This gives good results out of the box, and links you add only make it better.
-
-## Capturing Information
-
-Zettelgarden makes it easy to capture information. Aside from the main app, there are many ways to get data in, such as:
-
-- iOS app: share content to create tasks or cards
-- Apple Watch app (coming soon)
-- Browser extensions and bookmarklets (coming soon)
+1. **Atomic Notes**: Small, discrete pieces of information that are easy to link and maintain
+2. **Personal Curation**: Emphasis on reading and writing your own thoughts rather than just collecting information
+3. **Pre-chunked Information**: Optimized for both human understanding and AI-assisted retrieval
 
 ## Architecture
 
-- `zettelkasten-front`: Frontend, using React and Typescript
-- `go-backend`: Backend, using Go with `net/http`
-- `ios-app`: Experimental iOS app. It's pretty ugly, I wouldn't recommend using it yet.
-- `python-mail`: Basic SMTP service. Written in python instead of Go because Go's SMTP services do not seem functional enough.
+Built with transparency and efficiency in mind:
+
+- `zettelkasten-front`: Frontend using React and TypeScript
+- `go-backend`: Backend using Go with `net/http`
+- `python-mail`: SMTP service in Python
+
+## Getting Started
+
+Zettelgarden is designed to be self-hosted. Please see our [getting started guide](https://zettelgarden.com/docs/getting-started/) for more information. (Coming soon!)
+
+## Contributing
+
+Zettelgarden is built in the open. Contributions and feedback are welcome. Please check our [contribution guidelines](CONTRIBUTING.md).
+
+## Stay Updated
+
+Follow our [blog](https://zettelgarden.com/blog/) and Nick Savage's [Substack](https://nsavage.substack.com/) for detailed updates on development and new features.

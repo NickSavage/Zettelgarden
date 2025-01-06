@@ -106,8 +106,7 @@ function LandingPage() {
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold text-gray-900">Open Source and Transparent</h2>
                 <p className="text-gray-600 leading-relaxed">
-                  Zettelgarden is built in the open, using TypeScript and Go, with an 
-                  experimental iOS app in Swift. Your knowledge belongs to you - no 
+                  Zettelgarden is built in the open, using TypeScript and Go. Your knowledge belongs to you - no 
                   vendor lock-in, no black boxes, just clean, efficient knowledge 
                   management.
                 </p>
