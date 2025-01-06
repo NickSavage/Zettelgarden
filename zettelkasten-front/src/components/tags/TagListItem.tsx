@@ -48,18 +48,18 @@ export function TagListItem({ tag }: TagListItemInterface) {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all cursor-pointer relative">
+    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all relative">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold">{tag.name}</h3>
-        <button onClick={toggleMenu} className="text-gray-600 hover:text-blue-600">
+        <button onClick={toggleMenu} className="text-gray-600 hover:text-blue-600 cursor-pointer">
           ⋮
         </button>
       </div>
       <div className="flex justify-between items-center text-sm text-gray-500">
-        <span className="cursor-pointer" onClick={handleViewTasks}>
+        <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={handleViewTasks}>
           Tasks: {tag.task_count}
         </span>
-        <span className="cursor-pointer" onClick={handleViewCards}>
+        <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={handleViewCards}>
           Cards: {tag.card_count}
         </span>
       </div>
