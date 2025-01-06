@@ -113,7 +113,11 @@ export function ViewPage({}: ViewPageProps) {
                 {viewingCard.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {viewingCard.tags.map((tag) => (
-                      <span key={tag.name} className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full">
+                      <span 
+                        key={tag.name} 
+                        className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full cursor-pointer hover:bg-purple-100"
+                        onClick={() => navigate(`/app/search?term=${encodeURIComponent('#' + tag.name)}`)}
+                      >
                         #{tag.name}
                       </span>
                     ))}
