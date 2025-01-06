@@ -69,6 +69,8 @@ function LandingPage() {
             </motion.div>
           </motion.div>
 
+
+
           <div id="features" className="py-24 space-y-24">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -113,7 +115,24 @@ function LandingPage() {
               </div>
             </motion.div>
           </div>
-
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mt-24 mb-12"
+          >
+            <h2 className="text-3xl font-bold text-center mb-8">See Zettelgarden in Action</h2>
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                src="https://www.youtube.com/embed/0kSAhX2R7eM"
+                title="Zettelgarden Demo"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute top-0 left-0 w-full h-full rounded-xl shadow-2xl"
+              ></iframe>
+            </div>
+          </motion.div>
           <RecentBlogPosts />
 
           <motion.div 
