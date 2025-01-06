@@ -10,6 +10,14 @@ A human-centric, open-source personal knowledge management system that preserves
 - **Thoughtful AI Integration**: AI features augment your thinking process without replacing human insight.
 - **Built for Scale**: Designed to grow from personal notes to company knowledge bases while maintaining clarity.
 
+## Demo
+
+Watch our [demo video](https://www.youtube.com/watch?v=0kSAhX2R7eM) to see Zettelgarden in action and learn about its key features.
+
+You can also try Zettelgarden directly at [zettelgarden.com](https://zettelgarden.com) using our demo account:
+- Email: demo@zettelgarden.com
+- Password: demo
+
 ## Features
 
 - **Capture Information**: Store diverse content types including:
