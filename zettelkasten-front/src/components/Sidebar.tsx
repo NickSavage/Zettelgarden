@@ -124,9 +124,11 @@ export function Sidebar() {
   }, []);
 
   useEffect(() => {
-    getUserConversations().then((conversations) => {
-      setChatConversations(conversations);
-    });
+    if (import.meta.env.VITE_FEATURE_CHAT === "true") {
+      getUserConversations().then((conversations) => {
+        setChatConversations(conversations);
+      });
+    }
   }, []);
   return (
     <>
@@ -295,7 +297,6 @@ export function Sidebar() {
       {showCreateTaskWindow && (
         <CreateTaskWindow
           currentCard={getCurrentCard()}
-          setRefresh={(refresh: boolean) => {}}
           setShowTaskWindow={setShowCreateTaskWindow}
         />
       )}

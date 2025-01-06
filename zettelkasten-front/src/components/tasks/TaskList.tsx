@@ -17,7 +17,6 @@ export function TaskList({ tasks, onTagClick }: TaskListProps) {
         <li key={task.id} className="p-0">
           <TaskListItem
             task={task}
-            setRefresh={setRefreshTasks}
             onTagClick={onTagClick}
           />
         </li>

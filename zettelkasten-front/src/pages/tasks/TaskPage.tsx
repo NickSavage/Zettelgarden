@@ -150,7 +150,6 @@ export function TaskPage({}: TaskListProps) {
         {showCreateTaskWindow && (
           <CreateTaskWindow
             currentCard={null}
-            setRefresh={setRefreshTasks}
             setShowTaskWindow={setShowCreateTaskWindow}
             currentFilter={filterString}
           />

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTagContext } from "../../contexts/TagContext";
-import { useTaskContext } from "../../contexts/TaskContext";
 import { saveExistingCard } from "../../api/cards";
-import { Button } from "../../components/Button";
 import { FileUpload } from "../../components/files/FileUpload";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { Card } from "../../models/Card";
@@ -24,7 +22,6 @@ export function ViewCardOptionsMenu({
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
   const [showCreateTaskWindow, setShowCreateTaskWindow] =
     useState<boolean>(false);
-  const { setRefreshTasks } = useTaskContext();
   const { tags } = useTagContext();
 
   // Create a ref for the file upload component
@@ -102,7 +99,6 @@ export function ViewCardOptionsMenu({
       {showCreateTaskWindow && (
         <CreateTaskWindow
           currentCard={viewingCard}
-          setRefresh={setRefreshTasks}
           setShowTaskWindow={setShowCreateTaskWindow}
         />
       )}

@@ -14,23 +14,22 @@ import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 import { TaskTagDisplay } from "../../components/tasks/TaskTagDisplay";
 import { TaskListOptionsMenu } from "../../components/tasks/TaskListOptionsMenu";
 import { removeTagsFromTitle, parseTags } from "../../utils/tasks";
+import { useTaskContext } from "../../contexts/TaskContext";
 
 interface TaskListItemProps {
   task: Task;
-  setRefresh: (refresh: boolean) => void;
   onTagClick: (tag: string) => void;
 }
 
 export function TaskListItem({
   task,
-  setRefresh,
   onTagClick,
 }: TaskListItemProps) {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
   const [tags, setTags] = useState<Tag[]>([]);
-
+  const { setRefreshTasks } = useTaskContext();
 
   async function handleTitleClick() {
     setNewTitle(task.title);
@@ -41,7 +40,7 @@ export function TaskListItem({
     let editedTask = { ...task, card_pk: card.id };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
-      setRefresh(true);
+      setRefreshTasks(true);
       setShowCardLink(false);
     }
   }
@@ -50,7 +49,7 @@ export function TaskListItem({
     let editedTask = { ...task, title: newTitle };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
-      setRefresh(true);
+      setRefreshTasks(true);
       setEditTitle(false);
       setNewTitle("");
     }
@@ -60,7 +59,7 @@ export function TaskListItem({
     let editedTask = { ...task, is_complete: task.is_complete ? false : true };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
-      setRefresh(true);
+      setRefreshTasks(true);
     }
   }
 
@@ -104,7 +103,6 @@ export function TaskListItem({
           <TaskDateDisplay
             task={task}
             setTask={(task: Task) => {}}
-            setRefresh={setRefresh}
             saveOnChange={true}
           />
           <TaskTagDisplay task={task} tags={tags} onTagClick={onTagClick} />
@@ -129,7 +127,6 @@ export function TaskListItem({
       <TaskListOptionsMenu
         task={task}
         tags={tags}
-        setRefresh={setRefresh}
         showCardLink={showCardLink}
         setShowCardLink={setShowCardLink}
       />

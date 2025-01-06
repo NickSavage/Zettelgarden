@@ -6,11 +6,10 @@ import { deleteTask, saveExistingTask } from "../../api/tasks";
 
 import { AddTagMenu } from "../../components/tags/AddTagMenu";
 import { RemoveTagMenu } from "../../components/tasks/RemoveTagMenu";
-
+import { useTaskContext } from "../../contexts/TaskContext";
 interface TaskListOptionsMenuProps {
   task: Task;
   tags: Tag[];
-  setRefresh: (refresh: boolean) => void;
   showCardLink: boolean;
   setShowCardLink: (show: boolean) => void;
 }
@@ -18,14 +17,13 @@ interface TaskListOptionsMenuProps {
 export function TaskListOptionsMenu({
   task,
   tags,
-  setRefresh,
   showCardLink,
   setShowCardLink,
 }: TaskListOptionsMenuProps) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
   const [showRemoveMenu, setShowRemoveMenu] = useState<boolean>(false);
-
+  const { setRefreshTasks } = useTaskContext();
   function toggleMenu() {
     setShowTagMenu(false);
     setShowRemoveMenu(false);
@@ -44,7 +42,7 @@ export function TaskListOptionsMenu({
   }
   async function handleDelete() {
     let _ = await deleteTask(task.id);
-    setRefresh(true);
+    setRefreshTasks(true);
     setShowMenu(false);
   }
 
@@ -52,7 +50,7 @@ export function TaskListOptionsMenu({
     let editedTask = { ...task, title: task.title + " " + tagName };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
-      setRefresh(true);
+      setRefreshTasks(true);
       setShowTagMenu(false);
     }
   }
@@ -68,7 +66,7 @@ export function TaskListOptionsMenu({
 
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
-      setRefresh(true);
+      setRefreshTasks(true);
       setShowRemoveMenu(false);
     }
   }
@@ -80,7 +78,7 @@ export function TaskListOptionsMenu({
     let editedTask = { ...task, card_pk: 0 };
     let response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
-      setRefresh(true);
+      setRefreshTasks(true);
     }
     setShowMenu(false);
   }

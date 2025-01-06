@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { saveNewTask } from "../..//api/tasks";
-
+import { useTaskContext } from "../../contexts/TaskContext";
 import { Task, emptyTask } from "../../models/Task";
 import { Card, PartialCard } from "../..//models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
@@ -10,14 +10,12 @@ import { AddTagMenu } from "../../components/tags/AddTagMenu";
 
 interface CreateTaskWindowProps {
   currentCard: Card | PartialCard | null;
-  setRefresh: (refresh: boolean) => void;
   setShowTaskWindow: (showTaskWindow: boolean) => void;
   currentFilter?: string;
 }
 
 export function CreateTaskWindow({
   currentCard,
-  setRefresh,
   setShowTaskWindow,
   currentFilter,
 }: CreateTaskWindowProps) {
@@ -29,11 +27,10 @@ export function CreateTaskWindow({
 
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
+  const { setRefreshTasks } = useTaskContext();
 
   async function handleSaveTask() {
     let response;
-
-    console.log("create card", currentCard);
 
     let task = newTask;
     if (currentCard) {
@@ -41,9 +38,9 @@ export function CreateTaskWindow({
     }
     response = await saveNewTask(task);
     if (!("error" in response)) {
-      setRefresh(true);
       setShowTaskWindow(false);
       setSelectedCard(null);
+      setRefreshTasks(true);
       setNewTask({ ...emptyTask, scheduled_date: new Date() });
       if (currentCard) {
         setNewTask({ ...emptyTask, card_pk: currentCard.id });
@@ -194,7 +191,6 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
               <TaskDateDisplay
                 task={newTask}
                 setTask={setNewTask}
-                setRefresh={setRefresh}
                 saveOnChange={false}
               />
             </div>

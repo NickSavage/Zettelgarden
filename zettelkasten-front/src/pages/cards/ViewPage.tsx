@@ -26,7 +26,7 @@ export function ViewPage({}: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
-  const { tasks, setRefreshTasks } = useTaskContext();
+  const { refreshTasks, setRefreshTasks } = useTaskContext();
   const { id } = useParams<{ id: string }>();
 
   const navigate = useNavigate();
@@ -87,8 +87,7 @@ export function ViewPage({}: ViewPageProps) {
   useEffect(() => {
     setError("");
     fetchCard(id!);
-    setRefreshTasks(true);
-  }, [id, setRefreshTasks]);
+  }, [id, refreshTasks]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
@@ -188,7 +187,6 @@ export function ViewPage({}: ViewPageProps) {
                   <TaskListItem
                     key={task.id}
                     task={task}
-                    setRefresh={setRefreshTasks}
                     onTagClick={(tag: string) => {}}
                   />
                 ))}

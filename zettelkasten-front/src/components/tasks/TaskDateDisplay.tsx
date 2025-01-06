@@ -13,20 +13,20 @@ import {
   isFriday,
 } from "../../utils/dates";
 import { saveExistingTask } from "../../api/tasks";
+import { useTaskContext } from "../../contexts/TaskContext";
 
 interface TaskDateDisplayProps {
   task: Task;
   setTask: (task: Task) => void;
-  setRefresh: (refresh: boolean) => void;
   saveOnChange: boolean;
 }
 
 export function TaskDateDisplay({
   task,
   setTask,
-  setRefresh,
   saveOnChange,
 }: TaskDateDisplayProps) {
+  const { setRefreshTasks } = useTaskContext();
   const [displayText, setDisplayText] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>(
     task.scheduled_date ? task.scheduled_date.toISOString().substr(0, 10) : "",
@@ -37,7 +37,7 @@ export function TaskDateDisplay({
     if (saveOnChange) {
       let response = await saveExistingTask(editedTask);
       if (!("error" in response)) {
-        setRefresh(true);
+        setRefreshTasks(true);
       }
     } else {
       setTask(editedTask);
