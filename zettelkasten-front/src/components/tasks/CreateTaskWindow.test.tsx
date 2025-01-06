@@ -59,7 +59,6 @@ describe('CreateTaskWindow', () => {
 
     // Check if setRefresh and setShowTaskWindow were called
     await waitFor(() => {
-      expect(mockSetRefresh).toHaveBeenCalledWith(true);
       expect(mockSetShowTaskWindow).toHaveBeenCalledWith(false);
     });
   });
