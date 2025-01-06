@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import landingImage from "../assets/landing.png";
 import { GithubIcon } from "../assets/icons/GithubIcon";
 import { TwitterIcon } from "../assets/icons/TwitterIcon";
+import { YoutubeIcon } from "../assets/icons/YoutubeIcon";
 import { LandingHeader } from "./LandingHeader";
 import { RecentBlogPosts } from "./RecentBlogPosts";
 import { addToMailingList } from "../api/users";
@@ -210,6 +211,11 @@ function LandingPage() {
                 href="https://twitter.com/impossibilium"
                 className="text-gray-600 hover:text-gray-900 transition-colors duration-200">
                 <TwitterIcon />
+              </a>
+              <a 
+                href="https://www.youtube.com/@zettelgarden"
+                className="text-gray-600 hover:text-gray-900 transition-colors duration-200">
+                <YoutubeIcon />
               </a>
             </div>
           </footer>
