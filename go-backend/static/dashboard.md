@@ -39,3 +39,5 @@ Entities are AI-powered insights from your cards:
 4. Use the search function to explore your growing knowledge base
 
 Happy gardening! 🌿
+
+#reference

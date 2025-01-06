@@ -481,6 +481,23 @@ func (s *Handler) createDefaultCards(userID int) error {
 
 }
 
+func (s *Handler) createDefaultTags(userID int) error {
+	defaultTags := []string{"meeting", "reference", "book", "podcast", "people"}
+
+	for _, tagName := range defaultTags {
+		params := models.EditTagParams{
+			Name:  tagName,
+			Color: "black", // default color
+		}
+		_, err := s.CreateTag(userID, params)
+		if err != nil {
+			log.Printf("error creating default tag %s: %v", tagName, err)
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 	if params.Email == "" {
 		return -1, fmt.Errorf("Email is blank.")
@@ -516,6 +533,11 @@ func (s *Handler) CreateUser(params models.CreateUserParams) (int, error) {
 	err = s.createDefaultCards(newID)
 	if err != nil {
 		log.Printf("error creating default cards %v", err)
+	}
+
+	err = s.createDefaultTags(newID)
+	if err != nil {
+		log.Printf("error creating default tags %v", err)
 	}
 
 	user, _ := s.QueryUser(newID)
