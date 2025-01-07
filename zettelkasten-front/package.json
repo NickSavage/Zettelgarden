@@ -14,6 +14,7 @@
     "@vitejs/plugin-react-swc": "^3.7.0",
     "bootstrap-icons": "^1.11.3",
     "buffer": "^6.0.3",
+    "feed": "^4.2.2",
     "framer-motion": "^11.15.0",
     "gray-matter": "^4.0.3",
     "happy-dom": "^15.7.3",
