@@ -193,7 +193,7 @@ func main() {
 	addProtectedRoute(r, "/api/cards", h.GetCardsRoute, "GET")
 	addProtectedRoute(r, "/api/cards", h.CreateCardRoute, "POST")
 	addProtectedRoute(r, "/api/cards/next-root-id", h.GetNextRootCardIDRoute, "GET")
-	addProtectedRoute(r, "/api/search", h.SemanticSearchCardsRoute, "GET")
+	addProtectedRoute(r, "/api/search", h.CardSearchRoute, "POST")
 	addProtectedRoute(r, "/api/cards/{id}", h.GetCardRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}", h.UpdateCardRoute, "PUT")
 	addProtectedRoute(r, "/api/cards/{id}", h.DeleteCardRoute, "DELETE")

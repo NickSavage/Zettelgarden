@@ -16,21 +16,11 @@ const base_url = import.meta.env.VITE_URL;
 export function semanticSearchCards(searchTerm = "", useClassicSearch = false): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
-  const params = new URLSearchParams();
-  
-  if (searchTerm) {
-    params.append("search_term", searchTerm);
-  }
-  if (useClassicSearch) {
-    params.append("type", "classic");
-  }
-  
-  if (params.toString()) {
-    url += `?${params.toString()}`;
-  }
 
   return fetch(url, {
+    method: "POST",
     headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ search_term: searchTerm, type: useClassicSearch ? "classic" : "semantic" }),
   })
     .then(checkStatus)
     .then((response) => {

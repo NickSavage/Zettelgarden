@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go-backend/llms"
 	"go-backend/models"
@@ -11,7 +12,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/pgvector/pgvector-go"
@@ -357,16 +357,65 @@ func (s *Handler) ClassicSearch(userID int, searchTerm string) ([]models.Card, e
 	return models.ScanCards(rows)
 }
 
-func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
+type SearchRequestParams struct {
+	SearchTerm string `json:"search_term"`
+	SearchType string `json:"type"` // "classic" or "semantic"
+}
 
+func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]models.SearchResult, error) {
+
+	// Handle semantic search (existing code)
+	chunk := models.CardChunk{
+		Chunk: params.SearchTerm,
+	}
+
+	embeddings, err := llms.GenerateChunkEmbeddings(chunk, true)
+
+	if err != nil {
+		return []models.SearchResult{}, err
+	}
+	if len(embeddings) == 0 {
+		return []models.SearchResult{}, errors.New("search query not entered")
+	}
+	relatedCards, err := s.GetRelatedCards(userID, embeddings[0])
+	if err != nil {
+		return []models.SearchResult{}, err
+	}
+
+	scores, err := llms.RerankResults(s.Server.LLMClient, params.SearchTerm, relatedCards)
+	if err != nil {
+		return []models.SearchResult{}, err
+	}
+	for i, score := range scores {
+		if i == len(scores)-1 {
+			break
+		}
+		relatedCards[i].Ranking = score
+	}
+	sort.Slice(relatedCards, func(i, j int) bool {
+		return relatedCards[i].Ranking > relatedCards[j].Ranking
+	})
+
+	// Convert CardChunks to SearchResults
+	searchResults := make([]models.SearchResult, len(relatedCards))
+	for i, card := range relatedCards {
+		searchResults[i] = models.CardChunkToSearchResult(card)
+	}
+	return searchResults, nil
+}
+
+func (s *Handler) CardSearchRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
-	searchTerm := r.URL.Query().Get("search_term")
-	searchType := r.URL.Query().Get("type")
+	var searchParams SearchRequestParams
+	err := json.NewDecoder(r.Body).Decode(&searchParams)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	if searchType == "classic" {
+	if searchParams.SearchType == "classic" {
 		// Handle classic search using shared function
-		cards, err := s.ClassicSearch(userID, searchTerm)
+		cards, err := s.ClassicSearch(userID, searchParams.SearchTerm)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -395,55 +444,10 @@ func (s *Handler) SemanticSearchCardsRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Handle semantic search (existing code)
-	chunk := models.CardChunk{
-		Chunk: searchTerm,
-	}
-
-	embeddings, err := llms.GenerateChunkEmbeddings(chunk, true)
-	elapsed := time.Since(start)
-	start = time.Now()
-	fmt.Printf("embedding took %.2f seconds\n", elapsed.Seconds())
-
+	searchResults, err := s.SemanticCardSearch(userID, searchParams)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-	if len(embeddings) == 0 {
-		http.Error(w, "search query not entered", http.StatusBadRequest)
-		return
-	}
-	relatedCards, err := s.GetRelatedCards(userID, embeddings[0])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	elapsed = time.Since(start)
-	fmt.Printf("related cards took %.2f seconds\n", elapsed.Seconds())
-
-	start = time.Now()
-
-	scores, err := llms.RerankResults(s.Server.LLMClient, searchTerm, relatedCards)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	for i, score := range scores {
-		if i == len(scores)-1 {
-			break
-		}
-		relatedCards[i].Ranking = score
-	}
-	sort.Slice(relatedCards, func(i, j int) bool {
-		return relatedCards[i].Ranking > relatedCards[j].Ranking
-	})
-	elapsed = time.Since(start)
-	fmt.Printf("reranking cards took %.2f seconds\n", elapsed.Seconds())
-
-	// Convert CardChunks to SearchResults
-	searchResults := make([]models.SearchResult, len(relatedCards))
-	for i, card := range relatedCards {
-		searchResults[i] = models.CardChunkToSearchResult(card)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
