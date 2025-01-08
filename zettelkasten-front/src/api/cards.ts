@@ -13,14 +13,29 @@ import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
 
-export function semanticSearchCards(searchTerm = "", useClassicSearch = false): Promise<SearchResult[]> {
+interface SearchRequestParams {
+  search_term: string;
+  type: "classic" | "semantic";
+  full_text?: boolean;
+}
+
+export function semanticSearchCards(searchTerm = "", useClassicSearch = false, fullText = false): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
 
+  const params: SearchRequestParams = {
+    search_term: searchTerm,
+    type: useClassicSearch ? "classic" : "semantic",
+    full_text: fullText
+  };
+
   return fetch(url, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ search_term: searchTerm, type: useClassicSearch ? "classic" : "semantic" }),
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(params),
   })
     .then(checkStatus)
     .then((response) => {
@@ -41,8 +56,8 @@ export function semanticSearchCards(searchTerm = "", useClassicSearch = false): 
     });
 }
 
-export function fetchCards(searchTerm = ""): Promise<Card[]> {
-  return semanticSearchCards(searchTerm, true).then((results) => {
+export function fetchCards(searchTerm = "", fullText = false): Promise<Card[]> {
+  return semanticSearchCards(searchTerm, true, fullText).then((results) => {
     if (results === null) return [];
     return results.map(result => ({
       id: Number(result.metadata?.id) || 0,

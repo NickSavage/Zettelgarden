@@ -387,7 +387,10 @@ func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Use the shared ClassicSearch function
-	cards, err := s.ClassicSearch(userID, searchTerm)
+	searchParams := SearchRequestParams{
+		SearchTerm: searchTerm,
+	}
+	cards, err := s.ClassicSearch(userID, searchParams)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -27,6 +27,7 @@ export function SearchPage({
   const [itemsPerPage] = useState(20);
   const { partialCards } = usePartialCardContext();
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
+  const [useFullText, setUseFullText] = useState<boolean>(false);
   const [onlyParentCards, setOnlyParentCards] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [chunks, setChunks] = useState<CardChunk[]>([]);
@@ -48,7 +49,7 @@ export function SearchPage({
     console.log("searching for term:", term);
 
     try {
-      const results = await semanticSearchCards(term, classicSearch);
+      const results = await semanticSearchCards(term, classicSearch, useFullText);
       if (results === null) {
         setSearchResults([]);
         setCards([]);
@@ -223,6 +224,11 @@ export function SearchPage({
   const handleShowPreviewChange = (event) => {
     setShowPreview(event.target.checked);
   };
+  const handleFullTextChange = (event) => {
+    setUseFullText(event.target.checked);
+    // Perform new search with updated full text setting
+    handleSearch(useClassicSearch, searchTerm);
+  };
   useEffect(() => {
     const initializeSearch = async () => {
       document.title = "Zettelgarden - Search";
@@ -256,7 +262,7 @@ export function SearchPage({
       <div>
         <div className="bg-slate-200 p-2 border-slate-400 border">
           <input
-            style={{ display: "block", width: "100%", marginBottom: "10px" }} // Updated style here
+            style={{ display: "block", width: "100%", marginBottom: "10px" }}
             type="text"
             id="title"
             value={searchTerm}
@@ -294,6 +300,14 @@ export function SearchPage({
                   onChange={handleCheckboxChange}
                 />
                 Use Classic Search
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={useFullText}
+                  onChange={handleFullTextChange}
+                />
+                Search Full Text
               </label>
               <label>
                 <input

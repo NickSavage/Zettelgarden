@@ -154,7 +154,7 @@ func main() {
 	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
 		go func() {
 			start := time.Now()
-			cards, _ := h.ClassicSearch(1, "")
+			cards, _ := h.ClassicSearch(1, handlers.SearchRequestParams{SearchTerm: ""})
 			for _, card := range cards {
 				log.Printf("%v - %v", card.CardID, card.Title)
 				err := h.ChunkCard(card)

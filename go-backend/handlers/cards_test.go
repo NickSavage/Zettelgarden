@@ -759,7 +759,7 @@ func TestCheckCardLinkedOrRelated(t *testing.T) {
 	var mainCard models.Card
 	var testCard models.Card
 
-	cards, err := s.ClassicSearch(userID, "")
+	cards, err := s.ClassicSearch(userID, SearchRequestParams{SearchTerm: ""})
 	if err != nil {
 		t.Fatal(err)
 	}

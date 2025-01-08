@@ -192,13 +192,68 @@ func TestClassicSearch(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cards, err := s.ClassicSearch(1, tc.searchTerm)
+			cards, err := s.ClassicSearch(1, SearchRequestParams{SearchTerm: tc.searchTerm})
 			if err != nil {
 				t.Errorf("ClassicSearch() error = %v", err)
 				return
 			}
 			if len(cards) != tc.wantCount {
 				t.Errorf("ClassicSearch() got %v cards, want %v", len(cards), tc.wantCount)
+			}
+		})
+	}
+}
+
+func TestFullTextSearch(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	testCases := []struct {
+		name       string
+		params     SearchRequestParams
+		wantCount  int
+		wantCardID string // Optional: to check specific card is found
+	}{
+		{
+			name: "non-full text search - should not find body content",
+			params: SearchRequestParams{
+				SearchTerm: "uniquebodycontent",
+				FullText:   false,
+			},
+			wantCount: 0,
+		},
+		{
+			name: "full text search - should find body content",
+			params: SearchRequestParams{
+				SearchTerm: "uniquebodycontent",
+				FullText:   true,
+			},
+			wantCount: 1,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			cards, err := s.ClassicSearch(1, tc.params)
+			if err != nil {
+				t.Errorf("ClassicSearch() error = %v", err)
+				return
+			}
+			if len(cards) != tc.wantCount {
+				t.Errorf("ClassicSearch() got %v cards, want %v", len(cards), tc.wantCount)
+			}
+			// If we want to check for specific cards
+			if tc.wantCardID != "" && len(cards) > 0 {
+				found := false
+				for _, card := range cards {
+					if card.CardID == tc.wantCardID {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("ClassicSearch() did not find expected card with ID %s", tc.wantCardID)
+				}
 			}
 		})
 	}

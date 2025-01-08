@@ -340,8 +340,8 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 	return cards, err
 }
 
-func (s *Handler) ClassicSearch(userID int, searchTerm string) ([]models.Card, error) {
-	searchString := BuildPartialCardSqlSearchTermString(searchTerm, true)
+func (s *Handler) ClassicSearch(userID int, params SearchRequestParams) ([]models.Card, error) {
+	searchString := BuildPartialCardSqlSearchTermString(params.SearchTerm, params.FullText)
 	query := `
 		SELECT 
 			c.id, c.card_id, c.user_id, c.title, c.body, c.link, c.parent_id, c.created_at, c.updated_at
@@ -360,6 +360,7 @@ func (s *Handler) ClassicSearch(userID int, searchTerm string) ([]models.Card, e
 type SearchRequestParams struct {
 	SearchTerm string `json:"search_term"`
 	SearchType string `json:"type"` // "classic" or "semantic"
+	FullText   bool   `json:"full_text"`
 }
 
 func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]models.SearchResult, error) {
@@ -414,8 +415,8 @@ func (s *Handler) CardSearchRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if searchParams.SearchType == "classic" {
-		// Handle classic search using shared function
-		cards, err := s.ClassicSearch(userID, searchParams.SearchTerm)
+		// Updated to pass searchParams instead of just the search term
+		cards, err := s.ClassicSearch(userID, searchParams)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
