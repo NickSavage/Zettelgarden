@@ -1,4 +1,5 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
+import { Menu } from '@headlessui/react';
 import { fetchCards, semanticSearchCards } from "../../api/cards";
 import { fetchUserTags } from "../../api/tags";
 import { CardChunk, Card, PartialCard, SearchResult } from "../../models/Card";
@@ -275,7 +276,7 @@ export function SearchPage({
             }}
           />
 
-          <div className="flex">
+          <div className="flex items-center gap-2">
             <Button
               onClick={() => handleSearch(useClassicSearch, searchTerm)}
               children={"Search"}
@@ -292,40 +293,66 @@ export function SearchPage({
               tags={tags.filter((tag) => tag.card_count > 0)}
               handleTagClick={handleTagClick}
             />
-            <div className="flex flex-col">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={useClassicSearch}
-                  onChange={handleCheckboxChange}
-                />
-                Use Classic Search
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={useFullText}
-                  onChange={handleFullTextChange}
-                />
-                Search Full Text
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={onlyParentCards}
-                  onChange={handleOnlyParentCardsChange}
-                />
-                Only Parent Cards
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={showPreview}
-                  onChange={handleShowPreviewChange}
-                />
-                Show Preview
-              </label>
-            </div>
+            
+            <Menu as="div" className="relative">
+              <Menu.Button className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Search Options
+              </Menu.Button>
+              <Menu.Items className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-10">
+                <Menu.Item>
+                  {({ active }) => (
+                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={useClassicSearch}
+                        onChange={handleCheckboxChange}
+                        className="mr-2"
+                      />
+                      Use Classic Search
+                    </label>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={useFullText}
+                        onChange={handleFullTextChange}
+                        className="mr-2"
+                      />
+                      Search Full Text
+                    </label>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={onlyParentCards}
+                        onChange={handleOnlyParentCardsChange}
+                        className="mr-2"
+                      />
+                      Only Parent Cards
+                    </label>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={showPreview}
+                        onChange={handleShowPreviewChange}
+                        className="mr-2"
+                      />
+                      Show Preview
+                    </label>
+                  )}
+                </Menu.Item>
+              </Menu.Items>
+            </Menu>
           </div>
         </div>
         {isLoading ? (
