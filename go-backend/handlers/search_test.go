@@ -258,3 +258,91 @@ func TestFullTextSearch(t *testing.T) {
 		})
 	}
 }
+
+func TestBuildPartialEntitySqlSearchTermString(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "single term",
+			input:    "hello",
+			expected: " AND ((name ILIKE '%hello%' OR description ILIKE '%hello%' OR type ILIKE '%hello%'))",
+		},
+		{
+			name:     "multiple terms",
+			input:    "hello world",
+			expected: " AND ((name ILIKE '%hello%' OR description ILIKE '%hello%' OR type ILIKE '%hello%') OR (name ILIKE '%world%' OR description ILIKE '%world%' OR type ILIKE '%world%'))",
+		},
+		{
+			name:     "negated term",
+			input:    "hello !world",
+			expected: " AND ((name ILIKE '%hello%' OR description ILIKE '%hello%' OR type ILIKE '%hello%')) AND (NOT (name ILIKE '%world%' OR description ILIKE '%world%' OR type ILIKE '%world%'))",
+		},
+		{
+			name:     "multiple negated terms",
+			input:    "!hello !world",
+			expected: " AND (NOT (name ILIKE '%hello%' OR description ILIKE '%hello%' OR type ILIKE '%hello%')) AND (NOT (name ILIKE '%world%' OR description ILIKE '%world%' OR type ILIKE '%world%'))",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output := BuildPartialEntitySqlSearchTermString(tc.input)
+			if output != tc.expected {
+				t.Errorf("wrong string returned for %s\ngot:  %v\nwant: %v", tc.name, output, tc.expected)
+			}
+		})
+	}
+}
+
+func TestClassicEntitySearch(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	testCases := []struct {
+		name       string
+		searchTerm string
+		wantCount  int
+	}{
+		{
+			name:       "search by name",
+			searchTerm: "Test Entity",
+			wantCount:  2, // Should find both "Test Entity 1" and "Test Entity 2"
+		},
+		{
+			name:       "search by description",
+			searchTerm: "Original",
+			wantCount:  1, // Should find entity with "Original entity" description
+		},
+		{
+			name:       "negated search",
+			searchTerm: "Test !Duplicate",
+			wantCount:  1, // Should find Test Entity 1 but not Test Entity 2 (which has "Duplicate" in description)
+		},
+		{
+			name:       "multiple terms",
+			searchTerm: "Entity person",
+			wantCount:  2, // Should find both Test entities which are of type "person"
+		},
+		{
+			name:       "no results",
+			searchTerm: "nonexistent",
+			wantCount:  0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities, err := s.ClassicEntitySearch(1, SearchRequestParams{SearchTerm: tc.searchTerm})
+			if err != nil {
+				t.Errorf("ClassicEntitySearch() error = %v", err)
+				return
+			}
+			if len(entities) != tc.wantCount {
+				t.Errorf("ClassicEntitySearch() got %v entities, want %v", len(entities), tc.wantCount)
+			}
+		})
+	}
+}

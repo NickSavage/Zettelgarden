@@ -15,6 +15,9 @@ import (
 )
 
 func RerankSearchResults(c *models.LLMClient, query string, input []models.SearchResult) ([]models.SearchResult, error) {
+	if query == "" {
+		return input, nil
+	}
 	// Convert SearchResults to strings for reranking
 	documents := make([]*cohere.RerankRequestDocumentsItem, len(input))
 	for i, result := range input {

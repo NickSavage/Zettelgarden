@@ -212,6 +212,37 @@ func BuildPartialCardSqlSearchTermString(searchString string, fullText bool) str
 	return result
 }
 
+func BuildPartialEntitySqlSearchTermString(searchString string) string {
+	searchParams := ParseSearchText(searchString)
+
+	var result string
+	var termConditions []string
+	var excludeTerms []string
+
+	// Add conditions for terms that search both name and description
+	for _, term := range searchParams.Terms {
+		termCondition := fmt.Sprintf("(name ILIKE '%%%s%%' OR description ILIKE '%%%s%%' OR type ILIKE '%%%s%%')", term, term, term)
+		termConditions = append(termConditions, termCondition)
+	}
+
+	// Add conditions for negated terms
+	for _, term := range searchParams.NegateTerms {
+		excludeCondition := fmt.Sprintf("NOT (name ILIKE '%%%s%%' OR description ILIKE '%%%s%%' OR type ILIKE '%%%s%%')", term, term, term)
+		excludeTerms = append(excludeTerms, excludeCondition)
+	}
+
+	if len(termConditions) > 0 {
+		result += " AND (" + strings.Join(termConditions, " OR ") + ")"
+	}
+	if len(excludeTerms) > 0 {
+		for _, excludeTerm := range excludeTerms {
+			result += " AND (" + excludeTerm + ")"
+		}
+	}
+
+	return result
+}
+
 func (s *Handler) GetRelatedChunksFromEntity(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
 
 	query := `
@@ -339,6 +370,45 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 	return cards, err
 }
 
+func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([]models.Entity, error) {
+	searchString := BuildPartialEntitySqlSearchTermString(params.SearchTerm)
+	query := `
+		SELECT 
+			e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at,
+			COUNT(ecj.id) as card_count
+		FROM entities e
+		LEFT JOIN entity_card_junction ecj ON e.id = ecj.entity_id
+		WHERE e.user_id = $1` + searchString + `
+		GROUP BY e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at`
+
+	rows, err := s.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var entities []models.Entity
+	for rows.Next() {
+		var entity models.Entity
+		err := rows.Scan(
+			&entity.ID,
+			&entity.UserID,
+			&entity.Name,
+			&entity.Description,
+			&entity.Type,
+			&entity.CreatedAt,
+			&entity.UpdatedAt,
+			&entity.CardCount,
+		)
+		if err != nil {
+			return nil, err
+		}
+		entities = append(entities, entity)
+	}
+
+	return entities, nil
+}
+
 func (s *Handler) ClassicSearch(userID int, params SearchRequestParams) ([]models.Card, error) {
 	searchString := BuildPartialCardSqlSearchTermString(params.SearchTerm, params.FullText)
 	query := `
@@ -382,21 +452,6 @@ func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]
 		return []models.SearchResult{}, err
 	}
 
-	// scores, err := llms.RerankResults(s.Server.LLMClient, params.SearchTerm, relatedCards)
-	// if err != nil {
-	// 	return []models.SearchResult{}, err
-	// }
-	// for i, score := range scores {
-	// 	if i == len(scores)-1 {
-	// 		break
-	// 	}
-	// 	relatedCards[i].Ranking = score
-	// }
-	// sort.Slice(relatedCards, func(i, j int) bool {
-	// 	return relatedCards[i].Ranking > relatedCards[j].Ranking
-	// })
-
-	// Convert CardChunks to SearchResults
 	searchResults := make([]models.SearchResult, len(relatedCards))
 	for i, card := range relatedCards {
 		searchResults[i] = models.CardChunkToSearchResult(card)
@@ -408,7 +463,7 @@ func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]
 	return reranked, err
 }
 
-func (s *Handler) CardSearchRoute(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	var searchParams SearchRequestParams
 	err := json.NewDecoder(r.Body).Decode(&searchParams)
@@ -417,18 +472,19 @@ func (s *Handler) CardSearchRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var searchResults []models.SearchResult
+
 	if searchParams.SearchType == "classic" {
-		// Updated to pass searchParams instead of just the search term
+		// Get card results
 		cards, err := s.ClassicSearch(userID, searchParams)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		// Convert to SearchResults
-		searchResults := make([]models.SearchResult, len(cards))
-		for i, card := range cards {
-			searchResults[i] = models.SearchResult{
+		// Convert cards to SearchResults
+		for _, card := range cards {
+			searchResults = append(searchResults, models.SearchResult{
 				ID:        card.CardID,
 				Type:      "card",
 				Title:     card.Title,
@@ -440,15 +496,52 @@ func (s *Handler) CardSearchRoute(w http.ResponseWriter, r *http.Request) {
 					"id":        card.ID,
 					"parent_id": card.ParentID,
 				},
+			})
+		}
+
+		// Get entity results
+		// entities, err := s.ClassicEntitySearch(userID, searchParams)
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
+
+		// Convert entities to SearchResults and append them
+		// for _, entity := range entities {
+		// 	searchResults = append(searchResults, models.SearchResult{
+		// 		ID:        strconv.Itoa(entity.ID),
+		// 		Type:      "entity",
+		// 		Title:     entity.Name,
+		// 		Preview:   entity.Description,
+		// 		Score:     1.0,
+		// 		CreatedAt: entity.CreatedAt,
+		// 		UpdatedAt: entity.UpdatedAt,
+		// 		Metadata: map[string]interface{}{
+		// 			"id":         entity.ID,
+		// 			"type":       entity.Type,
+		// 			"card_count": entity.CardCount,
+		// 		},
+		// 	})
+		// }
+
+		var reranked []models.SearchResult
+		if s.Server.Testing {
+			reranked = searchResults
+		} else {
+			reranked, err = llms.RerankSearchResults(s.Server.LLMClient, searchParams.SearchTerm, searchResults)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
 			}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(searchResults)
+		json.NewEncoder(w).Encode(reranked)
 		return
 	}
 
-	searchResults, err := s.SemanticCardSearch(userID, searchParams)
+	// Handle semantic search
+	searchResults, err = s.SemanticCardSearch(userID, searchParams)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
