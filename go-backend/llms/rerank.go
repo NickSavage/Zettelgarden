@@ -1,13 +1,54 @@
 package llms
 
 import (
+	"context"
 	"fmt"
 	"go-backend/models"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 
+	cohere "github.com/cohere-ai/cohere-go/v2"
+	cohereclient "github.com/cohere-ai/cohere-go/v2/client"
 	openai "github.com/sashabaranov/go-openai"
 )
+
+func RerankSearchResults(c *models.LLMClient, query string, input []models.SearchResult) ([]models.SearchResult, error) {
+	// Convert SearchResults to strings for reranking
+	documents := make([]*cohere.RerankRequestDocumentsItem, len(input))
+	for i, result := range input {
+		documents[i] = &cohere.RerankRequestDocumentsItem{
+			String: fmt.Sprintf("%s\n%s", result.Title, result.Preview),
+		}
+	}
+	model := "rerank-english-v3.0"
+	topn := len(input)
+
+	request := cohere.RerankRequest{
+		Model:     &model,
+		Query:     query,
+		Documents: documents,
+		TopN:      &topn, // or specify a smaller number if you want fewer results
+	}
+
+	client := cohereclient.NewClient(cohereclient.WithToken(os.Getenv("ZETTEL_COHERE_API_KEY")))
+
+	response, err := client.Rerank(context.TODO(), &request)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a new slice to store reranked results
+	reranked := make([]models.SearchResult, len(response.Results))
+	for i, result := range response.Results {
+		log.Printf("result %v", result)
+		reranked[i] = input[result.Index]
+		reranked[i].Score = result.RelevanceScore
+	}
+
+	return reranked, nil
+}
 
 func RerankResults(c *models.LLMClient, query string, input []models.CardChunk) ([]float64, error) {
 	summaries := make([]string, len(input))

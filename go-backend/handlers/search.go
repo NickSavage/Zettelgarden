@@ -9,7 +9,6 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -383,26 +382,30 @@ func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]
 		return []models.SearchResult{}, err
 	}
 
-	scores, err := llms.RerankResults(s.Server.LLMClient, params.SearchTerm, relatedCards)
-	if err != nil {
-		return []models.SearchResult{}, err
-	}
-	for i, score := range scores {
-		if i == len(scores)-1 {
-			break
-		}
-		relatedCards[i].Ranking = score
-	}
-	sort.Slice(relatedCards, func(i, j int) bool {
-		return relatedCards[i].Ranking > relatedCards[j].Ranking
-	})
+	// scores, err := llms.RerankResults(s.Server.LLMClient, params.SearchTerm, relatedCards)
+	// if err != nil {
+	// 	return []models.SearchResult{}, err
+	// }
+	// for i, score := range scores {
+	// 	if i == len(scores)-1 {
+	// 		break
+	// 	}
+	// 	relatedCards[i].Ranking = score
+	// }
+	// sort.Slice(relatedCards, func(i, j int) bool {
+	// 	return relatedCards[i].Ranking > relatedCards[j].Ranking
+	// })
 
 	// Convert CardChunks to SearchResults
 	searchResults := make([]models.SearchResult, len(relatedCards))
 	for i, card := range relatedCards {
 		searchResults[i] = models.CardChunkToSearchResult(card)
 	}
-	return searchResults, nil
+	if params.SearchTerm == "" {
+		return searchResults, nil
+	}
+	reranked, err := llms.RerankSearchResults(s.Server.LLMClient, params.SearchTerm, searchResults)
+	return reranked, err
 }
 
 func (s *Handler) CardSearchRoute(w http.ResponseWriter, r *http.Request) {
