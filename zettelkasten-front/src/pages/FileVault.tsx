@@ -43,7 +43,13 @@ export function FileVault() {
   
   useEffect(() => {
     if (refreshFiles) {
-      getAllFiles().then((data) => setFiles(sortCards(data, "sortNewOld")));
+      getAllFiles().then((data) => {
+        // Sort files by created_at date (newest first)
+        const sortedFiles = [...data].sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        setFiles(sortedFiles);
+      });
       setRefreshFiles(false);
     }
   }, [refreshFiles]);
