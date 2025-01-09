@@ -1,4 +1,4 @@
-import { PartialCard, Card } from "../models/Card";
+import { PartialCard, Card, CardChunk } from "../models/Card";
 
 // filter the card_id and title by searchText, return top 5 matches
 export function quickFilterCards(
@@ -47,47 +47,41 @@ export function isCardIdUnique(
   return !cards.some((card) => card.card_id === id);
 }
 
-export function sortCards(cards, value) {
-  let temp = [...cards];
-  if (value === "sortBigSmall" || value === "sortSmallBig") {
-    temp.sort((a, b) => {
-      const partsA = a.card_id.match(/\D+|\d+/g) || [];
-      const partsB = b.card_id.match(/\D+|\d+/g) || [];
-      for (let i = 0; i < Math.min(partsA.length, partsB.length); i++) {
-        if (isNaN(partsA[i]) || isNaN(partsB[i])) {
-          // Compare non-numeric parts lexicographically
-          const comparison = partsA[i].localeCompare(partsB[i]);
-          if (comparison !== 0)
-            return value === "sortBigSmall" ? comparison : -comparison;
-        } else {
-          // Compare numeric parts numerically
-          const comparison = parseInt(partsA[i]) - parseInt(partsB[i]);
-          if (comparison !== 0)
-            return value === "sortBigSmall" ? comparison : -comparison;
-        }
-      }
-      return (
-        (value === "sortBigSmall" ? 1 : -1) * (partsA.length - partsB.length)
-      );
-    });
-  } else if (value === "sortNewOld") {
-    temp.sort((a, b) => {
-      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-    });
-  } else if (value === "sortOldNew") {
-    temp.sort((a, b) => {
-      return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
-    });
-  } else if (value === "sortCreatedNewOld") {
-    temp.sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
-  } else if (value === "sortCreatedOldNew") {
-    temp.sort((a, b) => {
-      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-    });
+export function sortCards(cards: (PartialCard | CardChunk)[], sortBy: string) {
+  switch (sortBy) {
+    case "sortCreatedNewOld":
+      return [...cards].sort((a, b) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+    case "sortCreatedOldNew":
+      return [...cards].sort((a, b) => {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      });
+    case "sortNewOld":
+      return [...cards].sort((a, b) => {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
+    case "sortOldNew":
+      return [...cards].sort((a, b) => {
+        return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+      });
+    case "sortBigSmall":
+      return [...cards].sort((a, b) => {
+        return a.title.localeCompare(b.title);
+      });
+    case "sortSmallBig":
+      return [...cards].sort((a, b) => {
+        return b.title.localeCompare(a.title);
+      });
+    case "sortByRanking":
+      return [...cards].sort((a, b) => {
+        const rankingA = 'ranking' in a ? a.ranking || 0 : 0;
+        const rankingB = 'ranking' in b ? b.ranking || 0 : 0;
+        return rankingB - rankingA; // Sort by descending order (highest ranking first)
+      });
+    default:
+      return cards;
   }
-  return temp;
 }
 
 export function compareCardIds(a: string, b: string): number {

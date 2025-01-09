@@ -209,6 +209,10 @@ export function SearchPage({
   const handleCheckboxChange = (event) => {
     const newClassicSearch = event.target.checked;
     setUseClassicSearch(newClassicSearch);
+    // If disabling classic search, switch to ranking sort
+    if (!newClassicSearch) {
+      setSortBy("sortByRanking");
+    }
     // Clear existing results
     setSearchResults([]);
     setCards([]);
@@ -288,6 +292,7 @@ export function SearchPage({
               <option value="sortOldNew">Last Updated (Oldest)</option>
               <option value="sortBigSmall">A to Z</option>
               <option value="sortSmallBig">Z to A</option>
+              <option value="sortByRanking">Ranking Score</option>
             </select>
             <SearchTagMenu
               tags={tags.filter((tag) => tag.card_count > 0)}
@@ -299,9 +304,9 @@ export function SearchPage({
                 Search Options
               </Menu.Button>
               <Menu.Items className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-10">
-                <Menu.Item>
-                  {({ active }) => (
-                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                <div className="py-1">
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
                         checked={useClassicSearch}
@@ -310,11 +315,9 @@ export function SearchPage({
                       />
                       Use Classic Search
                     </label>
-                  )}
-                </Menu.Item>
-                <Menu.Item>
-                  {({ active }) => (
-                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
                         checked={useFullText}
@@ -323,11 +326,9 @@ export function SearchPage({
                       />
                       Search Full Text
                     </label>
-                  )}
-                </Menu.Item>
-                <Menu.Item>
-                  {({ active }) => (
-                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
                         checked={onlyParentCards}
@@ -336,11 +337,9 @@ export function SearchPage({
                       />
                       Only Parent Cards
                     </label>
-                  )}
-                </Menu.Item>
-                <Menu.Item>
-                  {({ active }) => (
-                    <label className={`flex items-center px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
                         checked={showPreview}
@@ -349,8 +348,8 @@ export function SearchPage({
                       />
                       Show Preview
                     </label>
-                  )}
-                </Menu.Item>
+                  </div>
+                </div>
               </Menu.Items>
             </Menu>
           </div>
