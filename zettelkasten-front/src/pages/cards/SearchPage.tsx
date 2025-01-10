@@ -1,39 +1,32 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import { Menu } from '@headlessui/react';
-import { fetchCards, semanticSearchCards } from "../../api/cards";
+import { semanticSearchCards } from "../../api/cards";
 import { fetchUserTags } from "../../api/tags";
-import { CardChunk, Card, PartialCard, SearchResult } from "../../models/Card";
+import { SearchResult } from "../../models/Card";
 import { Tag } from "../../models/Tags";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { SearchResultList } from "../../components/cards/SearchResultList";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
-import { usePartialCardContext } from "../../contexts/CardContext";
 
 interface SearchPageProps {
   searchTerm: string;
   setSearchTerm: (searchTerm: string) => void;
-  cards: PartialCard[];
-  setCards: (cards: PartialCard[]) => void;
 }
 
 export function SearchPage({
   searchTerm,
   setSearchTerm,
-  cards,
-  setCards,
 }: SearchPageProps) {
   const [sortBy, setSortBy] = useState("sortCreatedNewOld");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
-  const { partialCards } = usePartialCardContext();
   const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
   const [useFullText, setUseFullText] = useState<boolean>(false);
   const [onlyParentCards, setOnlyParentCards] = useState<boolean>(false);
+  const [showEntities, setShowEntities] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [chunks, setChunks] = useState<CardChunk[]>([]);
   const [error, setError] = useState<Error | null>(null);
-
   const [tags, setTags] = useState<Tag[]>([]);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showPreview, setShowPreview] = useState<boolean>(true);
@@ -41,8 +34,8 @@ export function SearchPage({
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
   }
+
   async function handleSearch(classicSearch: boolean, inputTerm: string) {
-    console.log("handling search");
     setIsLoading(true);
     setError(null);
 
@@ -51,31 +44,7 @@ export function SearchPage({
 
     try {
       const results = await semanticSearchCards(term, classicSearch, useFullText);
-      if (results === null) {
-        setSearchResults([]);
-        setCards([]);
-      } else {
-        setSearchResults(results);
-        // Convert search results to cards for backward compatibility
-        if (classicSearch) {
-          const convertedCards = results.map(result => ({
-            id: Number(result.metadata?.id) || 0,
-            card_id: result.id,
-            title: result.title,
-            user_id: 0,
-            parent_id: result.metadata?.parent_id,
-            created_at: result.created_at,
-            updated_at: result.updated_at,
-            tags: [],
-          } as PartialCard));
-          
-          if (onlyParentCards) {
-            setCards(convertedCards.filter(card => !card.card_id.includes("/")));
-          } else {
-            setCards(convertedCards);
-          }
-        }
-      }
+      setSearchResults(results || []);
     } catch (error) {
       console.error("Search error:", error);
       setError(error);
@@ -105,6 +74,9 @@ export function SearchPage({
         await handleSearch(true, term);
       } else {
         await fetchTags();
+        if (!classicSearch) {
+          setSortBy("sortByRanking");
+        }
         await handleSearch(classicSearch, "");
       }
     };
@@ -114,13 +86,6 @@ export function SearchPage({
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSortBy(e.target.value);
-  }
-
-  function getSortedAndPagedCards() {
-    const sortedCards = sortCards(cards, sortBy);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    return sortedCards.slice(indexOfFirstItem, indexOfLastItem);
   }
 
   async function fetchTags() {
@@ -136,73 +101,22 @@ export function SearchPage({
     handleSearch(useClassicSearch, tagName);
   }
 
-  useEffect(() => {
-    document.title = "Zettelgarden - Search";
-
-    let classicSearch = useClassicSearch;
-    const params = new URLSearchParams(location.search);
-    const recent = params.get("recent");
-    let term = params.get("term");
-    if (term === null) {
-      term = "";
-    }
-    console.log("recent", recent, "term", term);
-
-    if (recent !== null) {
-      classicSearch = true;
-      setUseClassicSearch(true);
-      term = "";
-    } else if (term !== "") {
-      classicSearch = true;
-      setUseClassicSearch(true);
-      setSearchTerm(term);
-    } else {
-      fetchTags();
-    }
-    console.log(classicSearch, term);
-    handleSearch(classicSearch, term);
-  }, []);
-
-  function getPagedResults(): (PartialCard | CardChunk)[] {
-    if (useClassicSearch) {
-      const filteredCards = onlyParentCards 
-        ? cards.filter(card => !card.card_id.includes("/"))
-        : cards;
-      const sortedCards = sortCards(filteredCards, sortBy);
-      const indexOfLastItem = currentPage * itemsPerPage;
-      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-      return sortedCards.slice(indexOfFirstItem, indexOfLastItem);
-    } else {
-      const filteredResults = onlyParentCards 
-        ? searchResults.filter(result => !result.id.includes("/"))
-        : searchResults;
-      const sortedResults = sortCards(filteredResults.map(result => ({
-        id: Number(result.metadata?.id) || 0,
-        card_id: result.id,
-        title: result.title,
-        preview: result.preview,
-        body: result.preview,
-        user_id: 0,
-        created_at: result.created_at,
-        updated_at: result.updated_at,
-        parent_id: result.metadata?.parent_id || 0,
-        ranking: result.score,
-        tags: [],
-        combined_score: result.score,
-        shared_entities: result.metadata?.shared_entities || 0,
-        entity_similarity: result.metadata?.entity_similarity || 0,
-      } as CardChunk)), sortBy);
-      
-      const indexOfLastItem = currentPage * itemsPerPage;
-      const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-      return sortedResults.slice(indexOfFirstItem, indexOfLastItem);
-    }
+  function getPagedResults(): SearchResult[] {
+    const filteredResults = searchResults
+      .filter(result => result.score > 0)
+      .filter(result => !onlyParentCards || !result.id.includes("/"))
+      .filter(result => showEntities || result.type !== "entity");
+    
+    const sortedResults = sortCards(filteredResults, sortBy);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return sortedResults.slice(indexOfFirstItem, indexOfLastItem);
   }
 
   function getTotalPages() {
-    const totalItems = useClassicSearch 
-      ? (onlyParentCards ? cards.filter(card => !card.card_id.includes("/")).length : cards.length)
-      : (onlyParentCards ? searchResults.filter(result => !result.id.includes("/")).length : searchResults.length);
+    const totalItems = onlyParentCards 
+      ? searchResults.filter(result => !result.id.includes("/")).length 
+      : searchResults.length;
     return Math.ceil(totalItems / itemsPerPage);
   }
 
@@ -215,52 +129,33 @@ export function SearchPage({
     }
     // Clear existing results
     setSearchResults([]);
-    setCards([]);
     // Reset page
     setCurrentPage(1);
     // Perform new search with current term
     handleSearch(newClassicSearch, searchTerm);
   };
+
   const handleOnlyParentCardsChange = (event) => {
     setOnlyParentCards(event.target.checked);
     // Reset to first page when changing filter
     setCurrentPage(1);
   };
+
   const handleShowPreviewChange = (event) => {
     setShowPreview(event.target.checked);
   };
+
   const handleFullTextChange = (event) => {
     setUseFullText(event.target.checked);
     // Perform new search with updated full text setting
     handleSearch(useClassicSearch, searchTerm);
   };
-  useEffect(() => {
-    const initializeSearch = async () => {
-      document.title = "Zettelgarden - Search";
-      const params = new URLSearchParams(location.search);
-      const recent = params.get("recent");
-      const term = params.get("term") || "";
 
-      let classicSearch = useClassicSearch;
-
-      if (recent !== null) {
-        classicSearch = true;
-        setUseClassicSearch(true);
-        setSearchTerm("");
-        await handleSearch(true, "");
-      } else if (term) {
-        classicSearch = true;
-        setUseClassicSearch(true);
-        setSearchTerm(term);
-        await handleSearch(true, term);
-      } else {
-        await fetchTags();
-        await handleSearch(classicSearch, "");
-      }
-    };
-
-    initializeSearch();
-  }, []);
+  const handleShowEntitiesChange = (event) => {
+    setShowEntities(event.target.checked);
+    // Reset to first page when changing filter
+    setCurrentPage(1);
+  };
 
   return (
     <div>
@@ -349,6 +244,17 @@ export function SearchPage({
                       Show Preview
                     </label>
                   </div>
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showEntities}
+                        onChange={handleShowEntitiesChange}
+                        className="mr-2"
+                      />
+                      Show Entities
+                    </label>
+                  </div>
                 </div>
               </Menu.Items>
             </Menu>
@@ -358,12 +264,15 @@ export function SearchPage({
           <div className="flex justify-center w-full py-20">Loading</div>
         ) : (
           <div>
-            {(useClassicSearch ? cards.length : searchResults.length) > 0 ? (
+            {searchResults.length > 0 ? (
               <div>
                 <SearchResultList
                   results={getPagedResults()}
-                  showAddButton={false}
                   showPreview={showPreview}
+                  onEntityClick={(entityName) => {
+                    setSearchTerm(entityName);
+                    handleSearch(true, entityName);
+                  }}
                 />
                 <div className="flex justify-center gap-4 mt-4">
                   <Button

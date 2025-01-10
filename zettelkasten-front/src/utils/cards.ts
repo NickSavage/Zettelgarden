@@ -1,4 +1,4 @@
-import { PartialCard, Card, CardChunk } from "../models/Card";
+import { PartialCard, Card, CardChunk, SearchResult } from "../models/Card";
 
 // filter the card_id and title by searchText, return top 5 matches
 export function quickFilterCards(
@@ -27,6 +27,7 @@ export function quickFilterCards(
   let results = filteredCards.slice(0, 5);
   return results;
 }
+
 export function convertCardToPartialCard(card: Card): PartialCard {
   return {
     id: card.id,
@@ -47,41 +48,34 @@ export function isCardIdUnique(
   return !cards.some((card) => card.card_id === id);
 }
 
-export function sortCards(cards: (PartialCard | CardChunk)[], sortBy: string) {
-  switch (sortBy) {
+export function sortCards(cards: SearchResult[], sortMethod: string): SearchResult[] {
+  const sortedCards = [...cards];
+  switch (sortMethod) {
     case "sortCreatedNewOld":
-      return [...cards].sort((a, b) => {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
+      sortedCards.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+      break;
     case "sortCreatedOldNew":
-      return [...cards].sort((a, b) => {
-        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      });
+      sortedCards.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
+      break;
     case "sortNewOld":
-      return [...cards].sort((a, b) => {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      });
+      sortedCards.sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime());
+      break;
     case "sortOldNew":
-      return [...cards].sort((a, b) => {
-        return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
-      });
+      sortedCards.sort((a, b) => a.updated_at.getTime() - b.updated_at.getTime());
+      break;
     case "sortBigSmall":
-      return [...cards].sort((a, b) => {
-        return a.title.localeCompare(b.title);
-      });
+      sortedCards.sort((a, b) => a.title.localeCompare(b.title));
+      break;
     case "sortSmallBig":
-      return [...cards].sort((a, b) => {
-        return b.title.localeCompare(a.title);
-      });
+      sortedCards.sort((a, b) => b.title.localeCompare(a.title));
+      break;
     case "sortByRanking":
-      return [...cards].sort((a, b) => {
-        const rankingA = 'ranking' in a ? a.ranking || 0 : 0;
-        const rankingB = 'ranking' in b ? b.ranking || 0 : 0;
-        return rankingB - rankingA; // Sort by descending order (highest ranking first)
-      });
+      sortedCards.sort((a, b) => b.score - a.score);
+      break;
     default:
-      return cards;
+      break;
   }
+  return sortedCards;
 }
 
 export function compareCardIds(a: string, b: string): number {

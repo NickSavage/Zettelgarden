@@ -499,30 +499,38 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 
-		// Get entity results
-		// entities, err := s.ClassicEntitySearch(userID, searchParams)
-		// if err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
+		//Get entity results
+		var entities []models.Entity
 
-		// Convert entities to SearchResults and append them
-		// for _, entity := range entities {
-		// 	searchResults = append(searchResults, models.SearchResult{
-		// 		ID:        strconv.Itoa(entity.ID),
-		// 		Type:      "entity",
-		// 		Title:     entity.Name,
-		// 		Preview:   entity.Description,
-		// 		Score:     1.0,
-		// 		CreatedAt: entity.CreatedAt,
-		// 		UpdatedAt: entity.UpdatedAt,
-		// 		Metadata: map[string]interface{}{
-		// 			"id":         entity.ID,
-		// 			"type":       entity.Type,
-		// 			"card_count": entity.CardCount,
-		// 		},
-		// 	})
-		// }
+		// I would like a better way to do this
+		// I want to check if the search term has any entities in it
+		// if it does, we don't wan tto populate with more entities
+		params := ParseSearchText(searchParams.SearchTerm)
+		if len(params.Entities) == 0 {
+			entities, err = s.ClassicEntitySearch(userID, searchParams)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+
+		//Convert entities to SearchResults and append them
+		for _, entity := range entities {
+			searchResults = append(searchResults, models.SearchResult{
+				ID:        strconv.Itoa(entity.ID),
+				Type:      "entity",
+				Title:     entity.Name,
+				Preview:   entity.Description,
+				Score:     1.0,
+				CreatedAt: entity.CreatedAt,
+				UpdatedAt: entity.UpdatedAt,
+				Metadata: map[string]interface{}{
+					"id":         entity.ID,
+					"type":       entity.Type,
+					"card_count": entity.CardCount,
+				},
+			})
+		}
 
 		var reranked []models.SearchResult
 		if s.Server.Testing {
