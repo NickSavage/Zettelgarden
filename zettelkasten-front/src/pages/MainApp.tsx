@@ -90,8 +90,6 @@ function MainAppContent() {
                     <SearchPage
                       searchTerm={searchTerm}
                       setSearchTerm={setSearchTerm}
-                      cards={searchCards}
-                      setCards={setSearchCards}
                     />
                   }
                 />

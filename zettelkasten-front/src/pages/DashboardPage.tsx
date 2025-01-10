@@ -23,7 +23,9 @@ export function DashboardPage() {
 
   const navigate = useNavigate();
 
-  const recentCards = sortCards(partialCards.slice(0, 10), "sortNewOld");
+  const recentCards = partialCards.slice(0, 10).sort((a, b) => 
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   return (
     <div>
