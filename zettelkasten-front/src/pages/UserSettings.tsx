@@ -42,6 +42,11 @@ export function UserSettingsPage() {
       // Optionally, navigate to another route upon success or just show success message
       // navigate('/some-success-page'); or
       alert("User updated successfully");
+
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+
+      localStorage.setItem("username", currentUser["username"]);
     } catch (error: any) {
       // Handle any errors that occur during the update
       console.error("Failed to update user:", error);
@@ -51,7 +56,7 @@ export function UserSettingsPage() {
 
   const handlePasswordReset = async () => {
     if (!user?.email) return;
-    
+
     try {
       setIsLoading(true);
       const response = await requestPasswordReset(user.email);
@@ -113,7 +118,7 @@ export function UserSettingsPage() {
                 <input type="email" name="email" defaultValue={user?.email} />
               </label>
             </div>
-            <button 
+            <button
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
             >
