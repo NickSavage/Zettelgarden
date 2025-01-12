@@ -171,21 +171,21 @@ export function Sidebar() {
       >
         {/* Upper Section */}
         <div className="flex items-center p-4 border-b">
-          <Link to="/app">
+          <Link to="/app" className="flex-shrink-0">
             <img
               src={logo}
               alt="Company Logo"
               className="h-8 w-auto rounded-md"
             />
           </Link>
-          <div className="flex-grow mx-2">
+          <div className="flex-grow mx-2 min-w-0">
             <Link to="/app/settings">
-              <span className="text-sm font-medium hover:text-gray-700">
+              <span className="text-sm font-medium hover:text-gray-700 truncate block">
                 {username}
               </span>
             </Link>
           </div>
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <Button
               onClick={toggleNewDropdown}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white hover:bg-blue-600"
