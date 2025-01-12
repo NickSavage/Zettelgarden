@@ -222,7 +222,7 @@ function LandingPage() {
                 <GithubIcon />
               </a>
               <a 
-                href="https://twitter.com/impossibilium"
+                href="https://twitter.com/zettelgarden"
                 className="text-gray-600 hover:text-gray-900 transition-colors duration-200">
                 <TwitterIcon />
               </a>
