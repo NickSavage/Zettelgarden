@@ -1,6 +1,28 @@
 import { PartialCard } from "./Card";
 import { Tag } from "./Tags";
 
+interface AuditChange {
+  from: any;
+  to: any;
+}
+
+interface AuditDetails {
+  change_type: string;
+  changes: {
+    [key: string]: AuditChange;
+  };
+}
+
+export interface TaskAuditEvent {
+  id: number;
+  user_id: number;
+  entity_id: number;
+  entity_type: string;
+  action: string;
+  details: AuditDetails;
+  created_at: string | Date;
+}
+
 export interface Task {
   id: number;
   card_pk: number;

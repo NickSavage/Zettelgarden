@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
-import { Task } from "../../models/Task";
+import { Task, TaskAuditEvent } from "../../models/Task";
 import { TaskDateDisplay } from "./TaskDateDisplay";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { PartialCard } from "../../models/Card";
 import { Link } from "react-router-dom";
 import { TaskTagDisplay } from "./TaskTagDisplay";
-import { saveExistingTask, deleteTask } from "../../api/tasks";
+import { saveExistingTask, deleteTask, fetchTaskAuditEvents } from "../../api/tasks";
 import { useTaskContext } from "../../contexts/TaskContext";
 import { Button } from "../../components/Button";
 import { TaskListOptionsMenu } from "./TaskListOptionsMenu";
+import { format } from "date-fns";
 
 interface TaskDialogProps {
   task: Task;
@@ -18,14 +19,75 @@ interface TaskDialogProps {
   onTagClick: (tag: string) => void;
 }
 
+function formatAuditEvent(event: TaskAuditEvent): string {
+  console.log("Formatting event:", event);
+
+  if (event.action === "create") {
+    return "Task created";
+  }
+  
+  if (event.action === "delete") {
+    return "Task deleted";
+  }
+
+  if (event.action === "update" && event.details.change_type === "update") {
+    const changes: string[] = [];
+    const changeDetails = event.details.changes;
+
+    // Title changes
+    if (changeDetails.Title) {
+      changes.push(`Changed title from "${changeDetails.Title.from}" to "${changeDetails.Title.to}"`);
+    }
+
+    // Completion status changes
+    if (changeDetails.IsComplete) {
+      changes.push(changeDetails.IsComplete.to ? "Marked as complete" : "Marked as incomplete");
+    }
+
+    // Scheduled date changes
+    if (changeDetails.ScheduledDate) {
+      const newDate = changeDetails.ScheduledDate.to ? 
+        format(new Date(changeDetails.ScheduledDate.to), 'MMM d, yyyy') : 
+        'none';
+      changes.push(`Changed scheduled date to ${newDate}`);
+    }
+
+    // Card link changes
+    if (changeDetails.CardPK) {
+      if (changeDetails.CardPK.from === 0 && changeDetails.CardPK.to > 0) {
+        changes.push(`Linked to card [${changeDetails.CardPK.to}]`);
+      } else if (changeDetails.CardPK.from > 0 && changeDetails.CardPK.to === 0) {
+        changes.push(`Unlinked from card [${changeDetails.CardPK.from}]`);
+      } else {
+        changes.push(`Changed linked card from [${changeDetails.CardPK.from}] to [${changeDetails.CardPK.to}]`);
+      }
+    }
+
+    // If no specific changes were detected
+    if (changes.length === 0) {
+      return "Task updated";
+    }
+
+    return changes.join("; ");
+  }
+
+  return "Unknown change";
+}
+
 export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProps) {
   const [editedTask, setEditedTask] = useState<Task>(task);
   const [isEditing, setIsEditing] = useState(false);
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
+  const [auditEvents, setAuditEvents] = useState<TaskAuditEvent[]>([]);
   const { setRefreshTasks } = useTaskContext();
 
   useEffect(() => {
     setEditedTask(task);
+    if (task.id) {
+      fetchTaskAuditEvents(task.id)
+        .then(events => setAuditEvents(events))
+        .catch(error => console.error("Error fetching audit events:", error));
+    }
   }, [task]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,6 +181,28 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
                 <BacklinkInput addBacklink={handleBacklink} />
               </div>
             )}
+          </div>
+
+          <div className="mt-6 border-t pt-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Task History</h3>
+            <div className="space-y-3 max-h-[200px] overflow-y-auto">
+              {auditEvents.length > 0 ? (
+                auditEvents.map((event) => (
+                  <div key={event.id} className="flex items-start space-x-3 text-sm hover:bg-gray-50 p-2 rounded">
+                    <div className="text-gray-500 min-w-[120px] font-medium">
+                      {format(event.created_at, 'MMM d, HH:mm')}
+                    </div>
+                    <div className="flex-grow text-gray-700">
+                      {formatAuditEvent(event)}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-gray-500 text-center py-4">
+                  No history available
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="mt-6 flex justify-between">

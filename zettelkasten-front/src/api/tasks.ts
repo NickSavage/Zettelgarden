@@ -1,4 +1,4 @@
-import { Task } from "src/models/Task";
+import { Task, TaskAuditEvent } from "src/models/Task";
 import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
@@ -103,6 +103,44 @@ export function deleteTask(id: number): Promise<Task | null> {
           return null;
         }
         return response.json() as Promise<Task>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+export function fetchTaskAuditEvents(taskId: number): Promise<TaskAuditEvent[]> {
+  const url = `${base_url}/tasks/${taskId}/audit`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((events: TaskAuditEvent[]) => {
+          return events.map((event) => ({
+            ...event,
+            created_at: new Date(event.created_at),
+            old_value: event.old_value ? {
+              ...event.old_value,
+              created_at: new Date(event.old_value.created_at),
+              updated_at: new Date(event.old_value.updated_at),
+              completed_at: event.old_value.completed_at ? new Date(event.old_value.completed_at) : null,
+              scheduled_date: event.old_value.scheduled_date ? new Date(event.old_value.scheduled_date) : null,
+              dueDate: event.old_value.dueDate ? new Date(event.old_value.dueDate) : null,
+            } : null,
+            new_value: event.new_value ? {
+              ...event.new_value,
+              created_at: new Date(event.new_value.created_at),
+              updated_at: new Date(event.new_value.updated_at),
+              completed_at: event.new_value.completed_at ? new Date(event.new_value.completed_at) : null,
+              scheduled_date: event.new_value.scheduled_date ? new Date(event.new_value.scheduled_date) : null,
+              dueDate: event.new_value.dueDate ? new Date(event.new_value.dueDate) : null,
+            } : null,
+          }));
+        });
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }
