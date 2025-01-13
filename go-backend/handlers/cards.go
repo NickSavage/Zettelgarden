@@ -747,7 +747,6 @@ func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
 		return err
 	}
 	for _, chunk := range chunks {
-		log.Printf("push chunk %v", chunk)
 		s.Server.LLMClient.EmbeddingQueue.Push(models.LLMRequest{
 			UserID: userID,
 			CardPK: cardPK,
