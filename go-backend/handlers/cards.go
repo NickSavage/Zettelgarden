@@ -500,33 +500,17 @@ func (s *Handler) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
 		return
 	}
-	card, err := s.QueryFullCard(userID, id)
+
+	err = s.DeleteCard(userID, id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	backlinks, _ := s.getBacklinks(userID, card.CardID)
-	if len(backlinks) > 0 {
-		http.Error(w, "card has backlinks, cannot be deleted", http.StatusBadRequest)
-		return
-	}
-	children, _ := s.getChildren(userID, card.CardID)
-	if len(children) > 0 {
-		http.Error(w, "card has children, cannot be deleted", http.StatusBadRequest)
+		if err.Error() == "card has backlinks, cannot be deleted" || err.Error() == "card has children, cannot be deleted" {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	_, err = s.DB.Exec(`
-	UPDATE cards SET is_deleted = TRUE, updated_at = NOW()
-	WHERE
-	id = $1 AND user_id = $2
-	`, id, userID)
-
-	if err != nil {
-		log.Printf("err %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -660,6 +644,12 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 }
 
 func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {
+	// Get the old state first
+	oldCard, err := s.QueryFullCard(userID, cardPK)
+	if err != nil {
+		return models.Card{}, err
+	}
+
 	var parent_id int
 	parent, _ := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 
@@ -675,25 +665,36 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	WHERE
 	id = $6
 	`
-	_, err := s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.CardID, cardPK)
+	_, err = s.DB.Exec(query, params.Title, params.Body, params.Link, parent_id, params.CardID, cardPK)
 	if err != nil {
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
 	}
 
-	card, err := s.QueryFullCard(userID, cardPK)
-	backlinks := extractBacklinks(card.Body)
-	s.updateBacklinks(card.ID, backlinks)
+	// Get the new state
+	newCard, err := s.QueryFullCard(userID, cardPK)
+	if err != nil {
+		return models.Card{}, err
+	}
 
-	s.ChunkCard(card)
+	// Create audit event
+	err = s.CreateAuditEvent(userID, cardPK, "card", "update", oldCard, newCard)
+	if err != nil {
+		log.Printf("Error creating audit event: %v", err)
+		// Don't return here, as the update was successful
+	}
+
+	backlinks := extractBacklinks(newCard.Body)
+	s.updateBacklinks(newCard.ID, backlinks)
+
+	s.ChunkCard(newCard)
 
 	if !s.Server.Testing {
-
 		go func() {
-			s.ExtractSaveCardEntities(userID, card)
+			s.ExtractSaveCardEntities(userID, newCard)
 		}()
 		go func() {
-			s.ChunkEmbedCard(userID, card.ID)
+			s.ChunkEmbedCard(userID, newCard.ID)
 		}()
 	}
 
@@ -715,7 +716,19 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 		log.Printf("updatecard err %v", err)
 		return models.Card{}, err
 	}
-	card, err := s.QueryFullCard(userID, id)
+
+	// Get the created card
+	newCard, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		return models.Card{}, err
+	}
+
+	// Create audit event for creation
+	err = s.CreateAuditEvent(userID, id, "card", "create", nil, newCard)
+	if err != nil {
+		log.Printf("Error creating audit event: %v", err)
+		// Don't return here, as the creation was successful
+	}
 
 	// set parent id to id if there's no parent
 	if parent.ID == 0 || params.CardID == "" {
@@ -724,16 +737,17 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 			return models.Card{}, err
 		}
 	}
-	backlinks := extractBacklinks(card.Body)
-	s.updateBacklinks(card.ID, backlinks)
-	s.ChunkCard(card)
+
+	backlinks := extractBacklinks(newCard.Body)
+	s.updateBacklinks(newCard.ID, backlinks)
+	s.ChunkCard(newCard)
 
 	if !s.Server.Testing {
 		go func() {
-			s.ExtractSaveCardEntities(userID, card)
+			s.ExtractSaveCardEntities(userID, newCard)
 		}()
 		go func() {
-			s.ChunkEmbedCard(userID, card.ID)
+			s.ChunkEmbedCard(userID, newCard.ID)
 		}()
 	}
 	s.AddTagsFromCard(userID, id)
@@ -830,4 +844,40 @@ func (s *Handler) GetPartialCardsFromChunks(userID int, cardPKs []int) ([]models
 		cards = append(cards, card)
 	}
 	return cards, nil
+}
+
+func (s *Handler) DeleteCard(userID int, id int) error {
+	// Get the card before deletion for audit
+	card, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		return err
+	}
+
+	backlinks, _ := s.getBacklinks(userID, card.CardID)
+	if len(backlinks) > 0 {
+		return fmt.Errorf("card has backlinks, cannot be deleted")
+	}
+	children, _ := s.getChildren(userID, card.CardID)
+	if len(children) > 0 {
+		return fmt.Errorf("card has children, cannot be deleted")
+	}
+
+	_, err = s.DB.Exec(`
+	UPDATE cards SET is_deleted = TRUE, updated_at = NOW()
+	WHERE
+	id = $1 AND user_id = $2
+	`, id, userID)
+
+	if err != nil {
+		return err
+	}
+
+	// Create audit event for deletion
+	err = s.CreateAuditEvent(userID, id, "card", "delete", card, nil)
+	if err != nil {
+		log.Printf("Error creating audit event: %v", err)
+		// Don't return here as deletion was successful
+	}
+
+	return nil
 }

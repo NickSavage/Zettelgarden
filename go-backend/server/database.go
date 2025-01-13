@@ -48,6 +48,7 @@ func ResetDatabase(S *Server) error {
 			DROP TABLE IF EXISTS chat_conversations CASCADE;
 			DROP TABLE IF EXISTS entities CASCADE;
 			DROP TABLE IF EXISTS entity_card_junction CASCADE;
+			DROP TABLE IF EXISTS audit_events CASCADE;
 
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,

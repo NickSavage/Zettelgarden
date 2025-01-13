@@ -220,6 +220,16 @@ func (s *Handler) UpdateTask(userID int, id int, task models.Task) error {
 		return fmt.Errorf("unable to update task")
 	}
 
+	newTask, err := s.QueryTask(userID, id)
+	if err != nil {
+		log.Printf("Error querying updated task for audit: %v", err)
+	} else {
+		err = s.CreateAuditEvent(userID, id, "task", "update", oldTask, newTask)
+		if err != nil {
+			log.Printf("Error creating audit event: %v", err)
+		}
+	}
+
 	s.AddTagsFromTask(userID, id)
 	return nil
 }
@@ -271,6 +281,17 @@ func (s *Handler) CreateTask(task models.Task) (int, error) {
 		log.Printf("err %v", err)
 		return 0, fmt.Errorf("unable to create task")
 	}
+
+	newTask, err := s.QueryTask(task.UserID, taskID)
+	if err != nil {
+		log.Printf("Error querying new task for audit: %v", err)
+	} else {
+		err = s.CreateAuditEvent(task.UserID, taskID, "task", "create", nil, newTask)
+		if err != nil {
+			log.Printf("Error creating audit event: %v", err)
+		}
+	}
+
 	s.AddTagsFromTask(task.UserID, taskID)
 	return taskID, nil
 }
@@ -301,7 +322,12 @@ func (s *Handler) CreateTaskRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) DeleteTask(userID int, id int) error {
-	_, err := s.DB.Exec(`
+	oldTask, err := s.QueryTask(userID, id)
+	if err != nil {
+		return fmt.Errorf("unable to query task: %v", err)
+	}
+
+	_, err = s.DB.Exec(`
 	UPDATE tasks SET is_deleted = TRUE
 	WHERE id = $1 AND user_id = $2
 	`, id, userID)
@@ -310,6 +336,12 @@ func (s *Handler) DeleteTask(userID int, id int) error {
 		log.Printf("err %v", err)
 		return fmt.Errorf("unable to delete task")
 	}
+
+	err = s.CreateAuditEvent(userID, id, "task", "delete", oldTask, nil)
+	if err != nil {
+		log.Printf("Error creating audit event: %v", err)
+	}
+
 	return nil
 }
 
