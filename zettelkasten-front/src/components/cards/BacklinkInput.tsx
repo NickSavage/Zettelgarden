@@ -29,6 +29,7 @@ export function BacklinkInput({ addBacklink }: BacklinkInputProps) {
   }
 
   function handleEnterPress(e: React.KeyboardEvent<HTMLInputElement>) {
+    console.log(e, e.key)
     if (e.key === "Enter") {
       setTopResults([]);
       let enteredCard = topResults.find((card) => card.card_id === searchTerm);

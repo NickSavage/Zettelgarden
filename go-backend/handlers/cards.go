@@ -503,6 +503,10 @@ func (s *Handler) DeleteCardRoute(w http.ResponseWriter, r *http.Request) {
 
 	err = s.DeleteCard(userID, id)
 	if err != nil {
+		if err.Error() == "card not found" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
 		if err.Error() == "card has backlinks, cannot be deleted" || err.Error() == "card has children, cannot be deleted" {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -634,13 +638,15 @@ func (s *Handler) QueryFullCard(userID int, id int) (models.Card, error) {
 		&card.UpdatedAt,
 	)
 	if err != nil {
-		log.Printf("asdas err %v", err)
+		if err == sql.ErrNoRows {
+			return models.Card{}, fmt.Errorf("card not found")
+		}
+		log.Printf("query error: %v", err)
 		return models.Card{}, fmt.Errorf("unable to access card")
 	}
 
 	s.logCardView(id, userID)
 	return card, nil
-
 }
 
 func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParams) (models.Card, error) {

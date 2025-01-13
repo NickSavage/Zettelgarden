@@ -123,7 +123,7 @@ func TestGetCardWrongUser(t *testing.T) {
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
-	if rr.Body.String() != "unable to access card\n" {
+	if rr.Body.String() != "card not found\n" {
 		t.Errorf("handler returned wrong body, got %v want %v", rr.Body.String(), "unable to access card\n")
 	}
 	var logCount int
@@ -566,6 +566,7 @@ func TestDeleteCardSuccess(t *testing.T) {
 	rr = makeCardDeleteRequestSuccess(s, t, id)
 
 	if status := rr.Code; status != http.StatusNotFound {
+		log.Printf(rr.Body.String())
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
 }
