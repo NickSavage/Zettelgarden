@@ -31,8 +31,6 @@ func (s *Handler) GetUserAdminRoute(w http.ResponseWriter, r *http.Request) {
 
 // admin protected
 func (s *Handler) GetUserRoute(w http.ResponseWriter, r *http.Request) {
-	log.Printf("aoea")
-
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, "Invalid id", http.StatusBadRequest)
@@ -239,6 +237,7 @@ func (s *Handler) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
 	if err != nil {
+		log.Printf("error email validation json %v", err)
 		response.Error = true
 		response.Message = err.Error()
 		w.WriteHeader(http.StatusBadRequest)
@@ -248,6 +247,7 @@ func (s *Handler) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 
 	claims, err := s.decodeToken(params.Token)
 	if err != nil {
+		log.Printf("error email validation token %v", err)
 		response.Error = true
 		response.Message = err.Error()
 		w.WriteHeader(http.StatusBadRequest)
@@ -256,6 +256,7 @@ func (s *Handler) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := s.QueryUser(claims.Sub)
 	if err != nil {
+		log.Printf("error email validation user %v", err)
 		response.Error = true
 		response.Message = "Invalid token"
 		w.WriteHeader(http.StatusBadRequest)
@@ -265,6 +266,7 @@ func (s *Handler) ValidateEmailRoute(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.DB.Exec(`UPDATE users SET email_validated = TRUE WHERE id = $1`, user.ID)
 	if err != nil {
+		log.Printf("error email validation db %v", err)
 		response.Error = true
 		response.Message = err.Error()
 		w.WriteHeader(http.StatusInternalServerError)
