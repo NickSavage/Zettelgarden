@@ -122,23 +122,7 @@ export function fetchTaskAuditEvents(taskId: number): Promise<TaskAuditEvent[]> 
         return response.json().then((events: TaskAuditEvent[]) => {
           return events.map((event) => ({
             ...event,
-            created_at: new Date(event.created_at),
-            old_value: event.old_value ? {
-              ...event.old_value,
-              created_at: new Date(event.old_value.created_at),
-              updated_at: new Date(event.old_value.updated_at),
-              completed_at: event.old_value.completed_at ? new Date(event.old_value.completed_at) : null,
-              scheduled_date: event.old_value.scheduled_date ? new Date(event.old_value.scheduled_date) : null,
-              dueDate: event.old_value.dueDate ? new Date(event.old_value.dueDate) : null,
-            } : null,
-            new_value: event.new_value ? {
-              ...event.new_value,
-              created_at: new Date(event.new_value.created_at),
-              updated_at: new Date(event.new_value.updated_at),
-              completed_at: event.new_value.completed_at ? new Date(event.new_value.completed_at) : null,
-              scheduled_date: event.new_value.scheduled_date ? new Date(event.new_value.scheduled_date) : null,
-              dueDate: event.new_value.dueDate ? new Date(event.new_value.dueDate) : null,
-            } : null,
+            created_at: new Date(event.created_at)
           }));
         });
       } else {
