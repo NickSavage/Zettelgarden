@@ -11,10 +11,11 @@ import { BacklinkInput } from "../cards/BacklinkInput";
 import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
 import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
-import { TaskTagDisplay } from "../../components/tasks/TaskTagDisplay";
-import { TaskListOptionsMenu } from "../../components/tasks/TaskListOptionsMenu";
+import { TaskTagDisplay } from "./TaskTagDisplay";
+import { TaskListOptionsMenu } from "./TaskListOptionsMenu";
 import { removeTagsFromTitle, parseTags } from "../../utils/tasks";
 import { useTaskContext } from "../../contexts/TaskContext";
+import { TaskDialog } from "./TaskDialog";
 
 interface TaskListItemProps {
   task: Task;
@@ -29,11 +30,11 @@ export function TaskListItem({
   const [newTitle, setNewTitle] = useState<string>("");
   const [showCardLink, setShowCardLink] = useState<boolean>(false);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { setRefreshTasks } = useTaskContext();
 
   async function handleTitleClick() {
-    setNewTitle(task.title);
-    setEditTitle(true);
+    setIsDialogOpen(true);
   }
 
   async function handleBacklink(card: PartialCard) {
@@ -64,9 +65,9 @@ export function TaskListItem({
   }
 
   useEffect(() => {
-    console.log("refrsh task");
     setTags(task.tags);
   }, [task]);
+
   return (
     <div className="task-list-item">
       <div className="task-list-item-checkbox">
@@ -76,28 +77,15 @@ export function TaskListItem({
       </div>
       <div className="task-list-item-middle-container">
         <div className="task-list-item-title">
-          {editTitle ? (
-            <input
-              className="task-list-item-title-input"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-                if (event.key === "Enter") {
-                  handleTitleEdit();
-                }
-              }}
-            />
-          ) : (
-            <span
-              onClick={handleTitleClick}
-              className={task.is_complete ? "task-completed" : "task-title"}
-              dangerouslySetInnerHTML={{
-                __html: linkifyWithDefaultOptions(
-                  removeTagsFromTitle(task.title),
-                ),
-              }}
-            />
-          )}
+          <span
+            onClick={handleTitleClick}
+            className={task.is_complete ? "task-completed" : "task-title"}
+            dangerouslySetInnerHTML={{
+              __html: linkifyWithDefaultOptions(
+                removeTagsFromTitle(task.title),
+              ),
+            }}
+          />
         </div>
         <div className="task-list-item-details inline-block">
           <TaskDateDisplay
@@ -129,6 +117,12 @@ export function TaskListItem({
         tags={tags}
         showCardLink={showCardLink}
         setShowCardLink={setShowCardLink}
+      />
+      <TaskDialog
+        task={task}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onTagClick={onTagClick}
       />
     </div>
   );

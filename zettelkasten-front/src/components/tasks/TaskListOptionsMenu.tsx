@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Task } from "../../models/Task";
 import { Tag } from "../../models/Tags";
 
-import { deleteTask, saveExistingTask } from "../../api/tasks";
+import { saveExistingTask } from "../../api/tasks";
 
 import { AddTagMenu } from "../../components/tags/AddTagMenu";
 import { RemoveTagMenu } from "../../components/tasks/RemoveTagMenu";
 import { useTaskContext } from "../../contexts/TaskContext";
+
 interface TaskListOptionsMenuProps {
   task: Task;
   tags: Tag[];
@@ -24,6 +25,7 @@ export function TaskListOptionsMenu({
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
   const [showRemoveMenu, setShowRemoveMenu] = useState<boolean>(false);
   const { setRefreshTasks } = useTaskContext();
+
   function toggleMenu() {
     setShowTagMenu(false);
     setShowRemoveMenu(false);
@@ -35,15 +37,11 @@ export function TaskListOptionsMenu({
     setShowTagMenu(true);
     setShowRemoveMenu(false);
   }
+
   async function handleRemoveTagClick() {
     setShowMenu(false);
     setShowTagMenu(false);
     setShowRemoveMenu(true);
-  }
-  async function handleDelete() {
-    let _ = await deleteTask(task.id);
-    setRefreshTasks(true);
-    setShowMenu(false);
   }
 
   async function handleAddTag(tagName: string) {
@@ -56,11 +54,8 @@ export function TaskListOptionsMenu({
   }
 
   async function handleRemoveTag(tag: string) {
-    console.log("removing tag", tag)
     const tagRegex = new RegExp(`(?:^|\\s)${tag}(?=\\s|$)`, "g");
-    console.log(task.title)
     let editedTitle = task.title.replace(tagRegex, "").trim();
-    console.log(editedTitle)
     editedTitle = editedTitle.replace(/\s+/g, " ");
     let editedTask = { ...task, title: editedTitle };
 
@@ -70,10 +65,12 @@ export function TaskListOptionsMenu({
       setShowRemoveMenu(false);
     }
   }
+
   function toggleCardLink() {
     setShowCardLink(!showCardLink);
     setShowMenu(false);
   }
+
   async function handleCardUnlink() {
     let editedTask = { ...task, card_pk: 0 };
     let response = await saveExistingTask(editedTask);
@@ -100,7 +97,6 @@ export function TaskListOptionsMenu({
             {tags.length > 0 && (
               <button onClick={() => handleRemoveTagClick()}>Remove Tag</button>
             )}
-            <button onClick={() => handleDelete()}>Delete</button>
           </div>
         )}
         {showTagMenu && (
