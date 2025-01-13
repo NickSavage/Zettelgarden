@@ -1,11 +1,17 @@
 package handlers
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"go-backend/models"
 	"go-backend/tests"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -111,5 +117,54 @@ func TestTaskAuditEvents(t *testing.T) {
 		assert.Equal(t, "update", events[1].Action) // Complete
 		assert.Equal(t, "update", events[2].Action) // Title update
 		assert.Equal(t, "create", events[3].Action)
+	})
+
+	t.Run("GetTaskAuditEventsRoute", func(t *testing.T) {
+		// Create a task and perform some actions to generate audit events
+		task := createTestTask(t, s, 1)
+
+		// Update task
+		task.Title = "Updated Task"
+		err := s.UpdateTask(1, task.ID, task)
+		assert.NoError(t, err)
+
+		// Create a new router and register the route
+		r := mux.NewRouter()
+		r.HandleFunc("/api/tasks/{id}/audit", s.GetTaskAuditEventsRoute).Methods("GET")
+
+		// Create a mock request
+		req, err := http.NewRequest("GET", fmt.Sprintf("/api/tasks/%d/audit", task.ID), nil)
+		assert.NoError(t, err)
+
+		// Set the context with user ID
+		ctx := context.WithValue(req.Context(), "current_user", 1)
+		req = req.WithContext(ctx)
+
+		// Create a response recorder
+		rr := httptest.NewRecorder()
+
+		// Call the handler through the router
+		r.ServeHTTP(rr, req)
+
+		// Check response status
+		assert.Equal(t, http.StatusOK, rr.Code, "Handler returned wrong status code: got %v want %v", rr.Code, http.StatusOK)
+
+		// Parse response body
+		var events []models.AuditEvent
+		err = json.NewDecoder(rr.Body).Decode(&events)
+		assert.NoError(t, err, "Error decoding response body: %v", err)
+
+		// Verify events
+		assert.Len(t, events, 2, "Expected 2 events, got %d", len(events)) // Should have create and update events
+		if len(events) >= 2 {
+			assert.Equal(t, "update", events[0].Action)
+			assert.Equal(t, "create", events[1].Action)
+		}
+
+		// Verify unauthorized access
+		req = req.WithContext(context.WithValue(req.Context(), "current_user", 2)) // Different user
+		rr = httptest.NewRecorder()
+		r.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusNotFound, rr.Code)
 	})
 }

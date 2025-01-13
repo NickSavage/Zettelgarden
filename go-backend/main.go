@@ -213,6 +213,7 @@ func main() {
 	addProtectedRoute(r, "/api/tasks", h.CreateTaskRoute, "POST")
 	addProtectedRoute(r, "/api/tasks/{id}", h.UpdateTaskRoute, "PUT")
 	addProtectedRoute(r, "/api/tasks/{id}", h.DeleteTaskRoute, "DELETE")
+	addProtectedRoute(r, "/api/tasks/{id}/audit", h.GetTaskAuditEventsRoute, "GET")
 
 	addProtectedRoute(r, "/api/tags", h.GetTagsRoute, "GET")
 	addProtectedRoute(r, "/api/tags", h.CreateTagRoute, "POST")

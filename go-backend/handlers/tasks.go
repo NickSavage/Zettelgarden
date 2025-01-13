@@ -451,3 +451,29 @@ func (s *Handler) checkRecurringTasks(task models.Task) error {
 	return nil
 
 }
+
+func (s *Handler) GetTaskAuditEventsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	taskID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid task ID", http.StatusBadRequest)
+		return
+	}
+
+	// Verify the user owns this task
+	_, err = s.QueryTask(userID, taskID)
+	if err != nil {
+		http.Error(w, "Task not found", http.StatusNotFound)
+		return
+	}
+
+	events, err := s.GetAuditEvents("task", taskID)
+	if err != nil {
+		log.Printf("Error getting audit events: %v", err)
+		http.Error(w, "Error retrieving audit events", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(events)
+}
