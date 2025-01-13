@@ -67,7 +67,7 @@ export function TagList({}: TagListInterface) {
       </div>
 
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">Create New Tag</h3>
             {error && <div className="text-red-500 mb-4">{error}</div>}
