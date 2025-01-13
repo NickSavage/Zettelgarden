@@ -4,6 +4,7 @@ import { BlogMainPage } from "./BlogMainPage";
 import { BlogPostComponent } from "./BlogPost";
 import { generateRssFeed } from "./rss";
 import { LandingHeader } from "../landing/LandingHeader";
+import { Footer } from "../landing/Footer";
 
 export function BlogApp() {
   // Handle RSS feed request
@@ -20,14 +21,15 @@ export function BlogApp() {
   }, []);
 
   return (
-    <div>
-      <div className="w-full py-2 mx-auto max-w-screen-xl">
+    <div className="min-h-screen flex flex-col">
+      <div className="w-full py-2 mx-auto max-w-screen-xl flex-grow">
         <LandingHeader />
         <Routes>
           <Route path="/" element={<BlogMainPage />} />
           <Route path="/:slug" element={<BlogPostComponent />} />
         </Routes>
       </div>
+      <Footer />
     </div>
   );
 }
