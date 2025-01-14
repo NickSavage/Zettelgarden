@@ -217,6 +217,8 @@ func BuildPartialEntitySqlSearchTermString(searchString string) string {
 
 	var result string
 	var termConditions []string
+	var tagConditions []string
+	var negateTagsConditions []string
 	var excludeTerms []string
 
 	// Add conditions for terms that search both name and description
@@ -231,13 +233,36 @@ func BuildPartialEntitySqlSearchTermString(searchString string) string {
 		excludeTerms = append(excludeTerms, excludeCondition)
 	}
 
+	// Add conditions for tags
+	for _, tag := range searchParams.Tags {
+		tagCondition := fmt.Sprintf("EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = '%s' AND tags.is_deleted = FALSE)", tag)
+		tagConditions = append(tagConditions, tagCondition)
+	}
+
+	// Build SQL for tags that should NOT exist
+	for _, tag := range searchParams.NegateTags {
+		tagCondition := fmt.Sprintf("NOT EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = '%s' AND tags.is_deleted = FALSE)", tag)
+		negateTagsConditions = append(negateTagsConditions, tagCondition)
+	}
+
+	// Add each tag condition separately
+	for _, tagCondition := range tagConditions {
+		result += fmt.Sprintf(" AND (%s)", tagCondition)
+	}
+
 	if len(termConditions) > 0 {
 		result += " AND (" + strings.Join(termConditions, " OR ") + ")"
 	}
+
 	if len(excludeTerms) > 0 {
 		for _, excludeTerm := range excludeTerms {
 			result += " AND (" + excludeTerm + ")"
 		}
+	}
+
+	// Add each negate tag condition separately
+	for _, negateTagCondition := range negateTagsConditions {
+		result += fmt.Sprintf(" AND (%s)", negateTagCondition)
 	}
 
 	return result
@@ -536,13 +561,14 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 		if s.Server.Testing {
 			reranked = searchResults
 		} else {
-			reranked, err = llms.RerankSearchResults(s.Server.LLMClient, searchParams.SearchTerm, searchResults)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+			if len(searchResults) > 0 {
+				reranked, err = llms.RerankSearchResults(s.Server.LLMClient, searchParams.SearchTerm, searchResults)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
 			}
 		}
-
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(reranked)
 		return

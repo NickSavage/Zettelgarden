@@ -285,6 +285,31 @@ func TestBuildPartialEntitySqlSearchTermString(t *testing.T) {
 			input:    "!hello !world",
 			expected: " AND (NOT (name ILIKE '%hello%' OR description ILIKE '%hello%' OR type ILIKE '%hello%')) AND (NOT (name ILIKE '%world%' OR description ILIKE '%world%' OR type ILIKE '%world%'))",
 		},
+		{
+			name:     "single tag",
+			input:    "#test",
+			expected: " AND (EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = 'test' AND tags.is_deleted = FALSE))",
+		},
+		{
+			name:     "negated tag",
+			input:    "!#test",
+			expected: " AND (NOT EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = 'test' AND tags.is_deleted = FALSE))",
+		},
+		{
+			name:     "term with tag",
+			input:    "hello #test",
+			expected: " AND (EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = 'test' AND tags.is_deleted = FALSE)) AND ((name ILIKE '%hello%' OR description ILIKE '%hello%' OR type ILIKE '%hello%'))",
+		},
+		{
+			name:     "multiple tags",
+			input:    "#test #another",
+			expected: " AND (EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = 'test' AND tags.is_deleted = FALSE)) AND (EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = 'another' AND tags.is_deleted = FALSE))",
+		},
+		{
+			name:     "mixed terms, tags, and negations",
+			input:    "hello #test !world !#another",
+			expected: " AND (EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = 'test' AND tags.is_deleted = FALSE)) AND ((name ILIKE '%hello%' OR description ILIKE '%hello%' OR type ILIKE '%hello%')) AND (NOT (name ILIKE '%world%' OR description ILIKE '%world%' OR type ILIKE '%world%')) AND (NOT EXISTS (SELECT 1 FROM card_tags JOIN tags ON card_tags.tag_id = tags.id WHERE card_tags.card_pk = ecj.card_pk AND tags.name = 'another' AND tags.is_deleted = FALSE))",
+		},
 	}
 
 	for _, tc := range testCases {

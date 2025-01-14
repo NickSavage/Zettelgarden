@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"go-backend/models"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -45,7 +44,6 @@ func RerankSearchResults(c *models.LLMClient, query string, input []models.Searc
 	// Create a new slice to store reranked results
 	reranked := make([]models.SearchResult, len(response.Results))
 	for i, result := range response.Results {
-		log.Printf("result %v", result)
 		reranked[i] = input[result.Index]
 		reranked[i].Score = result.RelevanceScore
 	}
