@@ -21,9 +21,9 @@ import { ViewCardTabbedDisplay } from "../../components/cards/ViewCardTabbedDisp
 import { ViewCardOptionsMenu } from "../../components/cards/ViewCardOptionsMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 
-interface ViewPageProps {}
+interface ViewPageProps { }
 
-export function ViewPage({}: ViewPageProps) {
+export function ViewPage({ }: ViewPageProps) {
   const [error, setError] = useState("");
   const [viewingCard, setViewCard] = useState<Card | null>(null);
   const [parentCard, setParentCard] = useState<Card | null>(null);
@@ -104,8 +104,8 @@ export function ViewPage({}: ViewPageProps) {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg p-3 shadow-sm">
             <div className="flex-grow">
               <div className="flex items-center flex-wrap gap-2">
-                <span className="font-mono text-sm text-blue-600 font-semibold">
-                  {viewingCard.card_id}
+                <span className="text-blue-600">
+                  [{viewingCard.card_id}]
                 </span>
                 <span className="text-gray-600">:</span>
                 <h1 className="text-lg font-bold">
@@ -114,8 +114,8 @@ export function ViewPage({}: ViewPageProps) {
                 {viewingCard.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {viewingCard.tags.map((tag) => (
-                      <span 
-                        key={tag.name} 
+                      <span
+                        key={tag.name}
                         className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full cursor-pointer hover:bg-purple-100"
                         onClick={() => navigate(`/app/search?term=${encodeURIComponent('#' + tag.name)}`)}
                       >
@@ -189,7 +189,7 @@ export function ViewPage({}: ViewPageProps) {
                   <TaskListItem
                     key={task.id}
                     task={task}
-                    onTagClick={(tag: string) => {}}
+                    onTagClick={(tag: string) => { }}
                   />
                 ))}
               </div>

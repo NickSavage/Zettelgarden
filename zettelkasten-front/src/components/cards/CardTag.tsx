@@ -9,7 +9,8 @@ interface CardTagProps {
 export function CardTag({ card, showTitle }: CardTagProps) {
   return (
     <div className="inline-block">
-      <span style={{ color: "blue", fontWeight: "bold" }}>
+
+      <span className="text-blue-600 hover:text-blue-800">
         [{card.card_id}]
       </span>
       {showTitle && (
