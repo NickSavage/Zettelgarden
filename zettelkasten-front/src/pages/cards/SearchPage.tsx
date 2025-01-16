@@ -43,7 +43,7 @@ export function SearchPage({
     console.log("searching for term:", term);
 
     try {
-      const results = await semanticSearchCards(term, classicSearch, useFullText);
+      const results = await semanticSearchCards(term, classicSearch, useFullText, showEntities);
       setSearchResults(results || []);
     } catch (error) {
       console.error("Search error:", error);

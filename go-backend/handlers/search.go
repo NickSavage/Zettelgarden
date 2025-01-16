@@ -452,9 +452,10 @@ func (s *Handler) ClassicSearch(userID int, params SearchRequestParams) ([]model
 }
 
 type SearchRequestParams struct {
-	SearchTerm string `json:"search_term"`
-	SearchType string `json:"type"` // "classic" or "semantic"
-	FullText   bool   `json:"full_text"`
+	SearchTerm   string `json:"search_term"`
+	SearchType   string `json:"type"` // "classic" or "semantic"
+	FullText     bool   `json:"full_text"`
+	ShowEntities bool   `json:"show_entities"`
 }
 
 func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]models.SearchResult, error) {
@@ -527,11 +528,10 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 		//Get entity results
 		var entities []models.Entity
 
-		// I would like a better way to do this
 		// I want to check if the search term has any entities in it
 		// if it does, we don't wan tto populate with more entities
 		params := ParseSearchText(searchParams.SearchTerm)
-		if len(params.Entities) == 0 {
+		if len(params.Entities) == 0 && searchParams.ShowEntities {
 			entities, err = s.ClassicEntitySearch(userID, searchParams)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)

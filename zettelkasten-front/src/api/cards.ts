@@ -17,16 +17,18 @@ interface SearchRequestParams {
   search_term: string;
   type: "classic" | "semantic";
   full_text?: boolean;
+  show_entities?: boolean;
 }
 
-export function semanticSearchCards(searchTerm = "", useClassicSearch = false, fullText = false): Promise<SearchResult[]> {
+export function semanticSearchCards(searchTerm = "", useClassicSearch = false, fullText = false, showEntities = false): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
 
   const params: SearchRequestParams = {
     search_term: searchTerm,
     type: useClassicSearch ? "classic" : "semantic",
-    full_text: fullText
+    full_text: fullText,
+    show_entities: showEntities
   };
 
   return fetch(url, {
