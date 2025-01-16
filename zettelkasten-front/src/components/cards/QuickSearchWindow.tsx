@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PartialCard } from "../../models/Card";
 import { BacklinkInputDropdownList } from "./BacklinkInputDropdownList";
-import { fetchPartialCards } from "../../api/cards";
+import { usePartialCardContext } from "../../contexts/CardContext";
+import { quickFilterCards } from "../../utils/cards";
 
 interface QuickSearchWindowProps {
   setShowWindow: (showWindow: boolean) => void;
@@ -11,6 +12,7 @@ interface QuickSearchWindowProps {
 export function QuickSearchWindow({ setShowWindow }: QuickSearchWindowProps) {
   const [topResults, setTopResults] = useState<PartialCard[]>([]);
   const navigate = useNavigate();
+  const { partialCards } = usePartialCardContext();
 
   function handleSelect(card: PartialCard) {
     setShowWindow(false);
@@ -19,9 +21,9 @@ export function QuickSearchWindow({ setShowWindow }: QuickSearchWindowProps) {
 
   async function handleSearch(searchTerm: string) {
     if (searchTerm !== "") {
-      const data = await fetchPartialCards(searchTerm, "date");
+      let results = quickFilterCards(partialCards, searchTerm);
       setTopResults(
-        data === null ? [] : data.filter((card) => !card.card_id.includes("/"))
+        results === null ? [] : results.filter((card) => !card.card_id.includes("/"))
       );
     } else {
       setTopResults([]);
