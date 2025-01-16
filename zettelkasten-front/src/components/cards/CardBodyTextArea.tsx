@@ -30,6 +30,16 @@ export function CardBodyTextArea({
   const [cursorPosition, setCursorPosition] = useState<number | null>(null);
   const { partialCards } = usePartialCardContext();
 
+  function handleSearch(searchTerm: string) {
+    if (searchTerm !== "") {
+      let results = quickFilterCards(partialCards, searchTerm);
+      setTopResults(results);
+    } else {
+      setTopResults([]);
+    }
+    setLinkText(searchTerm);
+  }
+
   function handleBodyChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const inputValue = event.target.value;
     const newCursorPosition = event.target.selectionStart;
@@ -180,7 +190,8 @@ export function CardBodyTextArea({
           {topResults.length > 0 && (
             <div className="absolute top-auto left-1/2 w-1/4 p-4 bg-white border border-gray-200 z-10 shadow">
               <BacklinkInputDropdownList
-                addBacklink={handleDropdownClick}
+                onSelect={handleDropdownClick}
+                onSearch={handleSearch}
                 cards={topResults}
               />
             </div>
