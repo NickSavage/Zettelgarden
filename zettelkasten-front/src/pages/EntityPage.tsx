@@ -26,6 +26,8 @@ export function EntityPage() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [entityToDelete, setEntityToDelete] = useState<Entity | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
   const navigate = useNavigate();
 
   const loadEntities = () => {
@@ -57,6 +59,7 @@ export function EntityPage() {
       );
     });
     setFilteredEntities(filtered);
+    setCurrentPage(1);
   }, [filterText, entities]);
 
   const handleEntityClick = (entity: Entity, event: React.MouseEvent) => {
@@ -181,6 +184,17 @@ export function EntityPage() {
     setShowDeleteDialog(true);
   };
 
+  const getPagedEntities = () => {
+    const sortedEntities = getSortedEntities(filteredEntities);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return sortedEntities.slice(indexOfFirstItem, indexOfLastItem);
+  };
+
+  const getTotalPages = () => {
+    return Math.ceil(filteredEntities.length / itemsPerPage);
+  };
+
   if (loading) return <div className="p-4">Loading entities...</div>;
   if (error) return <div className="p-4 text-red-600">{error}</div>;
 
@@ -200,6 +214,7 @@ export function EntityPage() {
         onSortChange={(newSortBy, newDirection) => {
           setSortBy(newSortBy);
           setSortDirection(newDirection);
+          setCurrentPage(1);
         }}
       />
 
@@ -245,7 +260,7 @@ export function EntityPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {getSortedEntities(filteredEntities).map((entity) => (
+        {getPagedEntities().map((entity) => (
           <EntityCard
             key={entity.id}
             entity={entity}
@@ -261,6 +276,28 @@ export function EntityPage() {
       {filteredEntities.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
           {entities.length === 0 ? "No entities found" : "No matching entities"}
+        </div>
+      )}
+
+      {filteredEntities.length > 0 && (
+        <div className="flex justify-center gap-4 mt-4">
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="flex items-center">
+            Page {currentPage} of {getTotalPages()}
+          </span>
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === getTotalPages()}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       )}
 
