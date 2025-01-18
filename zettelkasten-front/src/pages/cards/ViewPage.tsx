@@ -156,6 +156,7 @@ export function ViewPage({ }: ViewPageProps) {
                 viewingCard={viewingCard}
                 setViewCard={setViewCard}
                 setMessage={setError}
+                onEdit={handleEditCard}
               />
             </div>
             <div className="text-xs text-gray-600 space-y-1">

@@ -6,17 +6,20 @@ import { FileUpload } from "../../components/files/FileUpload";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { Card } from "../../models/Card";
 import { PopupMenu } from "../common/PopupMenu";
+import { Button } from "../Button";
 
 interface ViewCardOptionsMenu {
   viewingCard: Card;
   setViewCard: (card: Card) => void;
   setMessage: (message: string) => void;
+  onEdit: () => void;
 }
 
 export function ViewCardOptionsMenu({
   viewingCard,
   setViewCard,
   setMessage,
+  onEdit,
 }: ViewCardOptionsMenu) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
@@ -60,9 +63,10 @@ export function ViewCardOptionsMenu({
   }
 
   const menuOptions = [
+    { label: "Edit Card", onClick: onEdit },
     { label: "Add Task", onClick: toggleCreateTaskWindow },
-    { 
-      label: "Select File To Upload", 
+    {
+      label: "Select File To Upload",
       onClick: () => {
         setShowMenu(false);
         // Trigger the file upload input
@@ -76,12 +80,9 @@ export function ViewCardOptionsMenu({
 
   return (
     <div className="relative">
-      <button
-        onClick={toggleMenu}
-        className="font-semibold rounded focus:outline-none focus:ring-2 focus:ring-offset-2 bg-palette-dark text-white hover:bg-palette-darkest focus:ring-blue-500"
-      >
-        Actions
-      </button>
+      <div className="mt-2 md:mt-0 md:ml-4">
+        <Button onClick={toggleMenu} >Actions</Button>
+      </div>
       <PopupMenu options={menuOptions} isOpen={showMenu} />
       <FileUpload
         ref={fileUploadRef}
