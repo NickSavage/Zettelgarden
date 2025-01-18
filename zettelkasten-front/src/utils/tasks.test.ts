@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { removeTagsFromTitle, parseTags, filterTasks } from "./tasks";
 import { sampleTaskData } from "../tests/data";
+import { Task } from "../models/Task";
 
 test("remove tags from title", () => {
   let title = "This is a #test title with #tags";
@@ -55,4 +56,123 @@ test("skip parsing tags from middle of words", () => {
 test("filter tasks by tags", () => {
   const results = filterTasks(sampleTaskData, "#work session");
   expect(results.length).toEqual(1);
+});
+
+test("filter tasks by negated tags", () => {
+  const tasks: Task[] = [
+    { 
+      id: 1, 
+      title: "Task 1", 
+      tags: [{ name: "work", id: 1, color: "#ff0000", user_id: 1, task_count: 1, card_count: 0 }],
+      card_pk: 1,
+      user_id: 1,
+      scheduled_date: new Date(),
+      dueDate: null,
+      is_complete: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      completed_at: null,
+      is_deleted: false,
+      card: null
+    },
+    { 
+      id: 2, 
+      title: "Task 2", 
+      tags: [{ name: "personal", id: 2, color: "#00ff00", user_id: 1, task_count: 1, card_count: 0 }],
+      card_pk: 2,
+      user_id: 1,
+      scheduled_date: new Date(),
+      dueDate: null,
+      is_complete: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      completed_at: null,
+      is_deleted: false,
+      card: null
+    },
+    { 
+      id: 3, 
+      title: "Task 3", 
+      tags: [
+        { name: "work", id: 1, color: "#ff0000", user_id: 1, task_count: 1, card_count: 0 },
+        { name: "personal", id: 2, color: "#00ff00", user_id: 1, task_count: 1, card_count: 0 }
+      ],
+      card_pk: 3,
+      user_id: 1,
+      scheduled_date: new Date(),
+      dueDate: null,
+      is_complete: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      completed_at: null,
+      is_deleted: false,
+      card: null
+    }
+  ];
+  
+  const results1 = filterTasks(tasks, "!#work");
+  expect(results1.length).toEqual(1);
+  expect(results1[0].id).toEqual(2);
+
+  const results2 = filterTasks(tasks, "#work !#personal");
+  expect(results2.length).toEqual(1);
+  expect(results2[0].id).toEqual(1);
+});
+
+test("filter tasks by negated text", () => {
+  const tasks: Task[] = [
+    { 
+      id: 1, 
+      title: "Meeting with team", 
+      tags: [],
+      card_pk: 1,
+      user_id: 1,
+      scheduled_date: new Date(),
+      dueDate: null,
+      is_complete: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      completed_at: null,
+      is_deleted: false,
+      card: null
+    },
+    { 
+      id: 2, 
+      title: "Write documentation", 
+      tags: [],
+      card_pk: 2,
+      user_id: 1,
+      scheduled_date: new Date(),
+      dueDate: null,
+      is_complete: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      completed_at: null,
+      is_deleted: false,
+      card: null
+    },
+    { 
+      id: 3, 
+      title: "Team lunch meeting", 
+      tags: [],
+      card_pk: 3,
+      user_id: 1,
+      scheduled_date: new Date(),
+      dueDate: null,
+      is_complete: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      completed_at: null,
+      is_deleted: false,
+      card: null
+    }
+  ];
+  
+  const results1 = filterTasks(tasks, "!meeting");
+  expect(results1.length).toEqual(1);
+  expect(results1[0].id).toEqual(2);
+
+  const results2 = filterTasks(tasks, "team !lunch");
+  expect(results2.length).toEqual(1);
+  expect(results2[0].id).toEqual(1);
 });

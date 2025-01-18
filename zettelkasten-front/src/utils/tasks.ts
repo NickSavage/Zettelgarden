@@ -14,23 +14,23 @@ export function parseTags(title: string): string[] {
 }
 
 export function filterTasks(input: Task[], filterString: string): Task[] {
-  const searchTerms = filterString.split(' ').map(term => term.trim());
+  const searchTerms = filterString.split(' ').map(term => term.trim()).filter(term => term !== '');
 
   return input.filter(task => {
-    console.log(task.title)
     return searchTerms.every(term => {
-      if (term.startsWith('#')) {
-	console.log(term)
+      const isNegation = term.startsWith('!');
+      const actualTerm = isNegation ? term.substring(1) : term;
+
+      if (actualTerm.startsWith('#')) {
         // Check if any of the tag names match the term
-        const tagName = term.substring(1).toLowerCase();
-	console.log(tagName)
-        return task.tags.some(tag => tag.name.toLowerCase() === tagName);
+        const tagName = actualTerm.substring(1).toLowerCase();
+        const hasTag = task.tags.some(tag => tag.name.toLowerCase() === tagName);
+        return isNegation ? !hasTag : hasTag;
       } else {
         // Check if the title matches the term
-        return task.title.toLowerCase().includes(term.toLowerCase());
+        const hasText = task.title.toLowerCase().includes(actualTerm.toLowerCase());
+        return isNegation ? !hasText : hasText;
       }
     });
   });
-
-  return input;
 }
