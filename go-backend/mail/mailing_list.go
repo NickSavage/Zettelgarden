@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"go-backend/models"
 	"log"
+
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 func (m *MailClient) HandleAddToMailingList(email string) error {
@@ -121,11 +125,33 @@ func (m *MailClient) SendMailingListMessage(subject, body string, toRecipients, 
 		return fmt.Errorf("at least one recipient is required")
 	}
 
+	// Convert markdown to HTML
+	extensions := parser.CommonExtensions | parser.AutoHeadingIDs
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse([]byte(body))
+
+	// Create HTML renderer with options
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank
+	opts := html.RendererOptions{
+		Flags: htmlFlags,
+	}
+	renderer := html.NewRenderer(opts)
+	htmlBody := string(markdown.Render(doc, renderer))
+
+	// Wrap the HTML in a styled template
+	htmlBody = fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    %s
+</body>
+</html>`, htmlBody)
+
 	// Log recipient counts
 	log.Printf("Sending message '%s' to %d TO recipients and %d BCC recipients",
 		subject, len(toRecipients), len(bccRecipients))
 
-	// Insert the message
+	// Insert the message (store original markdown)
 	var messageID int
 	err = tx.QueryRow(`
 		INSERT INTO mailing_list_messages (subject, body, total_recipients)
@@ -147,7 +173,7 @@ func (m *MailClient) SendMailingListMessage(subject, body string, toRecipients, 
 			return fmt.Errorf("error recording TO recipient %s: %v", email, err)
 		}
 
-		err = m.SendEmail(subject, email, body)
+		err = m.SendHTMLEmail(subject, email, htmlBody)
 		if err != nil {
 			return fmt.Errorf("error sending to TO recipient %s: %v", email, err)
 		}
@@ -163,7 +189,7 @@ func (m *MailClient) SendMailingListMessage(subject, body string, toRecipients, 
 			return fmt.Errorf("error recording BCC recipient %s: %v", email, err)
 		}
 
-		err = m.SendEmail(subject, email, body)
+		err = m.SendHTMLEmail(subject, email, htmlBody)
 		if err != nil {
 			return fmt.Errorf("error sending to BCC recipient %s: %v", email, err)
 		}
