@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, PartialCard } from "../../models/Card";
 import { File } from "../../models/File";
+import { removeEntityFromCard } from "../../api/entities";
 
 import {
   HeaderTop,
@@ -76,6 +77,19 @@ export function ViewCardTabbedDisplay({
   useEffect(() => {
     handleFetchRelatedCards(viewingCard.id.toString());
   }, [viewingCard]);
+
+  async function handleRemoveEntity(entityId: number) {
+    try {
+      await removeEntityFromCard(entityId, viewingCard.id);
+      // Update the viewingCard by removing the entity
+      setViewCard({
+        ...viewingCard,
+        entities: viewingCard.entities?.filter(entity => entity.id !== entityId) || []
+      });
+    } catch (error) {
+      setError("Failed to remove entity from card");
+    }
+  }
 
   return (
     <div>
@@ -162,12 +176,27 @@ export function ViewCardTabbedDisplay({
             {viewingCard.entities && viewingCard.entities.map((entity) => (
               <li 
                 key={entity.id} 
-                className="mb-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
-                onClick={() => navigate(`/app/search?term=@[${entity.name}]`)}
+                className="mb-2 p-2 hover:bg-gray-100 rounded flex justify-between items-center"
               >
-                <div className="font-semibold">{entity.name}</div>
-                <div className="text-sm text-gray-600">{entity.description}</div>
-                <div className="text-xs text-gray-500">Type: {entity.type}</div>
+                <div 
+                  className="cursor-pointer flex-grow"
+                  onClick={() => navigate(`/app/search?term=@[${entity.name}]`)}
+                >
+                  <div className="font-semibold">{entity.name}</div>
+                  <div className="text-sm text-gray-600">{entity.description}</div>
+                  <div className="text-xs text-gray-500">Type: {entity.type}</div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveEntity(entity.id);
+                  }}
+                  className="ml-2 p-1 text-red-600 hover:bg-red-100 rounded"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
               </li>
             ))}
           </ul>

@@ -288,3 +288,143 @@ func TestUpdateEntityWithInvalidCardPK(t *testing.T) {
 		t.Errorf("Expected 'card not found' error, got: %v", err)
 	}
 }
+
+func TestRemoveEntityFromCardSuccess(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// First create a test card and entity-card relationship
+	var cardID int
+	err := s.DB.QueryRow(`
+		INSERT INTO cards (user_id, title, body)
+		VALUES ($1, 'Test Card', 'Test Content')
+		RETURNING id
+	`, 1).Scan(&cardID)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	// Create entity-card junction
+	_, err = s.DB.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		VALUES ($1, $2, $3)
+	`, 1, 1, cardID)
+	if err != nil {
+		t.Fatalf("Failed to create entity-card junction: %v", err)
+	}
+
+	// Verify the relationship exists
+	var count int
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 1).Scan(&count)
+	if err != nil {
+		t.Fatalf("Failed to check relationship existence: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("Expected one relationship, got %d", count)
+	}
+
+	// Remove the relationship
+	_, err = s.DB.Exec(`
+		DELETE FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 1)
+	if err != nil {
+		t.Errorf("Failed to remove entity from card: %v", err)
+	}
+
+	// Verify the relationship was removed
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 1).Scan(&count)
+	if err != nil {
+		t.Errorf("Failed to check relationship removal: %v", err)
+	}
+	if count != 0 {
+		t.Errorf("Expected no relationships, got %d", count)
+	}
+}
+
+func TestRemoveEntityFromCardWrongUser(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// First create a test card and entity-card relationship for user 1
+	var cardID int
+	err := s.DB.QueryRow(`
+		INSERT INTO cards (user_id, title, body)
+		VALUES ($1, 'Test Card', 'Test Content')
+		RETURNING id
+	`, 1).Scan(&cardID)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	// Create entity-card junction for user 1
+	_, err = s.DB.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		VALUES ($1, $2, $3)
+	`, 1, 1, cardID)
+	if err != nil {
+		t.Fatalf("Failed to create entity-card junction: %v", err)
+	}
+
+	// Try to remove the relationship as user 2
+	_, err = s.DB.Exec(`
+		DELETE FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 2)
+	if err != nil {
+		t.Errorf("Expected no error when attempting to remove with wrong user, got: %v", err)
+	}
+
+	// Verify the relationship still exists for user 1
+	var count int
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 1).Scan(&count)
+	if err != nil {
+		t.Errorf("Failed to check relationship existence: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("Expected relationship to still exist, got count %d", count)
+	}
+}
+
+func TestRemoveEntityFromCardNonExistent(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	var originalCount int
+	err := s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction
+	`).Scan(&originalCount)
+	if err != nil {
+		t.Errorf("Failed to count relationships: %v", err)
+	}
+
+	// Try to remove a non-existent relationship
+	_, err = s.DB.Exec(`
+		DELETE FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 99999, 99999, 1)
+	if err != nil {
+		t.Errorf("Expected no error when removing non-existent relationship, got: %v", err)
+	}
+
+	// Verify no relationships were affected
+	var count int
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction
+	`).Scan(&count)
+	if err != nil {
+		t.Errorf("Failed to count relationships: %v", err)
+	}
+	if count != originalCount {
+		t.Errorf("Expected %d relationships in total, got %d", originalCount, count)
+	}
+}

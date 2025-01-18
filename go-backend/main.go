@@ -240,6 +240,7 @@ func main() {
 	addProtectedRoute(r, "/api/entities/merge", h.MergeEntitiesRoute, "POST")
 	addProtectedRoute(r, "/api/entities/id/{id}", h.DeleteEntityRoute, "DELETE")
 	addProtectedRoute(r, "/api/entities/id/{id}", h.UpdateEntityRoute, "PUT")
+	addProtectedRoute(r, "/api/entities/{entityId}/cards/{cardId}", h.RemoveEntityFromCardRoute, "DELETE")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},

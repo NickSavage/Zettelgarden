@@ -624,3 +624,37 @@ func (s *Handler) UpdateEntityRoute(w http.ResponseWriter, r *http.Request) {
 		"message": "Entity updated successfully",
 	})
 }
+
+func (s *Handler) RemoveEntityFromCardRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Extract entityID and cardPK from URL parameters
+	vars := mux.Vars(r)
+	entityID, err := strconv.Atoi(vars["entityId"])
+	if err != nil {
+		http.Error(w, "Invalid entity ID", http.StatusBadRequest)
+		return
+	}
+
+	cardPK, err := strconv.Atoi(vars["cardId"])
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
+	// Delete the entity-card relationship
+	_, err = s.DB.Exec(`
+		DELETE FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, entityID, cardPK, userID)
+	if err != nil {
+		log.Printf("Error removing entity from card: %v", err)
+		http.Error(w, "Failed to remove entity from card", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Entity removed from card successfully",
+	})
+}
