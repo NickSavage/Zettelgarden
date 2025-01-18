@@ -34,6 +34,8 @@ export function TaskPage({}: TaskListProps) {
     filterString,
   ).sort((a, b) => a.id - b.id);
 
+  const totalTasksForDateView = tasks.filter(changeDateView).length;
+
   function handleFilterChange(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) {
@@ -137,13 +139,18 @@ export function TaskPage({}: TaskListProps) {
             />
           </div>
         </div>
-        <div className="flex">
-          <Button onClick={toggleShowTaskWindow} children="Add Task" />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Button onClick={toggleShowTaskWindow} children="Add Task" />
+          </div>
 
           <TaskPageOptionsMenu
             tags={tags.filter((tag) => tag.task_count > 0)}
             handleTagClick={handleTagClick}
           />
+          <span className="bg-slate-300 text-slate-700 px-2 py-0.5 rounded-full text-sm">
+            {tasksToDisplay.length}/{totalTasksForDateView} tasks{dateView === "today" ? " today" : dateView === "tomorrow" ? " tomorrow" : ""}
+          </span>
         </div>
       </div>
       <div>
