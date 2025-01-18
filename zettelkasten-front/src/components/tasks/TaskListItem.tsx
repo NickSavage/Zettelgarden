@@ -12,7 +12,6 @@ import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
 import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 import { TaskTagDisplay } from "./TaskTagDisplay";
-import { TaskListOptionsMenu } from "./TaskListOptionsMenu";
 import { removeTagsFromTitle, parseTags } from "../../utils/tasks";
 import { useTaskContext } from "../../contexts/TaskContext";
 import { TaskDialog } from "./TaskDialog";
@@ -112,12 +111,9 @@ export function TaskListItem({
             </div>
           ))}
       </div>
-      <TaskListOptionsMenu
-        task={task}
-        tags={tags}
-        showCardLink={showCardLink}
-        setShowCardLink={setShowCardLink}
-      />
+      <button onClick={() => setIsDialogOpen(true)} className="menu-button">
+        ⋮
+      </button>
       <TaskDialog
         task={task}
         isOpen={isDialogOpen}
