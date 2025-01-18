@@ -59,25 +59,34 @@ func (m *MailClient) SendWelcomeEmail(email string) error {
 		Subject:   "Welcome to Zettelgarden! 🌱",
 		Recipient: email,
 		Body: `
-Hi there! 👋
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h2 style="color: #2c5282;">Hi there! 👋</h2>
 
-Thank you for signing up for updates about Zettelgarden! We're excited to have you join our community of knowledge gardeners.
+    <p>Thank you for signing up for updates about Zettelgarden! We're excited to have you join our community of knowledge gardeners.</p>
 
-Zettelgarden is an open-source project aimed at helping people organize and grow their ideas. If you're interested in checking out the code or contributing, you can find our GitHub repository here: https://github.com/NickSavage/Zettelgarden  
+    <p>Zettelgarden is an open-source project aimed at helping people organize and grow their ideas. If you're interested in checking out the code or contributing, you can find our GitHub repository here: 
+        <a href="https://github.com/NickSavage/Zettelgarden" style="color: #4299e1;">https://github.com/NickSavage/Zettelgarden</a>
+    </p>
 
-We'll keep you updated on new features, improvements, and tips for getting the most out of Zettelgarden. Feel free to reply to this email if you have any questions or suggestions.
+    <p>We'll keep you updated on new features, improvements, and tips for getting the most out of Zettelgarden. Feel free to reply to this email if you have any questions or suggestions.</p>
 
-Happy gardening! 🌳
+    <p style="margin-top: 30px;">Happy gardening! 🌳</p>
 
-Best regards,
-Nick
-Zettelgarden Team
+    <p>Best regards,<br>
+    Nick<br>
+    Zettelgarden Team</p>
 
-P.S. Want to have a say in Zettelgarden's development? Star us on GitHub ⭐ and join the conversation! 💬`,
+    <p style="font-style: italic; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+        P.S. Want to have a say in Zettelgarden's development? Star us on GitHub ⭐ and join the conversation! 💬
+    </p>
+</body>
+</html>`,
 	}
 
 	// Send the welcome email
-	err := m.SendEmail(welcomeEmail.Subject, welcomeEmail.Recipient, welcomeEmail.Body)
+	err := m.SendHTMLEmail(welcomeEmail.Subject, welcomeEmail.Recipient, welcomeEmail.Body)
 	if err != nil {
 		log.Printf("Error sending welcome email to %s: %v", email, err)
 		return err

@@ -20,6 +20,7 @@ type Email struct {
 	Subject   string `json:"subject"`
 	Recipient string `json:"recipient"`
 	Body      string `json:"body"`
+	IsHTML    bool   `json:"is_html"`
 	Retries   int
 }
 

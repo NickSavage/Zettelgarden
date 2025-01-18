@@ -88,6 +88,25 @@ func (m *MailClient) SendEmail(subject, recipient, body string) error {
 		Subject:   subject,
 		Recipient: recipient,
 		Body:      body,
+		IsHTML:    false, // default to plain text
+	}
+	m.Queue.Push(email)
+	m.startProcessing()
+
+	return nil
+}
+
+// SendHTMLEmail is a convenience method for sending HTML emails
+func (m *MailClient) SendHTMLEmail(subject, recipient, body string) error {
+	if m.Testing {
+		m.TestingEmailsSent += 1
+		return nil
+	}
+	email := Email{
+		Subject:   subject,
+		Recipient: recipient,
+		Body:      body,
+		IsHTML:    true,
 	}
 	m.Queue.Push(email)
 	m.startProcessing()

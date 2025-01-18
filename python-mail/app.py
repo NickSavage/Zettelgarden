@@ -47,12 +47,23 @@ def send_mail():
     subject = data.get("subject")
     recipient = data.get("recipient")
     body = data.get("body")
+    is_html = data.get("is_html", False)
 
     if not subject or not recipient:
         return jsonify({"message": "Email needs a subject and recipient"}), 400
 
     # Create the email message
-    message = Message(subject, sender=("Zettelgarden", app.config['DEFAULT_SENDER']), recipients=[recipient], body=body)
+    message = Message(
+        subject, 
+        sender=("Zettelgarden", app.config['DEFAULT_SENDER']), 
+        recipients=[recipient]
+    )
+    
+    # Set body based on whether it's HTML or plain text
+    if is_html:
+        message.html = body
+    else:
+        message.body = body
 
     # Send the email
     with app.app_context():
@@ -71,6 +82,7 @@ def send_mailing_list():
     to_recipients = data.get("to_recipients", [])  # Main visible recipients
     bcc_recipients = data.get("bcc_recipients", [])  # BCC recipients
     body = data.get("body")
+    is_html = data.get("is_html", False)
 
     if not subject or (not to_recipients and not bcc_recipients):
         return jsonify({"message": "Email needs a subject and at least one recipient (TO or BCC)"}), 400
@@ -81,8 +93,13 @@ def send_mailing_list():
         sender=("Zettelgarden", app.config['DEFAULT_SENDER']),
         recipients=to_recipients,
         bcc=bcc_recipients,
-        body=body
     )
+
+    # Set body based on whether it's HTML or plain text
+    if is_html:
+        message.html = body
+    else:
+        message.body = body
 
     # Send the email
     with app.app_context():
