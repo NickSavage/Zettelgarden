@@ -625,6 +625,66 @@ func (s *Handler) UpdateEntityRoute(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *Handler) AddEntityToCardRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Extract entityID and cardPK from URL parameters
+	vars := mux.Vars(r)
+	entityID, err := strconv.Atoi(vars["entityId"])
+	if err != nil {
+		http.Error(w, "Invalid entity ID", http.StatusBadRequest)
+		return
+	}
+
+	cardPK, err := strconv.Atoi(vars["cardId"])
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
+	// Verify entity exists and belongs to user
+	var exists bool
+	err = s.DB.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 
+			FROM entities 
+			WHERE id = $1 AND user_id = $2
+		)`,
+		entityID, userID).Scan(&exists)
+	if err != nil {
+		log.Printf("Error checking entity existence: %v", err)
+		http.Error(w, "Failed to verify entity", http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		http.Error(w, "Entity not found or does not belong to user", http.StatusNotFound)
+		return
+	}
+
+	// Verify card exists and belongs to user
+	if err := s.validateCardAccess(userID, cardPK); err != nil {
+		http.Error(w, "Card not found or access denied", http.StatusNotFound)
+		return
+	}
+
+	// Add the entity-card relationship
+	_, err = s.DB.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (entity_id, card_pk) DO NOTHING
+	`, userID, entityID, cardPK)
+	if err != nil {
+		log.Printf("Error adding entity to card: %v", err)
+		http.Error(w, "Failed to add entity to card", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Entity added to card successfully",
+	})
+}
+
 func (s *Handler) RemoveEntityFromCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 

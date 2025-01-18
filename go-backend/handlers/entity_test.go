@@ -1,10 +1,16 @@
 package handlers
 
 import (
+	"context"
 	"go-backend/models"
 	"go-backend/tests"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 func TestMergeEntitiesSuccess(t *testing.T) {
@@ -286,6 +292,175 @@ func TestUpdateEntityWithInvalidCardPK(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "card not found") {
 		t.Errorf("Expected 'card not found' error, got: %v", err)
+	}
+}
+
+func TestAddEntityToCardSuccess(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Create a test card
+	var cardID int
+	err := s.DB.QueryRow(`
+		INSERT INTO cards (user_id, title, body)
+		VALUES ($1, 'Test Card', 'Test Content')
+		RETURNING id
+	`, 1).Scan(&cardID)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	// Verify no relationship exists initially
+	var count int
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 1).Scan(&count)
+	if err != nil {
+		t.Fatalf("Failed to check initial relationship: %v", err)
+	}
+	if count != 0 {
+		t.Fatalf("Expected no initial relationship, got %d", count)
+	}
+
+	// Add the relationship
+	_, err = s.DB.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		VALUES ($1, $2, $3)
+	`, 1, 1, cardID)
+	if err != nil {
+		t.Errorf("Failed to add entity to card: %v", err)
+	}
+
+	// Verify the relationship was created
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 1).Scan(&count)
+	if err != nil {
+		t.Errorf("Failed to check relationship creation: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("Expected one relationship, got %d", count)
+	}
+}
+
+func TestAddEntityToCardDuplicate(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Create a test card
+	var cardID int
+	err := s.DB.QueryRow(`
+		INSERT INTO cards (user_id, title, body)
+		VALUES ($1, 'Test Card', 'Test Content')
+		RETURNING id
+	`, 1).Scan(&cardID)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	// Create initial relationship
+	_, err = s.DB.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		VALUES ($1, $2, $3)
+	`, 1, 1, cardID)
+	if err != nil {
+		t.Fatalf("Failed to create initial relationship: %v", err)
+	}
+
+	// Try to add the same relationship again
+	_, err = s.DB.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (entity_id, card_pk) DO NOTHING
+	`, 1, 1, cardID)
+	if err != nil {
+		t.Errorf("Expected no error when adding duplicate relationship, got: %v", err)
+	}
+
+	// Verify only one relationship exists
+	var count int
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2 AND user_id = $3
+	`, 1, cardID, 1).Scan(&count)
+	if err != nil {
+		t.Errorf("Failed to check relationship count: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("Expected one relationship after duplicate attempt, got %d", count)
+	}
+}
+
+func TestAddEntityToCardWrongUser(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Create a test card for user 1
+	var cardID int
+	err := s.DB.QueryRow(`
+		INSERT INTO cards (user_id, title, body)
+		VALUES ($1, 'Test Card', 'Test Content')
+		RETURNING id
+	`, 1).Scan(&cardID)
+	if err != nil {
+		t.Fatalf("Failed to create test card: %v", err)
+	}
+
+	// Create an entity owned by user 1
+	_, err = s.DB.Exec(`
+		INSERT INTO entities (id, user_id, name, description, type)
+		VALUES ($1, $2, 'Test Entity', 'Test Description', 'concept')
+	`, 999, 1)
+	if err != nil {
+		t.Fatalf("Failed to create test entity: %v", err)
+	}
+
+	// Try to create relationship as user 2 using the handler
+	ctx := context.WithValue(context.Background(), "current_user", 2)
+	req, _ := http.NewRequestWithContext(ctx, "POST", "/api/entities/999/cards/"+strconv.Itoa(cardID), nil)
+
+	// Set up gorilla/mux vars
+	vars := map[string]string{
+		"entityId": "999",
+		"cardId":   strconv.Itoa(cardID),
+	}
+	req = mux.SetURLVars(req, vars)
+
+	rr := httptest.NewRecorder()
+	s.AddEntityToCardRoute(rr, req)
+
+	// Verify the request was rejected
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+
+	// Verify no relationship was created
+	var count int
+	err = s.DB.QueryRow(`
+		SELECT COUNT(*) FROM entity_card_junction 
+		WHERE entity_id = $1 AND card_pk = $2
+	`, 999, cardID).Scan(&count)
+	if err != nil {
+		t.Errorf("Failed to check relationship: %v", err)
+	}
+	if count != 0 {
+		t.Errorf("Expected no relationship, got count %d", count)
+	}
+}
+
+func TestAddEntityToCardNonExistent(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Try to create relationship with non-existent entity and card
+	_, err := s.DB.Exec(`
+		INSERT INTO entity_card_junction (user_id, entity_id, card_pk)
+		VALUES ($1, $2, $3)
+	`, 1, 99999, 99999)
+	if err == nil {
+		t.Error("Expected error when adding relationship with non-existent entity/card")
 	}
 }
 

@@ -117,4 +117,23 @@ export function removeEntityFromCard(entityId: number, cardId: number): Promise<
       }
       return;
     });
+}
+
+export function addEntityToCard(entityId: number, cardId: number): Promise<void> {
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/${entityId}/cards/${cardId}`;
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (!response) {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+      return;
+    });
 } 
