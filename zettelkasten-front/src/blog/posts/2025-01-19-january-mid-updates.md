@@ -1,5 +1,5 @@
 ---
-title: "Growing Zettelgarden in 2025: January Update"
+title: "Zettelgarden: Mid-January 2025 Update"
 date: "2025-01-19"
 tags: [ "zettelgarden", "updates", "newsletter"]
 author: Nick Savage
