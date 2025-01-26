@@ -11,6 +11,8 @@ import { useTaskContext } from "../../contexts/TaskContext";
 import { Button } from "../../components/Button";
 import { TaskListOptionsMenu } from "./TaskListOptionsMenu";
 import { format } from "date-fns";
+import { TaskClosedIcon } from "../../assets/icons/TaskClosedIcon";
+import { TaskOpenIcon } from "../../assets/icons/TaskOpenIcon";
 
 interface TaskDialogProps {
   task: Task;
@@ -120,6 +122,15 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
     }
   };
 
+  const handleToggleComplete = async () => {
+    const updatedTask = { ...editedTask, is_complete: !editedTask.is_complete };
+    const response = await saveExistingTask(updatedTask);
+    if (!("error" in response)) {
+      setEditedTask(updatedTask);
+      setRefreshTasks(true);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -127,9 +138,17 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
           <div className="flex justify-between items-start mb-4">
-            <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
-              Task Details
-            </Dialog.Title>
+            <div className="flex items-center gap-4">
+              <span 
+                onClick={handleToggleComplete}
+                className="cursor-pointer"
+              >
+                {editedTask.is_complete ? <TaskClosedIcon /> : <TaskOpenIcon />}
+              </span>
+              <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
+                Task Details
+              </Dialog.Title>
+            </div>
             <TaskListOptionsMenu
               task={editedTask}
               tags={editedTask.tags}
