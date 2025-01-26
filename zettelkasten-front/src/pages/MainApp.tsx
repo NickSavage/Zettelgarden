@@ -14,7 +14,7 @@ import { BillingSuccess } from "./BillingSuccess";
 import { BillingCancelled } from "./BillingCancelled";
 import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
-import { ChatPage } from "../components/chat/ChatPage";
+import { ChatPage } from "../pages/ChatPage";
 import { GettingStartedPage } from "./GettingStartedPage";
 import { Card, PartialCard } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";

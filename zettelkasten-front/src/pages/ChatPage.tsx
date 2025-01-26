@@ -1,18 +1,18 @@
 import React, { useState, useEffect, KeyboardEvent, ChangeEvent } from "react";
-import { StopIcon } from "../../assets/icons/StopIcon";
+import { StopIcon } from "../assets/icons/StopIcon";
 import {
   postChatMessage,
   getUserConversations,
   getChatConversation,
-} from "../../api/chat";
-import { ChatCompletion, ConversationSummary } from "../../models/Chat";
+} from "../api/chat";
+import { ChatCompletion, ConversationSummary } from "../models/Chat";
 import { useSearchParams } from "react-router-dom";
-import { useChatContext } from "../../contexts/ChatContext";
+import { useChatContext } from "../contexts/ChatContext";
 import { useNavigate } from "react-router-dom";
 
-import { AssistantMessage } from "./AssistantMessage";
-import { UserMessage } from "./UserMessage";
-import { ConversationDialog } from "./ConversationDialog";
+import { AssistantMessage } from "../components/chat/AssistantMessage";
+import { UserMessage } from "../components/chat/UserMessage";
+import { ConversationDialog } from "../components/chat/ConversationDialog";
 
 interface ChatPageProps {}
 
