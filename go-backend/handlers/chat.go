@@ -148,7 +148,7 @@ func (s *Handler) WriteConversationSummary(userID int, summary models.Conversati
             created_at,
             model,
             title
-        ) VALUES ($1, $2, $3, NOW(), $5, $6)
+        ) VALUES ($1, $2, $3, NOW(), $4, $5)
     `
 
 	_, err := s.DB.Exec(
@@ -156,7 +156,6 @@ func (s *Handler) WriteConversationSummary(userID int, summary models.Conversati
 		userID,
 		summary.ID,
 		summary.MessageCount,
-		summary.CreatedAt,
 		summary.Model,
 		summary.Title,
 	)
@@ -344,6 +343,7 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
 		return nil, fmt.Errorf("error processing conversations")
 	}
 
+	log.Printf("conversations: %v", conversations)
 	return conversations, nil
 }
 

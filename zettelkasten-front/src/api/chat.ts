@@ -72,7 +72,6 @@ export function getUserConversations(): Promise<ConversationSummary[]> {
     .then((response) => {
       if (response) {
         return response.json().then((conversations: ConversationSummary[]) => {
-          // Convert created_at strings to Date objects
           return conversations.map((conversation) => ({
             ...conversation,
             created_at: new Date(conversation.created_at),
