@@ -16,7 +16,6 @@ import { FileIcon } from "../assets/icons/FileIcon";
 import { ChatIcon } from "../assets/icons/ChatIcon";
 import { MenuIcon } from "../assets/icons/MenuIcon";
 import { Button } from "./Button";
-
 import { getUserConversations } from "../api/chat";
 import { ConversationSummary } from "../models/Chat";
 
@@ -32,6 +31,7 @@ import { EntityIcon } from "../assets/icons/EntityIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { BookOpenIcon } from "../assets/icons/BookOpenIcon";
 
+
 export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,7 +45,7 @@ export function Sidebar() {
   >([]);
   const { setConversationId } = useChatContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-
+  const { showChat, setShowChat } = useChatContext();
   const {
     showCreateTaskWindow,
     setShowCreateTaskWindow,
@@ -69,8 +69,7 @@ export function Sidebar() {
   function handleNewChat() {
     toggleNewDropdown();
     setConversationId("");
-    navigate("/");
-    navigate("/app/chat");
+    setShowChat(true);
   }
   function handleNewTask() {
     toggleNewDropdown();
@@ -214,12 +213,14 @@ export function Sidebar() {
                     Upload A File
                   </button>
                 </FileUpload>
+            {import.meta.env.VITE_FEATURE_CHAT === "true" && (
                 <button
                   onClick={handleNewChat}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
                   New Chat
                 </button>
+              )}
               </div>
             )}
           </div>
@@ -248,10 +249,13 @@ export function Sidebar() {
             </SidebarLink>
 
             {import.meta.env.VITE_FEATURE_CHAT === "true" && (
-              <SidebarLink to="/app/chat">
+              <span onClick={() => setShowChat(!showChat)}>
+
+              <SidebarLink to="#">
                   <ChatIcon />
                 <span className="flex-grow">Chat</span>
               </SidebarLink>
+              </span>
             )}
           </ul>
         </div>

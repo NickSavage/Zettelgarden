@@ -21,7 +21,7 @@ import { TaskPage } from "./tasks/TaskPage";
 import { TagsPage } from "./TagsPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
 import { TagProvider } from "../contexts/TagContext";
-import { ChatProvider } from "../contexts/ChatContext";
+import { ChatProvider, useChatContext } from "../contexts/ChatContext";
 import {
   PartialCardProvider,
   usePartialCardContext,
@@ -37,6 +37,7 @@ function MainAppContent() {
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
   const { setRefreshPartialCards } = usePartialCardContext();
+  const { showChat, setShowChat } = useChatContext();
 
   // changing pages
 
@@ -65,7 +66,7 @@ function MainAppContent() {
   return (
     <div className="flex">
       {hasSubscription ? <Sidebar /> : <div></div>}
-      <div className="flex-grow h-screen overflow-y-auto break-words overflow-x-auto">
+      <div className="flex-grow h-screen overflow-y-auto break-words overflow-x-auto border-r">
         <div className="">
           {hasSubscription ? <EmailValidationBanner /> : <div></div>}
           <Routes>
@@ -105,7 +106,6 @@ function MainAppContent() {
                 <Route path="files" element={<FileVault />} />
                 <Route path="tasks" element={<TaskPage />} />
                 <Route path="tags" element={<TagsPage />} />
-                <Route path="chat" element={<ChatPage />} />
                 <Route path="entities" element={<EntityPage />} />
                 <Route path="*" element={<DashboardPage />} />
               </>
@@ -118,6 +118,7 @@ function MainAppContent() {
           </Routes>
         </div>
       </div>
+      {hasSubscription && showChat && <ChatPage />}
     </div>
   );
 }

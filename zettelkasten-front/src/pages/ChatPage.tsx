@@ -112,7 +112,7 @@ export function ChatPage({}: ChatPageProps) {
   }, []);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-64 min-w-[24rem] max-w-[24rem]">
       <div className="flex-1 overflow-y-auto mb-4">
         <div className="flex flex-col gap-4">
           {messages.map((message, index) =>

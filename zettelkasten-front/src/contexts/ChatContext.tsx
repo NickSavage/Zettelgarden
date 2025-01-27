@@ -9,6 +9,8 @@ import React, {
 interface ChatContextType {
   conversationId: string;
   setConversationId: (id: string) => void;
+  showChat: boolean;
+  setShowChat: (show: boolean) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -19,9 +21,9 @@ interface ChatProviderProps {
 
 export const ChatProvider = ({ children }: ChatProviderProps) => {
   const [conversationId, setConversationId] = useState<string>("");
-
+  const [showChat, setShowChat] = useState<boolean>(false);
   return (
-    <ChatContext.Provider value={{ conversationId, setConversationId }}>
+    <ChatContext.Provider value={{ conversationId, setConversationId, showChat, setShowChat }}>
       {children}
     </ChatContext.Provider>
   );
