@@ -13,6 +13,9 @@ import { useNavigate } from "react-router-dom";
 import { AssistantMessage } from "../components/chat/AssistantMessage";
 import { UserMessage } from "../components/chat/UserMessage";
 import { ConversationDialog } from "../components/chat/ConversationDialog";
+import { CardTag } from "../components/cards/CardTag";
+import { usePartialCardContext } from "../contexts/CardContext";
+import { PartialCard } from "src/models/Card";
 
 interface ChatPageProps {}
 
@@ -28,6 +31,9 @@ export function ChatPage({}: ChatPageProps) {
   const [searchParams] = useSearchParams();
   const { conversationId, setConversationId } = useChatContext();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const { lastCard } = usePartialCardContext();
+  const [contextCards, setContextCards] = useState<PartialCard[]>([]);
+
   const navigate = useNavigate();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -99,7 +105,15 @@ export function ChatPage({}: ChatPageProps) {
         });
       });
     }
-  }, [searchParams]);
+    if (lastCard && contextCards.length === 0) {
+      setContextCards((prev) => {
+        if (!prev.some((card) => card.id === lastCard.id)) {
+          return [...prev, lastCard];
+        }
+        return prev;
+      });
+    }
+  }, [searchParams, lastCard]);
 
   useEffect(() => {
     getUserConversations()
@@ -125,65 +139,75 @@ export function ChatPage({}: ChatPageProps) {
         </div>
       </div>
       <div className="sticky bottom-2">
-        <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
-          <button
-            className="text-gray-400 hover:text-gray-600"
-            onClick={handleQuery}
-          >
-            +
-          </button>
-          <button
-            className="text-gray-400 hover:text-gray-600"
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1h10v8H5V6z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-          <textarea
-            className={`w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 resize-none min-h-[24px] max-h-[200px] ${
-              isLoading ? "cursor-not-allowed opacity-50" : ""
-            }`}
-            id="title"
-            value={query}
-            rows={1}
-            placeholder="How can I help you today?"
-            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
-              handleSearchUpdate(e);
-              // Automatically adjust height
-              e.target.style.height = "auto";
-              e.target.style.height = `${e.target.scrollHeight}px`;
-            }}
-            onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
-              if (event.key === "Enter") {
-                // If shift key is not pressed, submit
-                if (!event.shiftKey) {
-                  event.preventDefault();
-                  handleQuery();
-                  // Reset height after submission
-                  event.currentTarget.style.height = "24px"; // or whatever your initial height is
-                }
-              }
-            }}
-            disabled={isLoading}
-          />
-          {isLoading && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
             <button
-              className="bg-black text-white rounded-full h-8 w-8 flex items-center justify-center text-sm font-medium hover:bg-gray-800"
-              onClick={handleStop}
+              className="text-gray-400 hover:text-gray-600"
+              onClick={handleQuery}
             >
-              <StopIcon />
+              +
             </button>
-          )}
+            <button
+              className="text-gray-400 hover:text-gray-600"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1h10v8H5V6z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            <textarea
+              className={`w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 resize-none min-h-[24px] max-h-[200px] ${
+                isLoading ? "cursor-not-allowed opacity-50" : ""
+              }`}
+              id="title"
+              value={query}
+              rows={1}
+              placeholder="How can I help you today?"
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+                handleSearchUpdate(e);
+                // Automatically adjust height
+                e.target.style.height = "auto";
+                e.target.style.height = `${e.target.scrollHeight}px`;
+              }}
+              onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
+                if (event.key === "Enter") {
+                  // If shift key is not pressed, submit
+                  if (!event.shiftKey) {
+                    event.preventDefault();
+                    handleQuery();
+                    // Reset height after submission
+                    event.currentTarget.style.height = "24px"; // or whatever your initial height is
+                  }
+                }
+              }}
+              disabled={isLoading}
+            />
+            {isLoading && (
+              <button
+                className="bg-black text-white rounded-full h-8 w-8 flex items-center justify-center text-sm font-medium hover:bg-gray-800"
+                onClick={handleStop}
+              >
+                <StopIcon />
+              </button>
+            )}
+          </div>
+          <div>
+            <span>Context:</span>
+            {contextCards.map((card, index) => (
+              <div key={index} className="px-4">
+                <CardTag card={card} showTitle={true} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <ConversationDialog
