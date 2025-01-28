@@ -39,7 +39,7 @@ export function postChatMessage(
   const newMessage = {
     conversation_id: conversationId, // Will be undefined for new conversations
     content,
-    referenced_card_pk: contextCards?.map((card) => card.id),
+    referenced_card_pks: contextCards?.map((card) => card.id),
   };
 
   return fetch(url, {
