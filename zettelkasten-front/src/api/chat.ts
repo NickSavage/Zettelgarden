@@ -38,7 +38,7 @@ export function postChatMessage(
 
   const newMessage = {
     conversation_id: conversationId, // Will be undefined for new conversations
-    content,
+    user_query: content,
     referenced_card_pks: contextCards?.map((card) => card.id),
   };
 

@@ -62,6 +62,7 @@ export function ChatPage({}: ChatPageProps) {
       updated_at: new Date(),
       cards: [],
       referenced_card_pk: contextCards.map((card) => card.id),
+      user_query: query,
     };
 
     // Add user message to UI immediately

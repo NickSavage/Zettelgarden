@@ -81,6 +81,7 @@ type ChatCompletion struct {
 	CreatedAt         time.Time     `json:"created_at"`
 	ReferencedCardPKs []int         `json:"referenced_card_pks"`
 	ReferencedCards   []PartialCard `json:"cards"`
+	UserQuery         string        `json:"user_query"`
 }
 
 type ChatData struct {

@@ -14,6 +14,7 @@ export interface ChatCompletion {
   updated_at: Date;
   cards: PartialCard[];
   referenced_card_pk: number[];
+  user_query: string;
 }
 
 export interface ConversationSummary {
