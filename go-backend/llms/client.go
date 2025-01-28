@@ -5,9 +5,16 @@ import (
 	"database/sql"
 	"go-backend/models"
 	"net/http"
+	"os"
 
 	openai "github.com/sashabaranov/go-openai"
 )
+
+func NewDefaultClient(db *sql.DB) *models.LLMClient {
+	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+	return NewClient(db, config)
+}
 
 func NewClient(db *sql.DB, config openai.ClientConfig) *models.LLMClient {
 	config.HTTPClient = &http.Client{

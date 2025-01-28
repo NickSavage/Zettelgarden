@@ -9,13 +9,11 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/pgvector/pgvector-go"
-	"github.com/sashabaranov/go-openai"
 )
 
 type SearchParams struct {
@@ -488,9 +486,7 @@ func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]
 		return searchResults, nil
 	}
 
-	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
-	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-	client := llms.NewClient(s.DB, config)
+	client := llms.NewDefaultClient(s.DB)
 
 	reranked, err := llms.RerankSearchResults(client, params.SearchTerm, searchResults)
 	return reranked, err
@@ -570,9 +566,7 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 		} else {
 			if len(searchResults) > 0 {
 
-				config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
-				config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-				client := llms.NewClient(s.DB, config)
+				client := llms.NewDefaultClient(s.DB)
 
 				reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, searchResults)
 				if err != nil {

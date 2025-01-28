@@ -7,12 +7,10 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
-	"github.com/sashabaranov/go-openai"
 )
 
 const MODEL = "gpt-4"
@@ -159,10 +157,7 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newConversation {
-
-		config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
-		config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-		client := llms.NewClient(s.DB, config)
+		client := llms.NewDefaultClient(s.DB)
 
 		summary, err := llms.CreateConversationSummary(client, message)
 		if err != nil {
@@ -283,9 +278,7 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 		return models.ChatCompletion{}, fmt.Errorf("failed to process response")
 	}
 
-	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
-	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-	client := llms.NewClient(s.DB, config)
+	client := llms.NewDefaultClient(s.DB)
 
 	completion, err := llms.ChatCompletion(client, messages)
 	if err != nil {

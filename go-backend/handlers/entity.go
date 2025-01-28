@@ -8,12 +8,10 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/sashabaranov/go-openai"
 )
 
 const SIMILARITY_THRESHOLD = 0.15
@@ -33,9 +31,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 		return err
 	}
 
-	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
-	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-	client := llms.NewClient(s.DB, config)
+	client := llms.NewDefaultClient(s.DB)
 
 	for _, chunk := range chunks {
 		entities, err := llms.FindEntities(client, chunk)
@@ -61,9 +57,7 @@ func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []mod
 			return err
 		}
 
-		config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
-		config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-		client := llms.NewClient(s.DB, config)
+		client := llms.NewDefaultClient(s.DB)
 
 		entity, err = llms.CheckExistingEntities(client, similarEntities, entity)
 
@@ -563,9 +557,7 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 				Type:        params.Type,
 			}
 
-			config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
-			config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-			client := llms.NewClient(s.DB, config)
+			client := llms.NewDefaultClient(s.DB)
 
 			embedding, err := llms.GenerateEntityEmbedding(client, entity)
 			if err != nil {
