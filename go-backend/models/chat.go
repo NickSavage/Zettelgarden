@@ -79,7 +79,7 @@ type ChatCompletion struct {
 	Model             string        `json:"model"`
 	Tokens            int           `json:"tokens"`
 	CreatedAt         time.Time     `json:"created_at"`
-	ReferencedCardPKs []int         `json:"card_pks"`
+	ReferencedCardPKs []int         `json:"referenced_card_pks"`
 	ReferencedCards   []PartialCard `json:"cards"`
 }
 

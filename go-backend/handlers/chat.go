@@ -86,6 +86,27 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 	return messages, nil
 }
 
+func (s *Handler) AddContextualCards(userID int, message models.ChatCompletion) (models.ChatCompletion, error) {
+	cards := []models.Card{}
+	if len(message.ReferencedCardPKs) == 0 {
+		return message, nil
+	}
+	for _, cardPK := range message.ReferencedCardPKs {
+		card, err := s.QueryFullCard(userID, cardPK)
+		if err != nil {
+			log.Printf("error getting card: %v", err)
+			return models.ChatCompletion{}, err
+		}
+		cards = append(cards, card)
+	}
+	cardString := "Contextual cards: "
+	for _, card := range cards {
+		cardString += fmt.Sprintf("%v - %v\n", card.Title, card.Body)
+	}
+	message.Content = cardString + message.Content
+	return message, nil
+}
+
 func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	newConversation := false
@@ -114,13 +135,24 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 		newMessage.ConversationID = uuid.String()
 
 	}
+	newMessage, err := s.AddContextualCards(userID, newMessage)
+	if err != nil {
+		log.Printf("error adding contextual cards: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	// Add the message to the conversation
 	message, err := s.AddChatMessage(userID, newMessage)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	message, err = s.GetChatCompletion(userID, newMessage.ConversationID)
+	message, err = s.GetChatCompletion(userID, message.ConversationID)
+	if err != nil {
+		log.Printf("error getting chat completion: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if newConversation {
 		summary, err := llms.CreateConversationSummary(s.Server.LLMClient, message)
@@ -169,8 +201,6 @@ func (s *Handler) WriteConversationSummary(userID int, summary models.Conversati
 }
 
 func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (models.ChatCompletion, error) {
-	log.Printf("do we run?")
-	// First, get the next sequence number for this conversation
 	var nextSequence int
 	err := s.DB.QueryRow(`
         SELECT COALESCE(MAX(sequence_number), 0) + 1
@@ -193,12 +223,12 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
             model, 
             refusal,
             tokens
+
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id, created_at
     `
 
-	var insertedMessage models.ChatCompletion
-	insertedMessage = message
+	var insertedMessage = message
 	insertedMessage.UserID = userID
 	insertedMessage.SequenceNumber = nextSequence
 
@@ -222,54 +252,13 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 	return insertedMessage, nil
 }
 
-func (s *Handler) RouteChatCompletion(
-	userID int,
-	option models.ChatOption,
-	messages []models.ChatCompletion,
-) (models.ChatCompletion, error) {
-
-	var completion models.ChatCompletion
-	var err error
-	lastMessage := messages[len(messages)-1].Content
-
-	if option == models.UserInfo {
-		user, _ := s.QueryUser(userID)
-		log.Printf("user %v", user)
-		completion, err = llms.AnswerUserInfoQuestion(s.Server.LLMClient, user, lastMessage)
-	} else if option == models.Cards {
-		embedding, _ := llms.GenerateSemanticSearchQuery(s.Server.LLMClient, lastMessage)
-		relatedCards, _ := s.GetRelatedCards(userID, embedding[0])
-
-		scores, err := llms.RerankResults(s.Server.LLMClient, lastMessage, relatedCards)
-		if err != nil {
-			return models.ChatCompletion{}, err
-		}
-		for i, score := range scores {
-			if i == len(scores)-1 {
-				break
-			}
-			relatedCards[i].Ranking = score
-
-		}
-		scoredCards := []models.CardChunk{}
-		for _, card := range relatedCards {
-			if card.Ranking < 1 {
-				continue
-			}
-			scoredCards = append(scoredCards, card)
-		}
-		completion, err = llms.CardSearchChatCompletion(s.Server.LLMClient, messages, scoredCards)
-
-	} else {
-		// Create the new completion
-		completion, err = llms.ChatCompletion(s.Server.LLMClient, messages)
-	}
-	return completion, err
-}
-
 func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.ChatCompletion, error) {
 
 	messages, err := s.GetChatMessagesInConversation(userID, conversationID)
+	if err != nil {
+		log.Printf("error getting chat messages: %v", err)
+		return models.ChatCompletion{}, err
+	}
 
 	// Get the next sequence number
 	var nextSequence int
@@ -283,12 +272,11 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 		return models.ChatCompletion{}, fmt.Errorf("failed to process response")
 	}
 
-	lastMessage := messages[len(messages)-1].Content
-
-	option, err := llms.ChooseOptions(s.Server.LLMClient, lastMessage)
-	completion, err := s.RouteChatCompletion(userID, option, messages)
-	cards, _ := s.GetPartialCardsFromChunks(userID, completion.ReferencedCardPKs)
-	completion.ReferencedCards = cards
+	completion, err := llms.ChatCompletion(s.Server.LLMClient, messages)
+	if err != nil {
+		log.Printf("error generating chat completion: %v", err)
+		return models.ChatCompletion{}, err
+	}
 
 	completion.UserID = userID
 	completion.ConversationID = conversationID
@@ -404,8 +392,8 @@ func (s *Handler) WriteChatCompletionToDatabase(userID int, completion models.Ch
 	query := `
         INSERT INTO chat_completions (
             user_id, conversation_id, sequence_number, role, 
-            content, model, tokens, card_chunks
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            content, model, tokens
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING id, created_at
     `
 	err := s.DB.QueryRow(
@@ -417,8 +405,6 @@ func (s *Handler) WriteChatCompletionToDatabase(userID int, completion models.Ch
 		completion.Content,
 		completion.Model,
 		completion.Tokens,
-		pq.Array(completion.ReferencedCards), // Convert Go slice to PostgreSQL array
-
 	).Scan(&completion.ID, &completion.CreatedAt)
 
 	if err != nil {

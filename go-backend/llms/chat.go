@@ -87,48 +87,6 @@ func CreateConversationSummary(c *models.LLMClient, message models.ChatCompletio
 	return result, nil
 }
 
-func ChooseOptions(c *models.LLMClient, userInput string) (models.ChatOption, error) {
-	prompt := `
-You are a command router for a zettelkasten. Your only job is to analyze user input and return exactly one of these values:
-- "Cards" - This probably is the main thing the user will be asking about. Any time the user is asking you to look up information, this is probably what you want to be doing.
-- "UserInfo" - if the user is asking about themselves, their information, their account, their settings, or their preferences
-- "Chat" - for all other queries
-Respond with only one of these exact strings, nothing else. If you are not sure, ask the user to select one of the options.
-`
-	messages := []openai.ChatCompletionMessage{
-		{
-			Role:    "system",
-			Content: prompt,
-		},
-		{
-			Role:    "user",
-			Content: userInput,
-		},
-	}
-
-	resp, err := ExecuteLLMRequest(c, messages)
-	if err != nil {
-		log.Printf("error getting completion: %v", err)
-		return "", fmt.Errorf("failed to get AI response: %w", err)
-	}
-
-	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("no response from AI")
-	}
-
-	// Clean up the response
-	result := strings.TrimSpace(resp.Choices[0].Message.Content)
-
-	// Validate the response
-	switch result {
-	case string(models.Chat), string(models.UserInfo), string(models.Cards):
-		return models.ChatOption(result), nil
-	default:
-		log.Printf("unexpected routing response: %s, defaulting to Chat", result)
-		return models.Chat, nil
-	}
-}
-
 func AnswerUserInfoQuestion(c *models.LLMClient, userData models.User, lastMessage string) (models.ChatCompletion, error) {
 
 	prompt := `

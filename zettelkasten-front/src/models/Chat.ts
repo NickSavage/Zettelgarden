@@ -13,6 +13,7 @@ export interface ChatCompletion {
   created_at: Date;
   updated_at: Date;
   cards: PartialCard[];
+  referenced_card_pk: number[];
 }
 
 export interface ConversationSummary {

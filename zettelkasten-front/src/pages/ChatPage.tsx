@@ -61,13 +61,14 @@ export function ChatPage({}: ChatPageProps) {
       created_at: new Date(),
       updated_at: new Date(),
       cards: [],
+      referenced_card_pk: contextCards.map((card) => card.id),
     };
 
     // Add user message to UI immediately
     setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
-      const response = await postChatMessage(query, conversationId);
+      const response = await postChatMessage(query, conversationId, contextCards);
       console.log(response);
 
       // Save conversation ID if this is a new conversation

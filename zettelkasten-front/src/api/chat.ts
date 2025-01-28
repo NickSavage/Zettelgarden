@@ -1,5 +1,5 @@
 import { ChatCompletion, ConversationSummary } from "../models/Chat";
-
+import { PartialCard } from "../models/Card";
 import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
@@ -30,6 +30,7 @@ export function getChatConversation(
 export function postChatMessage(
   content: string,
   conversationId?: string, // Make conversationId optional and move it second
+  contextCards?: PartialCard[]
 ): Promise<ChatCompletion> {
   const token = localStorage.getItem("token");
   const url = `${base_url}/chat`; // Remove the ID from the URL
@@ -38,6 +39,7 @@ export function postChatMessage(
   const newMessage = {
     conversation_id: conversationId, // Will be undefined for new conversations
     content,
+    referenced_card_pk: contextCards?.map((card) => card.id),
   };
 
   return fetch(url, {
