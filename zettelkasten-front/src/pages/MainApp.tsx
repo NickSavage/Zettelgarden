@@ -64,9 +64,9 @@ function MainAppContent() {
     return <Navigate to="/login" replace />;
   }
   return (
-    <div className="flex">
+    <div className="flex h-screen overflow-hidden">
       {hasSubscription ? <Sidebar /> : <div></div>}
-      <div className="flex-grow h-screen overflow-y-auto break-words overflow-x-auto border-r">
+      <div className="flex-grow overflow-y-auto">
         <div className="">
           {hasSubscription ? <EmailValidationBanner /> : <div></div>}
           <Routes>

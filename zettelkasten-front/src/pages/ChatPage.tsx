@@ -127,19 +127,19 @@ export function ChatPage({}: ChatPageProps) {
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-64 min-w-[24rem] max-w-[24rem]">
-      <div className="flex-1 overflow-y-auto mb-4">
-        <div className="flex flex-col gap-4">
+    <div className="flex flex-col h-screen w-64 min-w-[24rem] max-w-[24rem] border-l">
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-col gap-4 p-4">
           {messages.map((message, index) =>
             message.role === "user" ? (
-              <UserMessage key={index} message={message.content} />
+              <UserMessage key={index} message={message.user_query} />
             ) : (
               <AssistantMessage key={index} message={message} />
             ),
           )}
         </div>
       </div>
-      <div className="sticky bottom-2">
+      <div className="border-t bg-white p-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
             <button
