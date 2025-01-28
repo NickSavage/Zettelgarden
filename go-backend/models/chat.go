@@ -8,6 +8,39 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
+type LLMProvider struct {
+	ID             int       `json:"id"`
+	Name           string    `json:"name"`
+	BaseURL        string    `json:"base_url"`
+	APIKeyRequired bool      `json:"api_key_required"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+type LLMModel struct {
+	ID              int          `json:"id"`
+	ProviderID      int          `json:"provider_id"`
+	Name            string       `json:"name"`
+	ModelIdentifier string       `json:"model_identifier"`
+	Description     string       `json:"description"`
+	IsActive        bool         `json:"is_active"`
+	CreatedAt       time.Time    `json:"created_at"`
+	UpdatedAt       time.Time    `json:"updated_at"`
+	Provider        *LLMProvider `json:"provider,omitempty"`
+}
+
+type UserLLMConfiguration struct {
+	ID             int                    `json:"id"`
+	UserID         int                    `json:"user_id"`
+	ModelID        int                    `json:"model_id"`
+	APIKey         string                 `json:"api_key,omitempty"`
+	CustomSettings map[string]interface{} `json:"custom_settings"`
+	IsDefault      bool                   `json:"is_default"`
+	CreatedAt      time.Time              `json:"created_at"`
+	UpdatedAt      time.Time              `json:"updated_at"`
+	Model          *LLMModel              `json:"model,omitempty"`
+}
+
 type LLMRequest struct {
 	UserID  int
 	Text    string

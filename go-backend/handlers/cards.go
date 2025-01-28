@@ -8,12 +8,14 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/sashabaranov/go-openai"
 )
 
 func getParentIdAlternating(cardID string) string {
@@ -766,14 +768,20 @@ func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
 		log.Printf("error in chunking %v", err)
 		return err
 	}
+
+	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+	client := llms.NewClient(s.DB, config)
+
 	for _, chunk := range chunks {
-		s.Server.LLMClient.EmbeddingQueue.Push(models.LLMRequest{
+		client.EmbeddingQueue.Push(models.LLMRequest{
 			UserID: userID,
 			CardPK: cardPK,
 			Chunk:  chunk,
 		})
 	}
-	llms.StartProcessingQueue(s.Server.LLMClient)
+
+	llms.StartProcessingQueue(client)
 	return nil
 }
 

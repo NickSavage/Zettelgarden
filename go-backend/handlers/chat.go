@@ -7,10 +7,12 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
+	"github.com/sashabaranov/go-openai"
 )
 
 const MODEL = "gpt-4"
@@ -157,7 +159,12 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newConversation {
-		summary, err := llms.CreateConversationSummary(s.Server.LLMClient, message)
+
+		config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+		config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+		client := llms.NewClient(s.DB, config)
+
+		summary, err := llms.CreateConversationSummary(client, message)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -276,7 +283,11 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 		return models.ChatCompletion{}, fmt.Errorf("failed to process response")
 	}
 
-	completion, err := llms.ChatCompletion(s.Server.LLMClient, messages)
+	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+	client := llms.NewClient(s.DB, config)
+
+	completion, err := llms.ChatCompletion(client, messages)
 	if err != nil {
 		log.Printf("error generating chat completion: %v", err)
 		return models.ChatCompletion{}, err

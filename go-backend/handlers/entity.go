@@ -8,10 +8,12 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/sashabaranov/go-openai"
 )
 
 const SIMILARITY_THRESHOLD = 0.15
@@ -30,8 +32,13 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 		log.Printf("error in chunking %v", err)
 		return err
 	}
+
+	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+	client := llms.NewClient(s.DB, config)
+
 	for _, chunk := range chunks {
-		entities, err := llms.FindEntities(s.Server.LLMClient, chunk)
+		entities, err := llms.FindEntities(client, chunk)
 		if err != nil {
 			log.Printf("entity error %v", err)
 			return err
@@ -53,7 +60,12 @@ func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []mod
 		if err != nil {
 			return err
 		}
-		entity, err = llms.CheckExistingEntities(s.Server.LLMClient, similarEntities, entity)
+
+		config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+		config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+		client := llms.NewClient(s.DB, config)
+
+		entity, err = llms.CheckExistingEntities(client, similarEntities, entity)
 
 		var entityID int
 		// First try to find if the entity exists
@@ -551,7 +563,11 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 				Type:        params.Type,
 			}
 
-			embedding, err := llms.GenerateEntityEmbedding(s.Server.LLMClient, entity)
+			config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
+			config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
+			client := llms.NewClient(s.DB, config)
+
+			embedding, err := llms.GenerateEntityEmbedding(client, entity)
 			if err != nil {
 				log.Printf("Error generating embedding for entity %d: %v", entityID, err)
 				return
