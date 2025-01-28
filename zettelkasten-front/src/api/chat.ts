@@ -17,6 +17,7 @@ export function getChatConversation(
     .then((response) => {
       if (response) {
         return response.json().then((messages: ChatCompletion[]) => {
+          console.log("messages", messages);
           return messages.map((message) => ({
             ...message,
             created_at: new Date(message.created_at),

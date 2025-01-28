@@ -34,7 +34,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 	var messages []models.ChatCompletion
 	query := `
     SELECT id, user_id, conversation_id, sequence_number, role,
-           user_query, refusal, model, tokens, created_at, card_chunks
+           content, user_query, refusal, model, tokens, created_at, card_chunks
     FROM chat_completions
     WHERE user_id = $1 AND conversation_id = $2
     ORDER BY sequence_number ASC
@@ -55,6 +55,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 			&message.ConversationID,
 			&message.SequenceNumber,
 			&message.Role,
+			&message.Content,
 			&message.UserQuery,
 			&message.Refusal,
 			&message.Model,

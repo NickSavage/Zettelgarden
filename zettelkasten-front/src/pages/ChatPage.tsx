@@ -101,7 +101,9 @@ export function ChatPage({}: ChatPageProps) {
     if (id) {
       setConversationId(id);
       // Maybe load existing conversation messages
+      console.log("loading conversation", id);
       getChatConversation(id).then((messages) => {
+        console.log("messages", messages);
         messages.forEach((message) => {
           setMessages((prev) => [...prev, message]);
         });
