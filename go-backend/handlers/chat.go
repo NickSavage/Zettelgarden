@@ -34,7 +34,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 	var messages []models.ChatCompletion
 	query := `
     SELECT id, user_id, conversation_id, sequence_number, role,
-           content, refusal, model, tokens, created_at, card_chunks
+           user_query, refusal, model, tokens, created_at, card_chunks
     FROM chat_completions
     WHERE user_id = $1 AND conversation_id = $2
     ORDER BY sequence_number ASC
@@ -55,7 +55,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 			&message.ConversationID,
 			&message.SequenceNumber,
 			&message.Role,
-			&message.Content,
+			&message.UserQuery,
 			&message.Refusal,
 			&message.Model,
 			&message.Tokens,
@@ -120,10 +120,11 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate required fields
-	if newMessage.Content == "" {
-		http.Error(w, "Content is required", http.StatusBadRequest)
+	if newMessage.UserQuery == "" {
+		http.Error(w, "User query is required", http.StatusBadRequest)
 		return
 	}
+	newMessage.Content = newMessage.UserQuery
 
 	if newMessage.ConversationID == "" {
 		newConversation = true
@@ -222,9 +223,10 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
             content, 
             model, 
             refusal,
-            tokens
+            tokens,
+            user_query
 
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id, created_at
     `
 
@@ -242,6 +244,7 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 		models.MODEL,
 		message.Refusal,
 		message.Tokens,
+		message.UserQuery,
 	).Scan(&insertedMessage.ID, &insertedMessage.CreatedAt)
 
 	if err != nil {
@@ -389,11 +392,12 @@ func (s *Handler) GetChatMessagesInConversation(userID int, conversationID strin
 
 func (s *Handler) WriteChatCompletionToDatabase(userID int, completion models.ChatCompletion) error {
 	// Insert the completion into the database
+	log.Printf("writing chat completion to database: %v", completion)
 	query := `
         INSERT INTO chat_completions (
             user_id, conversation_id, sequence_number, role, 
-            content, model, tokens
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+            content, model, tokens, user_query
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id, created_at
     `
 	err := s.DB.QueryRow(
@@ -405,6 +409,7 @@ func (s *Handler) WriteChatCompletionToDatabase(userID int, completion models.Ch
 		completion.Content,
 		completion.Model,
 		completion.Tokens,
+		completion.UserQuery,
 	).Scan(&completion.ID, &completion.CreatedAt)
 
 	if err != nil {
