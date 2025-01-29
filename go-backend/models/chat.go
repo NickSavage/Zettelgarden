@@ -13,6 +13,7 @@ type LLMProvider struct {
 	Name           string    `json:"name"`
 	BaseURL        string    `json:"base_url"`
 	APIKeyRequired bool      `json:"api_key_required"`
+	APIKey         string    `json:"api_key,omitempty"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
@@ -60,6 +61,7 @@ type LLMClient struct {
 	Client         *openai.Client
 	Testing        bool
 	EmbeddingQueue *LLMRequestQueue
+	Model          *LLMModel
 }
 
 func NewEmbeddingQueue(db *sql.DB) *LLMRequestQueue {
@@ -115,7 +117,7 @@ type ChatCompletion struct {
 	ReferencedCardPKs []int         `json:"referenced_card_pks"`
 	ReferencedCards   []PartialCard `json:"cards"`
 	UserQuery         string        `json:"user_query"`
-	ModelID           int           `json:"model_id"`
+	ConfigurationID   int           `json:"configuration_id"`
 }
 
 type ChatData struct {

@@ -15,7 +15,7 @@ func ChatCompletion(c *models.LLMClient, pastMessages []models.ChatCompletion) (
 		return models.ChatCompletion{
 			Role:    "assistant",
 			Content: "This is a mock response for testing",
-			Model:   models.MODEL,
+			Model:   c.Model.ModelIdentifier,
 			Tokens:  100,
 		}, nil
 	}
@@ -82,7 +82,7 @@ func CreateConversationSummary(c *models.LLMClient, message models.ChatCompletio
 		ID:        id,
 		Title:     resp.Choices[0].Message.Content,
 		CreatedAt: created,
-		Model:     models.MODEL,
+		Model:     c.Model.ModelIdentifier,
 	}
 	return result, nil
 }

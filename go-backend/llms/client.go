@@ -10,6 +10,15 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
+func NewClientFromModel(db *sql.DB, model models.LLMModel) *models.LLMClient {
+	config := openai.DefaultConfig(model.Provider.APIKey)
+	config.BaseURL = model.Provider.BaseURL
+
+	client := NewClient(db, config)
+	client.Model = &model
+	return client
+}
+
 func NewDefaultClient(db *sql.DB) *models.LLMClient {
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
 	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
@@ -43,7 +52,7 @@ func ExecuteLLMRequest(c *models.LLMClient, messages []openai.ChatCompletionMess
 	resp, err := c.Client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model:    models.MODEL,
+			Model:    c.Model.ModelIdentifier,
 			Messages: messages,
 		},
 	)

@@ -42,7 +42,7 @@ export function postChatMessage(
     conversation_id: conversationId, // Will be undefined for new conversations
     user_query: content,
     referenced_card_pks: contextCards?.map((card) => card.id),
-    model_id: configurationId, 
+    configuration_id: configurationId, 
   };
 
   return fetch(url, {

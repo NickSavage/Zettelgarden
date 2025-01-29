@@ -151,7 +151,16 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	message, err = s.GetChatCompletion(userID, message.ConversationID)
+
+	model, err := s.QueryLLMModel(message.ConfigurationID)
+	if err != nil {
+		log.Printf("error getting model: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	client := llms.NewClientFromModel(s.DB, model)
+
+	message, err = s.GetChatCompletion(userID, client, message.ConversationID)
 	if err != nil {
 		log.Printf("error getting chat completion: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -159,8 +168,6 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newConversation {
-		client := llms.NewDefaultClient(s.DB)
-
 		summary, err := llms.CreateConversationSummary(client, message)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -206,8 +213,54 @@ func (s *Handler) WriteConversationSummary(userID int, summary models.Conversati
 	return nil
 }
 
+func (s *Handler) QueryLLMModel(configurationID int) (models.LLMModel, error) {
+	log.Printf("querying llm model: %v", configurationID)
+	query := `
+        SELECT 
+            m.id, 
+            m.name, 
+            m.model_identifier, 
+            m.description, 
+            m.is_active,
+            p.id as provider_id,
+            p.name as provider_name,
+            p.base_url,
+            p.api_key_required,
+            p.api_key
+        FROM llm_models m
+        JOIN user_llm_configurations uc ON m.id = uc.model_id
+        JOIN llm_providers p ON m.provider_id = p.id
+        WHERE uc.id = $1
+    `
+	var model models.LLMModel
+	var provider models.LLMProvider
+
+	err := s.DB.QueryRow(query, configurationID).Scan(
+		&model.ID,
+		&model.Name,
+		&model.ModelIdentifier,
+		&model.Description,
+		&model.IsActive,
+		&provider.ID,
+		&provider.Name,
+		&provider.BaseURL,
+		&provider.APIKeyRequired,
+		&provider.APIKey,
+	)
+	if err != nil {
+		log.Printf("error querying llm model: %v", err)
+		return models.LLMModel{}, err
+	}
+
+	model.Provider = &provider
+	model.ProviderID = provider.ID
+
+	return model, nil
+}
+
 func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (models.ChatCompletion, error) {
 	var nextSequence int
+
 	err := s.DB.QueryRow(`
         SELECT COALESCE(MAX(sequence_number), 0) + 1
         FROM chat_completions
@@ -260,7 +313,7 @@ func (s *Handler) AddChatMessage(userID int, message models.ChatCompletion) (mod
 	return insertedMessage, nil
 }
 
-func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.ChatCompletion, error) {
+func (s *Handler) GetChatCompletion(userID int, client *models.LLMClient, conversationID string) (models.ChatCompletion, error) {
 
 	messages, err := s.GetChatMessagesInConversation(userID, conversationID)
 	if err != nil {
@@ -279,8 +332,6 @@ func (s *Handler) GetChatCompletion(userID int, conversationID string) (models.C
 		log.Printf("error getting next sequence: %v", err)
 		return models.ChatCompletion{}, fmt.Errorf("failed to process response")
 	}
-
-	client := llms.NewDefaultClient(s.DB)
 
 	completion, err := llms.ChatCompletion(client, messages)
 	if err != nil {
