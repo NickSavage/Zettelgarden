@@ -18,6 +18,8 @@ import { usePartialCardContext } from "../contexts/CardContext";
 import { PartialCard } from "src/models/Card";
 import { PlusCircleIcon } from "../assets/icons/PlusCircleIcon";
 import { HistoryIcon } from "../assets/icons/HistoryIcon";
+import { Dialog } from "@headlessui/react";
+import { BacklinkInput } from "../components/cards/BacklinkInput";
 
 interface ChatPageProps { }
 
@@ -39,6 +41,7 @@ export function ChatPage({ }: ChatPageProps) {
   const navigate = useNavigate();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isContextDialogOpen, setIsContextDialogOpen] = useState(false);
 
   function handleSearchUpdate(e: ChangeEvent<HTMLTextAreaElement>) {
     setQuery(e.target.value);
@@ -208,7 +211,16 @@ export function ChatPage({ }: ChatPageProps) {
             )}
           </div>
           <div className="text-sm">
-            <span>Context:</span>
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() => setIsContextDialogOpen(true)}
+                className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
+                title="Add Context"
+              >
+                <PlusCircleIcon />
+              </button>
+              <span>Context:</span>
+            </div>
             {contextCards.map((card, index) => (
               <div key={index} className="px-4 flex items-center gap-2">
                 <CardTag card={card} showTitle={true} />
@@ -232,6 +244,33 @@ export function ChatPage({ }: ChatPageProps) {
           navigate(`?id=${id}`);
         }}
       />
+      <Dialog
+        open={isContextDialogOpen}
+        onClose={() => setIsContextDialogOpen(false)}
+        className="fixed inset-0 z-10 overflow-y-auto z-50"
+      >
+        <div 
+          className="fixed inset-0 bg-black/30" 
+          aria-hidden="true"
+          onClick={() => setIsContextDialogOpen(false)}
+        />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="relative bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-medium mb-4">Add Context</h3>
+            <BacklinkInput 
+              addBacklink={(selectedCard) => {
+                setContextCards(prev => {
+                  if (!prev.some(card => card.id === selectedCard.id)) {
+                    return [...prev, selectedCard];
+                  }
+                  return prev;
+                });
+                setIsContextDialogOpen(false);
+              }} 
+            />
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }
