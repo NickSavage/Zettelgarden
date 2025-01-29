@@ -9,7 +9,7 @@ export function UserMessage({ message }: UserMessageProps) {
   return (
     <div>
       <div className="bg-gray-50 rounded-lg p-4 my-4 ml-40">
-        <div className="text-gray-700">
+        <div className="text-gray-700 text-sm">
           <Markdown children={message} />
         </div>
       </div>

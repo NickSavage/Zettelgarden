@@ -13,7 +13,7 @@ export function AssistantMessage({
   isStreaming,
 }: AssistantMessageProps) {
   return (
-    <div className={`${isStreaming ? "animate-pulse" : ""}`}>
+    <div className={`text-sm ${isStreaming ? "animate-pulse" : ""}`}>
       <Markdown>{message.content}</Markdown>
       <div>
         <ul>
