@@ -225,6 +225,8 @@ func main() {
 	addProtectedRoute(r, "/api/chat/{id}", h.GetChatConversationRoute, "GET")
 	addProtectedRoute(r, "/api/chat", h.PostChatMessageRoute, "POST")
 
+	addProtectedRoute(r, "/api/llm/configurations", h.GetUserLLMConfigurationsRoute, "GET")
+
 	addRoute(r, "/api/mailing-list", h.AddToMailingListRoute, "POST")
 	addProtectedRoute(r, "/api/mailing-list", h.GetMailingListSubscribersRoute, "GET")
 	addProtectedRoute(r, "/api/mailing-list/messages", h.GetMailingListMessagesRoute, "GET")

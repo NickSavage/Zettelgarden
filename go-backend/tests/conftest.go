@@ -253,6 +253,50 @@ func importTestData(s *server.Server) error {
 		return err
 	}
 
+	for _, provider := range data["llm_providers"].([]models.LLMProvider) {
+		_, err := tx.Exec(`
+			INSERT INTO llm_providers 
+			(id, name, base_url, api_key_required, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6)`,
+			provider.ID, provider.Name, provider.BaseURL, provider.APIKeyRequired,
+			provider.CreatedAt, provider.UpdatedAt,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to insert llm provider: %w", err)
+		}
+	}
+
+	for _, model := range data["llm_models"].([]models.LLMModel) {
+		_, err := tx.Exec(`
+			INSERT INTO llm_models 
+			(id, provider_id, name, model_identifier, description, is_active, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+			model.ID, model.ProviderID, model.Name, model.ModelIdentifier,
+			model.Description, model.IsActive, model.CreatedAt, model.UpdatedAt,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to insert llm model: %w", err)
+		}
+	}
+
+	for _, config := range data["llm_configurations"].([]models.UserLLMConfiguration) {
+		customSettingsJSON, err := json.Marshal(config.CustomSettings)
+		if err != nil {
+			return fmt.Errorf("failed to marshal custom settings: %w", err)
+		}
+
+		_, err = tx.Exec(`
+			INSERT INTO user_llm_configurations 
+			(id, user_id, model_id, api_key, custom_settings, is_default, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+			config.ID, config.UserID, config.ModelID, config.APIKey,
+			customSettingsJSON, config.IsDefault, config.CreatedAt, config.UpdatedAt,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to insert user llm configuration: %w", err)
+		}
+	}
+
 	tx.Commit()
 	return nil
 }
@@ -536,17 +580,20 @@ func generateData() map[string]interface{} {
 	}
 
 	results := map[string]interface{}{
-		"users":        users,
-		"cards":        cards,
-		"backlinks":    backlinks,
-		"files":        files,
-		"tasks":        tasks,
-		"keywords":     keywords,
-		"tags":         tags,
-		"card_tags":    card_tags,
-		"embeddings":   embeddings,
-		"entities":     entities,
-		"entity_cards": entity_cards,
+		"users":              users,
+		"cards":              cards,
+		"backlinks":          backlinks,
+		"files":              files,
+		"tasks":              tasks,
+		"keywords":           keywords,
+		"tags":               tags,
+		"card_tags":          card_tags,
+		"embeddings":         embeddings,
+		"entities":           entities,
+		"entity_cards":       entity_cards,
+		"llm_providers":      generateLLMProviders(),
+		"llm_models":         generateLLMModels(),
+		"llm_configurations": generateLLMConfigurations(),
 	}
 	return results
 }
@@ -663,4 +710,81 @@ func loadChatConversationsData(tx *sql.Tx) error {
 	}
 
 	return nil
+}
+
+func generateLLMProviders() []models.LLMProvider {
+	return []models.LLMProvider{
+		{
+			ID:             1,
+			Name:           "OpenAI",
+			BaseURL:        "https://api.openai.com/v1",
+			APIKeyRequired: true,
+			CreatedAt:      time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:      time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			ID:             2,
+			Name:           "Anthropic",
+			BaseURL:        "https://api.anthropic.com/v1",
+			APIKeyRequired: true,
+			CreatedAt:      time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:      time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
+}
+
+func generateLLMModels() []models.LLMModel {
+	return []models.LLMModel{
+		{
+			ID:              1,
+			ProviderID:      1,
+			Name:            "GPT-4",
+			ModelIdentifier: "gpt-4",
+			Description:     "Most capable GPT-4 model",
+			IsActive:        true,
+			CreatedAt:       time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:       time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			ID:              2,
+			ProviderID:      1,
+			Name:            "GPT-3.5 Turbo",
+			ModelIdentifier: "gpt-3.5-turbo",
+			Description:     "Most capable GPT-3.5 model",
+			IsActive:        true,
+			CreatedAt:       time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:       time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
+}
+
+func generateLLMConfigurations() []models.UserLLMConfiguration {
+	return []models.UserLLMConfiguration{
+		{
+			ID:      1,
+			UserID:  1,
+			ModelID: 1,
+			APIKey:  "sk-test-key-1",
+			CustomSettings: map[string]interface{}{
+				"temperature": 0.7,
+				"max_tokens":  1000,
+			},
+			IsDefault: true,
+			CreatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			ID:      2,
+			UserID:  2,
+			ModelID: 2,
+			APIKey:  "sk-test-key-2",
+			CustomSettings: map[string]interface{}{
+				"temperature": 0.5,
+				"max_tokens":  2000,
+			},
+			IsDefault: true,
+			CreatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
 }

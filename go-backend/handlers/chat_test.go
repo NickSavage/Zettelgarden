@@ -1,17 +1,15 @@
 package handlers
 
-// import (
-// 	// "bytes"
-// 	// "encoding/json"
-// 	"go-backend/models"
-// 	"go-backend/tests"
-// 	"log"
-// 	"net/http"
-// 	"net/http/httptest"
-// 	"testing"
+import (
+	"go-backend/models"
+	"go-backend/tests"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
-// 	"github.com/gorilla/mux"
-// )
+	"github.com/gorilla/mux"
+)
 
 // func TestGetChatConversation(t *testing.T) {
 // 	s := setup()
@@ -253,3 +251,112 @@ package handlers
 // 		}
 // 	}
 // }
+
+func TestGetUserLLMConfigurations(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
+
+	req, err := http.NewRequest("GET", "/api/chat/llm-configurations", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/chat/llm-configurations", s.JwtMiddleware(s.GetUserLLMConfigurationsRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check status code
+	if status := rr.Code; status != http.StatusOK {
+		log.Printf("error response: %v", rr.Body.String())
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	// Parse and check response
+	var configurations []models.UserLLMConfiguration
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &configurations)
+
+	// Should have at least one configuration from test data
+	if len(configurations) == 0 {
+		t.Error("handler returned no configurations, expected at least one")
+	}
+
+	// Check the first configuration has expected fields
+	if len(configurations) > 0 {
+		config := configurations[0]
+
+		// Check basic fields
+		if config.ID <= 0 {
+			t.Error("configuration ID is invalid")
+		}
+
+		if config.UserID != 1 {
+			t.Errorf("wrong user ID: got %v, want 1", config.UserID)
+		}
+
+		if config.ModelID <= 0 {
+			t.Error("model ID is invalid")
+		}
+
+		// Check custom settings
+		if config.CustomSettings == nil {
+			t.Error("custom settings is nil")
+		}
+
+		// Check timestamps
+		if config.CreatedAt.IsZero() {
+			t.Error("created_at is zero")
+		}
+
+		if config.UpdatedAt.IsZero() {
+			t.Error("updated_at is zero")
+		}
+
+		// Check nested model data
+		if config.Model == nil {
+			t.Error("model information is missing")
+		} else {
+			if config.Model.Name == "" {
+				t.Error("model name is empty")
+			}
+
+			if config.Model.ModelIdentifier == "" {
+				t.Error("model identifier is empty")
+			}
+
+			// Check nested provider data
+			if config.Model.Provider == nil {
+				t.Error("provider information is missing")
+			} else {
+				if config.Model.Provider.Name == "" {
+					t.Error("provider name is empty")
+				}
+
+				if config.Model.Provider.BaseURL == "" {
+					t.Error("provider base URL is empty")
+				}
+			}
+		}
+
+		// Verify the test data matches what we expect
+		if config.ID == 1 {
+			if config.APIKey != "sk-test-key-1" {
+				t.Errorf("wrong API key: got %v, want sk-test-key-1", config.APIKey)
+			}
+
+			temp, ok := config.CustomSettings["temperature"]
+			if !ok || temp != 0.7 {
+				t.Errorf("wrong temperature setting: got %v, want 0.7", temp)
+			}
+
+			maxTokens, ok := config.CustomSettings["max_tokens"]
+			if !ok || maxTokens != float64(1000) {
+				t.Errorf("wrong max_tokens setting: got %v, want 1000", maxTokens)
+			}
+		}
+	}
+}

@@ -424,3 +424,92 @@ func (s *Handler) WriteChatCompletionToDatabase(userID int, completion models.Ch
 	return nil
 
 }
+
+func (s *Handler) GetUserLLMConfigurationsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	query := `
+        SELECT 
+            uc.id,
+            uc.user_id,
+            uc.model_id,
+            uc.api_key,
+            uc.custom_settings,
+            uc.is_default,
+            uc.created_at,
+            uc.updated_at,
+            m.id as model_id,
+            m.name as model_name,
+            m.model_identifier,
+            m.description,
+            m.is_active,
+            p.id as provider_id,
+            p.name as provider_name,
+            p.base_url,
+            p.api_key_required
+        FROM user_llm_configurations uc
+        JOIN llm_models m ON uc.model_id = m.id
+        JOIN llm_providers p ON m.provider_id = p.id
+        WHERE uc.user_id = $1
+        ORDER BY uc.is_default DESC, uc.created_at DESC
+    `
+
+	rows, err := s.DB.Query(query, userID)
+	if err != nil {
+		log.Printf("error querying user LLM configurations: %v", err)
+		http.Error(w, "Failed to retrieve LLM configurations", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var configurations []models.UserLLMConfiguration
+	for rows.Next() {
+		var config models.UserLLMConfiguration
+		var provider models.LLMProvider
+		var model models.LLMModel
+		var customSettings []byte
+
+		err := rows.Scan(
+			&config.ID,
+			&config.UserID,
+			&config.ModelID,
+			&config.APIKey,
+			&customSettings,
+			&config.IsDefault,
+			&config.CreatedAt,
+			&config.UpdatedAt,
+			&model.ID,
+			&model.Name,
+			&model.ModelIdentifier,
+			&model.Description,
+			&model.IsActive,
+			&provider.ID,
+			&provider.Name,
+			&provider.BaseURL,
+			&provider.APIKeyRequired,
+		)
+		if err != nil {
+			log.Printf("error scanning LLM configuration: %v", err)
+			http.Error(w, "Failed to process LLM configurations", http.StatusInternalServerError)
+			return
+		}
+
+		// Parse custom settings JSON
+		if err := json.Unmarshal(customSettings, &config.CustomSettings); err != nil {
+			config.CustomSettings = make(map[string]interface{})
+		}
+
+		model.Provider = &provider
+		config.Model = &model
+		configurations = append(configurations, config)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("error iterating LLM configurations: %v", err)
+		http.Error(w, "Error processing LLM configurations", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(configurations)
+}

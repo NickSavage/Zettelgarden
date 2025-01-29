@@ -49,6 +49,9 @@ func ResetDatabase(S *Server) error {
 			DROP TABLE IF EXISTS entities CASCADE;
 			DROP TABLE IF EXISTS entity_card_junction CASCADE;
 			DROP TABLE IF EXISTS audit_events CASCADE;
+			DROP TABLE IF EXISTS llm_providers CASCADE;
+			DROP TABLE IF EXISTS llm_models CASCADE;
+			DROP TABLE IF EXISTS user_llm_configurations CASCADE;
 
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,
