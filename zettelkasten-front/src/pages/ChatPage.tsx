@@ -131,10 +131,15 @@ export function ChatPage({ }: ChatPageProps) {
       });
   }, []);
 
+  function handleRemoveContextCard(cardId: number) {
+    setContextCards(prev => prev.filter(card => card.id !== cardId));
+  }
+
   return (
     <div className="flex flex-col h-screen w-64 min-w-[24rem] max-w-[24rem] border-l">
       <div className="border-b bg-white p-2">
         <div className="flex items-center gap-2 justify-end">
+          <span className="text-gray-600"></span>
           <button
             className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
             title="New Chat"
@@ -202,11 +207,18 @@ export function ChatPage({ }: ChatPageProps) {
               </button>
             )}
           </div>
-          <div>
+          <div className="text-sm">
             <span>Context:</span>
             {contextCards.map((card, index) => (
-              <div key={index} className="px-4">
+              <div key={index} className="px-4 flex items-center gap-2">
                 <CardTag card={card} showTitle={true} />
+                <button
+                  onClick={() => handleRemoveContextCard(card.id)}
+                  className="text-gray-400 hover:text-gray-600"
+                  title="Remove from context"
+                >
+                  <span className="text-sm">×</span>
+                </button>
               </div>
             ))}
           </div>
