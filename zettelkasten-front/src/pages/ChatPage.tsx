@@ -16,15 +16,17 @@ import { ConversationDialog } from "../components/chat/ConversationDialog";
 import { CardTag } from "../components/cards/CardTag";
 import { usePartialCardContext } from "../contexts/CardContext";
 import { PartialCard } from "src/models/Card";
+import { PlusCircleIcon } from "../assets/icons/PlusCircleIcon";
+import { HistoryIcon } from "../assets/icons/HistoryIcon";
 
-interface ChatPageProps {}
+interface ChatPageProps { }
 
 interface Message {
   role: string;
   content: string;
 }
 
-export function ChatPage({}: ChatPageProps) {
+export function ChatPage({ }: ChatPageProps) {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatCompletion[]>([]);
@@ -117,7 +119,7 @@ export function ChatPage({}: ChatPageProps) {
         return prev;
       });
     }
-  }, [searchParams, lastCard]);
+  }, [searchParams]);
 
   useEffect(() => {
     getUserConversations()
@@ -131,6 +133,26 @@ export function ChatPage({}: ChatPageProps) {
 
   return (
     <div className="flex flex-col h-screen w-64 min-w-[24rem] max-w-[24rem] border-l">
+      <div className="border-b bg-white p-2">
+        <div className="flex items-center gap-2 justify-end">
+          <button
+            className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
+            title="New Chat"
+            onClick={() => {
+              navigate(`?id=${conversationId}`);
+            }}
+          >
+            <PlusCircleIcon />
+          </button>
+          <button
+            className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
+            title="Chat History"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <HistoryIcon />
+          </button>
+        </div>
+      </div>
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col gap-4 p-4">
           {messages.map((message, index) =>
@@ -145,33 +167,9 @@ export function ChatPage({}: ChatPageProps) {
       <div className="border-t bg-white p-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
-            <button
-              className="text-gray-400 hover:text-gray-600"
-              onClick={handleQuery}
-            >
-              +
-            </button>
-            <button
-              className="text-gray-400 hover:text-gray-600"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1h10v8H5V6z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
             <textarea
-              className={`w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 resize-none min-h-[24px] max-h-[200px] ${
-                isLoading ? "cursor-not-allowed opacity-50" : ""
-              }`}
+              className={`w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 resize-none min-h-[24px] max-h-[200px] ${isLoading ? "cursor-not-allowed opacity-50" : ""
+                }`}
               id="title"
               value={query}
               rows={1}
