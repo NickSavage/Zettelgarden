@@ -115,6 +115,7 @@ type ChatCompletion struct {
 	ReferencedCardPKs []int         `json:"referenced_card_pks"`
 	ReferencedCards   []PartialCard `json:"cards"`
 	UserQuery         string        `json:"user_query"`
+	ModelID           int           `json:"model_id"`
 }
 
 type ChatData struct {

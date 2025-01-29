@@ -19,6 +19,7 @@ func (s *Handler) GetChatConversationRoute(w http.ResponseWriter, r *http.Reques
 	userID := r.Context().Value("current_user").(int)
 	vars := mux.Vars(r)
 	conversationID := vars["id"]
+	log.Printf("conversationID: %v", conversationID)
 
 	messages, err := s.QueryChatConversation(userID, conversationID)
 	if err != nil {
@@ -42,6 +43,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
 	rows, err := s.DB.Query(query, userID, conversationID)
 	if err != nil {
 		log.Printf("err querying chat conversation: %v", err)
+		log.Printf("conversationID: %v", conversationID)
 		return nil, fmt.Errorf("unable to retrieve chat conversation")
 	}
 	defer rows.Close()
@@ -433,7 +435,6 @@ func (s *Handler) GetUserLLMConfigurationsRoute(w http.ResponseWriter, r *http.R
             uc.id,
             uc.user_id,
             uc.model_id,
-            uc.api_key,
             uc.custom_settings,
             uc.is_default,
             uc.created_at,
@@ -473,7 +474,6 @@ func (s *Handler) GetUserLLMConfigurationsRoute(w http.ResponseWriter, r *http.R
 			&config.ID,
 			&config.UserID,
 			&config.ModelID,
-			&config.APIKey,
 			&customSettings,
 			&config.IsDefault,
 			&config.CreatedAt,

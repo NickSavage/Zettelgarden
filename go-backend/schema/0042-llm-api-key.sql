@@ -1,0 +1,1 @@
+ALTER TABLE llm_providers ADD COLUMN api_key text;

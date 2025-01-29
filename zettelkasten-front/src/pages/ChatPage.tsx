@@ -5,7 +5,8 @@ import {
   getUserConversations,
   getChatConversation,
 } from "../api/chat";
-import { ChatCompletion, ConversationSummary } from "../models/Chat";
+import { ChatCompletion, ConversationSummary, UserLLMConfiguration } from "../models/Chat";
+import { getUserLLMConfigurations } from "../api/chat";
 import { useSearchParams } from "react-router-dom";
 import { useChatContext } from "../contexts/ChatContext";
 import { useNavigate } from "react-router-dom";
@@ -44,16 +45,23 @@ export function ChatPage({ }: ChatPageProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isContextDialogOpen, setIsContextDialogOpen] = useState(false);
 
+  const [llmConfigurations, setLLMConfigurations] = useState<UserLLMConfiguration[]>([]);
+  const [selectedConfiguration, setSelectedConfiguration] = useState<UserLLMConfiguration | null>(null);
+
   function handleSearchUpdate(e: ChangeEvent<HTMLTextAreaElement>) {
     setQuery(e.target.value);
   }
 
   async function handleQuery() {
     if (!query.trim()) return;
+    if (!selectedConfiguration) {
+      // Show an error message or prompt to select a configuration
+      alert("Please select a model configuration before sending a message");
+      return;
+    }
 
     setIsLoading(true);
 
-    // Create a temporary user message that matches ChatCompletion structure
     const tempUserMessage: ChatCompletion = {
       id: Date.now(), // temporary ID
       user_id: 0, // placeholder
@@ -62,7 +70,7 @@ export function ChatPage({ }: ChatPageProps) {
       role: "user",
       content: query,
       refusal: null,
-      model: "", // placeholder
+      model: selectedConfiguration.model?.model_identifier || "",
       tokens: 0, // placeholder
       created_at: new Date(),
       updated_at: new Date(),
@@ -75,7 +83,7 @@ export function ChatPage({ }: ChatPageProps) {
     setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
-      const response = await postChatMessage(query, conversationId, contextCards);
+      const response = await postChatMessage(query, conversationId, contextCards, selectedConfiguration.id);
       console.log(response);
 
       // Save conversation ID if this is a new conversation
@@ -137,6 +145,22 @@ export function ChatPage({ }: ChatPageProps) {
       });
   }, []);
 
+  useEffect(() => {
+    // Load LLM configurations
+    getUserLLMConfigurations()
+      .then((configs) => {
+        setLLMConfigurations(configs);
+        // Set default configuration if available
+        const defaultConfig = configs.find(config => config.is_default);
+        if (defaultConfig) {
+          setSelectedConfiguration(defaultConfig);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch LLM configurations:", error);
+      });
+  }, []);
+
   function handleRemoveContextCard(cardId: number) {
     setContextCards(prev => prev.filter(card => card.id !== cardId));
   }
@@ -144,24 +168,33 @@ export function ChatPage({ }: ChatPageProps) {
   return (
     <div className="flex flex-col h-screen w-64 min-w-[24rem] max-w-[24rem] border-l">
       <div className="border-b bg-white p-2">
-        <div className="flex items-center gap-2 justify-end">
-          <span className="text-gray-600">{selectedConversation?.title}</span>
-          <button
-            className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
-            title="New Chat"
-            onClick={() => {
-              navigate(`?id=${conversationId}`);
-            }}
-          >
-            <PlusCircleIcon />
-          </button>
-          <button
-            className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
-            title="Chat History"
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <HistoryIcon />
-          </button>
+        <div className="flex items-center gap-2 justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600">{selectedConversation?.title}</span>
+            {selectedConfiguration && (
+              <span className="text-xs text-gray-500">
+                Using: {selectedConfiguration.model?.name}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
+              title="New Chat"
+              onClick={() => {
+                navigate(`?id=${conversationId}`);
+              }}
+            >
+              <PlusCircleIcon />
+            </button>
+            <button
+              className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
+              title="Chat History"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              <HistoryIcon />
+            </button>
+          </div>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
@@ -223,7 +256,30 @@ export function ChatPage({ }: ChatPageProps) {
                 <PlusCircleIcon />
               </button>
               <span>Context:</span>
-              <span className="text-gray-600">{selectedConversation?.model}</span>
+              
+              <select
+                className="ml-2 text-sm border rounded-md px-2 py-1"
+                value={selectedConfiguration?.id || ""}
+                onChange={(e) => {
+                  const config = llmConfigurations.find(
+                    (c) => c.id === parseInt(e.target.value)
+                  );
+                  setSelectedConfiguration(config || null);
+                }}
+              >
+                <option value="">Select Model</option>
+                {llmConfigurations.map((config) => (
+                  <option key={config.id} value={config.id}>
+                    {config.model?.name || "Unknown Model"}
+                  </option>
+                ))}
+              </select>
+              
+              {selectedConfiguration && (
+                <span className="text-gray-600 text-xs">
+                  ({selectedConfiguration.model?.provider?.name})
+                </span>
+              )}
             </div>
             {contextCards.map((card, index) => (
               <div key={index} className="px-4 flex items-center gap-2">
