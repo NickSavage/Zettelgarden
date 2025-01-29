@@ -258,7 +258,7 @@ func TestGetUserLLMConfigurations(t *testing.T) {
 
 	token, _ := tests.GenerateTestJWT(1)
 
-	req, err := http.NewRequest("GET", "/api/chat/llm-configurations", nil)
+	req, err := http.NewRequest("GET", "/api/llms/configurations", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -267,7 +267,7 @@ func TestGetUserLLMConfigurations(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/chat/llm-configurations", s.JwtMiddleware(s.GetUserLLMConfigurationsRoute))
+	router.HandleFunc("/api/llms/configurations", s.JwtMiddleware(s.GetUserLLMConfigurationsRoute))
 	router.ServeHTTP(rr, req)
 
 	// Check status code
