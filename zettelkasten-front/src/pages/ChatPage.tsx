@@ -35,6 +35,7 @@ export function ChatPage({ }: ChatPageProps) {
   const [searchParams] = useSearchParams();
   const { conversationId, setConversationId } = useChatContext();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationSummary | null>(null);
   const { lastCard } = usePartialCardContext();
   const [contextCards, setContextCards] = useState<PartialCard[]>([]);
 
@@ -128,6 +129,8 @@ export function ChatPage({ }: ChatPageProps) {
     getUserConversations()
       .then((conversations) => {
         setConversations(conversations);
+          setSelectedConversation(conversations.find(conversation => conversation.id === searchParams.get("id")) || null);
+
       })
       .catch((error) => {
         console.error("Failed to fetch conversations:", error);
@@ -142,7 +145,7 @@ export function ChatPage({ }: ChatPageProps) {
     <div className="flex flex-col h-screen w-64 min-w-[24rem] max-w-[24rem] border-l">
       <div className="border-b bg-white p-2">
         <div className="flex items-center gap-2 justify-end">
-          <span className="text-gray-600"></span>
+          <span className="text-gray-600">{selectedConversation?.title}</span>
           <button
             className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
             title="New Chat"
@@ -220,6 +223,7 @@ export function ChatPage({ }: ChatPageProps) {
                 <PlusCircleIcon />
               </button>
               <span>Context:</span>
+              <span className="text-gray-600">{selectedConversation?.model}</span>
             </div>
             {contextCards.map((card, index) => (
               <div key={index} className="px-4 flex items-center gap-2">
@@ -241,6 +245,7 @@ export function ChatPage({ }: ChatPageProps) {
         onClose={() => setIsDialogOpen(false)}
         conversations={conversations}
         onSelectConversation={(id) => {
+          setSelectedConversation(conversations.find(conversation => conversation.id === id) || null);
           navigate(`?id=${id}`);
         }}
       />
