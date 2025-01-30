@@ -392,7 +392,6 @@ func (s *Handler) QueryUserConversations(userID int) ([]models.ConversationSumma
 		return nil, fmt.Errorf("error processing conversations")
 	}
 
-	log.Printf("conversations: %v", conversations)
 	return conversations, nil
 }
 
@@ -563,4 +562,102 @@ func (s *Handler) GetUserLLMConfigurationsRoute(w http.ResponseWriter, r *http.R
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(configurations)
+}
+
+func (s *Handler) CreateLLMProviderRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Parse the incoming provider data
+	var provider models.LLMProvider
+	if err := json.NewDecoder(r.Body).Decode(&provider); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if provider.Name == "" {
+		http.Error(w, "Provider name is required", http.StatusBadRequest)
+		return
+	}
+
+	// Insert the new provider
+	query := `
+        INSERT INTO llm_providers (
+            name,
+            base_url,
+            api_key_required,
+            api_key,
+            user_id
+        ) VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, created_at, updated_at
+    `
+
+	err := s.DB.QueryRow(
+		query,
+		provider.Name,
+		provider.BaseURL,
+		provider.APIKeyRequired,
+		provider.APIKey,
+		userID,
+	).Scan(&provider.ID, &provider.CreatedAt, &provider.UpdatedAt)
+
+	if err != nil {
+		log.Printf("error creating LLM provider: %v", err)
+		http.Error(w, "Failed to create LLM provider", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the created provider
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(provider)
+}
+
+func (s *Handler) GetUserLLMProvidersRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	log.Printf("userID: %v", userID)
+
+	query := `
+        SELECT 
+            id,
+            name,
+            base_url,
+            api_key_required,
+            api_key,
+            created_at,
+            updated_at
+        FROM llm_providers
+        WHERE user_id = $1 OR user_id IS NULL
+        ORDER BY created_at DESC
+    `
+
+	rows, err := s.DB.Query(query, userID)
+	log.Printf("rows: %v", rows)
+	if err != nil {
+		log.Printf("error querying LLM providers: %v", err)
+		http.Error(w, "Failed to retrieve LLM providers", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var providers []models.LLMProvider
+	for rows.Next() {
+		var provider models.LLMProvider
+		err := rows.Scan(
+			&provider.ID,
+			&provider.Name,
+			&provider.BaseURL,
+			&provider.APIKeyRequired,
+			&provider.APIKey,
+			&provider.CreatedAt,
+			&provider.UpdatedAt,
+		)
+		if err != nil {
+			log.Printf("error scanning LLM provider: %v", err)
+			continue
+		}
+		providers = append(providers, provider)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(providers)
 }

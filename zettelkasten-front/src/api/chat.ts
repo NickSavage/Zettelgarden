@@ -1,4 +1,4 @@
-import { ChatCompletion, ConversationSummary, UserLLMConfiguration } from "../models/Chat";
+import { ChatCompletion, ConversationSummary, LLMProvider, UserLLMConfiguration } from "../models/Chat";
 import { PartialCard } from "../models/Card";
 import { checkStatus } from "./common";
 
@@ -121,3 +121,47 @@ export function getUserLLMConfigurations(): Promise<UserLLMConfiguration[]> {
     });
 }
 
+export function getUserLLMProviders(): Promise<LLMProvider[]> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/llms/providers`;
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((providers: LLMProvider[]) => {
+          return providers.map((provider) => ({
+            ...provider,
+            created_at: new Date(provider.created_at),
+            updated_at: new Date(provider.updated_at),
+          }));
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+export function createLLMProvider(provider: LLMProvider): Promise<LLMProvider> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/llms/providers`;
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(provider),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json();
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}

@@ -5,8 +5,117 @@ import { requestPasswordReset } from "../api/auth";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
-import { getUserLLMConfigurations } from "../api/chat";
-import { UserLLMConfiguration } from "../models/Chat";
+import { createLLMProvider, getUserLLMConfigurations, getUserLLMProviders } from "../api/chat";
+import { LLMProvider, UserLLMConfiguration } from "../models/Chat";
+
+const NewProviderForm = ({ onProviderAdded }: { onProviderAdded: () => void }) => {
+  const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const newProvider: LLMProvider = {
+      name: formData.get('name') as string,
+      base_url: formData.get('base_url') as string,
+      api_key_required: (formData.get('api_key_required') as string) === 'true',
+      api_key: formData.get('api_key') as string,
+    };
+
+    try {
+      await createLLMProvider(newProvider);
+      setIsAdding(false);
+      onProviderAdded();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create provider');
+    }
+  };
+
+  if (!isAdding) {
+    return (
+      <button
+        onClick={() => setIsAdding(true)}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Add New Provider
+      </button>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Provider Name
+          <input
+            type="text"
+            name="name"
+            required
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          />
+        </label>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Base URL
+          <input
+            type="url"
+            name="base_url"
+            required
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            placeholder="https://api.example.com"
+          />
+        </label>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Requires API Key
+          <select
+            name="api_key_required"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          >
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </label>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          API Key (if required)
+          <input
+            type="password"
+            name="api_key"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          />
+        </label>
+      </div>
+
+      {error && (
+        <div className="text-red-600 text-sm">{error}</div>
+      )}
+
+      <div className="flex space-x-4">
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Save Provider
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsAdding(false)}
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+};
 
 export function UserSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -15,6 +124,8 @@ export function UserSettingsPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [llmConfigurations, setLLMConfigurations] = useState<UserLLMConfiguration[]>([]);
+  const [llmProviders, setLLMProviders] = useState<LLMProvider[]>([]);
+
 
   const navigate = useNavigate();
   const { logoutUser } = useAuth();
@@ -89,14 +200,15 @@ export function UserSettingsPage() {
         );
         console.log(subscriptionResponse);
         setSubscription(subscriptionResponse);
-        
+
         // Add this section to fetch LLM configurations
         try {
-          const configs = await getUserLLMConfigurations();
-          setLLMConfigurations(configs);
+          const providers = await getUserLLMProviders();
+          setLLMProviders(providers);
         } catch (error) {
-          console.error("Failed to fetch LLM configurations:", error);
+          console.error("Failed to fetch LLM providers:", error);
         }
+
       }
     }
 
@@ -174,58 +286,40 @@ export function UserSettingsPage() {
 
         {/* LLM Configurations Card */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">AI Model Configurations</h2>
-          <div className="space-y-4">
-            {llmConfigurations.length > 0 ? (
-              llmConfigurations.map((config) => (
-                <div key={config.id} className="border rounded-lg p-4">
+          <h2 className="text-xl font-semibold mb-4">AI Providers</h2>
+
+          {/* Add the new provider form */}
+          <NewProviderForm onProviderAdded={() => {
+            // Refresh the providers list
+            getUserLLMProviders().then(providers => setLLMProviders(providers));
+          }} />
+
+          <div className="space-y-4 mt-4">
+            {llmProviders.length > 0 ? (
+              llmProviders.map((provider) => (
+                <div key={provider.id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-medium">
-                        {config.model?.name || "Unnamed Model"}
-                        {config.is_default && (
-                          <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                            Default
-                          </span>
-                        )}
+                        {provider.name}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        Provider: {config.model?.provider?.name || "Unknown Provider"}
+                        Base URL: {provider.base_url || "Default"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Model ID: {config.model?.model_identifier || "Unknown"}
+                        API Key Required: {provider.api_key_required ? "Yes" : "No"}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-sm ${
-                      config.model?.is_active 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-red-100 text-red-800"
-                    }`}>
-                      {config.model?.is_active ? "Active" : "Inactive"}
-                    </span>
+                    <div className="text-sm text-gray-500">
+                      Added {provider.created_at.toLocaleDateString()}
+                    </div>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-gray-600">No AI model configurations found.</p>
+              <p className="text-gray-600">No AI providers found.</p>
             )}
           </div>
-        </div>
-
-        {/* Account Actions Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Account Actions</h2>
-          <button
-            onClick={() => {
-              if (window.confirm("Are you sure you want to logout?")) {
-                logoutUser();
-                navigate("/login");
-              }
-            }}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-          >
-            Logout
-          </button>
         </div>
       </div>
     </div>
