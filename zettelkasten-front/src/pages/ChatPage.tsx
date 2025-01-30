@@ -162,7 +162,9 @@ export function ChatPage({ }: ChatPageProps) {
   }, []);
 
   function handleRemoveContextCard(cardId: number) {
+    console.log("removing context card", cardId);
     setContextCards(prev => prev.filter(card => card.id !== cardId));
+    console.log("context cards", contextCards);
   }
 
   return (
@@ -171,11 +173,6 @@ export function ChatPage({ }: ChatPageProps) {
         <div className="flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2">
             <span className="text-gray-600">{selectedConversation?.title}</span>
-            {selectedConfiguration && (
-              <span className="text-xs text-gray-500">
-                Using: {selectedConfiguration.model?.name}
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -270,7 +267,7 @@ export function ChatPage({ }: ChatPageProps) {
                 <option value="">Select Model</option>
                 {llmConfigurations.map((config) => (
                   <option key={config.id} value={config.id}>
-                    {config.model?.name || "Unknown Model"}
+                    {config.model?.provider?.name} - {config.model?.name || "Unknown Model"}
                   </option>
                 ))}
               </select>
