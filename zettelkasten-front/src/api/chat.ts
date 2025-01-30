@@ -1,4 +1,4 @@
-import { ChatCompletion, ConversationSummary, LLMProvider, UserLLMConfiguration } from "../models/Chat";
+import { ChatCompletion, ConversationSummary, LLMProvider, UserLLMConfiguration, LLMModel } from "../models/Chat";
 import { PartialCard } from "../models/Card";
 import { checkStatus } from "./common";
 
@@ -160,6 +160,78 @@ export function createLLMProvider(provider: LLMProvider): Promise<LLMProvider> {
     .then((response) => {
       if (response) {
         return response.json();
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+export function updateLLMProvider(id: number, provider: LLMProvider): Promise<LLMProvider> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/llms/providers/${id}`;
+
+  return fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(provider),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((provider: LLMProvider) => ({
+          ...provider,
+          created_at: new Date(provider.created_at),
+          updated_at: new Date(provider.updated_at),
+        }));
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+export function deleteLLMProvider(id: number): Promise<void> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/llms/providers/${id}`;
+
+  return fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(checkStatus)
+    .then(() => {
+      return;
+    });
+}
+
+export function createLLMModel(model: {
+  provider_id: number;
+  name: string;
+  model_identifier: string;
+}): Promise<LLMModel> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/llms/models`;
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(model),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((model: LLMModel) => ({
+          ...model,
+          created_at: new Date(model.created_at),
+          updated_at: new Date(model.updated_at),
+        }));
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }

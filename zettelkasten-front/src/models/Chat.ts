@@ -32,6 +32,7 @@ export interface LLMProvider {
   name: string;
   base_url: string;
   api_key_required: boolean;
+  api_key?: string;
   created_at: Date;
   updated_at: Date;
 }

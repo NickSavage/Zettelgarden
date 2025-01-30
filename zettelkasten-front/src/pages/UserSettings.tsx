@@ -5,8 +5,213 @@ import { requestPasswordReset } from "../api/auth";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
-import { createLLMProvider, getUserLLMConfigurations, getUserLLMProviders } from "../api/chat";
-import { LLMProvider, UserLLMConfiguration } from "../models/Chat";
+import { createLLMProvider, getUserLLMConfigurations, getUserLLMProviders, updateLLMProvider, deleteLLMProvider, createLLMModel } from "../api/chat";
+import { LLMProvider, UserLLMConfiguration, LLMModel } from "../models/Chat";
+
+const ProviderCard = ({
+  provider,
+  onUpdate,
+  onDelete
+}: {
+  provider: LLMProvider,
+  onUpdate: () => void,
+  onDelete: () => void
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [models, setModels] = useState<LLMModel[]>([]);
+
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const updatedProvider: LLMProvider = {
+      ...provider,
+      name: formData.get('name') as string,
+      base_url: formData.get('base_url') as string,
+      api_key_required: (formData.get('api_key_required') as string) === 'true',
+      api_key: formData.get('api_key') as string,
+    };
+
+    try {
+      await updateLLMProvider(provider.id!, updatedProvider);
+      setIsEditing(false);
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update provider');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this provider?')) {
+      try {
+        await deleteLLMProvider(provider.id!);
+        onDelete();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to delete provider');
+      }
+    }
+  };
+
+  // Add this useEffect to fetch models when the component mounts
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const configurations = await getUserLLMConfigurations();
+        // Filter and map configurations to get models for this provider
+        const providerModels = configurations
+          .filter(config => config.model?.provider?.id === provider.id)
+          .map(config => config.model!)
+          .filter((model): model is LLMModel => model !== undefined);
+
+        // Remove duplicates based on model ID
+        const uniqueModels = Array.from(
+          new Map(providerModels.map(model => [model.id, model])).values()
+        );
+
+        setModels(uniqueModels);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch models');
+      }
+    };
+
+    fetchModels();
+  }, [provider.id]);
+
+
+  if (isEditing) {
+    return (
+      <div className="border rounded-lg p-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Provider Name
+              <input
+                type="text"
+                name="name"
+                defaultValue={provider.name}
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Base URL
+              <input
+                type="url"
+                name="base_url"
+                defaultValue={provider.base_url}
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Requires API Key
+              <select
+                name="api_key_required"
+                defaultValue={provider.api_key_required.toString()}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              >
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              API Key
+              <input
+                type="password"
+                name="api_key"
+                defaultValue={provider.api_key}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </label>
+          </div>
+
+          {error && (
+            <div className="text-red-600 text-sm">{error}</div>
+          )}
+
+          <div className="flex space-x-4">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+        <ModelsList
+          providerId={provider.id!}
+          models={models}
+          onModelAdded={async () => {
+            // Refresh the models list
+            const configurations = await getUserLLMConfigurations();
+            const providerModels = configurations
+              .filter(config => config.model?.provider?.id === provider.id)
+              .map(config => config.model!)
+              .filter((model): model is LLMModel => model !== undefined);
+
+            const uniqueModels = Array.from(
+              new Map(providerModels.map(model => [model.id, model])).values()
+            );
+
+            setModels(uniqueModels);
+
+          }}
+        />
+
+      </div>
+    );
+
+  }
+
+  return (
+    <div className="border rounded-lg p-4">
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="font-medium">{provider.name}</h3>
+          <p className="text-sm text-gray-600">
+            Base URL: {provider.base_url || "Default"}
+          </p>
+          <p className="text-sm text-gray-600">
+            API Key Required: {provider.api_key_required ? "Yes" : "No"}
+          </p>
+        </div>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            Edit
+          </button>
+          <button
+            onClick={handleDelete}
+            className="text-red-500 hover:text-red-700"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
+    </div>
+  );
+};
 
 const NewProviderForm = ({ onProviderAdded }: { onProviderAdded: () => void }) => {
   const [isAdding, setIsAdding] = useState(false);
@@ -21,6 +226,9 @@ const NewProviderForm = ({ onProviderAdded }: { onProviderAdded: () => void }) =
       base_url: formData.get('base_url') as string,
       api_key_required: (formData.get('api_key_required') as string) === 'true',
       api_key: formData.get('api_key') as string,
+      id: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     try {
@@ -114,6 +322,112 @@ const NewProviderForm = ({ onProviderAdded }: { onProviderAdded: () => void }) =
         </button>
       </div>
     </form>
+  );
+};
+
+const ModelsList = ({
+  providerId,
+  models,
+  onModelAdded
+}: {
+  providerId: number;
+  models: LLMModel[];
+  onModelAdded: () => void;
+}) => {
+  const [isAddingModel, setIsAddingModel] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const newModel = {
+      provider_id: providerId,
+      name: formData.get('name') as string,
+      model_identifier: formData.get('model_identifier') as string,
+    };
+
+    try {
+      await createLLMModel(newModel);
+      setIsAddingModel(false);
+      onModelAdded();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create model');
+    }
+  };
+
+  return (
+    <div className="mt-4">
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="font-medium">Models</h4>
+        <button
+          onClick={() => setIsAddingModel(true)}
+          className="text-sm text-blue-500 hover:text-blue-700"
+        >
+          Add Model
+        </button>
+      </div>
+
+      {/* Models List */}
+      <div className="space-y-2">
+        {models.map((model) => (
+          <div key={model.id} className="text-sm text-gray-600 pl-2 border-l-2 border-gray-200">
+            {model.name} ({model.model_identifier})
+          </div>
+        ))}
+      </div>
+
+      {/* Add Model Form */}
+      {isAddingModel && (
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Model Name
+              <input
+                type="text"
+                name="name"
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm"
+                placeholder="e.g., GPT-4"
+              />
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Model Identifier
+              <input
+                type="text"
+                name="model_identifier"
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm"
+                placeholder="e.g., gpt-4"
+              />
+            </label>
+          </div>
+
+          {error && (
+            <div className="text-red-600 text-sm">{error}</div>
+          )}
+
+          <div className="flex space-x-4">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAddingModel(false)}
+              className="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 };
 
@@ -286,7 +600,7 @@ export function UserSettingsPage() {
 
         {/* LLM Configurations Card */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">AI Providers</h2>
+          <h2 className="text-xl font-semibold mb-4">LLM Providers</h2>
 
           {/* Add the new provider form */}
           <NewProviderForm onProviderAdded={() => {
@@ -297,27 +611,21 @@ export function UserSettingsPage() {
           <div className="space-y-4 mt-4">
             {llmProviders.length > 0 ? (
               llmProviders.map((provider) => (
-                <div key={provider.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium">
-                        {provider.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Base URL: {provider.base_url || "Default"}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        API Key Required: {provider.api_key_required ? "Yes" : "No"}
-                      </p>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Added {provider.created_at.toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
+                <ProviderCard
+                  key={provider.id}
+                  provider={provider}
+                  onUpdate={() => {
+                    // Refresh the providers list
+                    getUserLLMProviders().then(providers => setLLMProviders(providers));
+                  }}
+                  onDelete={() => {
+                    // Refresh the providers list
+                    getUserLLMProviders().then(providers => setLLMProviders(providers));
+                  }}
+                />
               ))
             ) : (
-              <p className="text-gray-600">No AI providers found.</p>
+              <p className="text-gray-600">No LLM providers found.</p>
             )}
           </div>
         </div>

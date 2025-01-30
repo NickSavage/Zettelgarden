@@ -143,3 +143,9 @@ const (
 	Cards    ChatOption = "Cards"
 	UserInfo ChatOption = "UserInfo"
 )
+
+type CreateLLMModelRequest struct {
+	ProviderID      int    `json:"provider_id"`
+	Name            string `json:"name"`
+	ModelIdentifier string `json:"model_identifier"`
+}

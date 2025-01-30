@@ -228,6 +228,9 @@ func main() {
 	addProtectedRoute(r, "/api/llms/configurations", h.GetUserLLMConfigurationsRoute, "GET")
 	addProtectedRoute(r, "/api/llms/providers", h.GetUserLLMProvidersRoute, "GET")
 	addProtectedRoute(r, "/api/llms/providers", h.CreateLLMProviderRoute, "POST")
+	addProtectedRoute(r, "/api/llms/providers/{id}", h.UpdateLLMProviderRoute, "PUT")
+	addProtectedRoute(r, "/api/llms/providers/{id}", h.DeleteLLMProviderRoute, "DELETE")
+	addProtectedRoute(r, "/api/llms/models", h.CreateLLMModelRoute, "POST")
 
 	addRoute(r, "/api/mailing-list", h.AddToMailingListRoute, "POST")
 	addProtectedRoute(r, "/api/mailing-list", h.GetMailingListSubscribersRoute, "GET")

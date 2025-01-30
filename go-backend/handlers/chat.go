@@ -661,3 +661,208 @@ func (s *Handler) GetUserLLMProvidersRoute(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(providers)
 }
+
+func (s *Handler) UpdateLLMProviderRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+	providerID := vars["id"]
+
+	// Parse the incoming provider data
+	var provider models.LLMProvider
+	if err := json.NewDecoder(r.Body).Decode(&provider); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if provider.Name == "" {
+		http.Error(w, "Provider name is required", http.StatusBadRequest)
+		return
+	}
+
+	// Update the provider
+	query := `
+        UPDATE llm_providers 
+        SET 
+            name = $1,
+            base_url = $2,
+            api_key_required = $3,
+            api_key = $4,
+            updated_at = NOW()
+        WHERE id = $5 AND (user_id = $6 OR user_id IS NULL)
+        RETURNING id, created_at, updated_at
+    `
+
+	err := s.DB.QueryRow(
+		query,
+		provider.Name,
+		provider.BaseURL,
+		provider.APIKeyRequired,
+		provider.APIKey,
+		providerID,
+		userID,
+	).Scan(&provider.ID, &provider.CreatedAt, &provider.UpdatedAt)
+
+	if err != nil {
+		log.Printf("error updating LLM provider: %v", err)
+		http.Error(w, "Failed to update LLM provider", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the updated provider
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(provider)
+}
+
+func (s *Handler) DeleteLLMProviderRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+	providerID := vars["id"]
+
+	// First check if there are any models using this provider
+	var modelCount int
+	err := s.DB.QueryRow(`
+        SELECT COUNT(*) 
+        FROM llm_models 
+        WHERE provider_id = $1
+    `, providerID).Scan(&modelCount)
+
+	if err != nil {
+		log.Printf("error checking for dependent models: %v", err)
+		http.Error(w, "Failed to check provider dependencies", http.StatusInternalServerError)
+		return
+	}
+
+	if modelCount > 0 {
+		http.Error(w, "Cannot delete provider with associated models", http.StatusBadRequest)
+		return
+	}
+
+	// Delete the provider
+	result, err := s.DB.Exec(`
+        DELETE FROM llm_providers 
+        WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)
+    `, providerID, userID)
+
+	if err != nil {
+		log.Printf("error deleting LLM provider: %v", err)
+		http.Error(w, "Failed to delete LLM provider", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("error getting rows affected: %v", err)
+		http.Error(w, "Failed to confirm deletion", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "Provider not found or you don't have permission to delete it", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Handler) CreateLLMModelRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Parse the request
+	var req models.CreateLLMModelRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if req.Name == "" || req.ModelIdentifier == "" {
+		http.Error(w, "Name and model identifier are required", http.StatusBadRequest)
+		return
+	}
+
+	// Start a transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		log.Printf("error starting transaction: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// First, insert the model
+	var modelID int
+	err = tx.QueryRow(`
+        INSERT INTO llm_models (
+            provider_id,
+            name,
+            model_identifier,
+            is_active,
+			description
+        ) VALUES ($1, $2, $3, true, $4)
+        RETURNING id
+    `, req.ProviderID, req.Name, req.ModelIdentifier, "").Scan(&modelID)
+
+	if err != nil {
+		log.Printf("error creating LLM model: %v", err)
+		http.Error(w, "Failed to create LLM model", http.StatusInternalServerError)
+		return
+	}
+
+	// Then, create a default configuration for the user
+	_, err = tx.Exec(`
+        INSERT INTO user_llm_configurations (
+            user_id,
+            model_id,
+            custom_settings,
+            is_default
+        ) VALUES ($1, $2, '{}', false)
+    `, userID, modelID)
+
+	if err != nil {
+		log.Printf("error creating user LLM configuration: %v", err)
+		http.Error(w, "Failed to create user configuration", http.StatusInternalServerError)
+		return
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		log.Printf("error committing transaction: %v", err)
+		http.Error(w, "Failed to save changes", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the created model
+	var model models.LLMModel
+	err = s.DB.QueryRow(`
+        SELECT 
+            m.id,
+            m.provider_id,
+            m.name,
+            m.model_identifier,
+            m.description,
+            m.is_active,
+            m.created_at,
+            m.updated_at
+        FROM llm_models m
+        WHERE m.id = $1
+    `, modelID).Scan(
+		&model.ID,
+		&model.ProviderID,
+		&model.Name,
+		&model.ModelIdentifier,
+		&model.Description,
+		&model.IsActive,
+		&model.CreatedAt,
+		&model.UpdatedAt,
+	)
+
+	if err != nil {
+		log.Printf("error retrieving created model: %v", err)
+		http.Error(w, "Model created but failed to retrieve details", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(model)
+}
