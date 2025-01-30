@@ -632,8 +632,9 @@ export function UserSettingsPage() {
         )}
 
         {/* LLM Configurations Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">LLM Providers</h2>
+        {(import.meta.env.VITE_FEATURE_CHAT === "true" || user?.username === "nick") && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">LLM Providers</h2>
 
           {/* Add the new provider form */}
           <NewProviderForm onProviderAdded={() => {
@@ -661,7 +662,8 @@ export function UserSettingsPage() {
               <p className="text-gray-600">No LLM providers found.</p>
             )}
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
