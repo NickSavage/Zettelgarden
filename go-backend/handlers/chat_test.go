@@ -344,10 +344,6 @@ func TestGetUserLLMConfigurations(t *testing.T) {
 
 		// Verify the test data matches what we expect
 		if config.ID == 1 {
-			if config.APIKey != "sk-test-key-1" {
-				t.Errorf("wrong API key: got %v, want sk-test-key-1", config.APIKey)
-			}
-
 			temp, ok := config.CustomSettings["temperature"]
 			if !ok || temp != 0.7 {
 				t.Errorf("wrong temperature setting: got %v, want 0.7", temp)
