@@ -5,7 +5,7 @@ import { requestPasswordReset } from "../api/auth";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
-import { createLLMProvider, getUserLLMConfigurations, getUserLLMProviders, updateLLMProvider, deleteLLMProvider, createLLMModel } from "../api/chat";
+import { createLLMProvider, getUserLLMConfigurations, getUserLLMProviders, updateLLMProvider, deleteLLMProvider, createLLMModel, deleteLLMModel } from "../api/chat";
 import { LLMProvider, UserLLMConfiguration, LLMModel } from "../models/Chat";
 
 const ProviderCard = ({
@@ -174,6 +174,21 @@ const ProviderCard = ({
             setModels(uniqueModels);
 
           }}
+          onModelDeleted={async () => {
+            // Refresh the models list using the same logic
+            const configurations = await getUserLLMConfigurations();
+            const providerModels = configurations
+              .filter(config => config.model?.provider?.id === provider.id)
+              .map(config => config.model!)
+              .filter((model): model is LLMModel => model !== undefined);
+
+            const uniqueModels = Array.from(
+              new Map(providerModels.map(model => [model.id, model])).values()
+            );
+
+            setModels(uniqueModels);
+          }}
+
         />
 
       </div>
@@ -328,15 +343,27 @@ const NewProviderForm = ({ onProviderAdded }: { onProviderAdded: () => void }) =
 const ModelsList = ({
   providerId,
   models,
-  onModelAdded
+  onModelAdded,
+  onModelDeleted
 }: {
   providerId: number;
   models: LLMModel[];
   onModelAdded: () => void;
+  onModelDeleted: () => void;
 }) => {
   const [isAddingModel, setIsAddingModel] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleDelete = async (modelId: number) => {
+    if (window.confirm('Are you sure you want to delete this model?')) {
+      try {
+        await deleteLLMModel(modelId);
+        onModelDeleted();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to delete model');
+      }
+    }
+  };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -371,8 +398,14 @@ const ModelsList = ({
       {/* Models List */}
       <div className="space-y-2">
         {models.map((model) => (
-          <div key={model.id} className="text-sm text-gray-600 pl-2 border-l-2 border-gray-200">
-            {model.name} ({model.model_identifier})
+          <div key={model.id} className="flex justify-between items-center text-sm text-gray-600 pl-2 border-l-2 border-gray-200">
+            <span>{model.name} ({model.model_identifier})</span>
+            <button
+              onClick={() => handleDelete(model.id)}
+              className="text-red-500 hover:text-red-700 text-sm"
+            >
+              Delete
+            </button>
           </div>
         ))}
       </div>

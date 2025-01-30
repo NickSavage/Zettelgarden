@@ -866,3 +866,63 @@ func (s *Handler) CreateLLMModelRoute(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(model)
 }
+
+func (s *Handler) DeleteLLMModelRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+	modelID := vars["id"]
+
+	// Start a transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		log.Printf("error starting transaction: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// First, delete all user configurations for this model
+	_, err = tx.Exec(`
+        DELETE FROM user_llm_configurations 
+        WHERE model_id = $1 AND user_id = $2
+    `, modelID, userID)
+
+	if err != nil {
+		log.Printf("error deleting user configurations: %v", err)
+		http.Error(w, "Failed to delete model configurations", http.StatusInternalServerError)
+		return
+	}
+
+	// Then delete the model itself
+	result, err := tx.Exec(`
+        DELETE FROM llm_models 
+        WHERE id = $1
+    `, modelID)
+
+	if err != nil {
+		log.Printf("error deleting LLM model: %v", err)
+		http.Error(w, "Failed to delete model", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("error getting rows affected: %v", err)
+		http.Error(w, "Failed to confirm deletion", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "Model not found", http.StatusNotFound)
+		return
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		log.Printf("error committing transaction: %v", err)
+		http.Error(w, "Failed to complete deletion", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

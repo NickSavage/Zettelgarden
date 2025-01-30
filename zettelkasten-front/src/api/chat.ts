@@ -237,3 +237,19 @@ export function createLLMModel(model: {
       }
     });
 }
+
+export function deleteLLMModel(id: number): Promise<void> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/llms/models/${id}`;
+
+  return fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(checkStatus)
+    .then(() => {
+      return;
+    });
+}
