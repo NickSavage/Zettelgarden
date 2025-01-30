@@ -166,7 +166,7 @@ export function ChatPage({ }: ChatPageProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen w-64 min-w-[24rem] max-w-[24rem] border-l">
+    <div className="flex flex-col h-screen w-64 min-w-[32rem] max-w-[32rem] border-l">
       <div className="border-b bg-white p-2">
         <div className="flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2">
