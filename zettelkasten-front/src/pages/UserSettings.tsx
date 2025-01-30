@@ -5,6 +5,8 @@ import { requestPasswordReset } from "../api/auth";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
+import { getUserLLMConfigurations } from "../api/chat";
+import { UserLLMConfiguration } from "../models/Chat";
 
 export function UserSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -12,6 +14,7 @@ export function UserSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [llmConfigurations, setLLMConfigurations] = useState<UserLLMConfiguration[]>([]);
 
   const navigate = useNavigate();
   const { logoutUser } = useAuth();
@@ -86,6 +89,14 @@ export function UserSettingsPage() {
         );
         console.log(subscriptionResponse);
         setSubscription(subscriptionResponse);
+        
+        // Add this section to fetch LLM configurations
+        try {
+          const configs = await getUserLLMConfigurations();
+          setLLMConfigurations(configs);
+        } catch (error) {
+          console.error("Failed to fetch LLM configurations:", error);
+        }
       }
     }
 
@@ -160,6 +171,46 @@ export function UserSettingsPage() {
             </div>
           </div>
         )}
+
+        {/* LLM Configurations Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">AI Model Configurations</h2>
+          <div className="space-y-4">
+            {llmConfigurations.length > 0 ? (
+              llmConfigurations.map((config) => (
+                <div key={config.id} className="border rounded-lg p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">
+                        {config.model?.name || "Unnamed Model"}
+                        {config.is_default && (
+                          <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                            Default
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Provider: {config.model?.provider?.name || "Unknown Provider"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Model ID: {config.model?.model_identifier || "Unknown"}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-sm ${
+                      config.model?.is_active 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-red-100 text-red-800"
+                    }`}>
+                      {config.model?.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-600">No AI model configurations found.</p>
+            )}
+          </div>
+        </div>
 
         {/* Account Actions Card */}
         <div className="bg-white rounded-lg shadow p-6">
