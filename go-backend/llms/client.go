@@ -22,7 +22,16 @@ func NewClientFromModel(db *sql.DB, model models.LLMModel) *models.LLMClient {
 func NewDefaultClient(db *sql.DB) *models.LLMClient {
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
 	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-	return NewClient(db, config)
+	client := NewClient(db, config)
+	provider := models.LLMProvider{
+		APIKey:  os.Getenv("ZETTEL_LLM_KEY"),
+		BaseURL: os.Getenv("ZETTEL_LLM_ENDPOINT"),
+	}
+	client.Model = &models.LLMModel{
+		ModelIdentifier: "anthropic/claude-3.5-sonnet:beta",
+		Provider:        &provider,
+	}
+	return client
 }
 
 func NewClient(db *sql.DB, config openai.ClientConfig) *models.LLMClient {
