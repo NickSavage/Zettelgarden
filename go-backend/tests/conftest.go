@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -70,6 +71,7 @@ func Teardown() {
 func ParseJsonResponse(t *testing.T, body []byte, x interface{}) {
 	err := json.Unmarshal(body, &x)
 	if err != nil {
+		log.Printf("body: %v", string(body))
 		t.Fatalf("could not unmarshal response: %v", err)
 	}
 }
@@ -256,9 +258,9 @@ func importTestData(s *server.Server) error {
 	for _, provider := range data["llm_providers"].([]models.LLMProvider) {
 		_, err := tx.Exec(`
 			INSERT INTO llm_providers 
-			(id, name, base_url, api_key_required, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, $5, $6)`,
-			provider.ID, provider.Name, provider.BaseURL, provider.APIKeyRequired,
+			(name, base_url, api_key_required, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5)`,
+			provider.Name, provider.BaseURL, provider.APIKeyRequired,
 			provider.CreatedAt, provider.UpdatedAt,
 		)
 		if err != nil {
@@ -269,9 +271,9 @@ func importTestData(s *server.Server) error {
 	for _, model := range data["llm_models"].([]models.LLMModel) {
 		_, err := tx.Exec(`
 			INSERT INTO llm_models 
-			(id, provider_id, name, model_identifier, description, is_active, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-			model.ID, model.ProviderID, model.Name, model.ModelIdentifier,
+			(provider_id, name, model_identifier, description, is_active, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+			model.ProviderID, model.Name, model.ModelIdentifier,
 			model.Description, model.IsActive, model.CreatedAt, model.UpdatedAt,
 		)
 		if err != nil {
@@ -287,9 +289,9 @@ func importTestData(s *server.Server) error {
 
 		_, err = tx.Exec(`
 			INSERT INTO user_llm_configurations 
-			(id, user_id, model_id, api_key, custom_settings, is_default, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-			config.ID, config.UserID, config.ModelID, config.APIKey,
+			(user_id, model_id, api_key, custom_settings, is_default, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+			config.UserID, config.ModelID, config.APIKey,
 			customSettingsJSON, config.IsDefault, config.CreatedAt, config.UpdatedAt,
 		)
 		if err != nil {
@@ -787,4 +789,12 @@ func generateLLMConfigurations() []models.UserLLMConfiguration {
 			UpdatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
 		},
 	}
+}
+
+func CreateJsonBody(t *testing.T, v interface{}) *bytes.Reader {
+	jsonBytes, err := json.Marshal(v)
+	if err != nil {
+		t.Fatalf("failed to marshal to JSON: %v", err)
+	}
+	return bytes.NewReader(jsonBytes)
 }

@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"go-backend/models"
 	"go-backend/tests"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -354,5 +356,83 @@ func TestGetUserLLMConfigurations(t *testing.T) {
 				t.Errorf("wrong max_tokens setting: got %v, want 1000", maxTokens)
 			}
 		}
+	}
+}
+
+func TestDeleteLLMModel(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
+
+	randomName := fmt.Sprintf("Test Provider %d", time.Now().UnixNano())
+
+	// First create a provider
+	provider := models.LLMProvider{
+		Name:           randomName,
+		BaseURL:        "https://api.test-provider.com",
+		APIKeyRequired: true,
+		APIKey:         "test-api-key",
+	}
+
+	providerJsonBody := tests.CreateJsonBody(t, provider)
+	providerReq, _ := http.NewRequest("POST", "/api/llms/providers", providerJsonBody)
+	providerReq.Header.Set("Authorization", "Bearer "+token)
+	providerReq.Header.Set("Content-Type", "application/json")
+
+	providerRr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/llms/providers", s.JwtMiddleware(s.CreateLLMProviderRoute))
+	router.ServeHTTP(providerRr, providerReq)
+
+	// Check if provider creation was successful
+	if status := providerRr.Code; status != http.StatusOK {
+		t.Fatalf("failed to create provider: got status %v, response: %v", status, providerRr.Body.String())
+	}
+
+	var createdProvider models.LLMProvider
+	tests.ParseJsonResponse(t, providerRr.Body.Bytes(), &createdProvider)
+
+	// Create a model
+	modelReq := models.CreateLLMModelRequest{
+		ProviderID:      createdProvider.ID,
+		Name:            "Test Model",
+		ModelIdentifier: "test-model-1",
+	}
+
+	modelJsonBody := tests.CreateJsonBody(t, modelReq)
+	createReq, _ := http.NewRequest("POST", "/api/llms/models", modelJsonBody)
+	createReq.Header.Set("Authorization", "Bearer "+token)
+	createReq.Header.Set("Content-Type", "application/json")
+
+	createRr := httptest.NewRecorder()
+	router = mux.NewRouter()
+	router.HandleFunc("/api/llms/models", s.JwtMiddleware(s.CreateLLMModelRoute))
+	router.ServeHTTP(createRr, createReq)
+
+	// Check if model creation was successful
+	if status := createRr.Code; status != http.StatusOK {
+		t.Fatalf("failed to create model: got status %v, response: %v", status, createRr.Body.String())
+	}
+
+	var createdModel models.LLMModel
+	tests.ParseJsonResponse(t, createRr.Body.Bytes(), &createdModel)
+
+	// Now delete the model
+	deleteReq, err := http.NewRequest("DELETE", fmt.Sprintf("/api/llms/models/%d", createdModel.ID), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	deleteReq.Header.Set("Authorization", "Bearer "+token)
+
+	deleteRr := httptest.NewRecorder()
+	router = mux.NewRouter()
+	router.HandleFunc("/api/llms/models/{id}", s.JwtMiddleware(s.DeleteLLMModelRoute))
+	router.ServeHTTP(deleteRr, deleteReq)
+
+	if status := deleteRr.Code; status != http.StatusNoContent {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
+		t.Errorf("error response: %v", deleteRr.Body.String())
 	}
 }
