@@ -123,11 +123,9 @@ export function Sidebar() {
   }, []);
 
   useEffect(() => {
-    if (import.meta.env.VITE_FEATURE_CHAT === "true" || username === "nick") {
       getUserConversations().then((conversations) => {
         setChatConversations(conversations);
       });
-    }
   }, []);
   return (
     <>
@@ -213,14 +211,12 @@ export function Sidebar() {
                     Upload A File
                   </button>
                 </FileUpload>
-            {import.meta.env.VITE_FEATURE_CHAT === "true" || username === "nick" && (
                 <button
                   onClick={handleNewChat}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
                   New Chat
                 </button>
-              )}
               </div>
             )}
           </div>
@@ -248,7 +244,6 @@ export function Sidebar() {
               <span className="flex-grow">Files</span>
             </SidebarLink>
 
-            {import.meta.env.VITE_FEATURE_CHAT === "true" || username === "nick" && (
               <span onClick={() => setShowChat(!showChat)}>
 
               <SidebarLink to="#">
@@ -256,7 +251,6 @@ export function Sidebar() {
                 <span className="flex-grow">Chat</span>
               </SidebarLink>
               </span>
-            )}
           </ul>
         </div>
         <hr />
