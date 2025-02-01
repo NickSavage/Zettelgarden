@@ -52,6 +52,28 @@ export function ChatPage({ }: ChatPageProps) {
     setQuery(e.target.value);
   }
 
+  async function loadExistingConversation(id: string) {
+    setMessages([]);
+    if (id && id !== "") {
+      setConversationId(id);
+      // Maybe load existing conversation messages
+      console.log("loading conversation", id);
+      getChatConversation(id).then((messages) => {
+        console.log("messages", messages);
+        messages.forEach((message) => {
+          setMessages((prev) => [...prev, message]);
+        });
+      });
+    }
+    if (lastCard && contextCards.length === 0) {
+      setContextCards((prev) => {
+        if (!prev.some((card) => card.id === lastCard.id)) {
+          return [...prev, lastCard];
+        }
+        return prev;
+      });
+    }
+  }
   async function handleQuery() {
     if (!query.trim()) return;
     if (!selectedConfiguration) {
@@ -110,34 +132,14 @@ export function ChatPage({ }: ChatPageProps) {
   }
 
   useEffect(() => {
-    let id = searchParams.get("id");
-    setMessages([]);
-    if (id) {
-      setConversationId(id);
-      // Maybe load existing conversation messages
-      console.log("loading conversation", id);
-      getChatConversation(id).then((messages) => {
-        console.log("messages", messages);
-        messages.forEach((message) => {
-          setMessages((prev) => [...prev, message]);
-        });
-      });
-    }
-    if (lastCard && contextCards.length === 0) {
-      setContextCards((prev) => {
-        if (!prev.some((card) => card.id === lastCard.id)) {
-          return [...prev, lastCard];
-        }
-        return prev;
-      });
-    }
-  }, [searchParams]);
+    loadExistingConversation(searchParams.get("id") || "");
+  }, []);
 
   useEffect(() => {
     getUserConversations()
       .then((conversations) => {
         setConversations(conversations);
-          setSelectedConversation(conversations.find(conversation => conversation.id === searchParams.get("id")) || null);
+        setSelectedConversation(conversations.find(conversation => conversation.id === searchParams.get("id")) || null);
 
       })
       .catch((error) => {
@@ -253,7 +255,7 @@ export function ChatPage({ }: ChatPageProps) {
                 <PlusCircleIcon />
               </button>
               <span>Context:</span>
-              
+
               <select
                 className="ml-2 text-sm border rounded-md px-2 py-1"
                 value={selectedConfiguration?.id || ""}
@@ -271,7 +273,7 @@ export function ChatPage({ }: ChatPageProps) {
                   </option>
                 ))}
               </select>
-              
+
               {selectedConfiguration && (
                 <span className="text-gray-600 text-xs">
                   ({selectedConfiguration.model?.provider?.name})
@@ -299,7 +301,7 @@ export function ChatPage({ }: ChatPageProps) {
         conversations={conversations}
         onSelectConversation={(id) => {
           setSelectedConversation(conversations.find(conversation => conversation.id === id) || null);
-          navigate(`?id=${id}`);
+          loadExistingConversation(id);
         }}
       />
       <Dialog
@@ -307,15 +309,15 @@ export function ChatPage({ }: ChatPageProps) {
         onClose={() => setIsContextDialogOpen(false)}
         className="fixed inset-0 z-10 overflow-y-auto z-50"
       >
-        <div 
-          className="fixed inset-0 bg-black/30" 
+        <div
+          className="fixed inset-0 bg-black/30"
           aria-hidden="true"
           onClick={() => setIsContextDialogOpen(false)}
         />
         <div className="flex items-center justify-center min-h-screen">
           <div className="relative bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-medium mb-4">Add Context</h3>
-            <BacklinkInput 
+            <BacklinkInput
               addBacklink={(selectedCard) => {
                 setContextCards(prev => {
                   if (!prev.some(card => card.id === selectedCard.id)) {
@@ -324,7 +326,7 @@ export function ChatPage({ }: ChatPageProps) {
                   return prev;
                 });
                 setIsContextDialogOpen(false);
-              }} 
+              }}
             />
           </div>
         </div>
