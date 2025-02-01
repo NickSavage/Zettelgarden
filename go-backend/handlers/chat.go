@@ -168,7 +168,8 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newConversation {
-		summary, err := llms.CreateConversationSummary(client, message)
+		summaryClient := llms.NewDefaultClient(s.DB)
+		summary, err := llms.CreateConversationSummary(summaryClient, message)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
