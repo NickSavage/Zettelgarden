@@ -553,6 +553,7 @@ func (s *Handler) GetUserLLMConfigurationsRoute(w http.ResponseWriter, r *http.R
 		}
 
 		model.Provider = &provider
+		model.IsDefault = config.IsDefault
 		config.Model = &model
 		configurations = append(configurations, config)
 	}
@@ -940,7 +941,7 @@ type UpdateLLMConfigurationRequest struct {
 func (s *Handler) UpdateLLMConfigurationRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	vars := mux.Vars(r)
-	configID, err := strconv.Atoi(vars["id"])
+	modelID, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		http.Error(w, "Invalid configuration ID", http.StatusBadRequest)
 		return
@@ -962,13 +963,14 @@ func (s *Handler) UpdateLLMConfigurationRoute(w http.ResponseWriter, r *http.Req
 	}
 	defer tx.Rollback()
 
+	log.Printf("req id %v %v", modelID, req)
 	// Verify ownership and get current configuration
 	var currentConfig models.UserLLMConfiguration
 	err = tx.QueryRow(`
         SELECT id, user_id, model_id, is_default
         FROM user_llm_configurations
-        WHERE id = $1 AND user_id = $2
-    `, configID, userID).Scan(
+        WHERE model_id = $1 AND user_id = $2
+    `, modelID, userID).Scan(
 		&currentConfig.ID,
 		&currentConfig.UserID,
 		&currentConfig.ModelID,
@@ -990,7 +992,7 @@ func (s *Handler) UpdateLLMConfigurationRoute(w http.ResponseWriter, r *http.Req
             UPDATE user_llm_configurations
             SET is_default = false, updated_at = NOW()
             WHERE user_id = $1 AND id != $2
-        `, userID, configID)
+        `, userID, currentConfig.ID)
 		if err != nil {
 			log.Printf("error updating other configurations: %v", err)
 			http.Error(w, "Failed to update configuration", http.StatusInternalServerError)
@@ -1015,7 +1017,7 @@ func (s *Handler) UpdateLLMConfigurationRoute(w http.ResponseWriter, r *http.Req
             is_default = $2,
             updated_at = NOW()
         WHERE id = $3 AND user_id = $4
-    `, customSettingsJSON, req.IsDefault, configID, userID)
+    `, customSettingsJSON, req.IsDefault, currentConfig.ID, userID)
 	if err != nil {
 		log.Printf("error updating configuration: %v", err)
 		http.Error(w, "Failed to update configuration", http.StatusInternalServerError)
@@ -1077,7 +1079,7 @@ func (s *Handler) UpdateLLMConfigurationRoute(w http.ResponseWriter, r *http.Req
 	var model models.LLMModel
 	var customSettings []byte
 
-	err = s.DB.QueryRow(query, configID, userID).Scan(
+	err = s.DB.QueryRow(query, currentConfig.ID, userID).Scan(
 		&config.ID,
 		&config.UserID,
 		&config.ModelID,

@@ -25,6 +25,7 @@ type LLMModel struct {
 	ModelIdentifier string       `json:"model_identifier"`
 	Description     string       `json:"description"`
 	IsActive        bool         `json:"is_active"`
+	IsDefault       bool         `json:"is_default"`
 	CreatedAt       time.Time    `json:"created_at"`
 	UpdatedAt       time.Time    `json:"updated_at"`
 	Provider        *LLMProvider `json:"provider,omitempty"`

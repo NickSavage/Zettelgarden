@@ -44,6 +44,7 @@ export interface LLMModel {
   model_identifier: string;
   description: string;
   is_active: boolean;
+  is_default: boolean;
   created_at: Date;
   updated_at: Date;
   provider?: LLMProvider;
