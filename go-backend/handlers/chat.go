@@ -104,7 +104,7 @@ func (s *Handler) AddContextualCards(userID int, message models.ChatCompletion) 
 		}
 		cards = append(cards, card)
 	}
-	cardString := "Contextual cards: "
+	cardString := "# Contextual cards: "
 	for _, card := range cards {
 		cardString += fmt.Sprintf("%v - %v\n", card.Title, card.Body)
 	}
@@ -147,6 +147,29 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// add prompt on top of	context and user message
+	prompt := `
+	# Explanation
+	You are a research assistant helping the user of a zettelkasten answer questions, 
+	make connections, etc. The user will potentially be giving you specific 'cards' as context, including 
+	the cards title and body text. Use this to help the user answer their questions.
+
+	One thing to note about cards is that they often have references as backlinks. Anything with square brackets
+	around it is a reference to another card.
+
+	As an example, in the following card, the 'goodbye world' card is linked to Hello World, so the card itself in context
+	is Hello World.
+
+	Example Card:
+	Title: Hello World
+	Body: [A.1] - Goodbye World
+
+	Feel free to ask the user questions yourself if you are not sure what they mean. 
+	Your default is to ask for information before answering, unless you are sure.
+	`
+	newMessage.Content = prompt + "\n" + newMessage.Content
+
 	// Add the message to the conversation
 	message, err := s.AddChatMessage(userID, newMessage)
 	if err != nil {
