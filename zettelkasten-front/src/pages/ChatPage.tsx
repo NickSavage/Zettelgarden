@@ -34,7 +34,7 @@ export function ChatPage({ }: ChatPageProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatCompletion[]>([]);
   const [searchParams] = useSearchParams();
-  const { conversationId, setConversationId } = useChatContext();
+  const { conversationId, setConversationId, setShowChat } = useChatContext();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<ConversationSummary | null>(null);
   const { lastCard } = usePartialCardContext();
@@ -192,6 +192,13 @@ export function ChatPage({ }: ChatPageProps) {
               onClick={() => setIsDialogOpen(true)}
             >
               <HistoryIcon />
+            </button>
+            <button
+              className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
+              title="Close Chat"
+              onClick={() => setShowChat(false)}
+            >
+              <span className="text-xl">&times;</span>
             </button>
           </div>
         </div>
