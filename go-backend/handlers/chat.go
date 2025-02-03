@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"go-backend/llms"
 	"go-backend/models"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -926,4 +928,187 @@ func (s *Handler) DeleteLLMModelRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+type UpdateLLMConfigurationRequest struct {
+	Name            string                 `json:"name"`
+	ModelIdentifier string                 `json:"model_identifier"`
+	IsDefault       bool                   `json:"is_default"`
+	CustomSettings  map[string]interface{} `json:"custom_settings"`
+}
+
+func (s *Handler) UpdateLLMConfigurationRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+	configID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid configuration ID", http.StatusBadRequest)
+		return
+	}
+
+	// Parse request body
+	var req UpdateLLMConfigurationRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Start transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		log.Printf("error starting transaction: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// Verify ownership and get current configuration
+	var currentConfig models.UserLLMConfiguration
+	err = tx.QueryRow(`
+        SELECT id, user_id, model_id, is_default
+        FROM user_llm_configurations
+        WHERE id = $1 AND user_id = $2
+    `, configID, userID).Scan(
+		&currentConfig.ID,
+		&currentConfig.UserID,
+		&currentConfig.ModelID,
+		&currentConfig.IsDefault,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Configuration not found", http.StatusNotFound)
+		} else {
+			log.Printf("error querying configuration: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// If setting as default, unset other defaults first
+	if req.IsDefault {
+		_, err = tx.Exec(`
+            UPDATE user_llm_configurations
+            SET is_default = false, updated_at = NOW()
+            WHERE user_id = $1 AND id != $2
+        `, userID, configID)
+		if err != nil {
+			log.Printf("error updating other configurations: %v", err)
+			http.Error(w, "Failed to update configuration", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// Convert custom settings to JSON
+	customSettingsJSON, err := json.Marshal(req.CustomSettings)
+	if err != nil {
+		log.Printf("error marshaling custom settings: %v", err)
+		http.Error(w, "Invalid custom settings", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("req %v", req)
+	// Update the configuration
+	_, err = tx.Exec(`
+        UPDATE user_llm_configurations
+        SET 
+            custom_settings = $1,
+            is_default = $2,
+            updated_at = NOW()
+        WHERE id = $3 AND user_id = $4
+    `, customSettingsJSON, req.IsDefault, configID, userID)
+	if err != nil {
+		log.Printf("error updating configuration: %v", err)
+		http.Error(w, "Failed to update configuration", http.StatusInternalServerError)
+		return
+	}
+
+	// If model name or identifier needs updating, update the model
+	if req.Name != "" || req.ModelIdentifier != "" {
+		query := `
+            UPDATE llm_models
+            SET
+                name = COALESCE(NULLIF($1, ''), name),
+                model_identifier = COALESCE(NULLIF($2, ''), model_identifier),
+                updated_at = NOW()
+            WHERE id = $3
+        `
+		_, err = tx.Exec(query, req.Name, req.ModelIdentifier, currentConfig.ModelID)
+		if err != nil {
+			log.Printf("error updating model: %v", err)
+			http.Error(w, "Failed to update model", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		log.Printf("error committing transaction: %v", err)
+		http.Error(w, "Failed to save changes", http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch and return the updated configuration with full details
+	query := `
+        SELECT 
+            uc.id,
+            uc.user_id,
+            uc.model_id,
+            uc.custom_settings,
+            uc.is_default,
+            uc.created_at,
+            uc.updated_at,
+            m.id as model_id,
+            m.name as model_name,
+            m.model_identifier,
+            m.description,
+            m.is_active,
+            p.id as provider_id,
+            p.name as provider_name,
+            p.base_url,
+            p.api_key_required
+        FROM user_llm_configurations uc
+        JOIN llm_models m ON uc.model_id = m.id
+        JOIN llm_providers p ON m.provider_id = p.id
+        WHERE uc.id = $1 AND uc.user_id = $2
+    `
+
+	var config models.UserLLMConfiguration
+	var provider models.LLMProvider
+	var model models.LLMModel
+	var customSettings []byte
+
+	err = s.DB.QueryRow(query, configID, userID).Scan(
+		&config.ID,
+		&config.UserID,
+		&config.ModelID,
+		&customSettings,
+		&config.IsDefault,
+		&config.CreatedAt,
+		&config.UpdatedAt,
+		&model.ID,
+		&model.Name,
+		&model.ModelIdentifier,
+		&model.Description,
+		&model.IsActive,
+		&provider.ID,
+		&provider.Name,
+		&provider.BaseURL,
+		&provider.APIKeyRequired,
+	)
+	if err != nil {
+		log.Printf("error fetching updated configuration: %v", err)
+		http.Error(w, "Configuration updated but failed to retrieve details", http.StatusInternalServerError)
+		return
+	}
+
+	// Parse custom settings JSON
+	if err := json.Unmarshal(customSettings, &config.CustomSettings); err != nil {
+		config.CustomSettings = make(map[string]interface{})
+	}
+
+	model.Provider = &provider
+	config.Model = &model
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(config)
 }

@@ -436,3 +436,159 @@ func TestDeleteLLMModel(t *testing.T) {
 		t.Errorf("error response: %v", deleteRr.Body.String())
 	}
 }
+
+func TestUpdateLLMConfiguration(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
+
+	// First, get existing configurations to find one to update
+	req, _ := http.NewRequest("GET", "/api/llms/configurations", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/llms/configurations", s.JwtMiddleware(s.GetUserLLMConfigurationsRoute))
+	router.ServeHTTP(rr, req)
+
+	var configurations []models.UserLLMConfiguration
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &configurations)
+	if len(configurations) == 0 {
+		t.Fatal("no configurations found for testing")
+	}
+
+	configToUpdate := configurations[0]
+
+	// Test cases
+	testCases := []struct {
+		name           string
+		updateData     UpdateLLMConfigurationRequest
+		expectedStatus int
+		validate       func(t *testing.T, response models.UserLLMConfiguration)
+	}{
+		{
+			name: "Update name and model identifier",
+			updateData: UpdateLLMConfigurationRequest{
+				Name:            "Updated Test Model",
+				ModelIdentifier: "updated-test-model",
+				CustomSettings: map[string]interface{}{
+					"temperature": 0.8,
+				},
+			},
+			expectedStatus: http.StatusOK,
+			validate: func(t *testing.T, response models.UserLLMConfiguration) {
+				if response.Model.Name != "Updated Test Model" {
+					t.Errorf("expected name to be 'Updated Test Model', got %s", response.Model.Name)
+				}
+				if response.Model.ModelIdentifier != "updated-test-model" {
+					t.Errorf("expected model_identifier to be 'updated-test-model', got %s", response.Model.ModelIdentifier)
+				}
+				temp, ok := response.CustomSettings["temperature"]
+				if !ok || temp != 0.8 {
+					t.Errorf("expected temperature to be 0.8, got %v", temp)
+				}
+			},
+		},
+		{
+			name: "Set as default configuration",
+			updateData: UpdateLLMConfigurationRequest{
+				IsDefault: true,
+			},
+			expectedStatus: http.StatusOK,
+			validate: func(t *testing.T, response models.UserLLMConfiguration) {
+				if !response.IsDefault {
+					t.Error("configuration was not set as default")
+				}
+
+				// Verify other configurations are not default
+				req, _ := http.NewRequest("GET", "/api/llms/configurations", nil)
+				req.Header.Set("Authorization", "Bearer "+token)
+				rr := httptest.NewRecorder()
+				router := mux.NewRouter()
+				router.HandleFunc("/api/llms/configurations", s.JwtMiddleware(s.GetUserLLMConfigurationsRoute))
+				router.ServeHTTP(rr, req)
+
+				var allConfigs []models.UserLLMConfiguration
+				tests.ParseJsonResponse(t, rr.Body.Bytes(), &allConfigs)
+
+				defaultCount := 0
+				for _, config := range allConfigs {
+					if config.IsDefault {
+						defaultCount++
+					}
+				}
+				if defaultCount != 1 {
+					t.Errorf("expected exactly one default configuration, found %d", defaultCount)
+				}
+			},
+		},
+		{
+			name: "Update custom settings",
+			updateData: UpdateLLMConfigurationRequest{
+				CustomSettings: map[string]interface{}{
+					"temperature": 0.9,
+					"max_tokens":  2000,
+				},
+			},
+			expectedStatus: http.StatusOK,
+			validate: func(t *testing.T, response models.UserLLMConfiguration) {
+				temp, ok := response.CustomSettings["temperature"]
+				if !ok || temp != 0.9 {
+					t.Errorf("expected temperature to be 0.9, got %v", temp)
+				}
+				maxTokens, ok := response.CustomSettings["max_tokens"]
+				if !ok || maxTokens != float64(2000) {
+					t.Errorf("expected max_tokens to be 2000, got %v", maxTokens)
+				}
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			jsonBody := tests.CreateJsonBody(t, tc.updateData)
+			req, _ := http.NewRequest(
+				"PUT",
+				fmt.Sprintf("/api/llms/configurations/%d", configToUpdate.ID),
+				jsonBody,
+			)
+			req.Header.Set("Authorization", "Bearer "+token)
+			req.Header.Set("Content-Type", "application/json")
+
+			rr := httptest.NewRecorder()
+			router := mux.NewRouter()
+			router.HandleFunc("/api/llms/configurations/{id}", s.JwtMiddleware(s.UpdateLLMConfigurationRoute))
+			router.ServeHTTP(rr, req)
+
+			if status := rr.Code; status != tc.expectedStatus {
+				t.Errorf("handler returned wrong status code: got %v want %v", status, tc.expectedStatus)
+				t.Errorf("error response: %v", rr.Body.String())
+				return
+			}
+
+			if tc.expectedStatus == http.StatusOK {
+				var response models.UserLLMConfiguration
+				tests.ParseJsonResponse(t, rr.Body.Bytes(), &response)
+				tc.validate(t, response)
+
+				// Verify basic fields are preserved
+				if response.ID != configToUpdate.ID {
+					t.Errorf("configuration ID changed: got %v want %v", response.ID, configToUpdate.ID)
+				}
+				if response.UserID != configToUpdate.UserID {
+					t.Errorf("user ID changed: got %v want %v", response.UserID, configToUpdate.UserID)
+				}
+				if response.Model == nil {
+					t.Error("model information is missing")
+				}
+				if response.Model.Provider == nil {
+					t.Error("provider information is missing")
+				}
+				if response.UpdatedAt.Before(configToUpdate.UpdatedAt) || response.UpdatedAt.Equal(configToUpdate.UpdatedAt) {
+					t.Error("updated_at timestamp was not updated")
+				}
+			}
+		})
+	}
+}

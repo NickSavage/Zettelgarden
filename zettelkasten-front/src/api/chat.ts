@@ -253,3 +253,49 @@ export function deleteLLMModel(id: number): Promise<void> {
       return;
     });
 }
+
+export function updateLLMConfiguration(
+  configId: number,
+  updates: {
+    name?: string;
+    model_identifier?: string;
+    is_default?: boolean;
+    custom_settings?: Record<string, any>;
+  }
+): Promise<UserLLMConfiguration> {
+  const token = localStorage.getItem("token");
+  const url = `${base_url}/llms/models/${configId}`;
+
+  console.log("updates", updates)
+
+  return fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updates),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((config: UserLLMConfiguration) => ({
+          ...config,
+          created_at: new Date(config.created_at),
+          updated_at: new Date(config.updated_at),
+          model: config.model ? {
+            ...config.model,
+            created_at: new Date(config.model.created_at),
+            updated_at: new Date(config.model.updated_at),
+            provider: config.model.provider ? {
+              ...config.model.provider,
+              created_at: new Date(config.model.provider.created_at),
+              updated_at: new Date(config.model.provider.updated_at),
+            } : undefined
+          } : undefined
+        }));
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
