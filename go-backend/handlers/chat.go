@@ -39,7 +39,7 @@ func (s *Handler) QueryChatConversation(userID int, conversationID string) ([]mo
     SELECT id, user_id, conversation_id, sequence_number, role,
            content, user_query, refusal, model, tokens, created_at, card_chunks
     FROM chat_completions
-    WHERE user_id = $1 AND conversation_id = $2
+    WHERE user_id = $1 AND conversation_id = $2 AND role != 'system'
     ORDER BY sequence_number ASC
     `
 	rows, err := s.DB.Query(query, userID, conversationID)
