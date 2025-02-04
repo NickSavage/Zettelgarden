@@ -111,7 +111,6 @@ export function ChatPage({ }: ChatPageProps) {
       // Save conversation ID if this is a new conversation
       if (conversationId === "") {
         setConversationId(response.conversation_id);
-        navigate(`?id=${response.conversation_id}`);
       }
 
       // Add assistant's response to messages
@@ -181,16 +180,10 @@ export function ChatPage({ }: ChatPageProps) {
               className="p-1 hover:bg-gray-100 rounded-lg text-gray-600"
               title="New Chat"
               onClick={() => {
-                // Clear conversation ID
                 setConversationId("");
-                // Clear selected conversation
                 setSelectedConversation(null);
-                // Clear messages
                 setMessages([]);
-                // Clear the query input
                 setQuery("");
-                // Navigate to clean URL without conversation ID
-                navigate("");
               }}
             >
               <PlusCircleIcon />
