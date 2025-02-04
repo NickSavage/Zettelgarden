@@ -891,3 +891,29 @@ func (s *Handler) DeleteCard(userID int, id int) error {
 
 	return nil
 }
+
+func (s *Handler) GetCardAuditEventsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	cardID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
+	// Verify the user owns this card
+	_, err = s.QueryFullCard(userID, cardID)
+	if err != nil {
+		http.Error(w, "Card not found", http.StatusNotFound)
+		return
+	}
+
+	events, err := s.GetAuditEvents("card", cardID)
+	if err != nil {
+		log.Printf("Error getting audit events: %v", err)
+		http.Error(w, "Error retrieving audit events", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(events)
+}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, PartialCard, Entity } from "../../models/Card";
 import { File } from "../../models/File";
 import { removeEntityFromCard, addEntityToCard, fetchEntities } from "../../api/entities";
+import { saveExistingCard, fetchRelatedCards, getCardAuditEvents } from "../../api/cards";
 
 import {
   HeaderTop,
@@ -12,7 +13,6 @@ import {
 import { compareCardIds } from "../../utils/cards";
 import { isErrorResponse } from "../../models/common";
 
-import { saveExistingCard, fetchRelatedCards } from "../../api/cards";
 import { SearchResultList } from "../../components/cards/SearchResultList";
 
 import { FileListItem } from "../../components/files/FileListItem";
@@ -26,6 +26,106 @@ interface ViewCardTabbedDisplay {
   setError: (error: string) => void;
 }
 
+interface AuditChange {
+  field: string;
+  from: any;
+  to: any;
+}
+
+function formatFieldName(field: string): string {
+  return field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1');
+}
+
+function renderDiff(change: AuditChange) {
+  const fieldName = formatFieldName(change.field);
+
+  if (typeof change.from === 'string' && typeof change.to === 'string') {
+    return (
+      <div className="flex flex-col space-y-1">
+        <div className="text-sm font-medium text-gray-700">{fieldName}</div>
+        <div className="flex flex-col space-y-1 pl-4">
+          <div className="text-red-600 line-through bg-red-50 px-2 py-1 rounded">
+            {change.from || '(empty)'}
+          </div>
+          <div className="text-green-600 bg-green-50 px-2 py-1 rounded">
+            {change.to || '(empty)'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="text-sm font-medium text-gray-700">{fieldName}</div>
+      <div className="text-gray-600 pl-4">
+        Changed from <code className="bg-gray-100 px-1 rounded">{JSON.stringify(change.from)}</code>
+        {' '}to{' '}
+        <code className="bg-gray-100 px-1 rounded">{JSON.stringify(change.to)}</code>
+      </div>
+    </div>
+  );
+}
+
+function parseAuditEvent(event: any) {
+  const changes: AuditChange[] = [];
+
+  if (event.details?.changes) {
+    Object.entries(event.details.changes).forEach(([field, values]: [string, any]) => {
+      if (typeof values === 'object' && values !== null) {
+        if ('from' in values && 'to' in values) {
+          changes.push({
+            field,
+            from: values.from,
+            to: values.to
+          });
+        } else {
+          Object.entries(values).forEach(([subField, subValues]: [string, any]) => {
+            if (typeof subValues === 'object' && subValues !== null && 'from' in subValues && 'to' in subValues) {
+              changes.push({
+                field: `${field}.${subField}`,
+                from: subValues.from,
+                to: subValues.to
+              });
+            }
+          });
+        }
+      }
+    });
+  }
+
+  return changes;
+}
+
+function getEventIcon(eventType: string) {
+  switch (eventType.toLowerCase()) {
+    case 'update':
+      return (
+        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      );
+    case 'create':
+      return (
+        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+      );
+    case 'delete':
+      return (
+        <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      );
+    default:
+      return (
+        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+  }
+}
+
 export function ViewCardTabbedDisplay({
   viewingCard,
   setViewCard,
@@ -37,6 +137,7 @@ export function ViewCardTabbedDisplay({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [allEntities, setAllEntities] = useState<Entity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [auditEvents, setAuditEvents] = useState<any[]>([]);
 
   const tabs = [
     { label: "Children" },
@@ -44,11 +145,12 @@ export function ViewCardTabbedDisplay({
     { label: "Related" },
     { label: "Files" },
     { label: "Entities" },
+    { label: "History" },
   ];
 
-  function onFileDelete(file_id: number) {}
-  function handleViewCard(card_id: number) {}
-  function openRenameModal(file: File) {}
+  function onFileDelete(file_id: number) { }
+  function handleViewCard(card_id: number) { }
+  function openRenameModal(file: File) { }
 
   function handleTabClick(label: string) {
     setActiveTab(label);
@@ -123,12 +225,31 @@ export function ViewCardTabbedDisplay({
     }
   }
 
-  const filteredEntities = allEntities.filter(entity => 
+  const filteredEntities = allEntities.filter(entity =>
     !viewingCard.entities?.some(e => e.id === entity.id) && // Not already added
     (entity.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     entity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     entity.type.toLowerCase().includes(searchTerm.toLowerCase()))
+      entity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entity.type.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  useEffect(() => {
+    if (activeTab === "History") {
+      getCardAuditEvents(viewingCard.id.toString())
+        .then(events => setAuditEvents(events))
+        .catch(error => setError("Failed to load audit events"));
+    }
+  }, [activeTab, viewingCard.id]);
+
+  function formatDate(date: Date) {
+    return new Intl.DateTimeFormat('default', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }).format(date);
+  }
 
   return (
     <div>
@@ -139,21 +260,22 @@ export function ViewCardTabbedDisplay({
             onClick={() => handleTabClick(tab.label)}
             className={`
             cursor-pointer font-medium py-1.5 px-3 rounded-md flex items-center
-            ${
-              activeTab === tab.label
+            ${activeTab === tab.label
                 ? "text-blue-600 border-b-4 border-blue-600"
                 : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-            }
+              }
           `}
           >
             {tab.label}
-            <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
-              {tab.label === "Children" && viewingCard.children.length}
-              {tab.label === "References" && viewingCard.references.length}
-              {tab.label === "Related" && relatedCards.length}
-              {tab.label === "Files" && viewingCard.files.length}
-              {tab.label === "Entities" && viewingCard.entities && viewingCard.entities.length}
-            </span>
+            {tab.label !== "History" &&
+              <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
+                {tab.label === "Children" && viewingCard.children.length}
+                {tab.label === "References" && viewingCard.references.length}
+                {tab.label === "Related" && relatedCards.length}
+                {tab.label === "Files" && viewingCard.files.length}
+                {tab.label === "Entities" && viewingCard.entities && viewingCard.entities.length}
+              </span>
+            }
           </span>
         ))}
       </div>
@@ -197,7 +319,7 @@ export function ViewCardTabbedDisplay({
                   <FileListItem
                     file={file}
                     onDelete={onFileDelete}
-                    setRefreshFiles={(refresh: boolean) => {}}
+                    setRefreshFiles={(refresh: boolean) => { }}
                     displayFileOnCard={(file: File) => {
                       handleDisplayFileOnCardClick(file);
                     }}
@@ -220,17 +342,17 @@ export function ViewCardTabbedDisplay({
               className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           {/* Existing entities */}
           <div className="mb-6">
             <h3 className="text-sm font-medium text-gray-700 mb-2">Attached Entities</h3>
             <ul>
               {viewingCard.entities && viewingCard.entities.map((entity) => (
-                <li 
-                  key={entity.id} 
+                <li
+                  key={entity.id}
                   className="mb-2 p-2 hover:bg-gray-100 rounded flex justify-between items-center"
                 >
-                  <div 
+                  <div
                     className="cursor-pointer flex-grow"
                     onClick={() => navigate(`/app/search?term=@[${entity.name}]`)}
                   >
@@ -260,8 +382,8 @@ export function ViewCardTabbedDisplay({
               <h3 className="text-sm font-medium text-gray-700 mb-2">Search Results</h3>
               <ul>
                 {filteredEntities.map((entity) => (
-                  <li 
-                    key={entity.id} 
+                  <li
+                    key={entity.id}
                     className="mb-2 p-2 hover:bg-gray-100 rounded flex justify-between items-center cursor-pointer"
                     onClick={() => handleAddEntity(entity.id)}
                   >
@@ -282,6 +404,51 @@ export function ViewCardTabbedDisplay({
               </ul>
             </div>
           )}
+        </div>
+      )}
+      {activeTab === "History" && (
+        <div className="p-4">
+          <HeaderSubSection text="Audit History" />
+          <div className="space-y-4 mt-4">
+            {auditEvents.map((event, index) => {
+              const changes = parseAuditEvent(event);
+              const eventType = event.details?.change_type || 'unknown';
+              return (
+                <div key={index} className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 mt-1">
+                      {getEventIcon(eventType)}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="font-medium text-gray-900 capitalize">
+                            {eventType.toLowerCase()}
+                          </span>
+                          <span className="text-gray-600 ml-2">by User {event.user_id}</span>
+                        </div>
+                        <span className="text-sm text-gray-500">{formatDate(event.created_at)}</span>
+                      </div>
+                      {changes.length > 0 && (
+                        <div className="mt-3 space-y-3">
+                          {changes.map((change, idx) => (
+                            <div key={idx}>
+                              {renderDiff(change)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {auditEvents.length === 0 && (
+              <div className="text-center text-gray-500 py-8">
+                No audit events found
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -317,6 +317,32 @@ export function deleteCard(id: number): Promise<Card | null> {
       }
     });
 }
+export function getCardAuditEvents(cardId: string): Promise<any[]> {
+  let token = localStorage.getItem("token");
+  const url = `${base_url}/cards/${encodeURIComponent(cardId)}/audit`;
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((events: any[]) => {
+          if (events === null) {
+            return [];
+          }
+          return events.map(event => ({
+            ...event,
+            created_at: new Date(event.created_at),
+            updated_at: new Date(event.updated_at),
+          }));
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export async function getNextRootId(): Promise<NextIdResponse> {
   const url = `${base_url}/cards/next-root-id`;
   let token = localStorage.getItem("token");
