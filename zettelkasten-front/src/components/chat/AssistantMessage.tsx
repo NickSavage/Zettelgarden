@@ -43,35 +43,14 @@ const CardBlock = ({ children }: { children: string }) => {
       setUpdatedContent(null);
 
       try {
-        // Create a minimal card update
+        // First fetch the existing card
+        const existingCard = await getCard(String(jsonContent.id));
+        
+        // Only update the fields that were provided in jsonContent
         const cardUpdate: Card = {
-          id: jsonContent.id,
-          title: jsonContent.title || "", // Keep existing title if not provided
-          body: jsonContent.body || "", // Keep existing body if not provided
-          // Include required Card interface fields with default values
-          card_id: "",
-          user_id: 0,
-          link: "",
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          parent_id: 0,
-          parent: {
-            id: 0,
-            card_id: "",
-            user_id: 0,
-            title: "",
-            parent_id: 0,
-            created_at: new Date(),
-            updated_at: new Date(),
-            tags: []
-          },
-          files: [],
-          children: [],
-          references: [],
-          tags: [],
-          tasks: [],
-          entities: []
+          ...existingCard,
+          title: jsonContent.title ?? existingCard.title,
+          body: jsonContent.body ?? existingCard.body,
         };
 
         await saveExistingCard(cardUpdate);
