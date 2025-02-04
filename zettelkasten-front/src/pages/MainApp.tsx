@@ -29,6 +29,7 @@ import {
 import { ShortcutProvider } from "../contexts/ShortcutContext";
 import { FileProvider } from "../contexts/FileContext";
 import { EntityPage } from "./EntityPage";
+import { CardRefreshProvider } from "../contexts/CardRefreshContext";
 
 function MainAppContent() {
   const navigate = useNavigate();
@@ -131,7 +132,9 @@ function MainApp() {
           <TaskProvider>
             <ShortcutProvider>
               <FileProvider>
-                <MainAppContent />
+                <CardRefreshProvider>
+                  <MainAppContent />
+                </CardRefreshProvider>
               </FileProvider>
             </ShortcutProvider>
           </TaskProvider>

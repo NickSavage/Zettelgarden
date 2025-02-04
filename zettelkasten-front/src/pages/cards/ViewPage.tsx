@@ -20,6 +20,7 @@ import { ViewCardTabbedDisplay } from "../../components/cards/ViewCardTabbedDisp
 
 import { ViewCardOptionsMenu } from "../../components/cards/ViewCardOptionsMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
+import { useCardRefresh } from "../../contexts/CardRefreshContext";
 
 interface ViewPageProps { }
 
@@ -30,6 +31,7 @@ export function ViewPage({ }: ViewPageProps) {
   const { refreshTasks, setRefreshTasks } = useTaskContext();
   const { refreshFiles } = useFileContext();
   const { id } = useParams<{ id: string }>();
+  const { refreshTrigger } = useCardRefresh();
 
   const navigate = useNavigate();
 
@@ -89,7 +91,7 @@ export function ViewPage({ }: ViewPageProps) {
   useEffect(() => {
     setError("");
     fetchCard(id!);
-  }, [id, refreshTasks, refreshFiles]);
+  }, [id, refreshTasks, refreshFiles, refreshTrigger]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">

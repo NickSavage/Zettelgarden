@@ -106,7 +106,7 @@ func (s *Handler) AddContextualCards(userID int, message models.ChatCompletion) 
 	}
 	cardString := "# Contextual cards: "
 	for _, card := range cards {
-		cardString += fmt.Sprintf("%v - %v\n", card.Title, card.Body)
+		cardString += fmt.Sprintf("id: %v, title: %v - %v\n", card.ID, card.Title, card.Body)
 	}
 	message.Content = cardString + message.Content
 	return message, nil
@@ -162,6 +162,7 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	is Hello World.
 
 	Example Card:
+	ID: 1
 	Title: Hello World
 	Body: [A.1] - Goodbye World
 
@@ -173,9 +174,10 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 
 	 %s
 
-	 In terms of the format, there must be a line break before the end of the code block
+	 In terms of the format, there must be a line break before the end of the code block. 
+	 Always return valid json. Always include the card primary key (the id) as well
 	`
-	exampleJson := "```card\n{'title': 'Hello World', 'Body': '[A.1] - Goodbye World'}\n```"
+	exampleJson := "```card\n{\"id\": 1, \"title\": \"Hello World\", \"body\": \"[A.1] - Goodbye World\"}\n```"
 	newMessage.Content = fmt.Sprintf(prompt, exampleJson) + "\n" + newMessage.Content
 
 	// Add the message to the conversation
