@@ -112,43 +112,7 @@ func (s *Handler) AddContextualCards(userID int, message models.ChatCompletion) 
 	return message, nil
 }
 
-func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("current_user").(int)
-	newConversation := false
-	// vars := mux.Vars(r)
-
-	// Parse the incoming message
-	var newMessage models.ChatCompletion
-	if err := json.NewDecoder(r.Body).Decode(&newMessage); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	// Validate required fields
-	if newMessage.UserQuery == "" {
-		http.Error(w, "User query is required", http.StatusBadRequest)
-		return
-	}
-	newMessage.Content = newMessage.UserQuery
-
-	if newMessage.ConversationID == "" {
-		newConversation = true
-		uuid, err := uuid.NewRandom()
-		if err != nil {
-			http.Error(w, "Failed to generate conversation ID", http.StatusInternalServerError)
-			return
-		}
-		newMessage.ConversationID = uuid.String()
-
-	}
-	newMessage, err := s.AddContextualCards(userID, newMessage)
-	if err != nil {
-		log.Printf("error adding contextual cards: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// add prompt on top of	context and user message
+func (s *Handler) addChatSystemPrompt(userID int, conversationID string) {
 	prompt := `
 	# Explanation
 	You are a research assistant helping the user of a zettelkasten answer questions, 
@@ -178,7 +142,54 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	 Always return valid json. Always include the card primary key (the id) as well
 	`
 	exampleJson := "```card\n{\"id\": 1, \"title\": \"Hello World\", \"body\": \"[A.1] - Goodbye World\"}\n```"
-	newMessage.Content = fmt.Sprintf(prompt, exampleJson) + "\n" + newMessage.Content
+
+	prompt = fmt.Sprintf(prompt, exampleJson)
+	message := models.ChatCompletion{
+		UserID:         userID,
+		SequenceNumber: 0,
+		ConversationID: conversationID,
+		Content:        prompt,
+		Role:           "system",
+	}
+	s.WriteChatCompletionToDatabase(userID, message)
+}
+
+func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	newConversation := false
+	// vars := mux.Vars(r)
+
+	// Parse the incoming message
+	var newMessage models.ChatCompletion
+	if err := json.NewDecoder(r.Body).Decode(&newMessage); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if newMessage.UserQuery == "" {
+		http.Error(w, "User query is required", http.StatusBadRequest)
+		return
+	}
+	newMessage.Content = newMessage.UserQuery
+
+	if newMessage.ConversationID == "" {
+		newConversation = true
+		uuid, err := uuid.NewRandom()
+		if err != nil {
+			http.Error(w, "Failed to generate conversation ID", http.StatusInternalServerError)
+			return
+		}
+		newMessage.ConversationID = uuid.String()
+		s.addChatSystemPrompt(userID, newMessage.ConversationID)
+
+	}
+	newMessage, err := s.AddContextualCards(userID, newMessage)
+	if err != nil {
+		log.Printf("error adding contextual cards: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Add the message to the conversation
 	message, err := s.AddChatMessage(userID, newMessage)
