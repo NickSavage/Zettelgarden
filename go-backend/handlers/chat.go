@@ -173,9 +173,9 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 
 	 %s
 
-	Example e
+	 In terms of the format, there must be a line break before the end of the code block
 	`
-	exampleJson := "```card{'title': 'Hello World', 'Body': '[A.1] - Goodbye World'}```"
+	exampleJson := "```card\n{'title': 'Hello World', 'Body': '[A.1] - Goodbye World'}\n```"
 	newMessage.Content = fmt.Sprintf(prompt, exampleJson) + "\n" + newMessage.Content
 
 	// Add the message to the conversation
