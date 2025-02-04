@@ -167,8 +167,16 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 
 	Feel free to ask the user questions yourself if you are not sure what they mean. 
 	Your default is to ask for information before answering, unless you are sure.
+	
+	If you think the user wants you to show them an updated card, please respond in JSON with the new title
+	 and body in the following format: 
+
+	 %s
+
+	Example e
 	`
-	newMessage.Content = prompt + "\n" + newMessage.Content
+	exampleJson := "```card{'title': 'Hello World', 'Body': '[A.1] - Goodbye World'}```"
+	newMessage.Content = fmt.Sprintf(prompt, exampleJson) + "\n" + newMessage.Content
 
 	// Add the message to the conversation
 	message, err := s.AddChatMessage(userID, newMessage)
