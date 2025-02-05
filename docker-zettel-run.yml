@@ -1,11 +1,24 @@
 version: '3'
 
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/logs:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - go_backend
+
   frontend:
     image: nsavage/zettelgarden_frontend:latest
     restart: always
-    ports:
-      - "3001:3000"
+    expose:
+      - "3000"
     depends_on:
       - go_backend
 
@@ -16,12 +29,13 @@ services:
       db:
         condition: service_healthy
         restart: true
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080" 
     env_file:
       - zettel.env
     volumes:
       - /var/log/zettel:/app/logs
+
   db:
     image: pgvector/pgvector:pg16
     restart: always
@@ -39,11 +53,11 @@ services:
       timeout: 10s
 
   mail-service:
-      image: nsavage/zettelgarden_python_mail:latest
-      restart: always
-      ports:
-        - "8081:8081"
-      env_file:
-        - zettel.env
-      volumes:
-        - /var/log/zettel:/app/logs
+    image: nsavage/zettelgarden_python_mail:latest
+    restart: always
+    expose:
+      - "8081"
+    env_file:
+      - zettel.env
+    volumes:
+      - /var/log/zettel:/app/logs
