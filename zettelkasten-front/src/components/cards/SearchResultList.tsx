@@ -55,7 +55,9 @@ function SearchResultItem({ result, showPreview, onEntityClick }: SearchResultIt
           </div>
           {showPreview && result.preview && (
             <div className="mt-0.5 pl-2 text-sm italic text-gray-600">
-              {result.preview}
+              {result.preview.length > 200 
+                ? `${result.preview.substring(0, 200)}...` 
+                : result.preview}
             </div>
           )}
         </div>
