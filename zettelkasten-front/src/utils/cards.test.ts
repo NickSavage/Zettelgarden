@@ -60,5 +60,21 @@ describe('findNextChildId', () => {
     expect(findNextChildId("SP104/A.6", [{ card_id: "SP104/A.6/B", id: 1 } as any]))
       .toBe("SP104/A.6/C");
   });
+  it('handles big numbers', () => {
+    const children = [
+      { card_id: "A.1/B.1", id: 1 },
+      { card_id: "A.1/B.2", id: 2 },
+      { card_id: "A.1/B.3", id: 3 },
+      { card_id: "A.1/B.4", id: 4 },
+      { card_id: "A.1/B.5", id: 5 },
+      { card_id: "A.1/B.6", id: 6 },
+      { card_id: "A.1/B.7", id: 7 },
+      { card_id: "A.1/B.8", id: 8 },
+      { card_id: "A.1/B.9", id: 9 },
+      { card_id: "A.1/B.10", id: 10 },
+      { card_id: "A.1/B.11", id: 11 }
+    ] as any[];
+    expect(findNextChildId("A.1/B", children)).toBe("A.1/B.12");
+  });
 });
 

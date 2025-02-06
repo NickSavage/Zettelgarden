@@ -143,8 +143,11 @@ export function findNextChildId(parentId: string, existingChildren: PartialCard[
     return `${parentId}.1`;
   }
 
-  // Get all child IDs and sort them
-  const childIds = existingChildren.map(child => child.card_id).sort();
+  // Get all child IDs and sort them numerically
+  const childIds = existingChildren
+    .map(child => child.card_id)
+    .sort((a, b) => compareCardIds(a, b));
+  
   const lastChildId = childIds[childIds.length - 1];
   
   // Get the last segment after the last separator
@@ -158,7 +161,7 @@ export function findNextChildId(parentId: string, existingChildren: PartialCard[
   
   // If last segment is a number, increment it
   if (/^\d+$/.test(lastSegment)) {
-    const nextNum = parseInt(lastSegment) + 1;
+    const nextNum = parseInt(lastSegment, 10) + 1;
     return `${parentId}${separator}${nextNum}`;
   }
   
