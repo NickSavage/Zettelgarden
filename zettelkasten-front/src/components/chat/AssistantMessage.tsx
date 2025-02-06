@@ -5,6 +5,7 @@ import { CardItem } from "../../components/cards/CardItem";
 import { saveExistingCard, getCard } from "../../api/cards";
 import { Card } from "../../models/Card";
 import { useCardRefresh } from "../../contexts/CardRefreshContext";
+import { useLocation } from "react-router-dom";
 
 interface AssistantMessageProps {
   message: ChatCompletion;
@@ -23,6 +24,7 @@ const CardBlock = ({ children }: { children: string }) => {
   const [success, setSuccess] = useState(false);
   const [updatedContent, setUpdatedContent] = useState<string | null>(null);
   const { refreshCard } = useCardRefresh();
+  const location = useLocation();
 
   try {
     const cleanContent = children.replace(/`*$/, '').trim();
@@ -34,6 +36,14 @@ const CardBlock = ({ children }: { children: string }) => {
     const handleApply = async () => {
       if (!jsonContent.id) {
         setError("Card ID is required");
+        return;
+      }
+
+      // Check if we're currently viewing this card
+      const currentPath = location.pathname;
+      const expectedPath = `/app/card/${jsonContent.id}`;
+      if (!currentPath.startsWith(expectedPath)) {
+        setError("Warning: This card is not currently being viewed. Please navigate to the card's view page before applying updates.");
         return;
       }
 
