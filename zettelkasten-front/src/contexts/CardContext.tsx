@@ -7,6 +7,8 @@ import { PartialCard, Card } from "../models/Card";
 interface PartialCardContextType {
   lastCard: PartialCard | null;
   setLastCard: (card: PartialCard) => void;
+  nextCardId: string | null;
+  setNextCardId: (id: string | null) => void;
   partialCards: PartialCard[];
   refreshPartialCards: boolean;
   setRefreshPartialCards: (refresh: boolean) => void;
@@ -21,6 +23,7 @@ export const PartialCardProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [partialCards, setPartialCards] = useState<PartialCard[]>([]);
   const [lastCard, setLastCard] = useState<PartialCard | null>(null);
+  const [nextCardId, setNextCardId] = useState<string | null>(null);
   const [refreshPartialCards, setRefreshPartialCards] =
     useState<boolean>(false);
 
@@ -48,6 +51,8 @@ export const PartialCardProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
 	lastCard,
 	setLastCard,
+        nextCardId,
+        setNextCardId,
         partialCards,
         refreshPartialCards,
         setRefreshPartialCards,

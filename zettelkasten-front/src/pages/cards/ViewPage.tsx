@@ -21,6 +21,7 @@ import { ViewCardTabbedDisplay } from "../../components/cards/ViewCardTabbedDisp
 import { ViewCardOptionsMenu } from "../../components/cards/ViewCardOptionsMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { useCardRefresh } from "../../contexts/CardRefreshContext";
+import { findNextChildId } from "../../utils/cards";
 
 interface ViewPageProps { }
 
@@ -35,7 +36,7 @@ export function ViewPage({ }: ViewPageProps) {
 
   const navigate = useNavigate();
 
-  const { setLastCard } = usePartialCardContext();
+  const { setLastCard, setNextCardId } = usePartialCardContext();
 
   async function handleAddBacklink(selectedCard: PartialCard) {
     if (viewingCard === null) {
@@ -61,6 +62,13 @@ export function ViewPage({ }: ViewPageProps) {
       return;
     }
     navigate(`/app/card/${viewingCard.id}/edit`);
+  }
+
+  function handleCreateChildCard() {
+    if (viewingCard === null) return;
+    const nextId = findNextChildId(viewingCard.card_id, viewingCard.children);
+    setNextCardId(nextId);
+    navigate('/app/card/new');
   }
 
   async function fetchCard(id: string) {
@@ -128,8 +136,9 @@ export function ViewPage({ }: ViewPageProps) {
                 )}
               </div>
             </div>
-            <div className="mt-2 md:mt-0 md:ml-4">
-              <Button onClick={handleEditCard} >Edit</Button>
+            <div className="mt-2 md:mt-0 md:ml-4 flex gap-2">
+              <Button onClick={handleEditCard}>Edit</Button>
+              <Button onClick={handleCreateChildCard}>Add Child Card</Button>
             </div>
           </div>
 

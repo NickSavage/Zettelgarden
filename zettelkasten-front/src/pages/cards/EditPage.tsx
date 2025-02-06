@@ -37,7 +37,7 @@ export function EditPage({ newCard }: EditPageProps) {
   const [message, setMessage] = useState<string>("");
   const [isParsingUrl, setIsParsingUrl] = useState(false);
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
-  const { partialCards, setRefreshPartialCards, lastCard } =
+  const { partialCards, setRefreshPartialCards, lastCard, nextCardId, setNextCardId } =
     usePartialCardContext();
   const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
   const { tags } = useTagContext();
@@ -81,17 +81,18 @@ export function EditPage({ newCard }: EditPageProps) {
       document.title = "Zettelgarden - New Card";
       setEditingCard({
         ...defaultCard,
-        card_id: lastCard ? lastCard.card_id : "",
+        card_id: nextCardId || (lastCard ? lastCard.card_id : ""),
       });
+      if (nextCardId) {
+        setNextCardId(null);
+      }
     }
   }, [id]);
 
   function handleCancelButtonClick() {
     if (newCard) {
-      console.log("we get here?");
       console.log(lastCard);
       if (lastCard) {
-        console.log("?");
         navigate(`/app/card/${lastCard.id}`);
       } else {
         navigate(`/`);

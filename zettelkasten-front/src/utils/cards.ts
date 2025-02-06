@@ -121,3 +121,47 @@ export function sortCardIds(input: string[]): string[] {
   console.log(results);
   return results;
 }
+
+function getNextLetter(currentLetter: string): string {
+  if (currentLetter === 'Z') return 'AA';
+  if (currentLetter.endsWith('Z')) {
+    return currentLetter.slice(0, -1) + 'A' + 'A';
+  }
+  return currentLetter.slice(0, -1) + String.fromCharCode(currentLetter.charCodeAt(currentLetter.length - 1) + 1);
+}
+
+export function findNextChildId(parentId: string, existingChildren: PartialCard[]): string {
+  // If no children exist, check if parent ends with a number
+  if (existingChildren.length === 0) {
+    const segments = parentId.split(/[./]/);
+    const lastSegment = segments[segments.length - 1];
+    // If parent ends with a number (after a /), append /A
+    if (/^\d+$/.test(lastSegment)) {
+      return `${parentId}/A`;
+    }
+    // Otherwise append .1
+    return `${parentId}.1`;
+  }
+
+  // Get all child IDs and sort them
+  const childIds = existingChildren.map(child => child.card_id).sort();
+  const lastChildId = childIds[childIds.length - 1];
+  
+  // Get the last segment after the last separator
+  const segments = lastChildId.split(/[./]/);
+  const lastSegment = segments[segments.length - 1];
+  
+  // Check parent's last segment to determine separator
+  const parentSegments = parentId.split(/[./]/);
+  const parentLastSegment = parentSegments[parentSegments.length - 1];
+  const separator = /^\d+$/.test(parentLastSegment) ? '/' : '.';
+  
+  // If last segment is a number, increment it
+  if (/^\d+$/.test(lastSegment)) {
+    const nextNum = parseInt(lastSegment) + 1;
+    return `${parentId}${separator}${nextNum}`;
+  }
+  
+  // If last segment is a letter(s), get next letter
+  return `${parentId}${separator}${getNextLetter(lastSegment)}`;
+}

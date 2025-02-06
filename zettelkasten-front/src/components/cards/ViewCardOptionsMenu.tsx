@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTagContext } from "../../contexts/TagContext";
+import { usePartialCardContext } from "../../contexts/CardContext";
 import { saveExistingCard } from "../../api/cards";
+import { findNextChildId } from "../../utils/cards";
 import { FileUpload } from "../../components/files/FileUpload";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { Card } from "../../models/Card";
 import { PopupMenu } from "../common/PopupMenu";
 import { Button } from "../Button";
+import { useNavigate } from "react-router-dom";
 
-interface ViewCardOptionsMenu {
+interface ViewCardOptionsMenuProps {
   viewingCard: Card;
   setViewCard: (card: Card) => void;
   setMessage: (message: string) => void;
@@ -20,14 +23,14 @@ export function ViewCardOptionsMenu({
   setViewCard,
   setMessage,
   onEdit,
-}: ViewCardOptionsMenu) {
+}: ViewCardOptionsMenuProps) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
-  const [showCreateTaskWindow, setShowCreateTaskWindow] =
-    useState<boolean>(false);
+  const [showCreateTaskWindow, setShowCreateTaskWindow] = useState<boolean>(false);
   const { tags } = useTagContext();
+  const { setNextCardId } = usePartialCardContext();
+  const navigate = useNavigate();
 
-  // Create a ref for the file upload component
   const fileUploadRef = React.useRef<HTMLInputElement>(null);
 
   function toggleCreateTaskWindow() {
@@ -36,8 +39,6 @@ export function ViewCardOptionsMenu({
   }
 
   function toggleMenu() {
-    //setShowTagMenu(false);
-    //    setShowRemoveMenu(false);
     setShowMenu(!showMenu);
     setShowTagMenu(false);
   }
@@ -62,14 +63,21 @@ export function ViewCardOptionsMenu({
     setViewCard(editedCard);
   }
 
+  function handleCreateChildCard() {
+    setShowMenu(false);
+    const nextId = findNextChildId(viewingCard.card_id, viewingCard.children);
+    setNextCardId(nextId);
+    navigate('/app/card/new');
+  }
+
   const menuOptions = [
     { label: "Edit Card", onClick: onEdit },
+    { label: "Add Child Card", onClick: handleCreateChildCard },
     { label: "Add Task", onClick: toggleCreateTaskWindow },
     {
       label: "Select File To Upload",
       onClick: () => {
         setShowMenu(false);
-        // Trigger the file upload input
         if (fileUploadRef.current) {
           fileUploadRef.current.click();
         }
@@ -81,7 +89,7 @@ export function ViewCardOptionsMenu({
   return (
     <div className="relative">
       <div className="mt-2 md:mt-0 md:ml-4">
-        <Button onClick={toggleMenu} >Actions</Button>
+        <Button onClick={toggleMenu}>Actions</Button>
       </div>
       <PopupMenu options={menuOptions} isOpen={showMenu} />
       <FileUpload
