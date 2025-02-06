@@ -173,6 +173,11 @@ export function EditPage({ newCard }: EditPageProps) {
           <div className="space-y-2">
             <label htmlFor="card_id" className="block text-sm font-medium text-gray-700">
               Card ID:
+              <span className="ml-2 inline-block text-gray-500 hover:text-gray-700 cursor-help" title="Card IDs follow a hierarchical structure (e.g., 'A.1/B' or '104/A.6'). Numbers and letters alternate in the hierarchy. After a number comes a letter (A.1/A), after a letter comes a number (A.1/A.1). IDs must be unique.">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 inline">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM8.94 6.94a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm-.25 3a.75.75 0 100 1.5.75.75 0 000-1.5z" clipRule="evenodd" />
+                </svg>
+              </span>
             </label>
             <div className="flex items-center gap-3">
               <div className="flex-1 relative">
