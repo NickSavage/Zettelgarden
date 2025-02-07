@@ -297,7 +297,7 @@ GROUP BY
     c.parent_id
 ORDER BY
     AVG(e.embedding <=> $2)
-LIMIT 50;
+LIMIT 100;
 `
 	var rows *sql.Rows
 	var err error
@@ -379,7 +379,7 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 		LEFT JOIN entity_scores es ON s.id = es.id
 	ORDER BY 
 		combined_score DESC
-	LIMIT 50;
+	LIMIT 500;
 	`
 
 	var rows *sql.Rows
@@ -575,6 +575,12 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+
+		// Limit results to 500
+		if len(reranked) > 500 {
+			reranked = reranked[:500]
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(reranked)
 		return
@@ -585,6 +591,11 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	// Limit results to 500
+	if len(searchResults) > 500 {
+		searchResults = searchResults[:500]
 	}
 
 	w.Header().Set("Content-Type", "application/json")
