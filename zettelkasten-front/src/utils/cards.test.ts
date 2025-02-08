@@ -60,6 +60,10 @@ describe('findNextChildId', () => {
     expect(findNextChildId("SP104/A.6", [{ card_id: "SP104/A.6/B", id: 1 } as any]))
       .toBe("SP104/A.6/C");
   });
+  it('handles real world example 2', () => {
+    expect(findNextChildId("312/D", [{ card_id: "312/D.1", id: 1 } as any]))
+      .toBe("312/D.2");
+  });
   it('handles big numbers', () => {
     const children = [
       { card_id: "A.1/B.1", id: 1 },

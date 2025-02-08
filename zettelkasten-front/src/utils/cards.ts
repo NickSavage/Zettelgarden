@@ -131,10 +131,13 @@ function getNextLetter(currentLetter: string): string {
 }
 
 export function findNextChildId(parentId: string, existingChildren: PartialCard[]): string {
+  console.log('Starting findNextChildId with:', { parentId, existingChildren });
+  
   // If no children exist, check if parent ends with a number
   if (existingChildren.length === 0) {
     const segments = parentId.split(/[./]/);
     const lastSegment = segments[segments.length - 1];
+    console.log('No children case:', { segments, lastSegment });
     // If parent ends with a number (after a /), append /A
     if (/^\d+$/.test(lastSegment)) {
       return `${parentId}/A`;
@@ -149,22 +152,29 @@ export function findNextChildId(parentId: string, existingChildren: PartialCard[
     .sort((a, b) => compareCardIds(a, b));
   
   const lastChildId = childIds[childIds.length - 1];
+  console.log('Working with last child:', { childIds, lastChildId });
   
-  // Get the last segment after the last separator
-  const segments = lastChildId.split(/[./]/);
-  const lastSegment = segments[segments.length - 1];
+  // Get the immediate child segment after the parent ID
+  const immediateChildPattern = lastChildId.substring(parentId.length + 1).split(/[./]/)[0];
+  console.log('Analyzing immediate child pattern:', { immediateChildPattern });
   
-  // Check parent's last segment to determine separator
-  const parentSegments = parentId.split(/[./]/);
-  const parentLastSegment = parentSegments[parentSegments.length - 1];
-  const separator = /^\d+$/.test(parentLastSegment) ? '/' : '.';
+  // Check if the immediate child pattern uses numbers
+  const usesNumbers = /^\d+$/.test(immediateChildPattern);
+  console.log('Checking if uses numbers:', { usesNumbers, immediateChildPattern });
   
-  // If last segment is a number, increment it
-  if (/^\d+$/.test(lastSegment)) {
-    const nextNum = parseInt(lastSegment, 10) + 1;
-    return `${parentId}${separator}${nextNum}`;
+  // Get the separator that was used after the parent ID
+  const separator = lastChildId.charAt(parentId.length);
+  
+  // If the immediate child pattern uses numbers, continue with numbers
+  if (usesNumbers) {
+    const nextNum = parseInt(immediateChildPattern, 10) + 1;
+    const result = `${parentId}${separator}${nextNum}`;
+    console.log('Numbers case:', { nextNum, separator, result });
+    return result;
   }
   
-  // If last segment is a letter(s), get next letter
-  return `${parentId}${separator}${getNextLetter(lastSegment)}`;
+  // If immediate child pattern is a letter(s), get next letter
+  const result = `${parentId}${separator}${getNextLetter(immediateChildPattern)}`;
+  console.log('Letters case:', { separator, nextLetter: getNextLetter(immediateChildPattern), result });
+  return result;
 }
