@@ -129,9 +129,13 @@ export function SearchPage({
 
   const handleCheckboxChange = (event) => {
     const newClassicSearch = event.target.checked;
-    setSearchConfig({ ...searchConfig, useClassicSearch: newClassicSearch, sortBy: !newClassicSearch ? "sortByRanking" : searchConfig.sortBy });
+    setSearchConfig({ 
+      ...searchConfig, 
+      useClassicSearch: newClassicSearch, 
+      sortBy: !newClassicSearch ? "sortByRanking" : searchConfig.sortBy,
+      currentPage: 1 
+    });
     setSearchResults([]);
-    setSearchConfig({ ...searchConfig, currentPage: 1 });
     handleSearch(newClassicSearch, searchTerm);
   };
 
