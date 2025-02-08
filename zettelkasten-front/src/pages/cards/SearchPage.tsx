@@ -12,24 +12,31 @@ import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 interface SearchPageProps {
   searchTerm: string;
   setSearchTerm: (searchTerm: string) => void;
+  searchResults: SearchResult[];
+  setSearchResults: (results: SearchResult[]) => void;
+  searchConfig: {
+    sortBy: string;
+    currentPage: number;
+    useClassicSearch: boolean;
+    useFullText: boolean;
+    onlyParentCards: boolean;
+    showEntities: boolean;
+    showPreview: boolean;
+  };
+  setSearchConfig: (config: any) => void;
 }
 
 export function SearchPage({
   searchTerm,
   setSearchTerm,
+  searchResults,
+  setSearchResults,
+  searchConfig,
+  setSearchConfig,
 }: SearchPageProps) {
-  const [sortBy, setSortBy] = useState("sortCreatedNewOld");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(20);
-  const [useClassicSearch, setUseClassicSearch] = useState<boolean>(true);
-  const [useFullText, setUseFullText] = useState<boolean>(false);
-  const [onlyParentCards, setOnlyParentCards] = useState<boolean>(false);
-  const [showEntities, setShowEntities] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [showPreview, setShowPreview] = useState<boolean>(true);
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -43,7 +50,7 @@ export function SearchPage({
     console.log("searching for term:", term);
 
     try {
-      const results = await semanticSearchCards(term, classicSearch, useFullText, showEntities);
+      const results = await semanticSearchCards(term, classicSearch, searchConfig.useFullText, searchConfig.showEntities);
       setSearchResults(results || []);
     } catch (error) {
       console.error("Search error:", error);
@@ -60,22 +67,22 @@ export function SearchPage({
       const recent = params.get("recent");
       const term = params.get("term") || "";
 
-      let classicSearch = useClassicSearch;
+      let classicSearch = searchConfig.useClassicSearch;
 
       if (recent !== null) {
         classicSearch = true;
-        setUseClassicSearch(true);
+        setSearchConfig({ ...searchConfig, useClassicSearch: true });
         setSearchTerm("");
         await handleSearch(true, "");
       } else if (term) {
         classicSearch = true;
-        setUseClassicSearch(true);
+        setSearchConfig({ ...searchConfig, useClassicSearch: true });
         setSearchTerm(term);
         await handleSearch(true, term);
       } else {
         await fetchTags();
         if (!classicSearch) {
-          setSortBy("sortByRanking");
+          setSearchConfig({ ...searchConfig, sortBy: "sortByRanking" });
         }
         await handleSearch(classicSearch, "");
       }
@@ -85,7 +92,7 @@ export function SearchPage({
   }, []);
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
-    setSortBy(e.target.value);
+    setSearchConfig({ ...searchConfig, sortBy: e.target.value });
   }
 
   async function fetchTags() {
@@ -98,63 +105,51 @@ export function SearchPage({
 
   function handleTagClick(tagName: string) {
     setSearchTerm("#" + tagName);
-    handleSearch(useClassicSearch, tagName);
+    handleSearch(searchConfig.useClassicSearch, tagName);
   }
 
   function getPagedResults(): SearchResult[] {
     const filteredResults = searchResults
       .filter(result => result.score > 0)
-      .filter(result => !onlyParentCards || !result.id.includes("/"))
-      .filter(result => showEntities || result.type !== "entity");
+      .filter(result => !searchConfig.onlyParentCards || !result.id.includes("/"))
+      .filter(result => searchConfig.showEntities || result.type !== "entity");
     
-    const sortedResults = sortCards(filteredResults, sortBy);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const sortedResults = sortCards(filteredResults, searchConfig.sortBy);
+    const indexOfLastItem = searchConfig.currentPage * 20;
+    const indexOfFirstItem = indexOfLastItem - 20;
     return sortedResults.slice(indexOfFirstItem, indexOfLastItem);
   }
 
   function getTotalPages() {
-    const totalItems = onlyParentCards 
+    const totalItems = searchConfig.onlyParentCards 
       ? searchResults.filter(result => !result.id.includes("/")).length 
       : searchResults.length;
-    return Math.ceil(totalItems / itemsPerPage);
+    return Math.ceil(totalItems / 20);
   }
 
   const handleCheckboxChange = (event) => {
     const newClassicSearch = event.target.checked;
-    setUseClassicSearch(newClassicSearch);
-    // If disabling classic search, switch to ranking sort
-    if (!newClassicSearch) {
-      setSortBy("sortByRanking");
-    }
-    // Clear existing results
+    setSearchConfig({ ...searchConfig, useClassicSearch: newClassicSearch, sortBy: !newClassicSearch ? "sortByRanking" : searchConfig.sortBy });
     setSearchResults([]);
-    // Reset page
-    setCurrentPage(1);
-    // Perform new search with current term
+    setSearchConfig({ ...searchConfig, currentPage: 1 });
     handleSearch(newClassicSearch, searchTerm);
   };
 
   const handleOnlyParentCardsChange = (event) => {
-    setOnlyParentCards(event.target.checked);
-    // Reset to first page when changing filter
-    setCurrentPage(1);
+    setSearchConfig({ ...searchConfig, onlyParentCards: event.target.checked, currentPage: 1 });
   };
 
   const handleShowPreviewChange = (event) => {
-    setShowPreview(event.target.checked);
+    setSearchConfig({ ...searchConfig, showPreview: event.target.checked });
   };
 
   const handleFullTextChange = (event) => {
-    setUseFullText(event.target.checked);
-    // Perform new search with updated full text setting
-    handleSearch(useClassicSearch, searchTerm);
+    setSearchConfig({ ...searchConfig, useFullText: event.target.checked });
+    handleSearch(searchConfig.useClassicSearch, searchTerm);
   };
 
   const handleShowEntitiesChange = (event) => {
-    setShowEntities(event.target.checked);
-    // Reset to first page when changing filter
-    setCurrentPage(1);
+    setSearchConfig({ ...searchConfig, showEntities: event.target.checked, currentPage: 1 });
   };
 
   return (
@@ -170,17 +165,17 @@ export function SearchPage({
             onChange={handleSearchUpdate}
             onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
               if (event.key === "Enter") {
-                handleSearch(useClassicSearch, searchTerm);
+                handleSearch(searchConfig.useClassicSearch, searchTerm);
               }
             }}
           />
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => handleSearch(useClassicSearch, searchTerm)}
+              onClick={() => handleSearch(searchConfig.useClassicSearch, searchTerm)}
               children={"Search"}
             />
-            <select value={sortBy} onChange={handleSortChange}>
+            <select value={searchConfig.sortBy} onChange={handleSortChange}>
               <option value="sortCreatedNewOld">Creation Date (Newest)</option>
               <option value="sortCreatedOldNew">Creation Date (Oldest)</option>
               <option value="sortNewOld">Last Updated (Newest)</option>
@@ -204,7 +199,7 @@ export function SearchPage({
                     <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={useClassicSearch}
+                        checked={searchConfig.useClassicSearch}
                         onChange={handleCheckboxChange}
                         className="mr-2"
                       />
@@ -215,7 +210,7 @@ export function SearchPage({
                     <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={useFullText}
+                        checked={searchConfig.useFullText}
                         onChange={handleFullTextChange}
                         className="mr-2"
                       />
@@ -226,7 +221,7 @@ export function SearchPage({
                     <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={onlyParentCards}
+                        checked={searchConfig.onlyParentCards}
                         onChange={handleOnlyParentCardsChange}
                         className="mr-2"
                       />
@@ -237,7 +232,7 @@ export function SearchPage({
                     <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={showPreview}
+                        checked={searchConfig.showPreview}
                         onChange={handleShowPreviewChange}
                         className="mr-2"
                       />
@@ -248,7 +243,7 @@ export function SearchPage({
                     <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={showEntities}
+                        checked={searchConfig.showEntities}
                         onChange={handleShowEntitiesChange}
                         className="mr-2"
                       />
@@ -268,24 +263,24 @@ export function SearchPage({
               <div>
                 <SearchResultList
                   results={getPagedResults()}
-                  showPreview={showPreview}
+                  showPreview={searchConfig.showPreview}
                   onEntityClick={(entityName) => {
                     setSearchTerm(entityName);
-                    handleSearch(true, entityName);
+                    handleSearch(searchConfig.useClassicSearch, entityName);
                   }}
                 />
                 <div className="flex justify-center gap-4 mt-4">
                   <Button
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    disabled={currentPage === 1}
+                    onClick={() => setSearchConfig({ ...searchConfig, currentPage: searchConfig.currentPage - 1 })}
+                    disabled={searchConfig.currentPage === 1}
                     children={"Previous"}
                   />
                   <span className="flex items-center">
-                    Page {currentPage} of {getTotalPages()}
+                    Page {searchConfig.currentPage} of {getTotalPages()}
                   </span>
                   <Button
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === getTotalPages()}
+                    onClick={() => setSearchConfig({ ...searchConfig, currentPage: searchConfig.currentPage + 1 })}
+                    disabled={searchConfig.currentPage === getTotalPages()}
                     children={"Next"}
                   />
                 </div>

@@ -16,7 +16,7 @@ import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
 import { ChatPage } from "../pages/ChatPage";
 import { GettingStartedPage } from "./GettingStartedPage";
-import { Card, PartialCard } from "../models/Card";
+import { Card, PartialCard, SearchResult } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
 import { TagsPage } from "./TagsPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
@@ -34,7 +34,16 @@ import { CardRefreshProvider } from "../contexts/CardRefreshContext";
 function MainAppContent() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchCards, setSearchCards] = useState<PartialCard[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchConfig, setSearchConfig] = useState({
+    sortBy: "sortCreatedNewOld",
+    currentPage: 1,
+    useClassicSearch: true,
+    useFullText: false,
+    onlyParentCards: false,
+    showEntities: false,
+    showPreview: true
+  });
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
   const { setRefreshPartialCards } = usePartialCardContext();
@@ -92,6 +101,10 @@ function MainAppContent() {
                     <SearchPage
                       searchTerm={searchTerm}
                       setSearchTerm={setSearchTerm}
+                      searchResults={searchResults}
+                      setSearchResults={setSearchResults}
+                      searchConfig={searchConfig}
+                      setSearchConfig={setSearchConfig}
                     />
                   }
                 />
