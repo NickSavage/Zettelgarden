@@ -576,11 +576,6 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// Limit results to 500
-		if len(reranked) > 500 {
-			reranked = reranked[:500]
-		}
-
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(reranked)
 		return
@@ -591,11 +586,6 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	// Limit results to 500
-	if len(searchResults) > 500 {
-		searchResults = searchResults[:500]
 	}
 
 	w.Header().Set("Content-Type", "application/json")
