@@ -288,7 +288,7 @@ func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error 
 	// Verify both entities exist and belong to the user
 	var entity1, entity2 models.Entity
 	err = tx.QueryRow(`
-		SELECT id, user_id, name, description, type, embedding
+		SELECT id, user_id, name, description, type, embedding_nomic
 		FROM entities
 		WHERE id = $1 AND user_id = $2`,
 		entity1ID, userID).Scan(
@@ -299,7 +299,7 @@ func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error 
 	}
 
 	err = tx.QueryRow(`
-		SELECT id, user_id, name, description, type, embedding
+		SELECT id, user_id, name, description, type, embedding_nomic
 		FROM entities
 		WHERE id = $1 AND user_id = $2`,
 		entity2ID, userID).Scan(
