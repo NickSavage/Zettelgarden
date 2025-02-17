@@ -209,7 +209,7 @@ func importTestData(s *server.Server) error {
 	for _, embedding := range embeddings {
 		_, err := tx.Exec(
 
-			"INSERT INTO card_embeddings (user_id, card_pk, embedding, chunk) VALUES ($1, $2, $3, $4)",
+			"INSERT INTO card_embeddings (user_id, card_pk, embedding_nomic, chunk) VALUES ($1, $2, $3, $4)",
 			embedding.UserID,
 			embedding.CardPK,
 			embedding.Embedding,
@@ -224,7 +224,7 @@ func importTestData(s *server.Server) error {
 	for _, entity := range data["entities"].([]models.Entity) {
 		_, err := tx.Exec(`
 			INSERT INTO entities 
-			(id, user_id, name, description, type, embedding, created_at, updated_at)
+			(id, user_id, name, description, type, embedding_nomic, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
 			entity.ID, entity.UserID, entity.Name, entity.Description, entity.Type,
 			entity.Embedding, entity.CreatedAt, entity.UpdatedAt,
@@ -502,7 +502,7 @@ func generateData() map[string]interface{} {
 		tasks = append(tasks, task)
 	}
 
-	vectorData := make([]float32, 1024)
+	vectorData := make([]float32, 768)
 	for i := range vectorData {
 		vectorData[i] = float32(i + 1) // or any other logic to fill the vector
 	}
@@ -519,7 +519,7 @@ func generateData() map[string]interface{} {
 		embeddings = append(embeddings, embedding)
 	}
 
-	vectorData = make([]float32, 1024)
+	vectorData = make([]float32, 768)
 	for i := range vectorData {
 		vectorData[i] = float32(i)
 	}
