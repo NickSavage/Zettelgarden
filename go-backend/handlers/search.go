@@ -296,7 +296,7 @@ GROUP BY
     c.updated_at,
     c.parent_id
 ORDER BY
-    AVG(e.embedding <=> $2)
+    AVG(e.embedding_nomic <=> $2)
 LIMIT 100;
 `
 	var rows *sql.Rows
@@ -339,7 +339,7 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 			c.created_at,
 			c.updated_at,
 			c.parent_id,
-			AVG(ce.embedding <=> $2) as semantic_score
+			AVG(ce.embedding_nomic <=> $2) as semantic_score
 		FROM 
 			card_embeddings ce
 			INNER JOIN cards c ON ce.card_pk = c.id
@@ -354,7 +354,7 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 		SELECT 
 			c.id,
 			COUNT(DISTINCT e.id) as shared_entities,
-			AVG(e.embedding <=> $2) as entity_similarity
+			AVG(e.embedding_nomic <=> $2) as entity_similarity
 		FROM 
 			cards c
 			INNER JOIN entity_card_junction ecj ON c.id = ecj.card_pk
@@ -607,7 +607,7 @@ func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var embedding pgvector.Vector
-	query := "SELECT avg(embedding) FROM card_embeddings WHERE card_pk = $1"
+	query := "SELECT avg(embedding_nomic) FROM card_embeddings WHERE card_pk = $1"
 	err = s.DB.QueryRow(query, originalCard.ID).Scan(&embedding)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

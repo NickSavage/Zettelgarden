@@ -72,7 +72,7 @@ func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []mod
 		if err == sql.ErrNoRows {
 			// Entity doesn't exist, insert it
 			err = s.DB.QueryRow(`
-                INSERT INTO entities (user_id, name, description, type, embedding, card_pk)
+                INSERT INTO entities (user_id, name, description, type, embedding_nomic, card_pk)
                 VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id
             `, userID, entity.Name, entity.Description, entity.Type, entity.Embedding, entity.CardPK).Scan(&entityID)
@@ -549,6 +549,7 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 	if !s.Server.Testing {
 		// Launch goroutine to handle embedding update
 		go func() {
+
 			entity := models.Entity{
 				ID:          entityID,
 				UserID:      userID,
@@ -557,38 +558,49 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 				Type:        params.Type,
 			}
 
-			client := llms.NewDefaultClient(s.DB)
-
-			embedding, err := llms.GenerateEntityEmbedding(client, entity)
+			err := s.CalculateEmbeddingForEntity(entity)
 			if err != nil {
-				log.Printf("Error generating embedding for entity %d: %v", entityID, err)
-				return
+				log.Printf("Error calculating embedding for entity %d: %v", entityID, err)
 			}
 
-			// Update the embedding in a new transaction
-			tx, err := s.DB.Begin()
-			if err != nil {
-				log.Printf("Error starting transaction for embedding update for entity %d: %v", entityID, err)
-				return
-			}
-			defer tx.Rollback()
+		}()
+	}
 
-			_, err = tx.Exec(`
+	return nil
+}
+
+func (s *Handler) CalculateEmbeddingForEntity(entity models.Entity) error {
+
+	client := llms.NewDefaultClient(s.DB)
+
+	embedding, err := llms.GenerateEntityEmbedding(client, entity)
+	if err != nil {
+		log.Printf("Error generating embedding for entity %d: %v", entity.ID, err)
+		return err
+	}
+
+	// Update the embedding in a new transaction
+	tx, err := s.DB.Begin()
+	if err != nil {
+		log.Printf("Error starting transaction for embedding update for entity %d: %v", entity.ID, err)
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
 				UPDATE entities 
-				SET embedding = $1,
+				SET embedding_nomic = $1,
 					updated_at = NOW()
 				WHERE id = $2 AND user_id = $3`,
-				embedding, entityID, userID)
-			if err != nil {
-				log.Printf("Error updating embedding for entity %d: %v", entityID, err)
-				return
-			}
+		embedding, entity.ID, entity.UserID)
+	if err != nil {
+		log.Printf("Error updating embedding for entity %d: %v", entity.ID, err)
+		return err
+	}
 
-			if err = tx.Commit(); err != nil {
-				log.Printf("Error committing embedding update for entity %d: %v", entityID, err)
-				return
-			}
-		}()
+	if err = tx.Commit(); err != nil {
+		log.Printf("Error committing embedding update for entity %d: %v", entity.ID, err)
+		return err
 	}
 
 	return nil

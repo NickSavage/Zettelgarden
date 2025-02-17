@@ -98,7 +98,7 @@ func GetEmbedding(text string, useForQuery bool) (pgvector.Vector, error) {
 	}
 
 	payload := map[string]string{
-		"model":  "mxbai-embed-large",
+		"model":  "nomic-embed-text",
 		"prompt": prompt,
 	}
 
@@ -167,7 +167,7 @@ func StoreEmbeddings(db *sql.DB, userID, cardPK int, embeddings [][]pgvector.Vec
 			return fmt.Errorf("error updating card %d: %w", cardPK, err)
 		}
 		for _, embedding := range vec {
-			query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding) VALUES ($1, $2, $3, $4)`
+			query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding_nomic) VALUES ($1, $2, $3, $4)`
 
 			_, err = tx.Exec(query, cardPK, userID, i, embedding)
 			if err != nil {

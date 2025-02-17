@@ -8,6 +8,7 @@ import (
 	"go-backend/handlers"
 	"go-backend/llms"
 	"go-backend/mail"
+	"go-backend/migrations"
 	"go-backend/models"
 	"go-backend/server"
 	"log"
@@ -154,24 +155,9 @@ func main() {
 	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
 		go func() {
 			start := time.Now()
-			cards, _ := h.ClassicSearch(1, handlers.SearchRequestParams{SearchTerm: ""})
-			for _, card := range cards {
-				log.Printf("%v - %v", card.CardID, card.Title)
-				err := h.ChunkCard(card)
-				if err != nil {
-					log.Printf("chunking error %v", err)
-					break
-				}
-				err = h.ChunkEmbedCard(1, card.ID)
-				if err != nil {
-					log.Printf("embedding error %v", err)
-					break
-				}
-			}
+			migrations.RunEmbeddings(h)
 			elapsed := time.Since(start)
-
 			fmt.Printf("Operation took %v\n", elapsed)
-
 		}()
 
 	}
