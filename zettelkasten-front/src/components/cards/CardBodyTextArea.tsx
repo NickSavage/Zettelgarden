@@ -90,24 +90,34 @@ export function CardBodyTextArea({
 
   const handleDrop = async (event: React.DragEvent<HTMLTextAreaElement>) => {
     event.preventDefault();
-    event.stopPropagation();
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      for (let i = 0; i < event.dataTransfer.files.length; i++) {
+        const file = event.dataTransfer.files[i];
+        if (file.type.startsWith("image/")) {
+          try {
+            // Create a sanitized filename based on card title
+            const sanitizedTitle = editingCard.title
+              .replace(/[^a-zA-Z0-9]/g, '-') // Replace non-alphanumeric chars with dashes
+              .replace(/-+/g, '-') // Replace multiple dashes with single dash
+              .trim();
+            
+            // Add timestamp and index to ensure uniqueness
+            const timestamp = new Date().getTime();
+            const customFilename = `${sanitizedTitle}-${timestamp}-${i}`;
+            
+            const response = await uploadFile(file, editingCard.id, customFilename);
 
-    const files = event.dataTransfer.files;
-
-    if (files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        try {
-          const response = await uploadFile(files[i], editingCard.id);
-          if ("error" in response) {
-            setMessage("Error uploading file: " + response["message"]);
-          } else {
-            setMessage(
-              "File uploaded successfully: " + response["file"]["name"],
-            );
-            setFilesToUpdate([...filesToUpdate, response.file]);
+            if ("error" in response) {
+              setMessage("Error uploading file: " + response["message"]);
+            } else {
+              setMessage(
+                "File uploaded successfully: " + response["file"]["name"],
+              );
+              setFilesToUpdate([...filesToUpdate, response.file]);
+            }
+          } catch (error) {
+            setMessage("Error uploading file: " + error);
           }
-        } catch (error) {
-          setMessage("Error uploading file: " + error);
         }
       }
     }
@@ -124,7 +134,17 @@ export function CardBodyTextArea({
           const file = item.getAsFile();
 
           try {
-            const response = await uploadFile(file!, editingCard.id);
+            // Create a sanitized filename based on card title
+            const sanitizedTitle = editingCard.title
+              .replace(/[^a-zA-Z0-9]/g, '-') // Replace non-alphanumeric chars with dashes
+              .replace(/-+/g, '-') // Replace multiple dashes with single dash
+              .trim();
+            
+            // Add timestamp to ensure uniqueness
+            const timestamp = new Date().getTime();
+            const customFilename = `${sanitizedTitle}-${timestamp}`;
+            
+            const response = await uploadFile(file!, editingCard.id, customFilename);
 
             if ("error" in response) {
               setMessage("Error uploading file: " + response["message"]);
@@ -145,7 +165,6 @@ export function CardBodyTextArea({
             setMessage(`Error uploading file: ${error}`);
           }
         }
-        // Remove the else if block for text/plain
       }
     }
   };

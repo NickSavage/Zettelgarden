@@ -1,6 +1,6 @@
 import { checkStatus } from "./common";
 import {
-  File,
+  type File,
   EditFileMetadataParams,
   UploadFileResponse,
 } from "../models/File";
@@ -11,6 +11,7 @@ const base_url = import.meta.env.VITE_URL;
 export function uploadFile(
   file: Blob,
   card_pk: number,
+  customFilename?: string
 ): Promise<UploadFileResponse> {
   let token = localStorage.getItem("token");
   const url = base_url + "/files/upload";
@@ -24,7 +25,16 @@ export function uploadFile(
 
   // Create a FormData object and append the file
   let formData = new FormData();
-  formData.append("file", file);
+  
+  if (customFilename && file instanceof File) {
+    // Create a new File with custom filename but keep the original file's content and type
+    const fileExtension = file.name.split('.').pop() || '';
+    const newFile = new File([file], `${customFilename}.${fileExtension}`, { type: file.type });
+    formData.append("file", newFile);
+  } else {
+    formData.append("file", file);
+  }
+  
   formData.append("card_pk", card_pk.toString()); // Append card_pk to the form data
 
   // Send a POST request with the FormData
