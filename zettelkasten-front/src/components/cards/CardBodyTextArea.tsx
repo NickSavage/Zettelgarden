@@ -134,8 +134,11 @@ export function CardBodyTextArea({
           const file = item.getAsFile();
 
           try {
+            // Use title or default to "image" if title is blank
+            const baseTitle = editingCard.title.trim() || "image";
+            
             // Create a sanitized filename based on card title
-            const sanitizedTitle = editingCard.title
+            const sanitizedTitle = baseTitle
               .replace(/[^a-zA-Z0-9]/g, '-') // Replace non-alphanumeric chars with dashes
               .replace(/-+/g, '-') // Replace multiple dashes with single dash
               .trim();
