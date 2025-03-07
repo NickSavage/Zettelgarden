@@ -118,8 +118,8 @@ func (s *Handler) FindPotentialDuplicates(userID int, entity models.Entity) ([]m
 	const query = `
         SELECT id, name, description, type
         FROM entities
-        WHERE user_id = $1 AND (embedding <=> $2) < $3
-        ORDER BY embedding <=> $2
+        WHERE user_id = $1 AND (embedding_nomic <=> $2) < $3
+        ORDER BY embedding_nomic <=> $2
         LIMIT 5;
     `
 
