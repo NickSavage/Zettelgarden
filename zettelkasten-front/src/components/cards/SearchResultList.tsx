@@ -53,16 +53,17 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
               )}
               <span>{result.title}</span>
             </Link>
-            {result.tags && result.tags.length > 0 && (
+            {/* Parse preview text for hashtags */}
+            {result.preview && (
               <>
                 <span className="mx-2"></span>
-                {result.tags.map((tag) => (
+                {result.preview.split(/\s+/).filter(word => word.startsWith('#')).map((tag, index) => (
                   <span
-                    key={tag.name}
+                    key={index}
                     className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full cursor-pointer hover:bg-purple-100"
-                    onClick={() => onTagClick && onTagClick(tag.name)}
+                    onClick={() => onTagClick && onTagClick(tag.substring(1))}
                   >
-                    #{tag.name}
+                    {tag}
                   </span>
                 ))}
               </>
