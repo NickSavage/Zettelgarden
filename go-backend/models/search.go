@@ -13,6 +13,7 @@ type SearchResult struct {
 	CreatedAt time.Time   `json:"created_at"`
 	UpdatedAt time.Time   `json:"updated_at"`
 	Metadata  interface{} `json:"metadata"`
+	Tags      []Tag       `json:"tags"`
 }
 
 func CardChunkToSearchResult(chunk CardChunk) SearchResult {
@@ -24,6 +25,7 @@ func CardChunkToSearchResult(chunk CardChunk) SearchResult {
 		Score:     chunk.CombinedScore,
 		CreatedAt: chunk.CreatedAt,
 		UpdatedAt: chunk.UpdatedAt,
+		Tags:      chunk.Tags,
 		Metadata: map[string]interface{}{
 			"id":                chunk.ID,
 			"parent_id":         chunk.ParentID,

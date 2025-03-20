@@ -480,8 +480,35 @@ func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]
 
 	searchResults := make([]models.SearchResult, len(relatedCards))
 	for i, card := range relatedCards {
-		searchResults[i] = models.CardChunkToSearchResult(card)
+		// Get the base search result
+		result := models.CardChunkToSearchResult(card)
+
+		// Fetch tags for this card
+		var tags []models.Tag
+		tagsQuery := `
+			SELECT t.id, t.name, t.color, t.user_id, 
+				   (SELECT COUNT(*) FROM task_tags tt WHERE tt.tag_id = t.id) as task_count,
+				   (SELECT COUNT(*) FROM card_tags ct WHERE ct.tag_id = t.id) as card_count
+			FROM tags t
+			JOIN card_tags ct ON t.id = ct.tag_id
+			WHERE ct.card_pk = $1 AND t.is_deleted = FALSE
+		`
+		tagRows, err := s.DB.Query(tagsQuery, card.ID)
+		if err == nil {
+			defer tagRows.Close()
+			for tagRows.Next() {
+				var tag models.Tag
+				if err := tagRows.Scan(&tag.ID, &tag.Name, &tag.Color, &tag.UserID, &tag.TaskCount, &tag.CardCount); err == nil {
+					tags = append(tags, tag)
+				}
+			}
+		}
+
+		// Add tags to the result
+		result.Tags = tags
+		searchResults[i] = result
 	}
+
 	if params.SearchTerm == "" {
 		return searchResults, nil
 	}
@@ -513,6 +540,27 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 
 		// Convert cards to SearchResults
 		for _, card := range cards {
+			// Fetch tags for this card
+			var tags []models.Tag
+			tagsQuery := `
+		SELECT t.id, t.name, t.color, t.user_id, 
+		       (SELECT COUNT(*) FROM task_tags tt WHERE tt.tag_id = t.id) as task_count,
+		       (SELECT COUNT(*) FROM card_tags ct WHERE ct.tag_id = t.id) as card_count
+		FROM tags t
+		JOIN card_tags ct ON t.id = ct.tag_id
+		WHERE ct.card_pk = $1 AND t.is_deleted = FALSE
+	`
+			tagRows, err := s.DB.Query(tagsQuery, card.ID)
+			if err == nil {
+				defer tagRows.Close()
+				for tagRows.Next() {
+					var tag models.Tag
+					if err := tagRows.Scan(&tag.ID, &tag.Name, &tag.Color, &tag.UserID, &tag.TaskCount, &tag.CardCount); err == nil {
+						tags = append(tags, tag)
+					}
+				}
+			}
+
 			searchResults = append(searchResults, models.SearchResult{
 				ID:        card.CardID,
 				Type:      "card",
@@ -521,6 +569,7 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 				Score:     1.0, // Classic search doesn't have scoring
 				CreatedAt: card.CreatedAt,
 				UpdatedAt: card.UpdatedAt,
+				Tags:      tags,
 				Metadata: map[string]interface{}{
 					"id":        card.ID,
 					"parent_id": card.ParentID,

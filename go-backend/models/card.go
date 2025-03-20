@@ -151,6 +151,7 @@ type CardChunk struct {
 	SharedEntities   int       `json:"shared_entities"`
 	EntitySimilarity float64   `json:"entity_similarity"`
 	CombinedScore    float64   `json:"combined_score"`
+	Tags             []Tag     `json:"tags"`
 }
 
 func ScanCardChunks(rows *sql.Rows) ([]CardChunk, error) {

@@ -9,9 +9,10 @@ interface SearchResultItemProps {
   result: SearchResult;
   showPreview: boolean;
   onEntityClick?: (entityName: string) => void;
+  onTagClick?: (tagName: string) => void;
 }
 
-function SearchResultItem({ result, showPreview, onEntityClick }: SearchResultItemProps) {
+function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: SearchResultItemProps) {
   const isClassicSearch = result.type === "card" && result.score === 1.0;
   const isEntity = result.type === "entity";
   const isCard = result.type === "card";
@@ -38,11 +39,11 @@ function SearchResultItem({ result, showPreview, onEntityClick }: SearchResultIt
       )}
       <div className="flex-grow">
         <div className="flex flex-col">
-          <div>
+          <div className="flex items-center flex-wrap gap-1">
             <Link 
               to={isEntity ? "#" : `/app/card/${cardId}`}
               onClick={handleClick}
-              className="hover:underline"
+              className="hover:underline flex-shrink-0"
             >
               {!isEntity && (
                 <>
@@ -52,6 +53,20 @@ function SearchResultItem({ result, showPreview, onEntityClick }: SearchResultIt
               )}
               <span>{result.title}</span>
             </Link>
+            {result.tags && result.tags.length > 0 && (
+              <>
+                <span className="mx-2"></span>
+                {result.tags.map((tag) => (
+                  <span
+                    key={tag.name}
+                    className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full cursor-pointer hover:bg-purple-100"
+                    onClick={() => onTagClick && onTagClick(tag.name)}
+                  >
+                    #{tag.name}
+                  </span>
+                ))}
+              </>
+            )}
           </div>
           {showPreview && result.preview && (
             <div className="mt-0.5 pl-2 text-sm italic text-gray-600">
@@ -80,12 +95,14 @@ interface SearchResultListProps {
   results: SearchResult[];
   showPreview?: boolean;
   onEntityClick?: (entityName: string) => void;
+  onTagClick?: (tagName: string) => void;
 }
 
 export function SearchResultList({ 
   results, 
   showPreview = true,
   onEntityClick,
+  onTagClick,
 }: SearchResultListProps) {
   return (
     <ul className="space-y-1">
@@ -95,9 +112,10 @@ export function SearchResultList({
             result={result} 
             showPreview={showPreview} 
             onEntityClick={onEntityClick}
+            onTagClick={onTagClick}
           />
         </li>
       ))}
     </ul>
   );
-} 
+}
