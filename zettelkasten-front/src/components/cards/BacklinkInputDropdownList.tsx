@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Combobox } from "@headlessui/react";
 import { PartialCard } from "../../models/Card";
 import { CardTag } from "./CardTag";
 
@@ -19,16 +20,9 @@ export function BacklinkInputDropdownList({
 }: BacklinkInputDropdownListProps) {
   const [inputValue, setInputValue] = useState<string>("");
 
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
+  function handleInputChange(value: string) {
     setInputValue(value);
     onSearch(value);
-  }
-
-  function handleEnterPress(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && cards.length > 0) {
-      handleSelect(cards[0]);
-    }
   }
 
   function handleSelect(card: PartialCard) {
@@ -38,33 +32,41 @@ export function BacklinkInputDropdownList({
 
   return (
     <div className={`relative w-full ${className}`}>
-      <div className="w-full">
-        <div className="relative">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleEnterPress}
-            placeholder={placeholder}
-            className="w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-          />
-        </div>
-        {cards.length > 0 && (
-          <div className="absolute w-full mt-1 z-50">
-            <ul className="overflow-hidden bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
-              {cards.map((card) => (
-                <li
-                  key={card.card_id}
-                  className="cursor-pointer hover:bg-blue-50 p-3 border-b border-gray-100 last:border-b-0 transition-colors duration-150"
-                  onClick={() => handleSelect(card)}
-                >
-                  <CardTag card={card} showTitle={true} />
-                </li>
-              ))}
-            </ul>
+      <Combobox<PartialCard | null> value={null} onChange={handleSelect}>
+        <div className="w-full">
+          <div className="relative">
+            <Combobox.Input
+              className="w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+              placeholder={placeholder}
+              displayValue={() => inputValue}
+              onChange={(e) => handleInputChange(e.target.value)}
+            />
           </div>
-        )}
-      </div>
+          {(cards.length > 0 || inputValue.length > 0) && (
+            <Combobox.Options className="absolute w-full mt-1 z-50 overflow-hidden bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
+              {cards.length > 0 ? (
+                cards.map((card) => (
+                  <Combobox.Option
+                    key={card.card_id}
+                    value={card}
+                    className={({ active }) =>
+                      `cursor-pointer p-3 border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${
+                        active ? "bg-blue-50" : ""
+                      }`
+                    }
+                  >
+                    <CardTag card={card} showTitle={true} />
+                  </Combobox.Option>
+                ))
+              ) : (
+                inputValue.length > 0 && (
+                  <div className="p-3 text-gray-500">No results found</div>
+                )
+              )}
+            </Combobox.Options>
+          )}
+        </div>
+      </Combobox>
     </div>
   );
 }
