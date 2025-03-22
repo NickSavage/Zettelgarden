@@ -12,11 +12,14 @@ import { File } from "../models/File";
 import { defaultCard } from "../models/Card";
 import { H6 } from "../components/Header";
 
+const ITEMS_PER_PAGE = 20;
+
 export function FileVault() {
   const [files, setFiles] = useState<File[]>([]);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState<File | null>(null);
   const [filterString, setFilterString] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
   const { refreshFiles, setRefreshFiles } = useFileContext();
 
   function onDelete(file_id: number) {
@@ -79,16 +82,40 @@ export function FileVault() {
       />
       <div className="p-4">
         {files && files.length > 0 ? (
-          <ul>
-            {files.filter(filterFiles).map((file, index) => (
-              <FileListItem
-                key={file.id}
-                file={file}
-                onDelete={onDelete}
-                setRefreshFiles={setRefreshFiles}
-              />
-            ))}
-          </ul>
+          <>
+            <ul>
+              {files
+                .filter(filterFiles)
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map((file, index) => (
+                  <FileListItem
+                    key={file.id}
+                    file={file}
+                    onDelete={onDelete}
+                    setRefreshFiles={setRefreshFiles}
+                  />
+                ))}
+            </ul>
+            <div className="flex justify-center items-center gap-4 mt-4">
+              <Button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm">
+                Page {currentPage} of {Math.ceil(files.filter(filterFiles).length / ITEMS_PER_PAGE)}
+              </span>
+              <Button
+                onClick={() => setCurrentPage(prev => 
+                  Math.min(Math.ceil(files.filter(filterFiles).length / ITEMS_PER_PAGE), prev + 1)
+                )}
+                disabled={currentPage >= Math.ceil(files.filter(filterFiles).length / ITEMS_PER_PAGE)}
+              >
+                Next
+              </Button>
+            </div>
+          </>
         ) : (
           <p>No files to display.</p>
         )}
