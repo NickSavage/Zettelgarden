@@ -726,6 +726,20 @@ export function UserSettingsPage() {
           </div>
         )}
 
+        {/* Logout Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Account Actions</h2>
+          <button
+            onClick={() => {
+              logoutUser();
+              navigate('/');
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Logout
+          </button>
+        </div>
+
         {/* LLM Configurations Card */}
         {(import.meta.env.VITE_FEATURE_CHAT === "true" || user?.username === "nick") && (
           <div className="bg-white rounded-lg shadow p-6">
