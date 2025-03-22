@@ -272,6 +272,7 @@ export function SearchPage({
                     setSearchTerm(entityName);
                     handleSearch(searchConfig.useClassicSearch, entityName);
                   }}
+                  onTagClick={handleTagClick}
                 />
                 <div className="flex justify-center gap-4 mt-4">
                   <Button
