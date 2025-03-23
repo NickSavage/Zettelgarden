@@ -3,9 +3,47 @@ import React, { useState, useEffect } from "react";
 import { downloadFile } from "../../api/files";
 import { Card } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
+import remarkGfm from "remark-gfm";
 
 import { CardLinkWithPreview } from "./CardLinkWithPreview";
 import { H1, H2, H3, H4,H5,H6 } from "../Header";
+
+// Table components
+const Table: React.FC<React.HTMLAttributes<HTMLTableElement>> = ({ children, ...props }) => (
+  <table className="min-w-full border-collapse my-4" {...props}>
+    {children}
+  </table>
+);
+
+const TableHead: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({ children, ...props }) => (
+  <thead className="bg-gray-100" {...props}>
+    {children}
+  </thead>
+);
+
+const TableBody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({ children, ...props }) => (
+  <tbody {...props}>
+    {children}
+  </tbody>
+);
+
+const TableRow: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = ({ children, ...props }) => (
+  <tr className="border-b" {...props}>
+    {children}
+  </tr>
+);
+
+const TableHeader: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = ({ children, ...props }) => (
+  <th className="py-2 px-4 font-bold text-left border" {...props}>
+    {children}
+  </th>
+);
+
+const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = ({ children, ...props }) => (
+  <td className="py-2 px-4 border" {...props}>
+    {children}
+  </td>
+);
 
 interface CustomImageRendererProps {
   src?: string; // Make src optional
@@ -67,6 +105,7 @@ function renderCardText(
   return (
     <Markdown
       children={body}
+      remarkPlugins={[remarkGfm]}
       components={{
         a({ children, href, ...props }) {
           const cardId = children as string;
@@ -96,6 +135,25 @@ function renderCardText(
         },
         h6( {children, ...props}) {
           return (<H6 children={children as string}/>)
+        },
+        // Table components
+        table({ children, ...props }) {
+          return <Table {...props}>{children}</Table>;
+        },
+        thead({ children, ...props }) {
+          return <TableHead {...props}>{children}</TableHead>;
+        },
+        tbody({ children, ...props }) {
+          return <TableBody {...props}>{children}</TableBody>;
+        },
+        tr({ children, ...props }) {
+          return <TableRow {...props}>{children}</TableRow>;
+        },
+        th({ children, ...props }) {
+          return <TableHeader {...props}>{children}</TableHeader>;
+        },
+        td({ children, ...props }) {
+          return <TableCell {...props}>{children}</TableCell>;
         },
         img({ src, alt, title, ...props }) {
           return (
