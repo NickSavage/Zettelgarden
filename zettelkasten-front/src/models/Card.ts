@@ -143,3 +143,21 @@ export function getRatingValue(rating: string): number {
       throw new Error(`Invalid rating value: ${rating}`);
   }
 }
+
+export interface CardTemplate {
+  id: number;
+  user_id: number;
+  title: string;
+  body: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export const defaultCardTemplate: CardTemplate = {
+  id: -1,
+  user_id: -1,
+  title: "",
+  body: "",
+  created_at: new Date(0),
+  updated_at: new Date(0),
+};

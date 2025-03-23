@@ -7,7 +7,7 @@ import { editFile } from "../../api/files";
 import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, PartialCard, defaultCard } from "../../models/Card";
+import { Card, PartialCard, defaultCard, CardTemplate } from "../../models/Card";
 import { File } from "../../models/File";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
@@ -15,6 +15,8 @@ import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
 import { CardBodyTextArea } from "../../components/cards/CardBodyTextArea";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { useTagContext } from "../../contexts/TagContext";
+import { SaveAsTemplateDialog } from "../../components/cards/SaveAsTemplateDialog";
+import { TemplateSelector } from "../../components/cards/TemplateSelector";
 
 interface EditPageProps {
   newCard: boolean;
@@ -37,6 +39,7 @@ export function EditPage({ newCard }: EditPageProps) {
   const [message, setMessage] = useState<string>("");
   const [isParsingUrl, setIsParsingUrl] = useState(false);
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
+  const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
   const { partialCards, setRefreshPartialCards, lastCard, nextCardId, setNextCardId } =
     usePartialCardContext();
   const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
@@ -44,6 +47,15 @@ export function EditPage({ newCard }: EditPageProps) {
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  function handleSelectTemplate(template: CardTemplate) {
+    setEditingCard(prevCard => ({
+      ...prevCard,
+      title: template.title,
+      body: template.body
+    }));
+    setMessage("Template applied successfully");
+  }
 
   async function fetchCard(id: string) {
     let refreshed = await getCard(id);
@@ -278,13 +290,29 @@ export function EditPage({ newCard }: EditPageProps) {
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-wrap gap-3 pt-4">
             <Button onClick={handleSaveCard} variant="primary">Save</Button>
             <Button onClick={handleCancelButtonClick} variant="outline">Cancel</Button>
             {!newCard && (
               <ButtonCardDelete card={editingCard} setMessage={setMessage} />
             )}
+            <Button 
+              onClick={() => setShowSaveAsTemplate(true)} 
+              variant="secondary"
+            >
+              Save as Template
+            </Button>
+            {newCard && <TemplateSelector onSelectTemplate={handleSelectTemplate} />}
           </div>
+
+          {showSaveAsTemplate && (
+            <SaveAsTemplateDialog
+              body={editingCard.body}
+              title={editingCard.title}
+              onClose={() => setShowSaveAsTemplate(false)}
+              onSuccess={setMessage}
+            />
+          )}
 
           {!newCard && (
             <div className="mt-8">

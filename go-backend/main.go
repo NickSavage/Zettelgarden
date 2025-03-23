@@ -188,6 +188,12 @@ func main() {
 	addProtectedRoute(r, "/api/cards/{id}/pin", h.PinCardRoute, "POST")
 	addProtectedRoute(r, "/api/cards/{id}/pin", h.UnpinCardRoute, "DELETE")
 
+	addProtectedRoute(r, "/api/templates", h.GetTemplatesRoute, "GET")
+	addProtectedRoute(r, "/api/templates", h.CreateTemplateRoute, "POST")
+	addProtectedRoute(r, "/api/templates/{id}", h.GetTemplateRoute, "GET")
+	addProtectedRoute(r, "/api/templates/{id}", h.UpdateTemplateRoute, "PUT")
+	addProtectedRoute(r, "/api/templates/{id}", h.DeleteTemplateRoute, "DELETE")
+
 	addProtectedRoute(r, "/api/search", h.SearchRoute, "POST")
 
 	addProtectedRoute(r, "/api/users/{id}", h.GetUserRoute, "GET")

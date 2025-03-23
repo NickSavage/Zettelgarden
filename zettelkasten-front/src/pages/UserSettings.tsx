@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
 import { createLLMProvider, getUserLLMConfigurations, getUserLLMProviders, updateLLMProvider, deleteLLMProvider, createLLMModel, deleteLLMModel, updateLLMConfiguration } from "../api/chat";
 import { LLMProvider, UserLLMConfiguration, LLMModel } from "../models/Chat";
+import { TemplatesList } from "../components/templates/TemplatesList";
 
 interface ModelEditForm {
   name: string;
@@ -738,6 +739,12 @@ export function UserSettingsPage() {
           >
             Logout
           </button>
+        </div>
+
+        {/* Templates Card */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Card Templates</h2>
+          <TemplatesList />
         </div>
 
         {/* LLM Configurations Card */}

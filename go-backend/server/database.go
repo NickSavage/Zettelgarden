@@ -53,6 +53,7 @@ func ResetDatabase(S *Server) error {
 			DROP TABLE IF EXISTS llm_models CASCADE;
 			DROP TABLE IF EXISTS user_llm_configurations CASCADE;
 			DROP TABLE IF EXISTS pinned_cards CASCADE;
+			DROP TABLE IF EXISTS card_templates CASCADE;
 
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,
