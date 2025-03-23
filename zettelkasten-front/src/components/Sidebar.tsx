@@ -263,7 +263,7 @@ export function Sidebar() {
         <div className="p-2">
 
           <ul className="space-y-1">
-            <SidebarLink to="/app/search">
+            <SidebarLink to="/app/search?recent=true">
               <SearchIcon />
               <span className="flex-grow">Cards</span>
             </SidebarLink>
@@ -274,11 +274,6 @@ export function Sidebar() {
               <span className="px-2 py-1 text-xs bg-blue-100 rounded-full">
                 {todayTasks.length}
               </span>
-            </SidebarLink>
-
-            <SidebarLink to="/app/files">
-                <FileIcon />
-              <span className="flex-grow">Files</span>
             </SidebarLink>
 
               <span onClick={() => setShowChat(!showChat)}>
@@ -293,9 +288,9 @@ export function Sidebar() {
         <hr />
         <div className="p-2">
           <ul className="space-y-1">
-            <SidebarLink to="/app/search?recent=true">
-                <SearchIcon />
-              <span className="flex-grow">Recent Cards</span>
+            <SidebarLink to="/app/files">
+                <FileIcon />
+              <span className="flex-grow">Files</span>
             </SidebarLink>
 
             <SidebarLink to="/app/tags">
