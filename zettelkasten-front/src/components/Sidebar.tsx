@@ -6,6 +6,7 @@ import { useChatContext } from "../contexts/ChatContext";
 import { isTodayOrPast } from "../utils/dates";
 import { usePartialCardContext } from "../contexts/CardContext";
 import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
+import { PinCardDialog } from "./cards/PinCardDialog";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { FilterInput } from "./FilterInput";
@@ -40,6 +41,7 @@ export function Sidebar() {
   const { tasks } = useTaskContext();
   const username = localStorage.getItem("username");
   const [isNewDropdownOpen, setIsNewDropdownOpen] = useState(false);
+  const [showPinDialog, setShowPinDialog] = useState(false);
   const [chatConversations, setChatConversations] = useState<
     ConversationSummary[]
   >([]);
@@ -309,13 +311,22 @@ export function Sidebar() {
         </div>
         
         {/* Pinned Cards Section */}
-        {pinnedCards.length > 0 && (
-          <>
-            <hr />
-            <div className="p-2">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+        <>
+          <hr />
+          <div className="p-2">
+            <div className="flex items-center justify-between mb-2 px-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Pinned Cards
               </h3>
+              <button
+                onClick={() => setShowPinDialog(true)}
+                className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-blue-500 rounded-full"
+                title="Pin a card"
+              >
+                +
+              </button>
+            </div>
+            {pinnedCards.length > 0 ? (
               <ul className="space-y-1">
                 {pinnedCards.map((card) => (
                   <li key={card.id} className="px-2 py-1 text-sm group">
@@ -339,9 +350,11 @@ export function Sidebar() {
                   </li>
                 ))}
               </ul>
-            </div>
-          </>
-        )}
+            ) : (
+              <p className="text-xs text-gray-400 px-2">No pinned cards yet</p>
+            )}
+          </div>
+        </>
         <hr />
         {/* Bottom icons section - Help and Settings */}
         <div className="mt-auto p-2">
@@ -365,6 +378,14 @@ export function Sidebar() {
 
       {showQuickSearchWindow && (
         <QuickSearchWindow setShowWindow={setShowQuickSearchWindow} />
+      )}
+      
+      {showPinDialog && (
+        <PinCardDialog
+          onClose={() => setShowPinDialog(false)}
+          onPinSuccess={refreshPinnedCards}
+          setMessage={setMessage}
+        />
       )}
     </>
   );
