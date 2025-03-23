@@ -179,11 +179,14 @@ func main() {
 	addProtectedRoute(r, "/api/cards", h.GetCardsRoute, "GET")
 	addProtectedRoute(r, "/api/cards", h.CreateCardRoute, "POST")
 	addProtectedRoute(r, "/api/cards/next-root-id", h.GetNextRootCardIDRoute, "GET")
+	addProtectedRoute(r, "/api/cards/pinned", h.GetPinnedCardsRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}", h.GetCardRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}", h.UpdateCardRoute, "PUT")
 	addProtectedRoute(r, "/api/cards/{id}", h.DeleteCardRoute, "DELETE")
 	addProtectedRoute(r, "/api/cards/{id}/audit", h.GetCardAuditEventsRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}/related", h.GetRelatedCardsRoute, "GET")
+	addProtectedRoute(r, "/api/cards/{id}/pin", h.PinCardRoute, "POST")
+	addProtectedRoute(r, "/api/cards/{id}/pin", h.UnpinCardRoute, "DELETE")
 
 	addProtectedRoute(r, "/api/search", h.SearchRoute, "POST")
 

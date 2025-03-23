@@ -33,7 +33,7 @@ export function semanticSearchCards(searchTerm = "", useClassicSearch = false, f
 
   return fetch(url, {
     method: "POST",
-    headers: { 
+    headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     },
@@ -158,7 +158,12 @@ export function getCard(id: string): Promise<Card> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
+        // Check if the card is pinned from the X-Card-Pinned header
+        const isPinned = response.headers.get('X-Card-Pinned') === 'true';
+
         return response.json().then((card: Card) => {
+          // Set the is_pinned property based on the header
+          card.is_pinned = isPinned;
           let children =
             card.children !== null
               ? card.children.map((child) => {
@@ -354,6 +359,100 @@ export async function getNextRootId(): Promise<NextIdResponse> {
     .then((response) => {
       if (response) {
         return response.json() as Promise<NextIdResponse>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+/**
+ * Pin a card to make it easily accessible
+ * @param cardId The ID of the card to pin
+ * @returns A promise that resolves when the card is pinned
+ */
+export function pinCard(cardId: number): Promise<void> {
+  const url = `${base_url}/cards/${cardId}/pin`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then(() => {
+      return;
+    });
+}
+
+/**
+ * Unpin a previously pinned card
+ * @param cardId The ID of the card to unpin
+ * @returns A promise that resolves when the card is unpinned
+ */
+export function unpinCard(cardId: number): Promise<void> {
+  const url = `${base_url}/cards/${cardId}/pin`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then(() => {
+      return;
+    });
+}
+
+/**
+ * Get all cards that have been pinned by the current user
+ * @returns A promise that resolves to an array of pinned cards with their full data
+ */
+export function getPinnedCards(): Promise<Card[]> {
+  const url = `${base_url}/cards/pinned`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((pinnedCards: any[]) => {
+          if (pinnedCards === null) {
+            return [];
+          }
+
+          // Transform the response into Card objects
+          return pinnedCards.map((pinnedCard) => {
+            const card = pinnedCard.card;
+
+            // Process dates and nested objects
+            return {
+              ...card,
+              created_at: new Date(card.created_at),
+              updated_at: new Date(card.updated_at),
+              children: card.children ? card.children.map((child: any) => ({
+                ...child,
+                created_at: new Date(child.created_at),
+                updated_at: new Date(child.updated_at),
+              })) : [],
+              references: card.references ? card.references.map((ref: any) => ({
+                ...ref,
+                created_at: new Date(ref.created_at),
+                updated_at: new Date(ref.updated_at),
+              })) : [],
+              tasks: card.tasks ? card.tasks.map((task: any) => ({
+                ...task,
+                scheduled_date: task.scheduled_date ? new Date(task.scheduled_date) : null,
+                dueDate: task.dueDate ? new Date(task.dueDate) : null,
+                created_at: new Date(task.created_at),
+                updated_at: new Date(task.updated_at),
+                completed_at: task.completed_at ? new Date(task.completed_at) : null,
+              })) : [],
+              is_pinned: true, // Mark as pinned since it's coming from the pinned cards endpoint
+            };
+          });
+        });
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }

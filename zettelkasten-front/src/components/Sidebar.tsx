@@ -23,7 +23,7 @@ import { useShortcutContext } from "../contexts/ShortcutContext";
 import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
 import { PartialCard, Card } from "../models/Card";
-import { fetchPartialCards } from "../api/cards";
+import { fetchPartialCards, getPinnedCards, unpinCard } from "../api/cards";
 
 import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
@@ -43,6 +43,7 @@ export function Sidebar() {
   const [chatConversations, setChatConversations] = useState<
     ConversationSummary[]
   >([]);
+  const [pinnedCards, setPinnedCards] = useState<Card[]>([]);
   const { setConversationId } = useChatContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const { showChat, setShowChat } = useChatContext();
@@ -122,11 +123,45 @@ export function Sidebar() {
     };
   }, []);
 
+  // Function to unpin a card
+  const handleUnpinCard = (cardId: number) => {
+    unpinCard(cardId)
+      .then(() => {
+        // Refresh the pinned cards list after unpinning
+        refreshPinnedCards();
+        // Show a success message
+        setMessage("Card unpinned successfully");
+      })
+      .catch(error => {
+        console.error("Error unpinning card:", error);
+        setMessage("Error unpinning card");
+      });
+  };
+
+  // Function to refresh pinned cards
+  const refreshPinnedCards = () => {
+    getPinnedCards()
+      .then((cards) => {
+        setPinnedCards(cards);
+      })
+      .catch(error => {
+        console.error("Error fetching pinned cards:", error);
+      });
+  };
+
   useEffect(() => {
       getUserConversations().then((conversations) => {
         setChatConversations(conversations);
       });
+      
+      // Fetch pinned cards
+      refreshPinnedCards();
   }, []);
+
+  // Refresh pinned cards when location changes (navigation occurs)
+  useEffect(() => {
+    refreshPinnedCards();
+  }, [location.pathname]);
   return (
     <>
       {/* Mobile Menu Button */}
@@ -272,6 +307,41 @@ export function Sidebar() {
             </SidebarLink>
           </ul>
         </div>
+        
+        {/* Pinned Cards Section */}
+        {pinnedCards.length > 0 && (
+          <>
+            <hr />
+            <div className="p-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                Pinned Cards
+              </h3>
+              <ul className="space-y-1">
+                {pinnedCards.map((card) => (
+                  <li key={card.id} className="px-2 py-1 text-sm group">
+                    <div className="flex items-center">
+                      <Link
+                        to={`/app/card/${card.id}`}
+                        className="flex-grow hover:bg-gray-100 rounded p-1 truncate"
+                        title={`${card.card_id} - ${card.title}`}
+                      >
+                        <span className="text-blue-500 mr-1">[{card.card_id}]</span>
+                        {card.title}
+                      </Link>
+                      <button
+                        onClick={() => handleUnpinCard(card.id)}
+                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-1"
+                        title="Unpin card"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
         <hr />
         <div className="p-2">
           <ul className="space-y-1">

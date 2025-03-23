@@ -44,6 +44,7 @@ export interface Card {
   tags: Tag[];
   tasks: Task[];
   entities: Entity[];
+  is_pinned?: boolean; // Whether the current user has pinned this card
 }
 
 export interface CardChunk {
@@ -108,6 +109,7 @@ export const defaultCard: Card = {
   tags: [],
   tasks: [],
   entities: [],
+  is_pinned: false,
 };
 
 export interface NextIdResponse {
