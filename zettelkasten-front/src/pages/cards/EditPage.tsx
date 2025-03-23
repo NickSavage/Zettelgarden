@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { isCardIdUnique } from "../../utils/cards";
 import { uploadFile } from "../../api/files";
 import { parseURL } from "../../api/references";
 import { saveNewCard, saveExistingCard, getCard, getNextRootId } from "../../api/cards";
 import { editFile } from "../../api/files";
 import { FileListItem } from "../../components/files/FileListItem";
-import { BacklinkInput } from "../../components/cards/BacklinkInput";
+import { BacklinkDialog } from "../../components/cards/BacklinkDialog";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, PartialCard, defaultCard, CardTemplate } from "../../models/Card";
 import { File } from "../../models/File";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { Button } from "../../components/Button";
 import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
-import { CardBodyTextArea } from "../../components/cards/CardBodyTextArea";
+import { CardBodyTextArea, CardBodyTextAreaHandle } from "../../components/cards/CardBodyTextArea";
+import { MarkdownToolbar } from "../../components/cards/MarkdownToolbar";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { useTagContext } from "../../contexts/TagContext";
 import { SaveAsTemplateDialog } from "../../components/cards/SaveAsTemplateDialog";
@@ -40,9 +41,11 @@ export function EditPage({ newCard }: EditPageProps) {
   const [isParsingUrl, setIsParsingUrl] = useState(false);
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
   const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
+  const [showBacklinkDialog, setShowBacklinkDialog] = useState(false);
   const { partialCards, setRefreshPartialCards, lastCard, nextCardId, setNextCardId } =
     usePartialCardContext();
   const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
+  const cardBodyRef = useRef<CardBodyTextAreaHandle>(null);
   const { tags } = useTagContext();
 
   const { id } = useParams<{ id: string }>();
@@ -246,7 +249,14 @@ export function EditPage({ newCard }: EditPageProps) {
             <label htmlFor="body" className="block text-sm font-medium text-gray-700">
               Body:
             </label>
+            <MarkdownToolbar 
+              onFormatText={(formatType) => {
+                cardBodyRef.current?.formatText(formatType);
+              }}
+              onBacklinkClick={() => setShowBacklinkDialog(true)}
+            />
             <CardBodyTextArea
+              ref={cardBodyRef}
               editingCard={editingCard}
               setEditingCard={setEditingCard}
               setMessage={setMessage}
@@ -255,9 +265,6 @@ export function EditPage({ newCard }: EditPageProps) {
               setFilesToUpdate={setFilesToUpdate}
             />
             <div className="flex gap-3 mt-2">
-              <div className="flex-1">
-                <BacklinkInput addBacklink={addBacklink} />
-              </div>
               <div className="flex-1">
                 <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
               </div>
@@ -304,6 +311,14 @@ export function EditPage({ newCard }: EditPageProps) {
             </Button>
             {newCard && <TemplateSelector onSelectTemplate={handleSelectTemplate} />}
           </div>
+
+          {showBacklinkDialog && (
+            <BacklinkDialog
+              onClose={() => setShowBacklinkDialog(false)}
+              onSelect={addBacklink}
+              setMessage={setMessage}
+            />
+          )}
 
           {showSaveAsTemplate && (
             <SaveAsTemplateDialog

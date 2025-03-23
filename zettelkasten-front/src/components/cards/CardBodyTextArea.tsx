@@ -1,4 +1,4 @@
-import React, { DragEventHandler, useState } from "react";
+import React, { DragEventHandler, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { PartialCard, Card } from "../../models/Card";
 import { File } from "../../models/File";
 import { uploadFile } from "../../api/files";
@@ -16,14 +16,19 @@ interface CardBodyTextAreaProps {
   setFilesToUpdate: (files: File[]) => void;
 }
 
-export function CardBodyTextArea({
+export interface CardBodyTextAreaHandle {
+  formatText: (formatType: string) => void;
+}
+
+export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextAreaProps>(({
   editingCard,
   setEditingCard,
   setMessage,
   newCard,
   filesToUpdate,
   setFilesToUpdate,
-}: CardBodyTextAreaProps) {
+}: CardBodyTextAreaProps, ref) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isLinkMode, setIsLinkMode] = useState<boolean>(false);
   const [linkText, setLinkText] = useState<string>("");
   const [topResults, setTopResults] = useState<PartialCard[]>([]);
@@ -195,9 +200,228 @@ export function CardBodyTextArea({
     setLinkText("");
   }
 
+  // Format text function for the markdown toolbar
+  const formatText = (formatType: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = editingCard.body.substring(start, end);
+    const currentLineStart = editingCard.body.lastIndexOf('\n', start - 1) + 1;
+    const currentLineEnd = editingCard.body.indexOf('\n', end);
+    const currentLine = editingCard.body.substring(
+      currentLineStart,
+      currentLineEnd === -1 ? editingCard.body.length : currentLineEnd
+    );
+    
+    let formattedText = selectedText;
+    let newCursorStart = start;
+    let newCursorEnd = end;
+    let newBody = editingCard.body;
+    
+    switch(formatType) {
+      case 'bold':
+        if (selectedText) {
+          formattedText = `**${selectedText}**`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 2;
+          newCursorEnd = end + 2;
+        }
+        break;
+        
+      case 'italic':
+        if (selectedText) {
+          formattedText = `*${selectedText}*`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 1;
+          newCursorEnd = end + 1;
+        }
+        break;
+        
+      case 'h1':
+        if (currentLine.trim() === selectedText.trim()) {
+          // If the selected text is the entire line, prepend with heading
+          formattedText = `# ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, currentLineStart) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 2;
+          newCursorEnd = end + 2;
+        } else if (selectedText) {
+          // Add a newline and heading before selection
+          formattedText = `\n# ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 3;
+          newCursorEnd = end + 3;
+        }
+        break;
+        
+      case 'h2':
+        if (currentLine.trim() === selectedText.trim()) {
+          formattedText = `## ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, currentLineStart) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 3;
+          newCursorEnd = end + 3;
+        } else if (selectedText) {
+          formattedText = `\n## ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 4;
+          newCursorEnd = end + 4;
+        }
+        break;
+        
+      case 'h3':
+        if (currentLine.trim() === selectedText.trim()) {
+          formattedText = `### ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, currentLineStart) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 4;
+          newCursorEnd = end + 4;
+        } else if (selectedText) {
+          formattedText = `\n### ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 5;
+          newCursorEnd = end + 5;
+        }
+        break;
+        
+      case 'bulletList':
+        if (selectedText.includes('\n')) {
+          // Multi-line selection: add bullet to each line
+          const lines = selectedText.split('\n');
+          formattedText = lines.map(line => `- ${line}`).join('\n');
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 2;
+          newCursorEnd = start + formattedText.length;
+        } else if (selectedText) {
+          formattedText = `- ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 2;
+          newCursorEnd = end + 2;
+        }
+        break;
+        
+      case 'numberList':
+        if (selectedText.includes('\n')) {
+          // Multi-line selection: add numbers to each line
+          const lines = selectedText.split('\n');
+          formattedText = lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 3; // "1. " is 3 characters
+          newCursorEnd = start + formattedText.length;
+        } else if (selectedText) {
+          formattedText = `1. ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 3;
+          newCursorEnd = end + 3;
+        }
+        break;
+        
+      case 'code':
+        if (selectedText.includes('\n')) {
+          // Multi-line selection: add code block
+          formattedText = "```\n" + selectedText + "\n```";
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 4; // "```\n" is 4 characters
+          newCursorEnd = end + 4;
+        } else if (selectedText) {
+          // Single line: inline code
+          formattedText = "`" + selectedText + "`";
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 1;
+          newCursorEnd = end + 1;
+        }
+        break;
+        
+      case 'quote':
+        if (selectedText.includes('\n')) {
+          // Multi-line selection: add quote to each line
+          const lines = selectedText.split('\n');
+          formattedText = lines.map(line => `> ${line}`).join('\n');
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 2;
+          newCursorEnd = start + formattedText.length;
+        } else if (selectedText) {
+          formattedText = `> ${selectedText}`;
+          newBody = 
+            editingCard.body.substring(0, start) + 
+            formattedText + 
+            editingCard.body.substring(end);
+          newCursorStart = start + 2;
+          newCursorEnd = end + 2;
+        }
+        break;
+        
+      default:
+        return;
+    }
+    
+    if (selectedText) {
+      setEditingCard({...editingCard, body: newBody});
+      
+      // Re-focus and set selection to maintain cursor position after the formatting
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(
+          newCursorStart, 
+          newCursorEnd
+        );
+      }, 0);
+    }
+  };
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    formatText
+  }));
+
   return (
     <div>
       <textarea
+        ref={textareaRef}
         className="block w-full h-48 p-2 border border-gray-200"
         id="body"
         value={editingCard.body}
@@ -222,4 +446,4 @@ export function CardBodyTextArea({
       )}
     </div>
   );
-}
+});
