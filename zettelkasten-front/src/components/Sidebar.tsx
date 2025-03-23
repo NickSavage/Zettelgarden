@@ -343,22 +343,17 @@ export function Sidebar() {
           </>
         )}
         <hr />
-        <div className="p-2">
-          <ul className="space-y-1">
-
+        {/* Bottom icons section - Help and Settings */}
+        <div className="mt-auto p-2">
+          <div className="flex justify-end space-x-4 pr-2">
             <SidebarLink to="/app/help">
-                <BookOpenIcon />
-              <span className="flex-grow">Getting Started</span>
+              <BookOpenIcon />
             </SidebarLink>
             <SidebarLink to="/app/settings">
-                <SettingsIcon />
-              <span className="flex-grow">Settings</span>
+              <SettingsIcon />
             </SidebarLink>
-
-          </ul>
+          </div>
         </div>
-
-        <hr />
       </div>
       {/* Modal Windows */}
       {showCreateTaskWindow && (
