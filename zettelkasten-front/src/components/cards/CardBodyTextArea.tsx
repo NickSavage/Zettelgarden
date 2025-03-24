@@ -35,6 +35,47 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
   const [cursorPosition, setCursorPosition] = useState<number | null>(null);
   const { partialCards } = usePartialCardContext();
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter') {
+      const textarea = event.currentTarget;
+      const { value, selectionStart } = textarea;
+      
+      // Find the start of the current line
+      const currentLineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
+      const currentLine = value.substring(currentLineStart, selectionStart);
+      
+      // Check if the current line starts with a bullet point (possibly with indentation)
+      const bulletMatch = currentLine.match(/^(\s*)-\s+/);
+      
+      if (bulletMatch) {
+        event.preventDefault();
+        
+        // Extract the indentation and bullet format
+        const indentation = bulletMatch[1] || '';
+        const bulletFormat = '- ';
+        
+        // Insert a new line with the same bullet format
+        const newText = `\n${indentation}${bulletFormat}`;
+        
+        // Update the text and position the cursor after the bullet point
+        const newBody = 
+          value.substring(0, selectionStart) + 
+          newText + 
+          value.substring(selectionStart);
+        
+        setEditingCard({...editingCard, body: newBody});
+        
+        // Position cursor after the bullet point on the new line
+        setTimeout(() => {
+          textarea.setSelectionRange(
+            selectionStart + newText.length,
+            selectionStart + newText.length
+          );
+        }, 0);
+      }
+    }
+  };
+
   function handleSearch(searchTerm: string) {
     if (searchTerm !== "") {
       let results = quickFilterCards(partialCards, searchTerm);
@@ -426,6 +467,7 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
         id="body"
         value={editingCard.body}
         onChange={handleBodyChange}
+        onKeyDown={handleKeyDown}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onPaste={handlePaste}
