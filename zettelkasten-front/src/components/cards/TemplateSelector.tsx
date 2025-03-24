@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CardTemplate } from "../../models/Card";
 import { getTemplates } from "../../api/templates";
 import { Button } from "../Button";
+import { TemplateVariablesHelp } from "../templates/TemplateVariablesHelp";
 
 interface TemplateSelectorProps {
     onSelectTemplate: (template: CardTemplate) => void;
@@ -34,12 +35,15 @@ export function TemplateSelector({ onSelectTemplate }: TemplateSelectorProps) {
 
     return (
         <div className="relative">
-            <Button 
-                onClick={() => setShowDropdown(!showDropdown)}
-                variant="secondary"
-            >
-                Use Template
-            </Button>
+            <div className="flex items-center gap-2">
+                <Button 
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    variant="secondary"
+                >
+                    Use Template
+                </Button>
+                <TemplateVariablesHelp />
+            </div>
             
             {showDropdown && (
                 <div className="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">

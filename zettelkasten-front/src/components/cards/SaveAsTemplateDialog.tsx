@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { saveAsTemplate } from "../../api/templates";
 import { Button } from "../Button";
+import { TemplateVariablesHelp } from "../templates/TemplateVariablesHelp";
 
 interface SaveAsTemplateDialogProps {
     body: string;
@@ -60,6 +61,9 @@ export function SaveAsTemplateDialog({ body, title: cardTitle = "", onClose, onS
                             placeholder="Enter a title for this template"
                             disabled={isSubmitting}
                         />
+                        <div className="mt-2">
+                            <TemplateVariablesHelp />
+                        </div>
                     </div>
                     
                     <div className="flex justify-end space-x-3">

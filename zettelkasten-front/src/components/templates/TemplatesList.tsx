@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getTemplates, deleteTemplate } from "../../api/templates";
 import { CardTemplate } from "../../models/Card";
+import { TemplateVariablesHelp } from "./TemplateVariablesHelp";
 
 interface TemplatesListProps {
   onTemplateDeleted?: () => void;
@@ -58,7 +59,10 @@ export function TemplatesList({ onTemplateDeleted }: TemplatesListProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Your Templates</h3>
+      <div className="flex items-center gap-3">
+        <h3 className="text-lg font-medium">Your Templates</h3>
+        <TemplateVariablesHelp />
+      </div>
       <div className="space-y-2">
         {templates.map((template) => (
           <div key={template.id} className="flex justify-between items-center p-3 border rounded-md bg-white">

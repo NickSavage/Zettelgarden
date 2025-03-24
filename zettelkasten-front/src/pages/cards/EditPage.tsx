@@ -18,6 +18,7 @@ import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { useTagContext } from "../../contexts/TagContext";
 import { SaveAsTemplateDialog } from "../../components/cards/SaveAsTemplateDialog";
 import { TemplateSelector } from "../../components/cards/TemplateSelector";
+import { processTemplateVariables } from "../../utils/templateVariables";
 
 interface EditPageProps {
   newCard: boolean;
@@ -52,10 +53,14 @@ export function EditPage({ newCard }: EditPageProps) {
   const navigate = useNavigate();
 
   function handleSelectTemplate(template: CardTemplate) {
+    // Process template variables in both title and body
+    const processedTitle = processTemplateVariables(template.title);
+    const processedBody = processTemplateVariables(template.body);
+    
     setEditingCard(prevCard => ({
       ...prevCard,
-      title: template.title,
-      body: template.body
+      title: processedTitle,
+      body: processedBody
     }));
     setMessage("Template applied successfully");
   }
