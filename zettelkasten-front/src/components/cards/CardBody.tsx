@@ -56,7 +56,8 @@ interface CardBodyProps {
 }
 
 function preprocessCardLinks(body: string): string {
-  return body.replace(/\[([A-Za-z0-9_.-/]+)\]/g, "[$1](#)");
+  // Only match IDs without parentheses after - this preserves standard markdown links
+  return body.replace(/\[([A-Za-z0-9_.-/]+)\](?!\()/g, "[$1](#)");
 }
 
 const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
@@ -108,15 +109,25 @@ function renderCardText(
       remarkPlugins={[remarkGfm]}
       components={{
         a({ children, href, ...props }) {
-          const cardId = children as string;
-
-          return (
-            <CardLinkWithPreview
-              currentCard={card}
-              card_id={cardId}
-              handleViewBacklink={handleViewBacklink}
-            />
-          );
+          // For internal links, href will be "#" and children will be the card ID
+          if (href === "#") {
+            const cardId = children as string;
+            return (
+              <CardLinkWithPreview
+                currentCard={card}
+                card_id={cardId}
+                handleViewBacklink={handleViewBacklink}
+              />
+            );
+          } 
+          // For external links, render a regular anchor tag
+          else {
+            return (
+              <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+                {children}
+              </a>
+            );
+          }
         },
         h1( {children, ...props}) {
           return (<H1 children={children as string}/>)
