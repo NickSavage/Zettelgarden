@@ -152,9 +152,9 @@ export function Sidebar() {
   };
 
   useEffect(() => {
-      getUserConversations().then((conversations) => {
-        setChatConversations(conversations);
-      });
+      // getUserConversations().then((conversations) => {
+      //   setChatConversations(conversations);
+      // });
       
       // Fetch pinned cards
       refreshPinnedCards();
@@ -248,12 +248,12 @@ export function Sidebar() {
                     Upload A File
                   </button>
                 </FileUpload>
-                <button
+                {/* <button
                   onClick={handleNewChat}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
                   New Chat
-                </button>
+                </button> */}
               </div>
             )}
           </div>
@@ -276,23 +276,23 @@ export function Sidebar() {
               </span>
             </SidebarLink>
 
-              <span onClick={() => setShowChat(!showChat)}>
+              {/* <span onClick={() => setShowChat(!showChat)}>
 
               <SidebarLink to="#">
                   <ChatIcon />
                 <span className="flex-grow">Chat</span>
               </SidebarLink>
-              </span>
-          </ul>
-        </div>
-        <hr />
-        <div className="p-2">
-          <ul className="space-y-1">
+              </span> */}
             <SidebarLink to="/app/files">
                 <FileIcon />
               <span className="flex-grow">Files</span>
             </SidebarLink>
 
+          </ul>
+        </div>
+        <hr />
+        <div className="p-2">
+          <ul className="space-y-1">
             <SidebarLink to="/app/tags">
                 <TasksIcon />
               <span className="flex-grow">Tags</span>
