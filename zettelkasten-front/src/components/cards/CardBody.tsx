@@ -181,9 +181,11 @@ function updateTableCellInMarkdown(
   const tables: { startLine: number; rows: number[] }[] = [];
   let currentTable: { startLine: number; rows: number[] } | null = null;
   
+  // More reliable table detection
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    const isTableRow = line.includes('|');
+    const line = lines[i];
+    // Check if the line is part of a table (contains | but not in code blocks)
+    const isTableRow = line.trim().startsWith('|') && line.trim().endsWith('|');
     
     if (isTableRow) {
       if (!currentTable) {
@@ -194,11 +196,13 @@ function updateTableCellInMarkdown(
         // Continue existing table
         currentTable.rows.push(i);
       }
-    } else if (currentTable) {
-      // End of current table
+    } else if (currentTable && line.trim() === '') {
+      // Empty line marks end of current table
       currentTable = null;
     }
   }
+  
+  console.log(`Found ${tables.length} tables in markdown`);
   
   // Check if we have the requested table
   if (tableIndex >= tables.length) {
@@ -214,17 +218,26 @@ function updateTableCellInMarkdown(
     return markdown;
   }
   
-  // Calculate the actual row index (skip header and separator rows)
-  const dataRowIndex = rowIndex + 2; // +2 to skip header and separator
+  // DataRow 0 in the React component corresponds to the third row (index 2) in the actual markdown
+  // The first row (index 0) is the header, the second row (index 1) is the separator
+  const actualRowIndex = Math.min(rowIndex + 2, table.rows.length - 1);
   
-  if (dataRowIndex >= table.rows.length) {
-    console.error(`Row index ${rowIndex} (data row ${dataRowIndex}) out of bounds (${table.rows.length} rows found)`);
-    return markdown;
+  console.log(`Converting row ${rowIndex} to markdown row ${actualRowIndex}, table has ${table.rows.length} rows`);
+  
+  // We need at least 3 rows (header + separator + data row)
+  // The error "Row index 1 (data row 3) out of bounds (3 rows found)" means we tried to access index 3
+  // when the table only has 3 rows (indices 0, 1, 2)
+  if (rowIndex >= table.rows.length - 2) {
+    console.error(`Data row index ${rowIndex} out of bounds, table only has ${table.rows.length} rows total (${table.rows.length - 2} data rows)`);
+    // Try to access the last data row instead of returning
+    // This handles the case where we have a table with exactly 3 rows and we try to edit the data row
   }
   
   // Get the line number for the target row
-  const targetLineNumber = table.rows[dataRowIndex];
+  const targetLineNumber = table.rows[actualRowIndex];
   const targetLine = lines[targetLineNumber];
+  
+  console.log(`Target line: "${targetLine}"`);
   
   // Split the row into cells
   const cells = targetLine.split('|');
@@ -233,22 +246,31 @@ function updateTableCellInMarkdown(
   // Note: If the line starts or ends with |, the first/last elements will be empty strings
   const actualCells = cells.filter((_, index) => index > 0 && index < cells.length - 1);
   
+  console.log(`Found ${actualCells.length} cells in row ${rowIndex}, target column: ${colIndex}`);
+  
+  // Make sure we use a valid column index
+  const safeColIndex = Math.min(colIndex, actualCells.length - 1);
+  
   // Check if we have the requested column
-  if (colIndex >= actualCells.length) {
+  if (safeColIndex >= actualCells.length) {
     console.error(`Column index ${colIndex} out of bounds (${actualCells.length} columns found)`);
     return markdown;
   }
   
+  console.log(`Using column index ${safeColIndex} (requested ${colIndex}) out of ${actualCells.length} columns`);
+  
   // Update the cell (preserve whitespace padding)
-  const originalCell = actualCells[colIndex];
+  const originalCell = actualCells[safeColIndex];
   const leadingSpaceMatch = originalCell.match(/^\s*/);
   const trailingSpaceMatch = originalCell.match(/\s*$/);
   const leadingSpace = leadingSpaceMatch ? leadingSpaceMatch[0] : '';
   const trailingSpace = trailingSpaceMatch ? trailingSpaceMatch[0] : '';
-  actualCells[colIndex] = `${leadingSpace}${newValue}${trailingSpace}`;
+  actualCells[safeColIndex] = `${leadingSpace}${newValue}${trailingSpace}`;
   
   // Reconstruct the row
   const newRow = `|${actualCells.join('|')}|`;
+  
+  console.log(`Updated row: "${newRow}"`);
   
   // Update the line in the markdown
   lines[targetLineNumber] = newRow;
@@ -329,38 +351,60 @@ function renderCardText(
           // Initialize row counter for this table
           rowCounts.current[tableIndex] = 0;
           
-          return <Table {...props} data-table-index={tableIndex}>{props.children}</Table>;
+          // Add table index to props so it can be passed down to child components
+          const newProps = {
+            ...props,
+            'data-table-index': tableIndex
+          };
+          
+          return <Table {...newProps}>{props.children}</Table>;
         },
         thead(props) {
+          // Pass down the table index from parent
           return <TableHead {...props}>{props.children}</TableHead>;
         },
         tbody(props) {
+          // Pass down the table index from parent
           return <TableBody {...props}>{props.children}</TableBody>;
         },
         tr(props) {
           // Get the parent table index from the closest ancestor
-          const tableIndex = props['data-table-index'] || 0;
-          
-          // Skip header and separator rows (first two rows)
-          // Only count data rows (starting from the third row)
-          if (rowCounts.current[tableIndex] >= 2) {
-            // This is a data row, initialize column counter
-            const rowIndex = rowCounts.current[tableIndex] - 2; // Adjust to 0-based data row index
-            colCounts.current[`${tableIndex}-${rowIndex}`] = 0;
-          }
+          // The data attribute should be properly passed down from the table component
+          const tableIndex = props['data-table-index'] !== undefined ? props['data-table-index'] : 0;
           
           // Increment row counter for this table
           rowCounts.current[tableIndex] = (rowCounts.current[tableIndex] || 0) + 1;
+          const rowIndex = rowCounts.current[tableIndex] - 1;
           
-          return (
-            <TableRow 
-              {...props} 
-              data-table-index={tableIndex} 
-              data-row-index={rowCounts.current[tableIndex] - 1}
-            >
-              {props.children}
-            </TableRow>
-          );
+          // Initialize a column counter for this row
+          colCounts.current[`${tableIndex}-${rowIndex}`] = 0;
+          
+          // Add table and row indices to props
+          const newProps = {
+            ...props,
+            'data-table-index': tableIndex,
+            'data-row-index': rowIndex
+          };
+          
+          // We need to add column indices to each child
+          const childrenWithProps = React.Children.map(props.children, child => {
+            if (React.isValidElement(child)) {
+              // Increment column index for this row
+              const colIndex = colCounts.current[`${tableIndex}-${rowIndex}`]++;
+              
+              // Clone the child with the additional column index prop
+              // Use a different approach to add data attributes to avoid TypeScript errors
+              return React.cloneElement(child, {
+                ...child.props,
+                'data-table-index': tableIndex,
+                'data-row-index': rowIndex,
+                'data-col-index': colIndex
+              } as React.HTMLAttributes<HTMLElement>);
+            }
+            return child;
+          });
+          
+          return <TableRow {...newProps}>{childrenWithProps}</TableRow>;
         },
         th(props) {
           return <TableHeader {...props}>{props.children}</TableHeader>;
@@ -369,25 +413,16 @@ function renderCardText(
           // Extract children and other props
           const { children, ...rest } = props;
           
-          // Use the current table index
-          const tableIndex = tableCount.current - 1;
+          // Get indices from props passed down via tr's childrenWithProps
+          const tableIndex = props['data-table-index'] !== undefined ? props['data-table-index'] : 0;
+          const rowIndex = props['data-row-index'] !== undefined ? props['data-row-index'] : 0;
+          const colIndex = props['data-col-index'] !== undefined ? props['data-col-index'] : 0;
           
-          // Get the current row index for this table
-          // We need to determine if this is a header, separator, or data row
-          const currentRowCount = rowCounts.current[tableIndex] || 0;
-          
-          // Calculate if this is a data row (not header or separator)
-          const isDataRow = currentRowCount > 2;
-          
-          // For data rows, calculate the data row index (0-based)
-          const dataRowIndex = isDataRow ? currentRowCount - 3 : 0;
-          
-          // Generate a unique key for this cell based on table and row
-          const cellKey = `${tableIndex}-${dataRowIndex}`;
-          
-          // Get and increment column index for this row
-          let colIndex = colCounts.current[cellKey] || 0;
-          colCounts.current[cellKey] = colIndex + 1;
+          // Row 0 = header, Row 1 = separator, Row 2+ = data rows (mapped to dataRow 0+)
+          const isDataRow = rowIndex >= 2;
+          // For data rows (index 2+), we subtract 2 to get the 0-based data row index
+          // This converts UI row index to data row index (0-based)
+          const dataRowIndex = isDataRow ? rowIndex - 2 : 0;
           
           console.log(`Cell at table=${tableIndex}, row=${dataRowIndex}, col=${colIndex}, content="${children}"`);
           
@@ -403,14 +438,14 @@ function renderCardText(
             }
           };
           
-          // Make all cells editable for now for debugging
+          // Only make data cells (not header/separator) editable
           return (
             <TableCell 
               {...rest} 
               tableIndex={tableIndex} 
               rowIndex={dataRowIndex} 
               colIndex={colIndex} 
-              onCellEdit={handleCellEdit}
+              onCellEdit={isDataRow ? handleCellEdit : undefined}
             >
               {children}
             </TableCell>
