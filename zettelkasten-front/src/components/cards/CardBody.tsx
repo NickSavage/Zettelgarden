@@ -181,7 +181,7 @@ function updateTableCellInMarkdown(
   const tables: { startLine: number; rows: number[] }[] = [];
   let currentTable: { startLine: number; rows: number[] } | null = null;
   
-  // More reliable table detection
+  // More reliable table detection with detailed logging
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     // Check if the line is part of a table (contains | but not in code blocks)
@@ -192,14 +192,36 @@ function updateTableCellInMarkdown(
         // Start of a new table
         currentTable = { startLine: i, rows: [i] };
         tables.push(currentTable);
+        console.log(`Found start of table ${tables.length-1} at line ${i}: "${line}"`);
       } else {
         // Continue existing table
         currentTable.rows.push(i);
+        console.log(`Added row to table ${tables.length-1} at line ${i}: "${line}"`);
       }
     } else if (currentTable && line.trim() === '') {
       // Empty line marks end of current table
+      console.log(`End of table ${tables.length-1} detected at line ${i}`);
       currentTable = null;
     }
+  }
+  
+  // Make sure to close any open table (for tables at the end of the document)
+  if (currentTable !== null) {
+    console.log(`Closing table ${tables.length-1} at end of document`);
+    currentTable = null;
+  }
+  
+  // Log all detected tables
+  for (let i = 0; i < tables.length; i++) {
+    console.log(`Table ${i} details:`);
+    console.log(`  Start line: ${tables[i].startLine}`);
+    console.log(`  Row count: ${tables[i].rows.length}`);
+    console.log(`  Rows: ${tables[i].rows.join(', ')}`);
+    
+    // Print each row's content
+    tables[i].rows.forEach((rowLineNum, rowIndex) => {
+      console.log(`  Row ${rowIndex} (line ${rowLineNum}): "${lines[rowLineNum]}"`);
+    });
   }
   
   console.log(`Found ${tables.length} tables in markdown`);
@@ -218,20 +240,24 @@ function updateTableCellInMarkdown(
     return markdown;
   }
   
-  // DataRow 0 in the React component corresponds to the third row (index 2) in the actual markdown
-  // The first row (index 0) is the header, the second row (index 1) is the separator
-  const actualRowIndex = Math.min(rowIndex + 2, table.rows.length - 1);
+  // In the markdown, rows are indexed as follows:
+  // row 0: header row
+  // row 1: separator row (---|---)
+  // row 2+: data rows
   
-  console.log(`Converting row ${rowIndex} to markdown row ${actualRowIndex}, table has ${table.rows.length} rows`);
+  // In our React component, dataRowIndex starts at 0 for the first data row
+  // So to convert from dataRowIndex to markdown row index:
+  // markdown row index = dataRowIndex + 2
   
-  // We need at least 3 rows (header + separator + data row)
-  // The error "Row index 1 (data row 3) out of bounds (3 rows found)" means we tried to access index 3
-  // when the table only has 3 rows (indices 0, 1, 2)
-  if (rowIndex >= table.rows.length - 2) {
+  // First, make sure we don't exceed the table bounds
+  if (rowIndex >= (table.rows.length - 2)) {
     console.error(`Data row index ${rowIndex} out of bounds, table only has ${table.rows.length} rows total (${table.rows.length - 2} data rows)`);
-    // Try to access the last data row instead of returning
-    // This handles the case where we have a table with exactly 3 rows and we try to edit the data row
+    rowIndex = Math.max(0, table.rows.length - 3); // Use the first data row if out of bounds
   }
+  
+  const actualRowIndex = rowIndex + 2; // Add 2 to get the markdown row index
+  
+  console.log(`Converting data row ${rowIndex} to markdown row ${actualRowIndex}, table has ${table.rows.length} rows`);
   
   // Get the line number for the target row
   const targetLineNumber = table.rows[actualRowIndex];
@@ -429,7 +455,14 @@ function renderCardText(
           // Handle cell edit for all cells
           const handleCellEdit = (tableIdx: number, rowIdx: number, colIdx: number, newValue: string) => {
             if (onCardUpdate) {
+              // Log the data row index for debugging
               console.log(`Editing cell: table=${tableIdx}, row=${rowIdx}, col=${colIdx}, value="${newValue}"`);
+              
+              // IMPORTANT: For tables with multiple data rows, make sure we're editing the correct row
+              // rowIdx is already the data row index (0-based, only counting data rows)
+              // In our example of a table with header and 2 data rows:
+              // rowIdx=0 should edit the first data row (markdown row 2)
+              // rowIdx=1 should edit the second data row (markdown row 3)
               const updatedBody = updateTableCellInMarkdown(card.body, tableIdx, rowIdx, colIdx, newValue);
               onCardUpdate({
                 ...card,
