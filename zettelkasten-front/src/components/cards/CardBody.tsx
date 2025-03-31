@@ -7,43 +7,16 @@ import remarkGfm from "remark-gfm";
 
 import { CardLinkWithPreview } from "./CardLinkWithPreview";
 import { H1, H2, H3, H4,H5,H6 } from "../Header";
-
-// Table components
-const Table: React.FC<React.HTMLAttributes<HTMLTableElement>> = ({ children, ...props }) => (
-  <table className="min-w-full border-collapse my-4" {...props}>
-    {children}
-  </table>
-);
-
-const TableHead: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({ children, ...props }) => (
-  <thead className="bg-gray-100" {...props}>
-    {children}
-  </thead>
-);
-
-const TableBody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({ children, ...props }) => (
-  <tbody {...props}>
-    {children}
-  </tbody>
-);
-
-const TableRow: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = ({ children, ...props }) => (
-  <tr className="border-b" {...props}>
-    {children}
-  </tr>
-);
-
-const TableHeader: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = ({ children, ...props }) => (
-  <th className="py-2 px-4 font-bold text-left border" {...props}>
-    {children}
-  </th>
-);
-
-const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = ({ children, ...props }) => (
-  <td className="py-2 px-4 border" {...props}>
-    {children}
-  </td>
-);
+import { 
+  Table, 
+  TableHead, 
+  TableBody, 
+  TableRow, 
+  TableHeader, 
+  TableCell 
+} from "../table/TableComponents";
+import { DataviewTable } from "../dataview/DataviewTable";
+import { saveExistingCard } from "../../api/cards";
 
 interface CustomImageRendererProps {
   src?: string; // Make src optional
@@ -53,6 +26,29 @@ interface CustomImageRendererProps {
 
 interface CardBodyProps {
   viewingCard: Card;
+}
+
+// Function to identify dataview blocks and mark them with special markers
+function preprocessDataviewBlocks(body: string): { 
+  processedBody: string, 
+  dataviews: { id: string, original: string, content: string }[] 
+} {
+  const dataviews: { id: string, original: string, content: string }[] = [];
+  let id = 0;
+  
+  // Replace dataview blocks with special markers
+  const processedBody = body.replace(/```dataview\s+([\s\S]*?)```/g, (match, content) => {
+    const blockId = `dataview-${id++}`;
+    dataviews.push({ 
+      id: blockId, 
+      original: match, 
+      content: content.trim() 
+    });
+    // Use a format that will be preserved as a code block by the markdown parser
+    return `\`\`\`dataview-marker\n${blockId}\n\`\`\``;
+  });
+  
+  return { processedBody, dataviews };
 }
 
 function preprocessCardLinks(body: string): string {
@@ -100,14 +96,82 @@ function renderCardText(
   card: Card,
   handleViewBacklink: (card_id: number) => void
 ) {
-  let body = card.body;
-  body = preprocessCardLinks(body);
+  const [cardBody, setCardBody] = useState(card.body);
+  const [dataviews, setDataviews] = useState<{ id: string, original: string, content: string }[]>([]);
+  
+  // Process the card body to identify dataview blocks
+  useEffect(() => {
+    const { processedBody, dataviews } = preprocessDataviewBlocks(card.body);
+    setCardBody(processedBody);
+    setDataviews(dataviews);
+  }, [card.body]);
+  
+  // Handle saving dataview changes
+  const handleDataviewSave = (originalBlock: string, newContent: string) => {
+    // Replace the original dataview block with the updated one
+    const updatedBody = card.body.replace(
+      originalBlock, 
+      `\`\`\`dataview\n${newContent}\n\`\`\``
+    );
+    
+    // Create updated card object
+    const updatedCard = {
+      ...card,
+      body: updatedBody
+    };
+    
+    // Save the updated card
+    saveExistingCard(updatedCard)
+      .then(() => {
+        // Reprocess the updated body to identify dataview blocks
+        const { processedBody, dataviews: updatedDataviews } = preprocessDataviewBlocks(updatedBody);
+        
+        // Update both states
+        setCardBody(processedBody);
+        setDataviews(updatedDataviews);
+      })
+      .catch(error => {
+        console.error("Error saving card:", error);
+      });
+  };
+  
+  // Process card links
+  let processedBody = preprocessCardLinks(cardBody);
+
+  // Custom component for handling our dataview code blocks
+  const CustomCodeBlock = ({ node, inline, className, children, ...props }: any) => {
+    const value = String(children).trim();
+    const language = className?.replace(/language-/, '');
+    
+    // Check if this is one of our dataview markers
+    if (language === 'dataview-marker') {
+      const id = value;
+      const dataview = dataviews.find(d => d.id === id);
+      if (dataview) {
+        return (
+          <DataviewTable 
+            content={dataview.content} 
+            onSave={(newContent) => handleDataviewSave(dataview.original, newContent)} 
+          />
+        );
+      }
+    }
+    
+    // Otherwise render as regular code block
+    return (
+      <pre className={className}>
+        <code {...props}>{children}</code>
+      </pre>
+    );
+  };
 
   return (
     <Markdown
-      children={body}
+      children={processedBody}
       remarkPlugins={[remarkGfm]}
       components={{
+        // Add our custom component for code blocks
+        code: CustomCodeBlock,
         a({ children, href, ...props }) {
           // For internal links, href will be "#" and children will be the card ID
           if (href === "#") {
