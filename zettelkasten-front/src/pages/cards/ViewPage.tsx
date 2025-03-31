@@ -143,7 +143,7 @@ export function ViewPage({ }: ViewPageProps) {
           </div>
 
           {/* Card Body */}
-          <div className="bg-white rounded-lg p-6 shadow-sm max-w-none">
+          <div className="bg-white rounded-lg p-6 prose shadow-sm max-w-none">
             <CardBody viewingCard={viewingCard} />
           </div>
 
