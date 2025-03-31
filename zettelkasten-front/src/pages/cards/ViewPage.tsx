@@ -144,17 +144,7 @@ export function ViewPage({ }: ViewPageProps) {
 
           {/* Card Body */}
           <div className="bg-white rounded-lg p-6 shadow-sm prose max-w-none">
-            <CardBody 
-              viewingCard={viewingCard} 
-              onCardUpdate={async (updatedCard) => {
-                try {
-                  await saveExistingCard(updatedCard);
-                  setViewCard(updatedCard);
-                } catch (error: any) {
-                  setError(error.message);
-                }
-              }} 
-            />
+            <CardBody viewingCard={viewingCard} />
           </div>
 
           {/* Link Section */}
