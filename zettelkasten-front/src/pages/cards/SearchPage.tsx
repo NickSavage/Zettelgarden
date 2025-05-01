@@ -42,6 +42,9 @@ export function SearchPage({
   const [showPinSearchDialog, setShowPinSearchDialog] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
+  const params = new URLSearchParams(location.search);
+  const pinnedId = params.get("pinned");
+
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
   }
@@ -79,7 +82,7 @@ export function SearchPage({
         try {
           const pinnedSearches = await getPinnedSearches();
           const pinnedSearch = pinnedSearches.find(search => search.id === parseInt(pinnedId));
-          
+
           if (pinnedSearch) {
             // Apply the pinned search configuration
             setSearchTerm(pinnedSearch.searchTerm);
@@ -87,10 +90,10 @@ export function SearchPage({
               ...searchConfig,
               ...pinnedSearch.searchConfig
             });
-            
+
             // Execute the search with the pinned configuration
             await handleSearch(
-              pinnedSearch.searchConfig.useClassicSearch, 
+              pinnedSearch.searchConfig.useClassicSearch,
               pinnedSearch.searchTerm
             );
             return; // Exit early since we've handled the search
@@ -146,7 +149,7 @@ export function SearchPage({
       .filter(result => result.score > 0)
       .filter(result => !searchConfig.onlyParentCards || !result.id.includes("/"))
       .filter(result => searchConfig.showEntities || result.type !== "entity");
-    
+
     const sortedResults = sortCards(filteredResults, searchConfig.sortBy);
     const indexOfLastItem = searchConfig.currentPage * 20;
     const indexOfFirstItem = indexOfLastItem - 20;
@@ -154,19 +157,19 @@ export function SearchPage({
   }
 
   function getTotalPages() {
-    const totalItems = searchConfig.onlyParentCards 
-      ? searchResults.filter(result => !result.id.includes("/")).length 
+    const totalItems = searchConfig.onlyParentCards
+      ? searchResults.filter(result => !result.id.includes("/")).length
       : searchResults.length;
     return Math.ceil(totalItems / 20);
   }
 
   const handleCheckboxChange = (event) => {
     const newClassicSearch = event.target.checked;
-    setSearchConfig({ 
-      ...searchConfig, 
-      useClassicSearch: newClassicSearch, 
+    setSearchConfig({
+      ...searchConfig,
+      useClassicSearch: newClassicSearch,
       sortBy: !newClassicSearch ? "sortByRanking" : searchConfig.sortBy,
-      currentPage: 1 
+      currentPage: 1
     });
     setSearchResults([]);
     handleSearch(newClassicSearch, searchTerm);
@@ -212,10 +215,6 @@ export function SearchPage({
               onClick={() => handleSearch(searchConfig.useClassicSearch, searchTerm)}
               children={"Search"}
             />
-            <Button
-              onClick={() => setShowPinSearchDialog(true)}
-              children={"Pin Search"}
-            />
             <select value={searchConfig.sortBy} onChange={handleSortChange}>
               <option value="sortCreatedNewOld">Creation Date (Newest)</option>
               <option value="sortCreatedOldNew">Creation Date (Oldest)</option>
@@ -229,7 +228,13 @@ export function SearchPage({
               tags={tags.filter((tag) => tag.card_count > 0)}
               handleTagClick={handleTagClick}
             />
-            
+            {!pinnedId &&
+              <Button
+                onClick={() => setShowPinSearchDialog(true)}
+                children={"Pin Search"}
+              />
+            }
+
             <Menu as="div" className="relative">
               <Menu.Button className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 Search Options
@@ -343,14 +348,14 @@ export function SearchPage({
           </div>
         )}
       </div>
-      
+
       {/* Message display */}
       {message && (
         <div className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
           {message}
         </div>
       )}
-      
+
       {/* Pin Search Dialog */}
       {showPinSearchDialog && (
         <PinSearchDialog

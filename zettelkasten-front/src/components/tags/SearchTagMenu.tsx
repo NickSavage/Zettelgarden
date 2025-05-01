@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent } from "react";
 
 import { Tag } from "../../models/Tags";
 import { SearchTagDropdown } from "./SearchTagDropdown";
+import { Button } from "../../components/Button";
 
 interface SearchTagMenuProps {
   tags: Tag[];
@@ -16,7 +17,7 @@ export function SearchTagMenu({ tags, handleTagClick }: SearchTagMenuProps) {
 
   return (
     <div>
-      <button onClick={toggleTagMenu}>Tags</button>
+      <Button onClick={toggleTagMenu} children={"Tags"} />
       {showTagMenu && (
         <SearchTagDropdown
           tags={tags}
