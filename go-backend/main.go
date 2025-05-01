@@ -248,6 +248,11 @@ func main() {
 	addProtectedRoute(r, "/api/entities/{entityId}/cards/{cardId}", h.AddEntityToCardRoute, "POST")
 	addProtectedRoute(r, "/api/entities/{entityId}/cards/{cardId}", h.RemoveEntityFromCardRoute, "DELETE")
 
+	// Pinned searches routes
+	addProtectedRoute(r, "/api/searches/pin", h.PinSearchRoute, "POST")
+	addProtectedRoute(r, "/api/searches/pin/{id}", h.UnpinSearchRoute, "DELETE")
+	addProtectedRoute(r, "/api/searches/pinned", h.GetPinnedSearchesRoute, "GET")
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("ZETTEL_URL")},
 		AllowCredentials: true,

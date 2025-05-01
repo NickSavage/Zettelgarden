@@ -25,6 +25,8 @@ import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
 import { PartialCard, Card } from "../models/Card";
 import { fetchPartialCards, getPinnedCards, unpinCard } from "../api/cards";
+import { PinnedSearch } from "../models/PinnedSearch";
+import { getPinnedSearches, unpinSearch } from "../api/pinnedSearches";
 
 import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
@@ -46,6 +48,7 @@ export function Sidebar() {
     ConversationSummary[]
   >([]);
   const [pinnedCards, setPinnedCards] = useState<Card[]>([]);
+  const [pinnedSearches, setPinnedSearches] = useState<PinnedSearch[]>([]);
   const { setConversationId } = useChatContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const { showChat, setShowChat } = useChatContext();
@@ -139,6 +142,21 @@ export function Sidebar() {
         setMessage("Error unpinning card");
       });
   };
+  
+  // Function to unpin a search
+  const handleUnpinSearch = (searchId: number) => {
+    unpinSearch(searchId)
+      .then(() => {
+        // Refresh the pinned searches list after unpinning
+        refreshPinnedSearches();
+        // Show a success message
+        setMessage("Search unpinned successfully");
+      })
+      .catch(error => {
+        console.error("Error unpinning search:", error);
+        setMessage("Error unpinning search");
+      });
+  };
 
   // Function to refresh pinned cards
   const refreshPinnedCards = () => {
@@ -150,19 +168,32 @@ export function Sidebar() {
         console.error("Error fetching pinned cards:", error);
       });
   };
+  
+  // Function to refresh pinned searches
+  const refreshPinnedSearches = () => {
+    getPinnedSearches()
+      .then((searches) => {
+        setPinnedSearches(searches);
+      })
+      .catch(error => {
+        console.error("Error fetching pinned searches:", error);
+      });
+  };
 
   useEffect(() => {
       // getUserConversations().then((conversations) => {
       //   setChatConversations(conversations);
       // });
       
-      // Fetch pinned cards
+      // Fetch pinned cards and searches
       refreshPinnedCards();
+      refreshPinnedSearches();
   }, []);
 
-  // Refresh pinned cards when location changes (navigation occurs)
+  // Refresh pinned items when location changes (navigation occurs)
   useEffect(() => {
     refreshPinnedCards();
+    refreshPinnedSearches();
   }, [location.pathname]);
   return (
     <>
@@ -305,6 +336,48 @@ export function Sidebar() {
           </ul>
         </div>
         
+        {/* Pinned Searches Section */}
+        <>
+          <hr />
+          <div className="p-2">
+            <div className="flex items-center justify-between mb-2 px-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Pinned Searches
+              </h3>
+            </div>
+            {pinnedSearches.length > 0 ? (
+              <ul className="space-y-0.5">
+                {pinnedSearches.map((search) => (
+                  <li key={search.id} className="px-2 py-0.5 text-sm group">
+                    <div className="flex items-center">
+                      <Link
+                        to={`/app/search?term=${encodeURIComponent(search.searchTerm)}&pinned=${search.id}`}
+                        className="flex-grow hover:bg-gray-100 rounded p-1 truncate"
+                        title={search.title}
+                        onClick={() => {
+                          // This will be handled in SearchPage.tsx when it detects the pinned parameter
+                        }}
+                      >
+                        <span className="mr-1">•</span>
+                        {search.title}
+                      </Link>
+                      <button
+                        onClick={() => handleUnpinSearch(search.id)}
+                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-1"
+                        title="Unpin search"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-gray-400 px-2">No pinned searches yet</p>
+            )}
+          </div>
+        </>
+
         {/* Pinned Cards Section */}
         <>
           <hr />
@@ -322,9 +395,9 @@ export function Sidebar() {
               </button>
             </div>
             {pinnedCards.length > 0 ? (
-              <ul className="space-y-1">
+              <ul className="space-y-0.5">
                 {pinnedCards.map((card) => (
-                  <li key={card.id} className="px-2 py-1 text-sm group">
+                  <li key={card.id} className="px-2 py-0.5 text-sm group">
                     <div className="flex items-center">
                       <Link
                         to={`/app/card/${card.id}`}

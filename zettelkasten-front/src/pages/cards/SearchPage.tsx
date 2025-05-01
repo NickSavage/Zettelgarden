@@ -8,6 +8,8 @@ import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { SearchResultList } from "../../components/cards/SearchResultList";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
+import { PinSearchDialog } from "../../components/search/PinSearchDialog";
+import { getPinnedSearches } from "../../api/pinnedSearches";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -37,6 +39,8 @@ export function SearchPage({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [showPinSearchDialog, setShowPinSearchDialog] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
 
   function handleSearchUpdate(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -66,9 +70,38 @@ export function SearchPage({
       const params = new URLSearchParams(location.search);
       const recent = params.get("recent");
       const term = params.get("term") || "";
+      const pinnedId = params.get("pinned");
 
       let classicSearch = searchConfig.useClassicSearch;
 
+      // Check if we're loading a pinned search
+      if (pinnedId) {
+        try {
+          const pinnedSearches = await getPinnedSearches();
+          const pinnedSearch = pinnedSearches.find(search => search.id === parseInt(pinnedId));
+          
+          if (pinnedSearch) {
+            // Apply the pinned search configuration
+            setSearchTerm(pinnedSearch.searchTerm);
+            setSearchConfig({
+              ...searchConfig,
+              ...pinnedSearch.searchConfig
+            });
+            
+            // Execute the search with the pinned configuration
+            await handleSearch(
+              pinnedSearch.searchConfig.useClassicSearch, 
+              pinnedSearch.searchTerm
+            );
+            return; // Exit early since we've handled the search
+          }
+        } catch (error) {
+          console.error("Error loading pinned search:", error);
+          setMessage("Error loading pinned search");
+        }
+      }
+
+      // Regular search initialization if not a pinned search
       if (recent !== null) {
         classicSearch = true;
         setSearchConfig({ ...searchConfig, useClassicSearch: true });
@@ -89,7 +122,7 @@ export function SearchPage({
     };
 
     initializeSearch();
-  }, []);
+  }, [location.search]); // Re-run when the URL search parameters change
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSearchConfig({ ...searchConfig, sortBy: e.target.value });
@@ -178,6 +211,10 @@ export function SearchPage({
             <Button
               onClick={() => handleSearch(searchConfig.useClassicSearch, searchTerm)}
               children={"Search"}
+            />
+            <Button
+              onClick={() => setShowPinSearchDialog(true)}
+              children={"Pin Search"}
             />
             <select value={searchConfig.sortBy} onChange={handleSortChange}>
               <option value="sortCreatedNewOld">Creation Date (Newest)</option>
@@ -306,6 +343,26 @@ export function SearchPage({
           </div>
         )}
       </div>
+      
+      {/* Message display */}
+      {message && (
+        <div className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
+          {message}
+        </div>
+      )}
+      
+      {/* Pin Search Dialog */}
+      {showPinSearchDialog && (
+        <PinSearchDialog
+          searchTerm={searchTerm}
+          searchConfig={searchConfig}
+          onClose={() => setShowPinSearchDialog(false)}
+          onPinSuccess={() => {
+            // You might want to refresh something here
+          }}
+          setMessage={setMessage}
+        />
+      )}
     </div>
   );
 }
