@@ -71,6 +71,7 @@ export interface SearchResult {
   score: number;
   created_at: Date;
   updated_at: Date;
+  tags: Tag[] | undefined;
   metadata: {
     parent_id?: number;
     shared_entities?: number;

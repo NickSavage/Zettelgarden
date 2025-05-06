@@ -28,6 +28,7 @@ type Card struct {
 	Tasks      []Task        `json:"tasks"`
 	Embedding  pgvector.Vector
 	Entities   []Entity `json:"entities"`
+	TagCount   int
 }
 
 func ScanCards(rows *sql.Rows) ([]Card, error) {
@@ -45,6 +46,7 @@ func ScanCards(rows *sql.Rows) ([]Card, error) {
 			&card.ParentID,
 			&card.CreatedAt,
 			&card.UpdatedAt,
+			&card.TagCount,
 		); err != nil {
 			log.Printf(" query full err %v", err)
 			return cards, err

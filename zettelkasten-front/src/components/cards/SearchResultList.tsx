@@ -40,7 +40,7 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
       <div className="flex-grow">
         <div className="flex flex-col">
           <div className="flex items-center flex-wrap gap-1">
-            <Link 
+            <Link
               to={isEntity ? "#" : `/app/card/${cardId}`}
               onClick={handleClick}
               className="hover:underline flex-shrink-0"
@@ -57,13 +57,13 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
             {result.preview && (
               <>
                 <span className="mx-2"></span>
-                {result.preview.split(/\s+/).filter(word => word.startsWith('#')).map((tag, index) => (
+                {result.tags && result.tags.map((tag, index) => (
                   <span
                     key={index}
                     className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full cursor-pointer hover:bg-purple-100"
-                    onClick={() => onTagClick && onTagClick(tag.substring(1))}
+                    onClick={() => onTagClick && onTagClick(tag.name)}
                   >
-                    {tag}
+                    {tag.name}
                   </span>
                 ))}
               </>
@@ -71,8 +71,8 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
           </div>
           {showPreview && result.preview && (
             <div className="mt-0.5 pl-2 text-sm italic text-gray-600">
-              {result.preview.length > 200 
-                ? `${result.preview.substring(0, 200)}...` 
+              {result.preview.length > 200
+                ? `${result.preview.substring(0, 200)}...`
                 : result.preview}
             </div>
           )}
@@ -99,8 +99,8 @@ interface SearchResultListProps {
   onTagClick?: (tagName: string) => void;
 }
 
-export function SearchResultList({ 
-  results, 
+export function SearchResultList({
+  results,
   showPreview = true,
   onEntityClick,
   onTagClick,
@@ -109,9 +109,9 @@ export function SearchResultList({
     <ul className="space-y-1">
       {results.map((result) => (
         <li key={result.id} className="py-1 px-2 hover:bg-gray-50 rounded-lg">
-          <SearchResultItem 
-            result={result} 
-            showPreview={showPreview} 
+          <SearchResultItem
+            result={result}
+            showPreview={showPreview}
             onEntityClick={onEntityClick}
             onTagClick={onTagClick}
           />

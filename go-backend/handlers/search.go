@@ -437,10 +437,32 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 func (s *Handler) ClassicSearch(userID int, params SearchRequestParams) ([]models.Card, error) {
 	searchString := BuildPartialCardSqlSearchTermString(params.SearchTerm, params.FullText)
 	query := `
-		SELECT 
-			c.id, c.card_id, c.user_id, c.title, c.body, c.link, c.parent_id, c.created_at, c.updated_at
-		FROM cards c
-		WHERE c.user_id = $1 AND c.is_deleted = FALSE` + searchString
+	SELECT
+    c.id,
+    c.card_id,
+    c.user_id,
+    c.title,
+    c.body,
+    c.link,
+    c.parent_id,
+    c.created_at,
+    c.updated_at,
+    COUNT(ct.tag_id) AS tag_count
+FROM cards c
+LEFT JOIN card_tags ct ON c.id = ct.card_pk -- Use LEFT JOIN to include cards with no tags
+WHERE c.user_id = $1 AND c.is_deleted = FALSE
+` + searchString + `
+GROUP BY
+    c.id,
+    c.card_id,
+    c.user_id,
+    c.title,
+    c.body,
+    c.link,
+    c.parent_id,
+    c.created_at,
+    c.updated_at;
+	`
 
 	rows, err := s.DB.Query(query, userID)
 	if err != nil {
@@ -513,6 +535,10 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 
 		// Convert cards to SearchResults
 		for _, card := range cards {
+			var tags []models.Tag
+			if card.TagCount > 0 {
+				tags, _ = s.QueryTagsForCard(userID, card.ID)
+			}
 			searchResults = append(searchResults, models.SearchResult{
 				ID:        card.CardID,
 				Type:      "card",
@@ -521,6 +547,7 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 				Score:     1.0, // Classic search doesn't have scoring
 				CreatedAt: card.CreatedAt,
 				UpdatedAt: card.UpdatedAt,
+				Tags:      tags,
 				Metadata: map[string]interface{}{
 					"id":        card.ID,
 					"parent_id": card.ParentID,
