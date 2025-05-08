@@ -4,6 +4,7 @@ import { uploadFile } from "../../api/files";
 import { parseURL } from "../../api/references";
 import { saveNewCard, saveExistingCard, getCard, getNextRootId } from "../../api/cards";
 import { editFile } from "../../api/files";
+import { getTemplates } from "../../api/templates";
 import { FileListItem } from "../../components/files/FileListItem";
 import { BacklinkDialog } from "../../components/cards/BacklinkDialog";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,7 +16,7 @@ import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
 import { CardBodyTextArea, CardBodyTextAreaHandle } from "../../components/cards/CardBodyTextArea";
 import { MarkdownToolbar } from "../../components/cards/MarkdownToolbar";
 import { SaveAsTemplateDialog } from "../../components/cards/SaveAsTemplateDialog";
-import { TemplateSelector } from "../../components/cards/TemplateSelector";
+import { TemplateVariablesHelp } from "../../components/templates/TemplateVariablesHelp";
 import { processTemplateVariables } from "../../utils/templateVariables";
 
 interface EditPageProps {
@@ -43,8 +44,32 @@ export function EditPage({ newCard }: EditPageProps) {
   const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
   const cardBodyRef = useRef<CardBodyTextAreaHandle>(null);
 
+  // Template selector state
+  const [templates, setTemplates] = useState<CardTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [templateError, setTemplateError] = useState("");
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  // Fetch templates
+  useEffect(() => {
+    if (newCard) {
+      fetchTemplates();
+    }
+  }, [newCard]);
+
+  async function fetchTemplates() {
+    try {
+      const fetchedTemplates = await getTemplates();
+      setTemplates(fetchedTemplates);
+      setLoadingTemplates(false);
+    } catch (err) {
+      setTemplateError("Failed to load templates");
+      setLoadingTemplates(false);
+    }
+  }
 
   function handleSelectTemplate(template: CardTemplate) {
     // Process template variables in both title and body
@@ -57,6 +82,7 @@ export function EditPage({ newCard }: EditPageProps) {
       body: processedBody
     }));
     setMessage("Template applied successfully");
+    setShowTemplateDropdown(false);
   }
 
   async function fetchCard(id: string) {
@@ -183,6 +209,42 @@ export function EditPage({ newCard }: EditPageProps) {
             </div>
           )}
 
+          {newCard && (
+            <div className="mb-6">
+              {loadingTemplates ? (
+                <div>Loading templates...</div>
+              ) : templateError ? (
+                <div className="text-red-600">{templateError}</div>
+              ) : templates.length === 0 ? null : (
+                <div className="relative">
+                  <Button
+                    onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+                    variant="primary"
+                    size="medium"
+                  >
+                    Use Template
+                  </Button>
+
+                  {showTemplateDropdown && (
+                    <div className="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div className="py-1" role="menu" aria-orientation="vertical">
+                        {templates.map((template) => (
+                          <button
+                            key={template.id}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => handleSelectTemplate(template)}
+                          >
+                            {template.title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="space-y-2">
             <label htmlFor="card_id" className="block text-sm font-medium text-gray-700">
               Card ID:
@@ -298,13 +360,15 @@ export function EditPage({ newCard }: EditPageProps) {
             {!newCard && (
               <ButtonCardDelete card={editingCard} setMessage={setMessage} />
             )}
-            <Button
-              onClick={() => setShowSaveAsTemplate(true)}
-              variant="secondary"
-            >
-              Save as Template
-            </Button>
-            {newCard && <TemplateSelector onSelectTemplate={handleSelectTemplate} />}
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setShowSaveAsTemplate(true)}
+                variant="secondary"
+              >
+                Save as Template
+              </Button>
+              <TemplateVariablesHelp />
+            </div>
           </div>
 
           {showBacklinkDialog && (
