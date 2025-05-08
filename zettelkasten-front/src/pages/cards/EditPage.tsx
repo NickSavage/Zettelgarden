@@ -14,8 +14,6 @@ import { Button } from "../../components/Button";
 import { ButtonCardDelete } from "../../components/cards/ButtonCardDelete";
 import { CardBodyTextArea, CardBodyTextAreaHandle } from "../../components/cards/CardBodyTextArea";
 import { MarkdownToolbar } from "../../components/cards/MarkdownToolbar";
-import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
-import { useTagContext } from "../../contexts/TagContext";
 import { SaveAsTemplateDialog } from "../../components/cards/SaveAsTemplateDialog";
 import { TemplateSelector } from "../../components/cards/TemplateSelector";
 import { processTemplateVariables } from "../../utils/templateVariables";
@@ -24,9 +22,7 @@ interface EditPageProps {
   newCard: boolean;
 }
 
-function handleViewCard(card_pk: number) {}
-function openRenameModal(file: File) {}
-function onFileDelete(file_id: number) {}
+function onFileDelete(file_id: number) { }
 
 function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
   if (!editingCard.card_id) return null;
@@ -39,7 +35,6 @@ function renderWarningLabel(cards: PartialCard[], editingCard: Card) {
 export function EditPage({ newCard }: EditPageProps) {
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [isParsingUrl, setIsParsingUrl] = useState(false);
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
   const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
   const [showBacklinkDialog, setShowBacklinkDialog] = useState(false);
@@ -47,7 +42,6 @@ export function EditPage({ newCard }: EditPageProps) {
     usePartialCardContext();
   const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
   const cardBodyRef = useRef<CardBodyTextAreaHandle>(null);
-  const { tags } = useTagContext();
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -56,7 +50,7 @@ export function EditPage({ newCard }: EditPageProps) {
     // Process template variables in both title and body
     const processedTitle = processTemplateVariables(template.title);
     const processedBody = processTemplateVariables(template.body);
-    
+
     setEditingCard(prevCard => ({
       ...prevCard,
       title: processedTitle,
@@ -183,13 +177,12 @@ export function EditPage({ newCard }: EditPageProps) {
       {editingCard && (
         <div className="space-y-6">
           {(message || error) && (
-            <div className={`p-4 rounded-md ${
-              error ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-            }`}>
+            <div className={`p-4 rounded-md ${error ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
+              }`}>
               {message || error}
             </div>
           )}
-          
+
           <div className="space-y-2">
             <label htmlFor="card_id" className="block text-sm font-medium text-gray-700">
               Card ID:
@@ -254,12 +247,14 @@ export function EditPage({ newCard }: EditPageProps) {
             <label htmlFor="body" className="block text-sm font-medium text-gray-700">
               Body:
             </label>
-            <MarkdownToolbar 
+            <MarkdownToolbar
               onFormatText={(formatType) => {
                 cardBodyRef.current?.formatText(formatType);
               }}
               onBacklinkClick={() => setShowBacklinkDialog(true)}
+              handleTagClick={handleTagClick}
             />
+
             <CardBodyTextArea
               ref={cardBodyRef}
               editingCard={editingCard}
@@ -269,11 +264,6 @@ export function EditPage({ newCard }: EditPageProps) {
               filesToUpdate={filesToUpdate}
               setFilesToUpdate={setFilesToUpdate}
             />
-            <div className="flex gap-3 mt-2">
-              <div className="flex-1">
-                <SearchTagMenu tags={tags} handleTagClick={handleTagClick} />
-              </div>
-            </div>
           </div>
 
           <div className="space-y-2">
@@ -291,7 +281,7 @@ export function EditPage({ newCard }: EditPageProps) {
                 placeholder="Source/URL"
                 className="block flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
               />
-              <Button 
+              <Button
                 onClick={handleClickFillCard}
                 variant="secondary"
                 size="medium"
@@ -308,8 +298,8 @@ export function EditPage({ newCard }: EditPageProps) {
             {!newCard && (
               <ButtonCardDelete card={editingCard} setMessage={setMessage} />
             )}
-            <Button 
-              onClick={() => setShowSaveAsTemplate(true)} 
+            <Button
+              onClick={() => setShowSaveAsTemplate(true)}
               variant="secondary"
             >
               Save as Template
@@ -343,7 +333,7 @@ export function EditPage({ newCard }: EditPageProps) {
                     key={index}
                     file={file}
                     onDelete={onFileDelete}
-                    setRefreshFiles={(refresh: boolean) => {}}
+                    setRefreshFiles={(refresh: boolean) => { }}
                     displayFileOnCard={(file: File) =>
                       handleDisplayFileOnCardClick(file)
                     }
