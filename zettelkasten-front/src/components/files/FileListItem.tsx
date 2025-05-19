@@ -13,6 +13,8 @@ interface FileListItemProps {
   onDelete: (file_id: number) => void;
   setRefreshFiles: (refresh: boolean) => void;
   displayFileOnCard?: (file: File) => void;
+  filterString: string;
+  setFilterString: (text: string) => void;
 }
 
 export function FileListItem({
@@ -20,6 +22,8 @@ export function FileListItem({
   onDelete,
   setRefreshFiles,
   displayFileOnCard,
+  filterString,
+  setFilterString,
 }: FileListItemProps) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>("");
@@ -81,6 +85,11 @@ export function FileListItem({
     setShowCardLink(!showCardLink);
     setShowMenu(false);
   }
+
+  function onFileTypeClick(file: File) {
+    setFilterString("filetype:" + file.filetype)
+  }
+
   async function handleCardUnlink() {
     editFile(file["id"].toString(), { name: file.name, card_pk: -1 }).then(
       (file) => {
@@ -141,6 +150,10 @@ export function FileListItem({
         </div>
 
         <div className="file-item-right">
+          <div
+            className="text-sm pr-4 cursor-pointer"
+            onClick={() => onFileTypeClick(file)}
+          >{file.filetype}</div>
           <div>
             {file.card_pk > 0 && (
               <Link
@@ -178,9 +191,9 @@ export function FileListItem({
                     Unlink Card
                   </button>
                 )}
-		{displayFileOnCard && file.filetype.includes("image") && (
-		  <button onClick={() => handleDisplayCardClick()}>Display File on Card</button>
-		)}
+                {displayFileOnCard && file.filetype.includes("image") && (
+                  <button onClick={() => handleDisplayCardClick()}>Display File on Card</button>
+                )}
               </div>
             )}
           </div>

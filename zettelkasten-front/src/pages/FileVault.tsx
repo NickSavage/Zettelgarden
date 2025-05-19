@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import { getAllFiles } from "../api/files";
 import { sortCards } from "../utils/cards";
 import { FileRenameModal } from "../components/files/FileRenameModal";
@@ -26,14 +26,33 @@ export function FileVault() {
     setFiles(files.filter((file) => file.id !== file_id));
   }
 
-  function handleFilter(text: string) {
-    setFilterString(text);
+  function handleFilter(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
+    setFilterString(e.target.value);
   }
 
   function filterFiles(file: File) {
     if (filterString === "") {
       return file;
     }
+
+    // Check if we're filtering by filetype
+    const filetypeMatch = filterString.match(/filetype:([^\s]+)/i);
+
+    if (filetypeMatch) {
+      const filetype = filetypeMatch[1];
+      // Get the rest of the filter string without the filetype part
+      const nameFilterString = filterString.replace(/filetype:[^\s]+/i, "").trim();
+
+      // Filter by both filetype and name
+      return (
+        file.filetype === filetype &&
+        (nameFilterString === "" || file.name.toLowerCase().includes(nameFilterString.toLowerCase()))
+      );
+    }
+
+    // Default behavior - just filter by name
     return file.name.toLowerCase().includes(filterString.toLowerCase());
   }
 
@@ -43,12 +62,12 @@ export function FileVault() {
     );
     setIsRenameModalOpen(false);
   }
-  
+
   useEffect(() => {
     if (refreshFiles) {
       getAllFiles().then((data) => {
         // Sort files by created_at date (newest first)
-        const sortedFiles = [...data].sort((a, b) => 
+        const sortedFiles = [...data].sort((a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         setFiles(sortedFiles);
@@ -65,10 +84,16 @@ export function FileVault() {
   return (
     <>
       <div className="bg-slate-200 p-2 border-slate-400 border">
-        <FilterInput handleFilterHook={handleFilter} />
+
+        <input
+          type="text"
+          value={filterString}
+          onChange={handleFilter}
+          placeholder="Filter"
+        />
 
         <FileUpload
-          setMessage={(message: string) => {}}
+          setMessage={(message: string) => { }}
           card={defaultCard}
         >
           <Button>Select File To Upload</Button>
@@ -83,6 +108,14 @@ export function FileVault() {
       <div className="p-4">
         {files && files.length > 0 ? (
           <>
+            {/* Show filtered file count */}
+            <div className="text-sm text-slate-600 mb-2">
+              Showing {files.filter(filterFiles).length} of {files.length} files
+              {filterString && (
+                <span> (filtered by: <span className="font-medium">{filterString}</span>)</span>
+              )}
+            </div>
+
             <ul>
               {files
                 .filter(filterFiles)
@@ -93,6 +126,8 @@ export function FileVault() {
                     file={file}
                     onDelete={onDelete}
                     setRefreshFiles={setRefreshFiles}
+                    filterString={filterString}
+                    setFilterString={setFilterString}
                   />
                 ))}
             </ul>
@@ -107,7 +142,7 @@ export function FileVault() {
                 Page {currentPage} of {Math.ceil(files.filter(filterFiles).length / ITEMS_PER_PAGE)}
               </span>
               <Button
-                onClick={() => setCurrentPage(prev => 
+                onClick={() => setCurrentPage(prev =>
                   Math.min(Math.ceil(files.filter(filterFiles).length / ITEMS_PER_PAGE), prev + 1)
                 )}
                 disabled={currentPage >= Math.ceil(files.filter(filterFiles).length / ITEMS_PER_PAGE)}
