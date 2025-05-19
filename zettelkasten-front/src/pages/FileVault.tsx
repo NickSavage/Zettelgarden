@@ -111,9 +111,6 @@ export function FileVault() {
             {/* Show filtered file count */}
             <div className="text-sm text-slate-600 mb-2">
               Showing {files.filter(filterFiles).length} of {files.length} files
-              {filterString && (
-                <span> (filtered by: <span className="font-medium">{filterString}</span>)</span>
-              )}
             </div>
 
             <ul>
