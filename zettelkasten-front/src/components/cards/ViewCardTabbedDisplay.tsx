@@ -138,6 +138,7 @@ export function ViewCardTabbedDisplay({
   const [allEntities, setAllEntities] = useState<Entity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [auditEvents, setAuditEvents] = useState<any[]>([]);
+  const [fileFilterString, setFileFilterString] = useState<string>("");
 
   const tabs = [
     { label: "Children" },
@@ -323,6 +324,8 @@ export function ViewCardTabbedDisplay({
                     displayFileOnCard={(file: File) => {
                       handleDisplayFileOnCardClick(file);
                     }}
+                    filterString={fileFilterString}
+                    setFilterString={setFileFilterString}
                   />
                 ))}
               </ul>

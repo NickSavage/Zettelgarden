@@ -50,6 +50,8 @@ export function EditPage({ newCard }: EditPageProps) {
   const [templateError, setTemplateError] = useState("");
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
 
+  const [fileFilterString, setFileFilterString] = useState<string>("");
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -401,6 +403,8 @@ export function EditPage({ newCard }: EditPageProps) {
                     displayFileOnCard={(file: File) =>
                       handleDisplayFileOnCardClick(file)
                     }
+                    filterString={fileFilterString}
+                    setFilterString={setFileFilterString}
                   />
                 ))}
               </ul>
