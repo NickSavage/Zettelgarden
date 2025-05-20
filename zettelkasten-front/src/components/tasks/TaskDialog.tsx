@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import { Task, TaskAuditEvent } from "../../models/Task";
 import { TaskDateDisplay } from "./TaskDateDisplay";
+import { TaskPriorityDisplay } from "./TaskPriorityDisplay";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { PartialCard } from "../../models/Card";
 import { Link } from "react-router-dom";
@@ -27,7 +28,7 @@ function formatAuditEvent(event: TaskAuditEvent): string {
   if (event.action === "create") {
     return "Task created";
   }
-  
+
   if (event.action === "delete") {
     return "Task deleted";
   }
@@ -48,8 +49,8 @@ function formatAuditEvent(event: TaskAuditEvent): string {
 
     // Scheduled date changes
     if (changeDetails.ScheduledDate) {
-      const newDate = changeDetails.ScheduledDate.to ? 
-        format(new Date(changeDetails.ScheduledDate.to), 'MMM d, yyyy') : 
+      const newDate = changeDetails.ScheduledDate.to ?
+        format(new Date(changeDetails.ScheduledDate.to), 'MMM d, yyyy') :
         'none';
       changes.push(`Changed scheduled date to ${newDate}`);
     }
@@ -63,6 +64,13 @@ function formatAuditEvent(event: TaskAuditEvent): string {
       } else {
         changes.push(`Changed linked card from [${changeDetails.CardPK.from}] to [${changeDetails.CardPK.to}]`);
       }
+    }
+
+    // Priority changes
+    if (changeDetails.Priority) {
+      const fromPriority = changeDetails.Priority.from ? `Priority ${changeDetails.Priority.from}` : "No Priority";
+      const toPriority = changeDetails.Priority.to ? `Priority ${changeDetails.Priority.to}` : "No Priority";
+      changes.push(`Changed priority from ${fromPriority} to ${toPriority}`);
     }
 
     // If no specific changes were detected
@@ -97,6 +105,9 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
   };
 
   const handleSave = async () => {
+    // Log the task to verify priority is included
+    console.log("Saving edited task with priority:", editedTask.priority);
+
     const response = await saveExistingTask(editedTask);
     if (!("error" in response)) {
       setRefreshTasks(true);
@@ -123,7 +134,15 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
   };
 
   const handleToggleComplete = async () => {
-    const updatedTask = { ...editedTask, is_complete: !editedTask.is_complete };
+    // Make a complete copy of the task to ensure all properties are included
+    const updatedTask = {
+      ...editedTask,
+      is_complete: !editedTask.is_complete
+    };
+
+    // Log the task to verify priority is included
+    console.log("Toggling completion with priority:", updatedTask.priority);
+
     const response = await saveExistingTask(updatedTask);
     if (!("error" in response)) {
       setEditedTask(updatedTask);
@@ -139,7 +158,7 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
         <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-4">
-              <span 
+              <span
                 onClick={handleToggleComplete}
                 className="cursor-pointer"
               >
@@ -168,7 +187,7 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
                   autoFocus
                 />
               ) : (
-                <div 
+                <div
                   className="text-lg cursor-pointer hover:bg-gray-50 p-2 rounded flex-grow"
                   onClick={() => setIsEditing(true)}
                 >
@@ -188,6 +207,11 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
 
             <div className="flex items-center gap-4">
               <TaskDateDisplay
+                task={editedTask}
+                setTask={setEditedTask}
+                saveOnChange={true}
+              />
+              <TaskPriorityDisplay
                 task={editedTask}
                 setTask={setEditedTask}
                 saveOnChange={true}
@@ -225,7 +249,7 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
           </div>
 
           <div className="mt-6 flex justify-between">
-            <Button 
+            <Button
               onClick={handleDelete}
               className="bg-red-500 hover:bg-red-600 text-white"
             >
@@ -246,4 +270,4 @@ export function TaskDialog({ task, isOpen, onClose, onTagClick }: TaskDialogProp
       </div>
     </Dialog>
   );
-} 
+}

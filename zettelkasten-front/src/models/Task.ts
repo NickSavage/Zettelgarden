@@ -33,6 +33,7 @@ export interface Task {
   updated_at: Date;
   completed_at: Date | null;
   title: string;
+  priority: string | null;
   is_complete: boolean;
   is_deleted: boolean;
   card: PartialCard | null;
@@ -49,6 +50,7 @@ export const emptyTask: Task = {
   scheduled_date: new Date(),
   completed_at: null,
   title: "",
+  priority: null,
   is_complete: false,
   is_deleted: false,
   card: null,

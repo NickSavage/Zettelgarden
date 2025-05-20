@@ -3,6 +3,7 @@ import { deleteTask, saveExistingTask } from "../../api/tasks";
 import { getTomorrow } from "../../utils/dates";
 
 import { TaskDateDisplay } from "./TaskDateDisplay";
+import { TaskPriorityDisplay } from "./TaskPriorityDisplay";
 import { Task } from "../../models/Task";
 import { Tag } from "../../models/Tags";
 import { Link } from "react-router-dom";
@@ -89,7 +90,12 @@ export function TaskListItem({
         <div className="task-list-item-details inline-block">
           <TaskDateDisplay
             task={task}
-            setTask={(task: Task) => {}}
+            setTask={(task: Task) => { }}
+            saveOnChange={true}
+          />
+          <TaskPriorityDisplay
+            task={task}
+            setTask={(task: Task) => { }}
             saveOnChange={true}
           />
           <TaskTagDisplay task={task} tags={tags} onTagClick={onTagClick} />

@@ -19,7 +19,7 @@ func (s *Handler) QueryTask(userID int, id int) (models.Task, error) {
 
 	err := s.DB.QueryRow(`
 	SELECT id, card_pk, user_id, scheduled_date, due_date,
-	created_at, updated_at, completed_at, title, is_complete
+	created_at, updated_at, completed_at, title, priority, is_complete
 	FROM
 	tasks
 	WHERE id = $1 AND user_id = $2 AND is_deleted = FALSE
@@ -33,6 +33,7 @@ func (s *Handler) QueryTask(userID int, id int) (models.Task, error) {
 		&task.UpdatedAt,
 		&task.CompletedAt,
 		&task.Title,
+		&task.Priority,
 		&task.IsComplete,
 	)
 	if err != nil {
@@ -52,7 +53,7 @@ func (s *Handler) QueryTasks(userID int, includeCompleted bool) ([]models.Task, 
 	var tasks []models.Task
 	query := `
 	SELECT id, card_pk, user_id, scheduled_date, due_date,
-	created_at, updated_at, completed_at, title, is_complete
+	created_at, updated_at, completed_at, title, priority, is_complete
 	FROM
 	tasks
 	WHERE user_id = $1 AND is_deleted = FALSE
@@ -78,6 +79,7 @@ func (s *Handler) QueryTasks(userID int, includeCompleted bool) ([]models.Task, 
 			&task.UpdatedAt,
 			&task.CompletedAt,
 			&task.Title,
+			&task.Priority,
 			&task.IsComplete,
 		); err != nil {
 			log.Printf("err %v", err)
@@ -101,7 +103,7 @@ func (s *Handler) QueryTasksByCard(userID int, cardPK int) ([]models.Task, error
 	var tasks []models.Task
 	query := `
 	SELECT id, card_pk, user_id, scheduled_date, due_date,
-	created_at, updated_at, completed_at, title, is_complete
+	created_at, updated_at, completed_at, title, priority, is_complete
 	FROM
 	tasks
 	WHERE user_id = $1 AND is_deleted = FALSE AND card_pk = $2
@@ -123,6 +125,7 @@ func (s *Handler) QueryTasksByCard(userID int, cardPK int) ([]models.Task, error
 			&task.UpdatedAt,
 			&task.CompletedAt,
 			&task.Title,
+			&task.Priority,
 			&task.IsComplete,
 		); err != nil {
 			log.Printf("err %v", err)
@@ -211,9 +214,10 @@ func (s *Handler) UpdateTask(userID int, id int, task models.Task) error {
 			updated_at = NOW(),
 			completed_at = $3,
 			title = $4,
-			is_complete = $5
-		WHERE id = $6 AND user_id = $7 AND is_deleted = FALSE
-	`, task.CardPK, task.ScheduledDate, completedAt, task.Title, task.IsComplete, id, userID)
+			priority = $5,
+			is_complete = $6
+		WHERE id = $7 AND user_id = $8 AND is_deleted = FALSE
+	`, task.CardPK, task.ScheduledDate, completedAt, task.Title, task.Priority, task.IsComplete, id, userID)
 
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -272,10 +276,10 @@ func (s *Handler) CreateTask(task models.Task) (int, error) {
 	var taskID int
 
 	err := s.DB.QueryRow(`
-	INSERT INTO tasks (card_pk, user_id, scheduled_date, due_date, created_at, updated_at, completed_at, title, is_complete, is_deleted)
-	VALUES ($1, $2, $3, $4, NOW(), NOW(), $5, $6, $7, FALSE)
+	INSERT INTO tasks (card_pk, user_id, scheduled_date, due_date, created_at, updated_at, completed_at, title, priority, is_complete, is_deleted)
+	VALUES ($1, $2, $3, $4, NOW(), NOW(), $5, $6, $7, $8, FALSE)
 	RETURNING id
-	`, task.CardPK, task.UserID, task.ScheduledDate, task.DueDate, task.CompletedAt, task.Title, task.IsComplete).Scan(&taskID)
+	`, task.CardPK, task.UserID, task.ScheduledDate, task.DueDate, task.CompletedAt, task.Title, task.Priority, task.IsComplete).Scan(&taskID)
 
 	if err != nil {
 		log.Printf("err %v", err)
@@ -442,6 +446,7 @@ func (s *Handler) checkRecurringTasks(task models.Task) error {
 		DueDate:       &scheduledDate,
 		CompletedAt:   nil,
 		Title:         task.Title,
+		Priority:      task.Priority,
 		IsComplete:    false,
 	}
 	_, err := s.CreateTask(newTask)

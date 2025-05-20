@@ -5,6 +5,7 @@ import { Task, emptyTask } from "../../models/Task";
 import { Card, PartialCard } from "../..//models/Card";
 import { BacklinkInput } from "../cards/BacklinkInput";
 import { TaskDateDisplay } from "./TaskDateDisplay";
+import { TaskPriorityDisplay } from "./TaskPriorityDisplay";
 import { Button } from "../Button";
 import { AddTagMenu } from "../../components/tags/AddTagMenu";
 
@@ -32,10 +33,16 @@ export function CreateTaskWindow({
   async function handleSaveTask() {
     let response;
 
-    let task = newTask;
+    // Make a copy of the task to ensure all properties are included
+    let task = { ...newTask };
+
     if (currentCard) {
-      task = { ...task, card_pk: currentCard.id };
+      task.card_pk = currentCard.id;
     }
+
+    // Log the task to verify priority is included
+    console.log("Saving task with priority:", task.priority);
+
     response = await saveNewTask(task);
     if (!("error" in response)) {
       setShowTaskWindow(false);
@@ -135,8 +142,8 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
                 </button>
                 {showMenu && (
                   <div className="absolute right-0 top-full bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[200px]">
-                    <button 
-                      onClick={() => handleAddTagClick()} 
+                    <button
+                      onClick={() => handleAddTagClick()}
                       className="w-full px-4 py-2 text-left hover:bg-gray-50"
                     >
                       Add Tag
@@ -146,20 +153,20 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
                       <div className="px-4 py-1 text-sm font-medium text-gray-600">
                         Recurring Task
                       </div>
-                      <button 
-                        onClick={() => handleAddRecurring("every day")} 
+                      <button
+                        onClick={() => handleAddRecurring("every day")}
                         className="w-full px-4 py-2 text-left hover:bg-gray-50"
                       >
                         Daily
                       </button>
-                      <button 
-                        onClick={() => handleAddRecurring("every week")} 
+                      <button
+                        onClick={() => handleAddRecurring("every week")}
                         className="w-full px-4 py-2 text-left hover:bg-gray-50"
                       >
                         Weekly
                       </button>
-                      <button 
-                        onClick={() => handleAddRecurring("every month")} 
+                      <button
+                        onClick={() => handleAddRecurring("every month")}
                         className="w-full px-4 py-2 text-left hover:bg-gray-50"
                       >
                         Monthly
@@ -189,6 +196,11 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
                 </span>
               )}
               <TaskDateDisplay
+                task={newTask}
+                setTask={setNewTask}
+                saveOnChange={false}
+              />
+              <TaskPriorityDisplay
                 task={newTask}
                 setTask={setNewTask}
                 saveOnChange={false}
