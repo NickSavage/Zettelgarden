@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-backend/models"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -247,11 +248,40 @@ func (s *Handler) UpdateTaskRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var task models.Task
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		log.Printf("error %v", err)
+	// First read the request body into a map to extract the priority
+	var requestData map[string]interface{}
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("error reading body: %v", err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
+	}
+	r.Body.Close()
+
+	// Create a new reader with the same body data for the next decode
+	if err := json.Unmarshal(bodyBytes, &requestData); err != nil {
+		log.Printf("error unmarshaling request: %v", err)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	// Now decode into the Task struct
+	var task models.Task
+	if err := json.Unmarshal(bodyBytes, &task); err != nil {
+		log.Printf("error unmarshaling to task: %v", err)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	// Handle priority conversion from string to *string
+	if priorityVal, ok := requestData["priority"]; ok {
+		if priorityStr, ok := priorityVal.(string); ok && priorityStr != "" {
+			task.Priority = &priorityStr
+			log.Printf("Set priority from request: %s", priorityStr)
+		} else {
+			task.Priority = nil
+			log.Printf("Priority was empty or not a string, setting to nil")
+		}
 	}
 
 	err = s.UpdateTask(userID, id, task)
@@ -274,6 +304,13 @@ func (s *Handler) UpdateTaskRoute(w http.ResponseWriter, r *http.Request) {
 
 func (s *Handler) CreateTask(task models.Task) (int, error) {
 	var taskID int
+
+	// Log the priority value for debugging
+	if task.Priority != nil {
+		log.Printf("Priority value: %s", *task.Priority)
+	} else {
+		log.Printf("Priority is nil")
+	}
 
 	err := s.DB.QueryRow(`
 	INSERT INTO tasks (card_pk, user_id, scheduled_date, due_date, created_at, updated_at, completed_at, title, priority, is_complete, is_deleted)
@@ -303,13 +340,43 @@ func (s *Handler) CreateTask(task models.Task) (int, error) {
 func (s *Handler) CreateTaskRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 
-	var task models.Task
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		log.Printf("error %v", err)
+	// First read the request body into a map to extract the priority
+	var requestData map[string]interface{}
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("error reading body: %v", err)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	r.Body.Close()
+
+	// Create a new reader with the same body data for the next decode
+	if err := json.Unmarshal(bodyBytes, &requestData); err != nil {
+		log.Printf("error unmarshaling request: %v", err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
+	// Now decode into the Task struct
+	var task models.Task
+	if err := json.Unmarshal(bodyBytes, &task); err != nil {
+		log.Printf("error unmarshaling to task: %v", err)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	// Handle priority conversion from string to *string
+	if priorityVal, ok := requestData["priority"]; ok {
+		if priorityStr, ok := priorityVal.(string); ok && priorityStr != "" {
+			task.Priority = &priorityStr
+			log.Printf("Set priority from request: %s", priorityStr)
+		} else {
+			task.Priority = nil
+			log.Printf("Priority was empty or not a string, setting to nil")
+		}
+	}
+
+	log.Printf("creating task with priority: %v", task.Priority)
 	// Ensure the user ID is set correctly
 	task.UserID = userID
 
