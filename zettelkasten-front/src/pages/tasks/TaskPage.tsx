@@ -15,36 +15,28 @@ import {
 import { Button } from "../../components/Button";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
 
-import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
+// import { SearchTagMenu } from "../../components/tags/SearchTagMenu"; // SearchTagMenu is not used
 import { filterTasks } from "../../utils/tasks";
 
-interface TaskListProps {}
+interface TaskListProps { }
 
-export function TaskPage({}: TaskListProps) {
-  const { tasks, setRefreshTasks, showCompleted } = useTaskContext();
+type SortField = "updated_at" | "title" | "priority" | "id";
+type SortDirection = "asc" | "desc";
+
+export function TaskPage({ }: TaskListProps) {
+  const { tasks, showCompleted } = useTaskContext(); // setRefreshTasks is not used
   const [dateView, setDateView] = useState<string>("today");
   const { showCreateTaskWindow, setShowCreateTaskWindow } =
     useShortcutContext();
   const [filterString, setFilterString] = useState<string>("");
+  const [sortField, setSortField] = useState<SortField>("updated_at");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const { tags } = useTagContext();
 
-  const tasksToDisplay = filterTasks(
-    tasks.filter(changeDateView),
-    filterString,
-  ).sort((a, b) => a.id - b.id);
-
-  const totalTasksForDateView = tasks.filter(changeDateView).length;
-
-  function handleFilterChange(
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) {
-    setFilterString(e.target.value);
-  }
-
-  function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
-    setDateView(e.target.value);
-  }
+  // changeDateView is used in useMemo, so it needs to be stable or part of dependencies.
+  // Let's define it using useCallback or ensure it's stable if it doesn't depend on component state/props that change.
+  // For now, assuming it's stable enough or will be correctly handled by useMemo's deps.
   function changeDateView(task: Task): boolean {
     // Handle further filtering based on the date view
     if (dateView === "all") {
@@ -60,6 +52,7 @@ export function TaskPage({}: TaskListProps) {
         return true;
       } else if (
         showCompleted &&
+        task.scheduled_date && // Ensure scheduled_date is not null
         compareDates(task.scheduled_date, getToday())
       ) {
         return true;
@@ -71,11 +64,13 @@ export function TaskPage({}: TaskListProps) {
     if (dateView === "tomorrow") {
       if (
         !task.is_complete &&
+        task.scheduled_date && // Ensure scheduled_date is not null
         compareDates(task.scheduled_date, getTomorrow())
       ) {
         return true;
       } else if (
         showCompleted &&
+        task.scheduled_date && // Ensure scheduled_date is not null
         compareDates(task.scheduled_date, getTomorrow())
       ) {
         return true;
@@ -83,9 +78,71 @@ export function TaskPage({}: TaskListProps) {
         return false;
       }
     }
-
+    // Fallback for other dateView values or if logic above doesn't return
+    // This part of the original logic might need review: `return !task.is_complete;`
+    // Assuming it's intended for a default case not covered by 'all', 'today', 'tomorrow'.
+    // If dateView can only be these three, this line might be unreachable or imply specific behavior for other views.
+    // For now, keeping it as is.
     return !task.is_complete;
   }
+
+  const tasksToDisplay = useMemo(() => {
+    let filtered = tasks.filter(changeDateView);
+    let searched = filterTasks(filtered, filterString);
+
+    searched.sort((a, b) => {
+      let comparison = 0;
+      switch (sortField) {
+        case "updated_at":
+          comparison =
+            new Date(a.updated_at).getTime() -
+            new Date(b.updated_at).getTime();
+          break;
+        case "title":
+          comparison = a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+          break;
+        case "priority":
+          const prioA = a.priority;
+          const prioB = b.priority;
+          if (prioA === null && prioB === null) comparison = 0;
+          else if (prioA === null) comparison = 1; // nulls last
+          else if (prioB === null) comparison = -1; // nulls last
+          else comparison = prioA.localeCompare(prioB);
+          break;
+        case "id":
+          comparison = a.id - b.id;
+          break;
+        default:
+          comparison = a.id - b.id; // Fallback to id
+      }
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+    return searched;
+  }, [tasks, dateView, showCompleted, filterString, sortField, sortDirection]);
+
+  const totalTasksForDateView = useMemo(() => {
+    return tasks.filter(changeDateView).length;
+  }, [tasks, dateView, showCompleted]);
+
+
+  function handleFilterChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, // Removed HTMLSelectElement as it's an input
+  ) {
+    setFilterString(e.target.value);
+  }
+
+  function handleDateChange(e: ChangeEvent<HTMLSelectElement>) {
+    setDateView(e.target.value);
+  }
+
+  function handleSortFieldChange(e: ChangeEvent<HTMLSelectElement>) {
+    setSortField(e.target.value as SortField);
+  }
+
+  function toggleSortDirection() {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  }
+
   function toggleShowTaskWindow() {
     setShowCreateTaskWindow(!showCreateTaskWindow);
   }
@@ -113,44 +170,66 @@ export function TaskPage({}: TaskListProps) {
     const term = params.get("term");
     if (term) {
       setFilterString(term);
-      //    handleSearch(term);
     }
 
     document.addEventListener("keydown", handleKeyPress);
     return () => {
       document.removeEventListener("keydown", handleKeyPress);
     };
-  }, []);
+  }, [setShowCreateTaskWindow]); // Added setShowCreateTaskWindow to dependency array
+
   return (
     <div>
       <div className="bg-slate-200 p-2 border-slate-400 border">
-        <div className="flex">
-          <select className="mb-5" value={dateView} onChange={handleDateChange}>
+        {/* Row 1: Date view, Filter input, & Sorting controls */}
+        <div className="flex items-center gap-2 mb-3">
+          <select className="p-1 border border-slate-400 rounded" value={dateView} onChange={handleDateChange}>
             <option value="today">Today</option>
             <option value="tomorrow">Tomorrow</option>
             <option value="all">All</option>
           </select>
-          <div className="mb-5 flex-grow">
+          <div className="flex-grow">
             <input
               type="text"
               value={filterString}
               onChange={handleFilterChange}
-              placeholder="Filter"
+              placeholder="Filter tasks..."
+              className="w-full p-1 border border-slate-400 rounded"
             />
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        {/* Row 2: Action buttons (left) & Task count (right) */}
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Button onClick={toggleShowTaskWindow} children="Add Task" />
+            <TaskPageOptionsMenu
+              tags={tags.filter((tag) => tag.task_count > 0)}
+              handleTagClick={handleTagClick}
+            />
           </div>
-
-          <TaskPageOptionsMenu
-            tags={tags.filter((tag) => tag.task_count > 0)}
-            handleTagClick={handleTagClick}
-          />
           <span className="bg-slate-300 text-slate-700 px-2 py-0.5 rounded-full text-sm">
-            {tasksToDisplay.length}/{totalTasksForDateView} tasks{dateView === "today" ? " today" : dateView === "tomorrow" ? " tomorrow" : ""}
+            {tasksToDisplay.length}/{totalTasksForDateView} tasks
+            {dateView === "today"
+              ? " today"
+              : dateView === "tomorrow"
+                ? " tomorrow"
+                : ""}
           </span>
+          <label htmlFor="sort-select" className="text-sm font-medium whitespace-nowrap">Sort by:</label>
+          <select
+            id="sort-select"
+            className="p-1 border border-slate-400 rounded"
+            value={sortField}
+            onChange={handleSortFieldChange}
+          >
+            <option value="updated_at">Date (Updated)</option>
+            <option value="title">Name</option>
+            <option value="priority">Priority</option>
+            <option value="id">ID (Default)</option>
+          </select>
+          <Button onClick={toggleSortDirection} className="p-1">
+            {sortDirection === "asc" ? "↑ Asc" : "↓ Desc"}
+          </Button>
         </div>
       </div>
       <div>
