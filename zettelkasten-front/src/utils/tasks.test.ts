@@ -60,9 +60,9 @@ test("filter tasks by tags", () => {
 
 test("filter tasks by negated tags", () => {
   const tasks: Task[] = [
-    { 
-      id: 1, 
-      title: "Task 1", 
+    {
+      id: 1,
+      title: "Task 1",
       tags: [{ name: "work", id: 1, color: "#ff0000", user_id: 1, task_count: 1, card_count: 0 }],
       card_pk: 1,
       user_id: 1,
@@ -73,11 +73,12 @@ test("filter tasks by negated tags", () => {
       updated_at: new Date(),
       completed_at: null,
       is_deleted: false,
+      priority: null,
       card: null
     },
-    { 
-      id: 2, 
-      title: "Task 2", 
+    {
+      id: 2,
+      title: "Task 2",
       tags: [{ name: "personal", id: 2, color: "#00ff00", user_id: 1, task_count: 1, card_count: 0 }],
       card_pk: 2,
       user_id: 1,
@@ -88,11 +89,12 @@ test("filter tasks by negated tags", () => {
       updated_at: new Date(),
       completed_at: null,
       is_deleted: false,
+      priority: null,
       card: null
     },
-    { 
-      id: 3, 
-      title: "Task 3", 
+    {
+      id: 3,
+      title: "Task 3",
       tags: [
         { name: "work", id: 1, color: "#ff0000", user_id: 1, task_count: 1, card_count: 0 },
         { name: "personal", id: 2, color: "#00ff00", user_id: 1, task_count: 1, card_count: 0 }
@@ -106,10 +108,11 @@ test("filter tasks by negated tags", () => {
       updated_at: new Date(),
       completed_at: null,
       is_deleted: false,
+      priority: null,
       card: null
     }
   ];
-  
+
   const results1 = filterTasks(tasks, "!#work");
   expect(results1.length).toEqual(1);
   expect(results1[0].id).toEqual(2);
@@ -121,9 +124,9 @@ test("filter tasks by negated tags", () => {
 
 test("filter tasks by negated text", () => {
   const tasks: Task[] = [
-    { 
-      id: 1, 
-      title: "Meeting with team", 
+    {
+      id: 1,
+      title: "Meeting with team",
       tags: [],
       card_pk: 1,
       user_id: 1,
@@ -134,11 +137,12 @@ test("filter tasks by negated text", () => {
       updated_at: new Date(),
       completed_at: null,
       is_deleted: false,
+      priority: null,
       card: null
     },
-    { 
-      id: 2, 
-      title: "Write documentation", 
+    {
+      id: 2,
+      title: "Write documentation",
       tags: [],
       card_pk: 2,
       user_id: 1,
@@ -149,11 +153,12 @@ test("filter tasks by negated text", () => {
       updated_at: new Date(),
       completed_at: null,
       is_deleted: false,
+      priority: null,
       card: null
     },
-    { 
-      id: 3, 
-      title: "Team lunch meeting", 
+    {
+      id: 3,
+      title: "Team lunch meeting",
       tags: [],
       card_pk: 3,
       user_id: 1,
@@ -164,10 +169,11 @@ test("filter tasks by negated text", () => {
       updated_at: new Date(),
       completed_at: null,
       is_deleted: false,
+      priority: null,
       card: null
     }
   ];
-  
+
   const results1 = filterTasks(tasks, "!meeting");
   expect(results1.length).toEqual(1);
   expect(results1[0].id).toEqual(2);
