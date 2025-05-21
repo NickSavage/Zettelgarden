@@ -4,7 +4,6 @@ import { sortCards } from "../utils/cards";
 import { FileRenameModal } from "../components/files/FileRenameModal";
 import { FileListItem } from "../components/files/FileListItem";
 import { FileUpload } from "../components/files/FileUpload";
-import { FilterInput } from "../components/FilterInput";
 import { Button } from "../components/Button";
 import { useFileContext } from "../contexts/FileContext";
 

@@ -92,23 +92,6 @@ type PartialCard struct {
 	Tags      []Tag     `json:"tags"`
 }
 
-type Flashcard struct {
-	ID         int        `json:"id"`
-	CardID     string     `json:"card_id"`
-	UserID     int        `json:"user_id"`
-	Title      string     `json:"title"`
-	Body       string     `json:"body"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at"`
-	State      string     `json:"state"`
-	Reps       int        `json:"reps"`
-	Lapses     int        `json:"lapses"`
-	LastReview *time.Time `json:"last_review,omitempty"`
-	Due        *time.Time `json:"due,omitempty"`
-	Difficulty float64    `json:"difficulty"`
-	Stability  float64    `json:"stability"`
-}
-
 func ConvertCardToPartialCard(input Card) PartialCard {
 	return PartialCard{
 		ID:        input.ID,
@@ -123,11 +106,10 @@ func ConvertCardToPartialCard(input Card) PartialCard {
 }
 
 type EditCardParams struct {
-	CardID      string `json:"card_id"`
-	Title       string `json:"title"`
-	Body        string `json:"body"`
-	Link        string `json:"link"`
-	IsFlashcard bool   `json:"is_flashcard"`
+	CardID string `json:"card_id"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
+	Link   string `json:"link"`
 }
 
 type NextIDParams struct {

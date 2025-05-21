@@ -119,10 +119,6 @@ export interface NextIdResponse {
   new_id: string;  // Matches the actual backend response
 }
 
-export interface FlashcardRecordNextParams {
-  card_pk: number;
-  rating: number;
-}
 enum Rating {
   Again = 0,
   Hard = 1,

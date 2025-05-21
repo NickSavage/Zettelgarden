@@ -9,7 +9,6 @@ import { CreateTaskWindow } from "./tasks/CreateTaskWindow";
 import { PinCardDialog } from "./cards/PinCardDialog";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import { FilterInput } from "./FilterInput";
 import { SidebarLink } from "./SidebarLink";
 import { SearchIcon } from "../assets/icons/SearchIcon";
 import { TasksIcon } from "../assets/icons/TasksIcon";
@@ -142,7 +141,7 @@ export function Sidebar() {
         setMessage("Error unpinning card");
       });
   };
-  
+
   // Function to unpin a search
   const handleUnpinSearch = (searchId: number) => {
     unpinSearch(searchId)
@@ -168,7 +167,7 @@ export function Sidebar() {
         console.error("Error fetching pinned cards:", error);
       });
   };
-  
+
   // Function to refresh pinned searches
   const refreshPinnedSearches = () => {
     getPinnedSearches()
@@ -181,13 +180,13 @@ export function Sidebar() {
   };
 
   useEffect(() => {
-      // getUserConversations().then((conversations) => {
-      //   setChatConversations(conversations);
-      // });
-      
-      // Fetch pinned cards and searches
-      refreshPinnedCards();
-      refreshPinnedSearches();
+    // getUserConversations().then((conversations) => {
+    //   setChatConversations(conversations);
+    // });
+
+    // Fetch pinned cards and searches
+    refreshPinnedCards();
+    refreshPinnedSearches();
   }, []);
 
   // Refresh pinned items when location changes (navigation occurs)
@@ -307,7 +306,7 @@ export function Sidebar() {
               </span>
             </SidebarLink>
 
-              {/* <span onClick={() => setShowChat(!showChat)}>
+            {/* <span onClick={() => setShowChat(!showChat)}>
 
               <SidebarLink to="#">
                   <ChatIcon />
@@ -315,7 +314,7 @@ export function Sidebar() {
               </SidebarLink>
               </span> */}
             <SidebarLink to="/app/files">
-                <FileIcon />
+              <FileIcon />
               <span className="flex-grow">Files</span>
             </SidebarLink>
 
@@ -325,17 +324,17 @@ export function Sidebar() {
         <div className="p-2">
           <ul className="space-y-1">
             <SidebarLink to="/app/tags">
-                <TasksIcon />
+              <TasksIcon />
               <span className="flex-grow">Tags</span>
             </SidebarLink>
 
             <SidebarLink to="/app/entities">
-                <EntityIcon />
+              <EntityIcon />
               <span className="flex-grow">Entities</span>
             </SidebarLink>
           </ul>
         </div>
-        
+
         {/* Pinned Searches Section */}
         <>
           <hr />
@@ -447,7 +446,7 @@ export function Sidebar() {
       {showQuickSearchWindow && (
         <QuickSearchWindow setShowWindow={setShowQuickSearchWindow} />
       )}
-      
+
       {showPinDialog && (
         <PinCardDialog
           onClose={() => setShowPinDialog(false)}
