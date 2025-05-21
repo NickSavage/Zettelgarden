@@ -19,18 +19,30 @@ export function filterTasks(input: Task[], filterString: string): Task[] {
   return input.filter(task => {
     return searchTerms.every(term => {
       const isNegation = term.startsWith('!');
-      const actualTerm = isNegation ? term.substring(1) : term;
+      const termWithoutNegation = isNegation ? term.substring(1) : term;
+      const lowerTerm = termWithoutNegation.toLowerCase();
 
-      if (actualTerm.startsWith('#')) {
-        // Check if any of the tag names match the term
-        const tagName = actualTerm.substring(1).toLowerCase();
+      // Priority filtering
+      if (lowerTerm.startsWith('priority:')) {
+        const priorityValue = lowerTerm.substring('priority:'.length);
+        if (task.priority === null) { // Task has no priority
+          return isNegation; // If !priority:X and task has no priority, it's a match. If priority:X, it's not.
+        }
+        const taskPriorityLower = task.priority.toLowerCase();
+        const matchesPriority = taskPriorityLower === priorityValue;
+        return isNegation ? !matchesPriority : matchesPriority;
+      }
+
+      // Tag filtering
+      if (lowerTerm.startsWith('#')) {
+        const tagName = lowerTerm.substring(1);
         const hasTag = task.tags.some(tag => tag.name.toLowerCase() === tagName);
         return isNegation ? !hasTag : hasTag;
-      } else {
-        // Check if the title matches the term
-        const hasText = task.title.toLowerCase().includes(actualTerm.toLowerCase());
-        return isNegation ? !hasText : hasText;
       }
+
+      // Text filtering (title)
+      const hasText = task.title.toLowerCase().includes(lowerTerm);
+      return isNegation ? !hasText : hasText;
     });
   });
 }
