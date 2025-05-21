@@ -3,7 +3,6 @@ import {
   CardChunk,
   PartialCard,
   NextIdResponse,
-  FlashcardRecordNextParams,
   getRatingValue,
   Entity,
   SearchResult,
@@ -210,54 +209,6 @@ export function getCard(id: string): Promise<Card> {
             tasks: tasks,
           };
         });
-      } else {
-        return Promise.reject(new Error("Response is undefined"));
-      }
-    });
-}
-
-export function getNextFlashcard(): Promise<Card> {
-  // Assuming your backend is running on the same IP and port as in previous example
-  const url = base_url + `/flashcards`;
-
-  let token = localStorage.getItem("token");
-  // Send a GET request to the URL
-  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-    .then(checkStatus)
-    .then((response) => {
-      if (response) {
-        return response.json() as Promise<Card>;
-      } else {
-        return Promise.reject(new Error("Response is undefined"));
-      }
-    });
-}
-
-export function postNextFlashcard(
-  card_pk: number,
-  rating: string,
-): Promise<Card> {
-  let ratingInt = getRatingValue(rating);
-
-  const data: FlashcardRecordNextParams = {
-    card_pk: card_pk,
-    rating: ratingInt,
-  };
-  console.log(data);
-
-  let token = localStorage.getItem("token");
-  return fetch(base_url + `/flashcards`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then(checkStatus)
-    .then((response) => {
-      if (response) {
-        return response.json() as Promise<Card>;
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }
