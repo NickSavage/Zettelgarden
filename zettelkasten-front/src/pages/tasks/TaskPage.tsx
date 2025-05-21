@@ -31,6 +31,7 @@ export function TaskPage({ }: TaskListProps) {
   const [filterString, setFilterString] = useState<string>("");
   const [sortField, setSortField] = useState<SortField>("updated_at");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [showFilterHelp, setShowFilterHelp] = useState<boolean>(false);
 
   const { tags } = useTagContext();
 
@@ -188,7 +189,7 @@ export function TaskPage({ }: TaskListProps) {
             <option value="tomorrow">Tomorrow</option>
             <option value="all">All</option>
           </select>
-          <div className="flex-grow">
+          <div className="flex-grow relative flex items-center"> {/* Added relative and flex items-center */}
             <input
               type="text"
               value={filterString}
@@ -196,6 +197,25 @@ export function TaskPage({ }: TaskListProps) {
               placeholder="Filter tasks..."
               className="w-full p-1 border border-slate-400 rounded"
             />
+            <span
+              className="ml-2 cursor-pointer text-slate-500 hover:text-slate-700"
+              onMouseEnter={() => setShowFilterHelp(true)}
+              onMouseLeave={() => setShowFilterHelp(false)}
+              aria-label="Filter help"
+            >
+              ?
+            </span>
+            {showFilterHelp && (
+              <div className="absolute top-full mt-2 left-0 bg-white p-3 border border-slate-300 rounded shadow-lg z-20 w-auto min-w-[280px]">
+                <h4 className="font-semibold mb-2 text-slate-700">Filter Options:</h4>
+                <ul className="list-none space-y-1 text-sm text-slate-600">
+                  <li><strong>Text:</strong> Searches task titles (e.g., <code>meeting</code>).</li>
+                  <li><strong>Tag:</strong> <code>#tagName</code> (e.g., <code>#work</code>).</li>
+                  <li><strong>Priority:</strong> <code>priority:A</code> (or B, C, etc.).</li>
+                  <li><strong>Negate:</strong> Prepend <code>!</code> (e.g., <code>!#home</code>, <code>!priority:C</code>).</li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
         {/* Row 2: Action buttons (left) & Task count (right) */}
