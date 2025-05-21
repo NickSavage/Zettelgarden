@@ -102,7 +102,7 @@ export function ViewPage({ }: ViewPageProps) {
   }, [id, refreshTasks, refreshFiles, refreshTrigger]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="max-w-3/4 mx-auto px-4 py-6">
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
           <div className="text-red-700">{error}</div>
@@ -142,56 +142,64 @@ export function ViewPage({ }: ViewPageProps) {
             </div>
           </div>
 
-          {/* Card Body */}
-          <div className="bg-white rounded-lg p-6 prose shadow-sm max-w-none">
-            <CardBody viewingCard={viewingCard} />
-          </div>
-
-          {/* Link Section */}
-          {viewingCard.link && (
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <span className="font-medium">Link: </span>
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: linkifyWithDefaultOptions(viewingCard.link),
-                }}
-              />
-            </div>
-          )}
-
-          {/* Backlink and Options Section */}
-          <div className="bg-white rounded-lg p-4 shadow-sm space-y-4">
-            <div className="flex items-center gap-2">
-              <BacklinkInput addBacklink={handleAddBacklink} />
-              <ViewCardOptionsMenu
-                viewingCard={viewingCard}
-                setViewCard={setViewCard}
-                setMessage={setError}
-                onEdit={handleEditCard}
-              />
-            </div>
-            <div className="text-xs text-gray-600 space-y-1">
-              <div>
-                <span className="font-medium">Created At:</span>
-                <span> {viewingCard.created_at.toISOString()}</span>
+          <div>
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Card Body */}
+              <div className="md:w-2/3 bg-white rounded-lg p-6 prose shadow-sm max-w-none">
+                <CardBody viewingCard={viewingCard} />
               </div>
-              <div>
-                <span className="font-medium">Updated At:</span>
-                <span> {viewingCard.updated_at.toISOString()}</span>
+
+
+              {/* Backlink and Options Section */}
+              <div className="md:w-1/3 bg-white rounded-lg p-4 shadow-sm space-y-4">
+
+
+                {parentCard && (
+                  <div>
+                    <span className="font-bold">Parent</span>
+                    <CardItem card={parentCard} />
+                  </div>
+                )}
+
+                {viewingCard.link && (
+                  <div>
+                    <span className="font-bold">Link</span>
+                    <div className="px-2.5 py-2">
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: linkifyWithDefaultOptions(viewingCard.link),
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <BacklinkInput addBacklink={handleAddBacklink} />
+                </div>
+                <div className="flex items-center gap-2">
+                  <ViewCardOptionsMenu
+                    viewingCard={viewingCard}
+                    setViewCard={setViewCard}
+                    setMessage={setError}
+                    onEdit={handleEditCard}
+                  />
+                </div>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <div>
+                    <span className="font-medium">Created At:</span>
+                    <span> {viewingCard.created_at.toISOString()}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Updated At:</span>
+                    <span> {viewingCard.updated_at.toISOString()}</span>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Link Section */}
+
           </div>
-
-          {/* Parent Card Section */}
-          {parentCard && (
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <HeaderSubSection text="Parent" />
-              <ul className="mt-2">
-                <CardItem card={parentCard} />
-              </ul>
-            </div>
-          )}
-
           {/* Tasks Section */}
           {viewingCard.tasks.length > 0 && (
             <div className="bg-white rounded-lg p-4 shadow-sm">
