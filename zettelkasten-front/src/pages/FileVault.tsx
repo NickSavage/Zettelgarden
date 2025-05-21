@@ -19,6 +19,7 @@ export function FileVault() {
   const [fileToRename, setFileToRename] = useState<File | null>(null);
   const [filterString, setFilterString] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFilterHelp, setShowFilterHelp] = useState<boolean>(false); // Added state for tooltip
   const { refreshFiles, setRefreshFiles } = useFileContext();
 
   function onDelete(file_id: number) {
@@ -83,14 +84,33 @@ export function FileVault() {
   return (
     <>
       <div className="bg-slate-200 p-2 border-slate-400 border">
-
-        <input
-          type="text"
-          value={filterString}
-          onChange={handleFilter}
-          placeholder="Filter"
-        />
-
+        <div className="relative flex items-center mb-2"> {/* Container for input and icon */}
+          <input
+            type="text"
+            value={filterString}
+            onChange={handleFilter}
+            placeholder="Filter files (e.g., report or filetype:pdf)"
+            className="w-full p-1 border border-slate-400 rounded" // Added styling
+          />
+          <span
+            className="ml-2 cursor-pointer text-slate-500 hover:text-slate-700"
+            onMouseEnter={() => setShowFilterHelp(true)}
+            onMouseLeave={() => setShowFilterHelp(false)}
+            aria-label="Filter help"
+          >
+            ?
+          </span>
+          {showFilterHelp && (
+            <div className="absolute top-full mt-2 left-0 bg-white p-3 border border-slate-300 rounded shadow-lg z-20 w-auto min-w-[300px]">
+              <h4 className="font-semibold mb-2 text-slate-700">Filter Options:</h4>
+              <ul className="list-none space-y-1 text-sm text-slate-600">
+                <li><strong>Filename:</strong> Searches file names (e.g., <code>annual-report</code>).</li>
+                <li><strong>Filetype:</strong> <code>filetype:TYPE</code> (e.g., <code>filetype:pdf</code>, <code>filetype:image/jpeg</code>).</li>
+                <li>Combine by adding text after filetype (e.g., <code>filetype:pdf quarterly</code>).</li>
+              </ul>
+            </div>
+          )}
+        </div>
         <FileUpload
           setMessage={(message: string) => { }}
           card={defaultCard}
