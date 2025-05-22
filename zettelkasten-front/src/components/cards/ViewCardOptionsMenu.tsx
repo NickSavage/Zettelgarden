@@ -70,32 +70,6 @@ export function ViewCardOptionsMenu({
     navigate('/app/card/new');
   }
 
-  // Check if the card is pinned from the X-Card-Pinned header
-  const [isPinned, setIsPinned] = useState<boolean>(viewingCard.is_pinned || false);
-
-  // Function to handle pinning/unpinning a card
-  const handleTogglePin = async () => {
-    setShowMenu(false);
-    try {
-      if (isPinned) {
-        await unpinCard(viewingCard.id);
-        setIsPinned(false);
-        setMessage("Card unpinned successfully");
-      } else {
-        await pinCard(viewingCard.id);
-        setIsPinned(true);
-        setMessage("Card pinned successfully");
-      }
-      // Update the card's pinned status in the local state
-      setViewCard({
-        ...viewingCard,
-        is_pinned: !isPinned
-      });
-    } catch (error) {
-      setMessage(`Error ${isPinned ? 'unpinning' : 'pinning'} card: ${error}`);
-    }
-  };
-
   const menuOptions = [
     { label: "Edit Card", onClick: onEdit },
     { label: "Add Child Card", onClick: handleCreateChildCard },
@@ -109,7 +83,6 @@ export function ViewCardOptionsMenu({
         }
       }
     },
-    { label: isPinned ? "Unpin Card" : "Pin Card", onClick: handleTogglePin },
     { label: "Add Tags", onClick: toggleTagMenu }
   ];
 

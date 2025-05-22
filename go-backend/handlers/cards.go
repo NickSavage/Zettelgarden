@@ -322,8 +322,7 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error checking if card is pinned: %v", err)
 		// Continue even if we can't determine pin status
 	} else {
-		// Add a custom field to the response
-		w.Header().Set("X-Card-Pinned", strconv.FormatBool(isPinned))
+		card.IsPinned = isPinned
 	}
 	parent, err := s.QueryPartialCardByID(userID, card.ParentID)
 	if err != nil {

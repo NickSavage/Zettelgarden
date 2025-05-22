@@ -29,6 +29,7 @@ type Card struct {
 	Embedding  pgvector.Vector
 	Entities   []Entity `json:"entities"`
 	TagCount   int
+	IsPinned   bool `json:"is_pinned"`
 }
 
 func ScanCards(rows *sql.Rows) ([]Card, error) {

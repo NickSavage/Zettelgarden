@@ -157,12 +157,8 @@ export function getCard(id: string): Promise<Card> {
     .then(checkStatus)
     .then((response) => {
       if (response) {
-        // Check if the card is pinned from the X-Card-Pinned header
-        const isPinned = response.headers.get('X-Card-Pinned') === 'true';
-
         return response.json().then((card: Card) => {
           // Set the is_pinned property based on the header
-          card.is_pinned = isPinned;
           let children =
             card.children !== null
               ? card.children.map((child) => {

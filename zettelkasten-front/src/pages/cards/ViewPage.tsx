@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CardBody } from "../../components/cards/CardBody";
 import { CardItem } from "../../components/cards/CardItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
-import { getCard, saveExistingCard } from "../../api/cards";
+import { getCard, saveExistingCard, pinCard, unpinCard } from "../../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -94,6 +94,31 @@ export function ViewPage({ }: ViewPageProps) {
       setError(error.message);
     }
   }
+  const handleTogglePin = async () => {
+    if (viewingCard === null) {
+      return
+    }
+    console.log("?", viewingCard)
+    const card = viewingCard
+    try {
+      console.log(viewingCard, viewingCard.is_pinned)
+      if (viewingCard.is_pinned) {
+        await unpinCard(viewingCard.id);
+        setViewCard({
+          ...card,
+          is_pinned: false
+        })
+      } else {
+        await pinCard(viewingCard.id);
+        setViewCard({
+          ...card,
+          is_pinned: true
+        })
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // For initial fetch and when id changes
   useEffect(() => {
@@ -183,6 +208,16 @@ export function ViewPage({ }: ViewPageProps) {
                     setMessage={setError}
                     onEdit={handleEditCard}
                   />
+                </div>
+                <div>
+                  {viewingCard && viewingCard.is_pinned ? (
+                    <Button onClick={handleTogglePin}>Unpin Card</Button>
+
+                  ) : (
+                    <Button onClick={handleTogglePin}>Pin Card</Button>
+
+                  )}
+
                 </div>
                 <div className="text-xs text-gray-600 space-y-1">
                   <div>
