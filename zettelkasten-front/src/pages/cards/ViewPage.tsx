@@ -18,7 +18,6 @@ import { linkifyWithDefaultOptions } from "../../utils/strings";
 import { convertCardToPartialCard } from "../../utils/cards";
 import { ViewCardTabbedDisplay } from "../../components/cards/ViewCardTabbedDisplay";
 
-import { ViewCardOptionsMenu } from "../../components/cards/ViewCardOptionsMenu";
 import { usePartialCardContext } from "../../contexts/CardContext";
 import { useCardRefresh } from "../../contexts/CardRefreshContext";
 import { findNextChildId } from "../../utils/cards";
