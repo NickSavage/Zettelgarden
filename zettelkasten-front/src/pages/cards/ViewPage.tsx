@@ -23,6 +23,12 @@ import { usePartialCardContext } from "../../contexts/CardContext";
 import { useCardRefresh } from "../../contexts/CardRefreshContext";
 import { findNextChildId } from "../../utils/cards";
 
+import { useShortcutContext } from "../../contexts/ShortcutContext";
+import { useTagContext } from "../../contexts/TagContext";
+
+import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
+import { FileUpload } from "../../components/files/FileUpload";
+
 interface ViewPageProps { }
 
 export function ViewPage({ }: ViewPageProps) {
@@ -34,9 +40,33 @@ export function ViewPage({ }: ViewPageProps) {
   const { id } = useParams<{ id: string }>();
   const { refreshTrigger } = useCardRefresh();
 
+  const fileUploadRef = React.useRef<HTMLInputElement>(null);
+
+  const {
+    showCreateTaskWindow,
+    setShowCreateTaskWindow,
+  } = useShortcutContext();
+
+  const { tags } = useTagContext();
+  const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const { setLastCard, setNextCardId } = usePartialCardContext();
+
+  async function handleTagClick(tagName: string) {
+    setShowTagMenu(false);
+    if (viewingCard === null) {
+      return;
+    }
+
+    let editedCard = {
+      ...viewingCard,
+      body: viewingCard.body + "\n\n#" + tagName,
+    };
+    let response = await saveExistingCard(editedCard);
+    setViewCard(editedCard);
+  }
 
   async function handleAddBacklink(selectedCard: PartialCard) {
     if (viewingCard === null) {
@@ -56,6 +86,11 @@ export function ViewPage({ }: ViewPageProps) {
     setViewCard(editedCard);
     fetchCard(id!);
   }
+
+  function toggleTagMenu() {
+    setShowTagMenu(true);
+  }
+
 
   function handleEditCard() {
     if (viewingCard === null) {
@@ -120,6 +155,10 @@ export function ViewPage({ }: ViewPageProps) {
     }
   };
 
+  function toggleCreateTaskWindow() {
+    setShowCreateTaskWindow(!showCreateTaskWindow);
+  }
+
   // For initial fetch and when id changes
   useEffect(() => {
     setError("");
@@ -163,7 +202,6 @@ export function ViewPage({ }: ViewPageProps) {
             </div>
             <div className="mt-2 md:mt-0 md:ml-4 flex gap-2">
               <Button onClick={handleEditCard}>Edit</Button>
-              <Button onClick={handleCreateChildCard}>Add Child Card</Button>
             </div>
           </div>
 
@@ -201,13 +239,35 @@ export function ViewPage({ }: ViewPageProps) {
                 <div>
                   <BacklinkInput addBacklink={handleAddBacklink} />
                 </div>
-                <div className="flex items-center gap-2">
-                  <ViewCardOptionsMenu
-                    viewingCard={viewingCard}
-                    setViewCard={setViewCard}
+                <div>
+                  <Button onClick={handleCreateChildCard}>Add Child Card</Button>
+                </div>
+                <div>
+                  <Button onClick={toggleCreateTaskWindow}>Add Task</Button>
+                </div>
+                <div>
+                  <Button onClick={() => {
+                    if (fileUploadRef.current) {
+                      fileUploadRef.current.click();
+                    }
+                  }}>Upload File</Button>
+
+                  <FileUpload
+                    ref={fileUploadRef}
                     setMessage={setError}
-                    onEdit={handleEditCard}
+                    card={viewingCard}
                   />
+                </div>
+                <div>
+                  <Button onClick={toggleTagMenu}>Add Tags</Button>
+
+                  {showTagMenu && (
+                    <SearchTagDropdown
+                      tags={tags}
+                      handleTagClick={handleTagClick}
+                      setShowTagMenu={setShowTagMenu}
+                    />
+                  )}
                 </div>
                 <div>
                   {viewingCard && viewingCard.is_pinned ? (
