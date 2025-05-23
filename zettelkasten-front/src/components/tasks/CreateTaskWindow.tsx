@@ -30,6 +30,25 @@ export function CreateTaskWindow({
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
   const { setRefreshTasks } = useTaskContext();
 
+  // Function to detect and extract priority from text
+  function detectAndSetPriority(text: string) {
+    // Regex to match "priority:a", "priority:b", or "priority:c" (case insensitive)
+    const priorityRegex = /priority:\s*([abc])/i;
+    const match = text.match(priorityRegex);
+    
+    if (match) {
+      const detectedPriority = match[1].toUpperCase();
+      // Remove the priority text from the title
+      const cleanedTitle = text.replace(/priority:\s*[abc]/i, '').trim();
+      
+      // Update the task with both cleaned title and detected priority
+      setNewTask({ ...newTask, title: cleanedTitle, priority: detectedPriority });
+    } else {
+      // No priority detected, just update the title
+      setNewTask({ ...newTask, title: text });
+    }
+  }
+
   async function handleSaveTask() {
     let response;
 
@@ -99,7 +118,7 @@ export function CreateTaskWindow({
     if (currentFilter === undefined) {
       setNewTask({ ...newTask, title: "" });
     } else {
-      setNewTask({ ...newTask, title: currentFilter + " " });
+      detectAndSetPriority(currentFilter + " ");
     }
   }, [currentFilter]);
 
@@ -127,7 +146,7 @@ w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bl
                 placeholder="Enter new task"
                 value={newTask.title}
                 onChange={(e) =>
-                  setNewTask({ ...newTask, title: e.target.value })
+                  detectAndSetPriority(e.target.value)
                 }
                 onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
                   if (event.key === "Enter") {
