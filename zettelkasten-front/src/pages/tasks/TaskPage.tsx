@@ -29,8 +29,8 @@ export function TaskPage({ }: TaskListProps) {
   const { showCreateTaskWindow, setShowCreateTaskWindow } =
     useShortcutContext();
   const [filterString, setFilterString] = useState<string>("");
-  const [sortField, setSortField] = useState<SortField>("updated_at");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [sortField, setSortField] = useState<SortField>("priority");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [showFilterHelp, setShowFilterHelp] = useState<boolean>(false);
 
   const { tags } = useTagContext();
