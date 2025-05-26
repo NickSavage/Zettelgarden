@@ -207,10 +207,38 @@ export function ViewPage({ }: ViewPageProps) {
           <div>
             <div className="flex flex-col md:flex-row gap-4">
               {/* Card Body */}
-              <div className="md:w-2/3 bg-white rounded-lg p-6 prose shadow-sm max-w-none">
-                <CardBody viewingCard={viewingCard} />
-              </div>
+              <div className="md:w-2/3 space-y-4">
+                <div className="bg-white rounded-lg p-6 prose shadow-sm max-w-none">
+                  <CardBody viewingCard={viewingCard} />
+                </div>
 
+
+                {/* Tasks Section */}
+                {viewingCard.tasks.length > 0 && (
+                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                    <HeaderSubSection text="Tasks" />
+                    <div className="mt-2 space-y-2">
+                      {viewingCard.tasks.map((task, index) => (
+                        <TaskListItem
+                          key={task.id}
+                          task={task}
+                          onTagClick={(tag: string) => { }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tabbed Display */}
+                <div className="bg-white rounded-lg shadow-sm">
+                  <ViewCardTabbedDisplay
+                    viewingCard={viewingCard}
+                    setViewCard={setViewCard}
+                    setError={setError}
+                  />
+                </div>
+
+              </div>
 
               {/* Backlink and Options Section */}
               <div className="md:w-1/3 bg-white rounded-lg p-4 shadow-sm space-y-4">
@@ -293,30 +321,6 @@ export function ViewPage({ }: ViewPageProps) {
 
             {/* Link Section */}
 
-          </div>
-          {/* Tasks Section */}
-          {viewingCard.tasks.length > 0 && (
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <HeaderSubSection text="Tasks" />
-              <div className="mt-2 space-y-2">
-                {viewingCard.tasks.map((task, index) => (
-                  <TaskListItem
-                    key={task.id}
-                    task={task}
-                    onTagClick={(tag: string) => { }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Tabbed Display */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <ViewCardTabbedDisplay
-              viewingCard={viewingCard}
-              setViewCard={setViewCard}
-              setError={setError}
-            />
           </div>
         </div>
       )}
