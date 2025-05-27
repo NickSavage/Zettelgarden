@@ -10,6 +10,7 @@ import { SearchResultList } from "../../components/cards/SearchResultList";
 import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { PinSearchDialog } from "../../components/search/PinSearchDialog";
 import { getPinnedSearches } from "../../api/pinnedSearches";
+import { useTagContext } from "../../contexts/TagContext";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -38,7 +39,7 @@ export function SearchPage({
 }: SearchPageProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const [tags, setTags] = useState<Tag[]>([]);
+  const { tags } = useTagContext();
   const [showPinSearchDialog, setShowPinSearchDialog] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
@@ -116,7 +117,6 @@ export function SearchPage({
         setSearchTerm(term);
         await handleSearch(true, term);
       } else {
-        await fetchTags();
         if (!classicSearch) {
           setSearchConfig({ ...searchConfig, sortBy: "sortByRanking" });
         }
@@ -129,14 +129,6 @@ export function SearchPage({
 
   function handleSortChange(e: ChangeEvent<HTMLSelectElement>) {
     setSearchConfig({ ...searchConfig, sortBy: e.target.value });
-  }
-
-  async function fetchTags() {
-    fetchUserTags().then((data) => {
-      if (data !== null) {
-        setTags(data);
-      }
-    });
   }
 
   function handleTagClick(tagName: string) {
