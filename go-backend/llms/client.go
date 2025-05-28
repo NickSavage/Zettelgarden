@@ -28,7 +28,7 @@ func NewDefaultClient(db *sql.DB) *models.LLMClient {
 		BaseURL: os.Getenv("ZETTEL_LLM_ENDPOINT"),
 	}
 	client.Model = &models.LLMModel{
-		ModelIdentifier: "anthropic/claude-3.5-sonnet:beta",
+		ModelIdentifier: os.Getenv("ZETTEL_LLM_DEFAULT_MODEL"),
 		Provider:        &provider,
 	}
 	return client
