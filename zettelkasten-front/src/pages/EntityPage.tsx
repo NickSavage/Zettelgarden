@@ -5,6 +5,7 @@ import { HeaderSection } from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { Dialog } from "@headlessui/react";
 import { EditEntityDialog } from "../components/entities/EditEntityDialog";
+import { EntityDialog } from "../components/entities/EntityDialog"; // Import the new dialog
 import { EntityCard } from "../components/entities/EntityCard";
 import { EntityListToolbar } from "../components/entities/EntityListToolbar";
 import { EntitySelectionActions } from "../components/entities/EntitySelectionActions";
@@ -26,6 +27,8 @@ export function EntityPage() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [entityToDelete, setEntityToDelete] = useState<Entity | null>(null);
+  const [selectedEntityForDialog, setSelectedEntityForDialog] = useState<Entity | null>(null); // State for the new dialog
+  const [isEntityDialogOpen, setIsEntityDialogOpen] = useState(false); // State for new dialog visibility
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const navigate = useNavigate();
@@ -74,7 +77,10 @@ export function EntityPage() {
         }
       });
     } else {
-      navigate(`/app/search?term=@[${entity.name}]`);
+      // navigate(`/app/search?term=@[${entity.name}]`); // Old navigation
+      event.preventDefault(); // Prevent any default action if EntityCard is wrapped in <a> or similar
+      setSelectedEntityForDialog(entity);
+      setIsEntityDialogOpen(true);
     }
   };
 
@@ -110,12 +116,12 @@ export function EntityPage() {
   };
 
   const handleConfirmDelete = async () => {
-    const entitiesToDelete = entityToDelete 
-      ? [entityToDelete.id] 
+    const entitiesToDelete = entityToDelete
+      ? [entityToDelete.id]
       : selectedEntities;
 
     if (entitiesToDelete.length === 0) return;
-    
+
     setShowDeleteDialog(false);
     setIsDeleting(true);
 
@@ -222,8 +228,8 @@ export function EntityPage() {
         <button
           onClick={handleSelectionModeToggle}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-            ${selectionMode 
-              ? 'bg-blue-500 text-white hover:bg-blue-600' 
+            ${selectionMode
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
               : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
             }`}
         >
@@ -244,7 +250,7 @@ export function EntityPage() {
             </span>
           )}
         </button>
-        
+
         {(selectionMode || selectedEntities.length > 0) && (
           <>
             <div className="h-6 w-px bg-gray-300"></div>
@@ -417,6 +423,12 @@ export function EntityPage() {
         onSuccess={handleEditSuccess}
         onDelete={handleSingleDelete}
       />
+
+      <EntityDialog
+        entity={selectedEntityForDialog}
+        isOpen={isEntityDialogOpen}
+        onClose={() => setIsEntityDialogOpen(false)}
+      />
     </div>
   );
-} 
+}
