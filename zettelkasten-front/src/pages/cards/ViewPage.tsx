@@ -28,6 +28,9 @@ import { useTagContext } from "../../contexts/TagContext";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { FileUpload } from "../../components/files/FileUpload";
 
+import { ChildrenCards } from "../../components/cards/ChildrenCards";
+import { compareCardIds } from "../../utils/cards";
+
 interface ViewPageProps { }
 
 export function ViewPage({ }: ViewPageProps) {
@@ -210,6 +213,22 @@ export function ViewPage({ }: ViewPageProps) {
               <div className="md:w-2/3 space-y-4">
                 <div className="bg-white rounded-lg p-6 prose shadow-sm max-w-none">
                   <CardBody viewingCard={viewingCard} />
+                </div>
+
+
+                <div>
+                  {viewingCard.children.length > 0 && (
+                    <div>
+                      <HeaderSubSection text="Children" />
+                      <ChildrenCards
+                        allChildren={viewingCard.children.sort((a, b) =>
+                          compareCardIds(a.card_id, b.card_id),
+                        )}
+                        card={viewingCard}
+                      />
+                    <hr />
+                    </div>
+                  )}
                 </div>
 
 
