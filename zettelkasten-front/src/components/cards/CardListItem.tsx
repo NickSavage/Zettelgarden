@@ -34,7 +34,7 @@ export function CardListItem({
   }
 
   return (
-    <div key={card.id} className="card-item py-2 px-2.5 flex w-full">
+    <div key={card.id} className="card-item py-2 px-2.5 flex w-full text-sm">
       <div className="pr-4">
         <span
           onMouseEnter={handleMouseEnter}
