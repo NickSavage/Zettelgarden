@@ -132,7 +132,7 @@ export function ViewCardTabbedDisplay({
   setError,
 }: ViewCardTabbedDisplay) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<string>("References");
+  const [activeTab, setActiveTab] = useState<string>("Related");
   const [relatedCards, setRelatedCards] = useState<PartialCard[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [allEntities, setAllEntities] = useState<Entity[]>([]);
@@ -141,7 +141,6 @@ export function ViewCardTabbedDisplay({
   const [fileFilterString, setFileFilterString] = useState<string>("");
 
   const tabs = [
-    { label: "References" },
     { label: "Related" },
     { label: "Files" },
     { label: "Entities" },
@@ -269,7 +268,6 @@ export function ViewCardTabbedDisplay({
             {tab.label}
             {tab.label !== "History" &&
               <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
-                {tab.label === "References" && viewingCard.references.length}
                 {tab.label === "Related" && relatedCards.length}
                 {tab.label === "Files" && viewingCard.files.length}
                 {tab.label === "Entities" && viewingCard.entities && viewingCard.entities.length}
@@ -278,16 +276,7 @@ export function ViewCardTabbedDisplay({
           </span>
         ))}
       </div>
-      {activeTab === "References" && (
-        <div>
-          <HeaderSubSection text="References" />
-          <CardList
-            cards={viewingCard.references.sort((a, b) =>
-              compareCardIds(a.card_id, b.card_id),
-            )}
-          />
-        </div>
-      )}
+
       {activeTab === "Children" && (
         <div>
           {viewingCard.children.length > 0 && (

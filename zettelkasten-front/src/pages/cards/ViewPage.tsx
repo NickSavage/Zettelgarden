@@ -31,6 +31,8 @@ import { FileUpload } from "../../components/files/FileUpload";
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
 import { compareCardIds } from "../../utils/cards";
 
+import { CardList } from "../../components/cards/CardList";
+
 interface ViewPageProps { }
 
 export function ViewPage({ }: ViewPageProps) {
@@ -226,12 +228,23 @@ export function ViewPage({ }: ViewPageProps) {
                         )}
                         card={viewingCard}
                       />
-                    <hr />
+                      <hr />
                     </div>
                   )}
                 </div>
-
-
+                <div>
+                  {viewingCard.references.length > 0 && (
+                    <div>
+                      <HeaderSubSection text="References" />
+                      <CardList
+                        cards={viewingCard.references.sort((a, b) =>
+                          compareCardIds(a.card_id, b.card_id),
+                        )}
+                      />
+                      <hr />
+                    </div>
+                  )}
+                </div>
                 {/* Tasks Section */}
                 {viewingCard.tasks.length > 0 && (
                   <div className="bg-white rounded-lg p-4 shadow-sm">
