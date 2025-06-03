@@ -469,7 +469,7 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
   return (
     <div>
       {isPreviewMode ? (
-        <div className="prose block w-full h-48 p-2 border border-gray-200 overflow-y-auto">
+        <div className="prose block w-full h-48 p-2 overflow-y-auto">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {editingCard.body}
           </ReactMarkdown>

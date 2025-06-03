@@ -44,9 +44,6 @@ export function MarkdownToolbar({
         >
           I
         </Button>
-      </div>
-
-      <div className="flex space-x-1">
         <Button
           onClick={() => onFormatText('h1')}
           variant="secondary"
@@ -68,9 +65,6 @@ export function MarkdownToolbar({
         >
           H3
         </Button>
-      </div>
-
-      <div className="flex space-x-1">
         <Button
           onClick={() => onFormatText('bulletList')}
           variant="secondary"
@@ -85,9 +79,6 @@ export function MarkdownToolbar({
         >
           1. List
         </Button>
-      </div>
-
-      <div className="flex items-center space-x-1"> {/* Added items-center here */}
         <Button
           onClick={() => onFormatText('code')}
           variant="secondary"
@@ -117,13 +108,16 @@ export function MarkdownToolbar({
         >
           Tags
         </Button>
-        <Button
-          onClick={onTogglePreview}
-          variant="secondary"
-          size="small"
-        >
-          {isPreviewActive ? "Edit" : "Preview"}
-        </Button>
+        <div className="flex space-x-1">
+          <Button
+            onClick={onTogglePreview}
+            variant="secondary"
+            size="small"
+          >
+            {isPreviewActive ? "Edit" : "Preview"}
+          </Button>
+
+        </div>
 
         {showTagMenu && (
           <SearchTagDropdown
