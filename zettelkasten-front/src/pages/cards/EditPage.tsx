@@ -41,6 +41,7 @@ export function EditPage({ newCard }: EditPageProps) {
   const [editingCard, setEditingCard] = useState<Card>(defaultCard);
   const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
   const [showBacklinkDialog, setShowBacklinkDialog] = useState(false);
+  const [previewModeActive, setPreviewModeActive] = useState(false); // Added for preview toggle
   const { partialCards, setRefreshPartialCards, lastCard, nextCardId, setNextCardId } =
     usePartialCardContext();
   const [filesToUpdate, setFilesToUpdate] = useState<File[]>([]);
@@ -284,8 +285,12 @@ export function EditPage({ newCard }: EditPageProps) {
                 }}
                 onBacklinkClick={() => setShowBacklinkDialog(true)}
                 handleTagClick={handleTagClick}
+                onTogglePreview={() => {
+                  cardBodyRef.current?.togglePreviewMode();
+                  setPreviewModeActive(prev => !prev);
+                }}
+                isPreviewActive={previewModeActive}
               />
-
               <CardBodyTextArea
                 ref={cardBodyRef}
                 editingCard={editingCard}

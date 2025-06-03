@@ -7,9 +7,17 @@ interface MarkdownToolbarProps {
   onFormatText: (formatType: string) => void;
   onBacklinkClick: () => void;
   handleTagClick: (tagName: string) => void;
+  onTogglePreview: () => void;
+  isPreviewActive: boolean;
 }
 
-export function MarkdownToolbar({ onFormatText, onBacklinkClick, handleTagClick }: MarkdownToolbarProps) {
+export function MarkdownToolbar({
+  onFormatText,
+  onBacklinkClick,
+  handleTagClick,
+  onTogglePreview,
+  isPreviewActive
+}: MarkdownToolbarProps) {
 
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
   const { tags } = useTagContext();
@@ -79,7 +87,7 @@ export function MarkdownToolbar({ onFormatText, onBacklinkClick, handleTagClick 
         </Button>
       </div>
 
-      <div className="flex space-x-1">
+      <div className="flex items-center space-x-1"> {/* Added items-center here */}
         <Button
           onClick={() => onFormatText('code')}
           variant="secondary"
@@ -108,6 +116,13 @@ export function MarkdownToolbar({ onFormatText, onBacklinkClick, handleTagClick 
           size="small"
         >
           Tags
+        </Button>
+        <Button
+          onClick={onTogglePreview}
+          variant="secondary"
+          size="small"
+        >
+          {isPreviewActive ? "Edit" : "Preview"}
         </Button>
 
         {showTagMenu && (
