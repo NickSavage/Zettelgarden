@@ -72,6 +72,21 @@ export function ViewPage({ }: ViewPageProps) {
     setViewCard(editedCard);
   }
 
+  async function handleRemoveTag(tagName: string) {
+    if (viewingCard === null) {
+      return;
+    }
+
+    const tagRegex = new RegExp(`\\n*#${tagName}\\b`, 'g');
+    let editedCard = {
+      ...viewingCard,
+      body: viewingCard.body.replace(tagRegex, ''),
+    };
+    let response = await saveExistingCard(editedCard);
+    setViewCard(editedCard);
+    fetchCard(id!);
+  }
+
   async function handleAddBacklink(selectedCard: PartialCard) {
     if (viewingCard === null) {
       return;
@@ -189,19 +204,6 @@ export function ViewPage({ }: ViewPageProps) {
                 <h1 className="text-lg font-bold">
                   {viewingCard.title}
                 </h1>
-                {viewingCard.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {viewingCard.tags.map((tag) => (
-                      <span
-                        key={tag.name}
-                        className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full cursor-pointer hover:bg-purple-100"
-                        onClick={() => navigate(`/app/search?term=${encodeURIComponent('#' + tag.name)}`)}
-                      >
-                        #{tag.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
             <div className="mt-2 md:mt-0 md:ml-4 flex gap-2">
@@ -280,8 +282,50 @@ export function ViewPage({ }: ViewPageProps) {
                   <div>
                     <span className="font-bold">Parent</span>
                     <CardItem card={parentCard} />
+                    <hr />
                   </div>
                 )}
+                <div>
+                  <div>
+                    <HeaderSubSection text="Tags" />
+                    <div className="flex flex-wrap gap-1.5">
+                      {viewingCard.tags.map((tag) => (
+                        <span
+                          key={tag.name}
+                          className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full"
+                        >
+                          <span
+                            className="cursor-pointer hover:bg-purple-100"
+                            onClick={() => navigate(`/app/search?term=${encodeURIComponent('#' + tag.name)}`)}
+                          >
+                            #{tag.name}
+                          </span>
+                          {viewingCard.body.includes(`#${tag.name}`) && (
+                            <button
+                              onClick={() => handleRemoveTag(tag.name)}
+                              className="ml-1.5 text-purple-400 hover:text-purple-600"
+                            >
+                              &times;
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Button onClick={toggleTagMenu}>Add Tags</Button>
+
+                    <hr />
+                    {showTagMenu && (
+                      <SearchTagDropdown
+                        tags={tags}
+                        handleTagClick={handleTagClick}
+                        setShowTagMenu={setShowTagMenu}
+                      />
+                    )}
+                  </div>
+                </div>
 
                 {viewingCard.link && (
                   <div>
@@ -317,17 +361,7 @@ export function ViewPage({ }: ViewPageProps) {
                     card={viewingCard}
                   />
                 </div>
-                <div>
-                  <Button onClick={toggleTagMenu}>Add Tags</Button>
 
-                  {showTagMenu && (
-                    <SearchTagDropdown
-                      tags={tags}
-                      handleTagClick={handleTagClick}
-                      setShowTagMenu={setShowTagMenu}
-                    />
-                  )}
-                </div>
                 <div>
                   {viewingCard && viewingCard.is_pinned ? (
                     <Button onClick={handleTogglePin}>Unpin Card</Button>
