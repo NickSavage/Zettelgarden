@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../Button";
-import { useTagContext } from "../../contexts/TagContext";
-import { SearchTagDropdown } from "../tags/SearchTagDropdown";
 
 interface MarkdownToolbarProps {
   onFormatText: (formatType: string) => void;
   onBacklinkClick: () => void;
-  handleTagClick: (tagName: string) => void;
   onTogglePreview: () => void;
   isPreviewActive: boolean;
 }
@@ -14,17 +11,9 @@ interface MarkdownToolbarProps {
 export function MarkdownToolbar({
   onFormatText,
   onBacklinkClick,
-  handleTagClick,
   onTogglePreview,
   isPreviewActive
 }: MarkdownToolbarProps) {
-
-  const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
-  const { tags } = useTagContext();
-
-  function handleClickTagMenu() {
-    setShowTagMenu(!showTagMenu);
-  }
   return (
     <div className="flex flex-wrap gap-2 mb-2">
       <div className="flex space-x-1">
@@ -101,13 +90,6 @@ export function MarkdownToolbar({
         >
           Backlink
         </Button>
-        <Button
-          onClick={handleClickTagMenu}
-          variant="secondary"
-          size="small"
-        >
-          Tags
-        </Button>
         <div className="flex space-x-1">
           <Button
             onClick={onTogglePreview}
@@ -118,14 +100,6 @@ export function MarkdownToolbar({
           </Button>
 
         </div>
-
-        {showTagMenu && (
-          <SearchTagDropdown
-            tags={tags}
-            handleTagClick={handleTagClick}
-            setShowTagMenu={setShowTagMenu}
-          />
-        )}
       </div>
     </div>
   );

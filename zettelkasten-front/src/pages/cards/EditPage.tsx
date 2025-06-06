@@ -20,6 +20,9 @@ import { TemplateVariablesHelp } from "../../components/templates/TemplateVariab
 import { processTemplateVariables } from "../../utils/templateVariables";
 
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
+import { useTagContext } from "../../contexts/TagContext";
+import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
+import { HeaderSubSection } from "../../components/Header";
 
 interface EditPageProps {
   newCard: boolean;
@@ -52,6 +55,8 @@ export function EditPage({ newCard }: EditPageProps) {
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   const [templateError, setTemplateError] = useState("");
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+  const { tags } = useTagContext();
+  const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
 
   const [fileFilterString, setFileFilterString] = useState<string>("");
 
@@ -164,9 +169,18 @@ export function EditPage({ newCard }: EditPageProps) {
     }));
   }
   function handleTagClick(tagName: string) {
+    setShowTagMenu(false);
     setEditingCard((prevEditingCard) => ({
       ...prevEditingCard,
       body: prevEditingCard.body + "\n\n#" + tagName,
+    }));
+  }
+
+  function handleRemoveTag(tagName: string) {
+    const tagRegex = new RegExp(`\\n*#${tagName}\\b`, 'g');
+    setEditingCard((prevEditingCard) => ({
+      ...prevEditingCard,
+      body: prevEditingCard.body.replace(tagRegex, ''),
     }));
   }
 
@@ -284,7 +298,6 @@ export function EditPage({ newCard }: EditPageProps) {
                   cardBodyRef.current?.formatText(formatType);
                 }}
                 onBacklinkClick={() => setShowBacklinkDialog(true)}
-                handleTagClick={handleTagClick}
                 onTogglePreview={() => {
                   cardBodyRef.current?.togglePreviewMode();
                   setPreviewModeActive(prev => !prev);
@@ -423,6 +436,42 @@ export function EditPage({ newCard }: EditPageProps) {
             </div>
             <div className="py-2">
               <BacklinkInput addBacklink={addBacklink} />
+            </div>
+            <div>
+              <HeaderSubSection text="Tags" />
+              <div className="flex flex-wrap gap-1.5">
+                {editingCard.tags.map((tag) => (
+                  <span
+                    key={tag.name}
+                    className="inline-flex items-center px-1.5 py-0.5 bg-purple-50 text-purple-600 text-xs rounded-full"
+                  >
+                    <span
+                      className="cursor-pointer hover:bg-purple-100"
+                      onClick={() => navigate(`/app/search?term=${encodeURIComponent('#' + tag.name)}`)}
+                    >
+                      #{tag.name}
+                    </span>
+                    {editingCard.body.includes(`#${tag.name}`) && (
+                      <button
+                        onClick={() => handleRemoveTag(tag.name)}
+                        className="ml-1.5 text-purple-400 hover:text-purple-600"
+                      >
+                        &times;
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Button onClick={() => setShowTagMenu(true)}>Add Tags</Button>
+              {showTagMenu && (
+                <SearchTagDropdown
+                  tags={tags}
+                  handleTagClick={handleTagClick}
+                  setShowTagMenu={setShowTagMenu}
+                />
+              )}
             </div>
           </div>
         </div>
