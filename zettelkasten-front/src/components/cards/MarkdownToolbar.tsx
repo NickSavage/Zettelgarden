@@ -18,6 +18,16 @@ export function MarkdownToolbar({
     <div className="flex flex-wrap gap-2 mb-2">
       <div className="flex space-x-1">
         <Button
+          onClick={onTogglePreview}
+          variant="secondary"
+          size="small"
+        >
+          {isPreviewActive ? "Edit" : "Preview"}
+        </Button>
+
+      </div>
+      <div className="flex space-x-1">
+        <Button
           onClick={() => onFormatText('bold')}
           variant="secondary"
           size="small"
@@ -90,16 +100,6 @@ export function MarkdownToolbar({
         >
           Backlink
         </Button>
-        <div className="flex space-x-1">
-          <Button
-            onClick={onTogglePreview}
-            variant="secondary"
-            size="small"
-          >
-            {isPreviewActive ? "Edit" : "Preview"}
-          </Button>
-
-        </div>
       </div>
     </div>
   );
