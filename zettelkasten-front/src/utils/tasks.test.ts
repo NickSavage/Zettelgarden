@@ -63,7 +63,7 @@ test("filter tasks by negated tags", () => {
     {
       id: 1,
       title: "Task 1",
-      tags: [{ name: "work", id: 1, color: "#ff0000", user_id: 1, task_count: 1, card_count: 0 }],
+      tags: [{ name: "work", id: 1, color: "#ff0000", user_id: 1 }],
       card_pk: 1,
       user_id: 1,
       scheduled_date: new Date(),
@@ -79,7 +79,7 @@ test("filter tasks by negated tags", () => {
     {
       id: 2,
       title: "Task 2",
-      tags: [{ name: "personal", id: 2, color: "#00ff00", user_id: 1, task_count: 1, card_count: 0 }],
+      tags: [{ name: "personal", id: 2, color: "#00ff00", user_id: 1 }],
       card_pk: 2,
       user_id: 1,
       scheduled_date: new Date(),
@@ -96,8 +96,8 @@ test("filter tasks by negated tags", () => {
       id: 3,
       title: "Task 3",
       tags: [
-        { name: "work", id: 1, color: "#ff0000", user_id: 1, task_count: 1, card_count: 0 },
-        { name: "personal", id: 2, color: "#00ff00", user_id: 1, task_count: 1, card_count: 0 }
+        { name: "work", id: 1, color: "#ff0000", user_id: 1 },
+        { name: "personal", id: 2, color: "#00ff00", user_id: 1 }
       ],
       card_pk: 3,
       user_id: 1,

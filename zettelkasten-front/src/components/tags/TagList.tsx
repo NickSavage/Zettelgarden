@@ -3,11 +3,11 @@ import { useTagContext } from "../../contexts/TagContext";
 import { TagListItem } from "./TagListItem";
 import { createTag } from "../../api/tags";
 
-interface TagListInterface {}
+interface TagListInterface { }
 
 type SortOption = "name" | "name-desc" | "tasks-asc" | "tasks-desc" | "cards-asc" | "cards-desc";
 
-export function TagList({}: TagListInterface) {
+export function TagList({ }: TagListInterface) {
   const { tags, setRefreshTags } = useTagContext();
   const [sortOption, setSortOption] = useState<SortOption>("name");
   const [filterText, setFilterText] = useState<string>("");
@@ -41,14 +41,6 @@ export function TagList({}: TagListInterface) {
         return a.name.localeCompare(b.name);
       case "name-desc":
         return b.name.localeCompare(a.name);
-      case "tasks-asc":
-        return a.task_count - b.task_count;
-      case "tasks-desc":
-        return b.task_count - a.task_count;
-      case "cards-asc":
-        return a.card_count - b.card_count;
-      case "cards-desc":
-        return b.card_count - a.card_count;
       default:
         return 0;
     }

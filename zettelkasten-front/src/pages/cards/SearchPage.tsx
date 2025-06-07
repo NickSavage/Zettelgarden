@@ -217,7 +217,7 @@ export function SearchPage({
               <option value="sortByRanking">Ranking Score</option>
             </select>
             <SearchTagMenu
-              tags={tags.filter((tag) => tag.card_count > 0)}
+              tags={tags}
               handleTagClick={handleTagClick}
             />
             {!pinnedId &&

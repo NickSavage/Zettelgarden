@@ -12,8 +12,6 @@ type Tag struct {
 	IsDeleted bool      `json:"is_deleted"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	TaskCount int       `json:"task_count"`
-	CardCount int       `json:"card_count"`
 }
 
 type CardTag struct {

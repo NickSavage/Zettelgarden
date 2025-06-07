@@ -55,14 +55,6 @@ export function TagListItem({ tag }: TagListItemInterface) {
           ⋮
         </button>
       </div>
-      <div className="flex justify-between items-center text-sm text-gray-500">
-        <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={handleViewTasks}>
-          Tasks: {tag.task_count}
-        </span>
-        <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={handleViewCards}>
-          Cards: {tag.card_count}
-        </span>
-      </div>
       <PopupMenu options={menuOptions} isOpen={showMenu} />
     </div>
   );

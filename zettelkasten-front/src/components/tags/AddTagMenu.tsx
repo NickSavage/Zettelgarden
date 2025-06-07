@@ -28,6 +28,8 @@ export function AddTagMenu({ task, handleAddTag }: AddTagMenuProps) {
     setRefreshTags(true);
   }
 
+  console.log("tags", tags)
+
   return (
     <div className="w-32 overflow-y-auto max-h-64">
       <input
