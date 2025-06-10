@@ -36,22 +36,28 @@ func GenerateUserMemory(db *sql.DB, client *models.LLMClient, userID uint, cardC
 	}
 
 	prompt := fmt.Sprintf(
-		`You are an AI assistant that analyzes a user's writing to build a 
-high-level understanding of their interests and personality. Based on the 
-following text and the existing user memory, update the existing user memory 
-with new insights. The memory should not be a summary of the text, but rather 
-a meta-analysis of what the text reveals about the user. Simplify as you go as well,
-as you learn more older, naive insights should be replaced.
 
-**Existing User Memory:**
+		`
+		Analyze the following user text to uncover high-level insights into their interests and personality. You will update an existing user memory with these new insights, prioritizing synthesis over summarization.
 
+Focus on identifying:
+* **Core Interests:** Recurring topics, themes, or domains of knowledge the user seems interested in. Look for patterns, enthusiasm, or specific concepts that appear frequently.
+* **Personality Traits & Perspectives:** How the user expresses themselves, their emotional tone, their level of detail, their opinions, their intellectual style, and any revealed values or worldviews.
+* **Salient Ideas/Concepts:** Beyond direct interests, identify significant ideas, concepts, or figures that the user engages with, regardless of whether they invented them or are quoting.
+
+When analyzing the text, keep the following in mind:
+* **Emphasis on Meta-Analysis:** Your goal is to describe what the text *reveals* about the user, not to simply restate the text's content.
+* **Zettelkasten Consideration for Quotes:** Lines starting with '>' or within quotation marks likely represent quotes from other sources. Analyze the *user's choice* to include or engage with these quotes for insights into their interests, values, or intellectual pursuits. Do not attribute the quoted ideas as the user's own, but rather analyze the user's interaction with them.
+* **Simplification and Refinement:** As you integrate new insights, refine or simplify existing entries in the user memory. Replace naive or less specific observations with clearer, more developed understandings. The goal is a concise and insightful memory.
+* **Avoid Summarization:** Do not produce a summary of the input text.
+
+**Existing User Memory (in a structured format, if possible):**
 %s
 
 **New Text:**
-
 %s
 
-**Updated User Memory:**`,
+**Updated User Memory (present the updated memory in a similar structured format, e.g., using bullet points or sections for "Core Interests," "Personality Insights," etc.):**`,
 		userMemory,
 		cardContent,
 	)

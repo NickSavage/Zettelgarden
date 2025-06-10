@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserSubscription, getCurrentUser, editUser } from "../api/users";
+import { getUserSubscription, getCurrentUser, editUser, getUserMemory } from "../api/users";
 import { requestPasswordReset } from "../api/auth";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
@@ -568,6 +568,7 @@ export function UserSettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [llmConfigurations, setLLMConfigurations] = useState<UserLLMConfiguration[]>([]);
   const [llmProviders, setLLMProviders] = useState<LLMProvider[]>([]);
+  const [userMemory, setUserMemory] = useState<string | null>(null);
 
 
   const navigate = useNavigate();
@@ -648,6 +649,8 @@ export function UserSettingsPage() {
         try {
           const providers = await getUserLLMProviders();
           setLLMProviders(providers);
+          const memory = await getUserMemory();
+          setUserMemory(memory.memory);
         } catch (error) {
           console.error("Failed to fetch LLM providers:", error);
         }
@@ -747,37 +750,45 @@ export function UserSettingsPage() {
           <TemplatesList />
         </div>
 
+        {/* User Memory Card */}
+        {userMemory && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">Your AI Memory</h2>
+            <p className="text-gray-600 whitespace-pre-wrap">{userMemory}</p>
+          </div>
+        )}
+
         {/* LLM Configurations Card */}
         {(import.meta.env.VITE_FEATURE_CHAT === "true" || user?.username === "nick") && (
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">LLM Providers</h2>
 
-          {/* Add the new provider form */}
-          <NewProviderForm onProviderAdded={() => {
-            // Refresh the providers list
-            getUserLLMProviders().then(providers => setLLMProviders(providers));
-          }} />
+            {/* Add the new provider form */}
+            <NewProviderForm onProviderAdded={() => {
+              // Refresh the providers list
+              getUserLLMProviders().then(providers => setLLMProviders(providers));
+            }} />
 
-          <div className="space-y-4 mt-4">
-            {llmProviders.length > 0 ? (
-              llmProviders.map((provider) => (
-                <ProviderCard
-                  key={provider.id}
-                  provider={provider}
-                  onUpdate={() => {
-                    // Refresh the providers list
-                    getUserLLMProviders().then(providers => setLLMProviders(providers));
-                  }}
-                  onDelete={() => {
-                    // Refresh the providers list
-                    getUserLLMProviders().then(providers => setLLMProviders(providers));
-                  }}
-                />
-              ))
-            ) : (
-              <p className="text-gray-600">No LLM providers found.</p>
-            )}
-          </div>
+            <div className="space-y-4 mt-4">
+              {llmProviders.length > 0 ? (
+                llmProviders.map((provider) => (
+                  <ProviderCard
+                    key={provider.id}
+                    provider={provider}
+                    onUpdate={() => {
+                      // Refresh the providers list
+                      getUserLLMProviders().then(providers => setLLMProviders(providers));
+                    }}
+                    onDelete={() => {
+                      // Refresh the providers list
+                      getUserLLMProviders().then(providers => setLLMProviders(providers));
+                    }}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-600">No LLM providers found.</p>
+              )}
+            </div>
           </div>
         )}
       </div>

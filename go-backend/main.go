@@ -201,6 +201,7 @@ func main() {
 	addProtectedRoute(r, "/api/users", h.GetUsersRoute, "GET")
 	addRoute(r, "/api/users", h.CreateUserRoute, "POST")
 	addProtectedRoute(r, "/api/users/{id}/subscription", h.GetUserSubscriptionRoute, "GET")
+	addProtectedRoute(r, "/api/user/memory", h.GetUserMemoryRoute, "GET")
 	addProtectedRoute(r, "/api/current", h.GetCurrentUserRoute, "GET")
 	addProtectedRoute(r, "/api/admin", h.GetUserAdminRoute, "GET")
 

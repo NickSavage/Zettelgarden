@@ -32,6 +32,23 @@ export function createUser(
     });
 }
 
+export function getUserMemory(): Promise<{ memory: string }> {
+  const url = `${base_url}/user/memory`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<{ memory: string }>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export function getUser(id: string): Promise<User> {
   let encoded = encodeURIComponent(id);
   const url = base_url + `/users/${encoded}`;
@@ -183,7 +200,7 @@ export function getUserSubscription(id: number): Promise<UserSubscription> {
 
 export function addToMailingList(email: string): Promise<{ email: string }> {
   let url = base_url + "/mailing-list";
-  
+
   return fetch(url, {
     method: 'POST',
     headers: {
@@ -234,7 +251,7 @@ export function unsubscribeMailingList(email: string): Promise<{ message: string
 
   return fetch(url, {
     method: 'POST',
-    headers: { 
+    headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
