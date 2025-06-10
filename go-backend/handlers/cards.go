@@ -711,6 +711,9 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 		go func() {
 			s.ChunkEmbedCard(userID, newCard.ID)
 		}()
+		go func() {
+			s.GenerateMemory(uint(userID), newCard.Body)
+		}()
 	}
 
 	s.AddTagsFromCard(userID, cardPK)
@@ -763,6 +766,9 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 		}()
 		go func() {
 			s.ChunkEmbedCard(userID, newCard.ID)
+		}()
+		go func() {
+			s.GenerateMemory(uint(userID), newCard.Body)
 		}()
 	}
 	s.AddTagsFromCard(userID, id)
