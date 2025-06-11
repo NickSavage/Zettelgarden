@@ -87,3 +87,62 @@ You must follow this process precisely:
 
 	return response.Choices[0].Message.Content, nil
 }
+
+func CompressUserMemory(db *sql.DB, client *models.LLMClient, userID uint) (string, error) {
+	userMemory, err := GetUserMemory(db, userID)
+	if err != nil {
+		return "", err
+	}
+	// skip if the user hasn't changed a card
+	if userMemory == "" {
+		return "", err
+	}
+
+	prompt := fmt.Sprintf(
+
+		`
+
+		You are an expert AI knowledge architect. Your purpose is to perform a daily consolidation of the user's memory file. You will analyze the "Recent Observations" and integrate the meaningful patterns into the "Long-Term Memory".
+
+Your task is to produce a new, superior version of the entire memory block.
+
+**Your Process:**
+
+1.  **Analyze Both Sections:** Read and understand the existing '## Long-Term Memory' and all the raw data in '## Recent Observations'.
+2.  **Synthesize and Refactor LTM:** Integrate the significant insights and themes from the "Recent Observations" into the "Long-Term Memory."
+    *   Strengthen existing points with new evidence.
+    *   Create new high-level abstractions that cover multiple observations.
+    *   Add new domains or traits if a strong new pattern has emerged.
+    *   Restructure and refine the LTM for maximum clarity and density.
+3.  **Empty the Recent Observations:** After synthesis, the "Recent Observations" section has served its purpose. **You must clear it out**, leaving it empty for the next cycle of observations.
+4.  **Output the Full Document:** Your final output is the complete, updated memory block, containing the newly refactored Long-Term Memory and the empty Recent Observations section.
+
+**Full Memory Block to be Refactored:**
+%s
+`,
+		userMemory,
+	)
+
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleUser,
+			Content: prompt,
+		},
+	}
+
+	response, err := ExecuteLLMRequest(client, messages)
+	if err != nil {
+		return "", err
+	}
+
+	if len(response.Choices) == 0 {
+		return "", fmt.Errorf("no response from AI")
+	}
+
+	err = UpdateUserMemory(db, uint(userID), response.Choices[0].Message.Content)
+	if err != nil {
+		return "", err
+	}
+
+	return response.Choices[0].Message.Content, nil
+}
