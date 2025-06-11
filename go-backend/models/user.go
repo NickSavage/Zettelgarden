@@ -25,6 +25,7 @@ type User struct {
 	CardCount                   int        `json:"card_count"`
 	TaskCount                   int        `json:"task_count"`
 	FileCount                   int        `json:"file_count"`
+	MemoryHasChanged            bool       `json:"memory_has_changed"`
 }
 
 type UserSubscription struct {

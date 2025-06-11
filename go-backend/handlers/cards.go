@@ -717,6 +717,10 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	}
 
 	s.AddTagsFromCard(userID, cardPK)
+	_, err = s.DB.Exec("UPDATE users SET memory_has_changed = true WHERE id = $1", userID)
+	if err != nil {
+		log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
+	}
 	return s.QueryFullCard(userID, cardPK)
 }
 
@@ -772,6 +776,10 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 		}()
 	}
 	s.AddTagsFromCard(userID, id)
+	_, err = s.DB.Exec("UPDATE users SET memory_has_changed = true WHERE id = $1", userID)
+	if err != nil {
+		log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
+	}
 	return s.QueryFullCard(userID, id)
 }
 

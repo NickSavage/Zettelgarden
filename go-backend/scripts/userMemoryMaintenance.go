@@ -45,7 +45,7 @@ func main() {
 		return
 	}
 
-	rows, _ := db.Query("SELECT id FROM users")
+	rows, _ := db.Query("SELECT id FROM users WHERE memory_has_changed = true")
 	for rows.Next() {
 		var userID uint
 		if err := rows.Scan(&userID); err != nil {
@@ -55,6 +55,11 @@ func main() {
 
 		log.Printf("user %v", userID)
 		llms.CompressUserMemory(db, client, userID)
+
+		_, err := db.Exec("UPDATE users SET memory_has_changed = false WHERE id = $1", userID)
+		if err != nil {
+			log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
+		}
 	}
 
 }
