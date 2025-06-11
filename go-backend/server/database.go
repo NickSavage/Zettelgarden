@@ -55,6 +55,7 @@ func ResetDatabase(S *Server) error {
 			DROP TABLE IF EXISTS pinned_cards CASCADE;
 			DROP TABLE IF EXISTS card_templates CASCADE;
 			DROP TABLE IF EXISTS pinned_searches CASCADE;
+			DROP TABLE IF EXISTS user_memories CASCADE;
 
 			CREATE TABLE IF NOT EXISTS migrations (
 				id SERIAL PRIMARY KEY,
