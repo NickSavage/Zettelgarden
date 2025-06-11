@@ -38,20 +38,22 @@ func GenerateUserMemory(db *sql.DB, client *models.LLMClient, userID uint, cardC
 	prompt := fmt.Sprintf(
 
 		`
-		Analyze the following user text to uncover high-level insights into their interests and personality. You will update an existing user memory with these new insights, prioritizing synthesis over summarization.
 
-Focus on identifying:
-* **Core Interests:** Recurring topics, themes, or domains of knowledge the user seems interested in. Look for patterns, enthusiasm, or specific concepts that appear frequently.
-* **Personality Traits & Perspectives:** How the user expresses themselves, their emotional tone, their level of detail, their opinions, their intellectual style, and any revealed values or worldviews.
-* **Salient Ideas/Concepts:** Beyond direct interests, identify significant ideas, concepts, or figures that the user engages with, regardless of whether they invented them or are quoting.
+		You are an AI Memory Scribe. Your task is to analyze a new piece of user text and add granular, raw observations to the "Recent Observations" section of the user's memory file.
 
-When analyzing the text, keep the following in mind:
-* **Emphasis on Meta-Analysis:** Your goal is to describe what the text *reveals* about the user, not to simply restate the text's content.
-* **Zettelkasten Consideration for Quotes:** Lines starting with '>' or within quotation marks likely represent quotes from other sources. Analyze the *user's choice* to include or engage with these quotes for insights into their interests, values, or intellectual pursuits. Do not attribute the quoted ideas as the user's own, but rather analyze the user's interaction with them.
-* **Simplification and Refinement:** As you integrate new insights, refine or simplify existing entries in the user memory. Replace naive or less specific observations with clearer, more developed understandings. The goal is a concise and insightful memory.
-* **Avoid Summarization:** Do not produce a summary of the input text.
+You must follow this process precisely:
+1.  **Preserve the Long-Term Memory:** The entire section under the '## Long-Term Memory' heading must be copied into the output exactly as it is, without any changes. If it does not exist, create it
+2.  **Analyze the New Text:** Read the "New User Text" provided below and extract atomic, specific observations about the user's interests, activities, or personality.
+3.  **Append New Observations:** Add your new findings as bullet points to the end of the existing content under the '## Recent Observations' heading.
+4.  **Output the Full Document:** Your final output must be the complete, updated memory block, including both the untouched Long-Term Memory and the newly appended-to Recent Observations.
 
-**Existing User Memory (in a structured format, if possible):**
+**CRITICAL RULES:**
+*   **DO NOT MODIFY THE LONG-TERM MEMORY SECTION.**
+*   Do not synthesize or abstract. Capture raw data points.
+*   Your output must be the ENTIRE updated text block in valid Markdown.
+*   Keep in mind that the texts are from zettelkasten cards, there is a chance they are quotes and are not actual facts about the user.
+
+**Existing Memory Block:**
 %s
 
 **New Text:**
