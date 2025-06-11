@@ -8,6 +8,7 @@ import { H6 } from "../components/Header";
 import { createLLMProvider, getUserLLMConfigurations, getUserLLMProviders, updateLLMProvider, deleteLLMProvider, createLLMModel, deleteLLMModel, updateLLMConfiguration } from "../api/chat";
 import { LLMProvider, UserLLMConfiguration, LLMModel } from "../models/Chat";
 import { TemplatesList } from "../components/templates/TemplatesList";
+import { EditableMemory } from "../components/memory/EditableMemory";
 
 interface ModelEditForm {
   name: string;
@@ -647,8 +648,6 @@ export function UserSettingsPage() {
 
         // Add this section to fetch LLM configurations
         try {
-          const providers = await getUserLLMProviders();
-          setLLMProviders(providers);
           const memory = await getUserMemory();
           setUserMemory(memory.memory);
         } catch (error) {
@@ -753,8 +752,10 @@ export function UserSettingsPage() {
         {/* User Memory Card */}
         {userMemory && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Your AI Memory</h2>
-            <p className="text-gray-600 whitespace-pre-wrap">{userMemory}</p>
+            <EditableMemory 
+              memory={userMemory || ""} 
+              onMemoryUpdate={(newMemory) => setUserMemory(newMemory)}
+            />
           </div>
         )}
 

@@ -266,3 +266,25 @@ export function unsubscribeMailingList(email: string): Promise<{ message: string
       }
     });
 }
+
+export function updateUserMemory(memory: string): Promise<{ message: string }> {
+  const url = `${base_url}/user/memory`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ memory }),
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json() as Promise<{ message: string }>;
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}

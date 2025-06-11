@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"go-backend/llms"
+	"io"
 	"log"
 	"net/http"
 )
@@ -26,4 +27,36 @@ func (s *Handler) GetUserMemoryRoute(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"memory": memory})
+}
+
+func (s *Handler) UpdateUserMemoryRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Parse JSON
+	var requestData struct {
+		Memory string `json:"memory"`
+	}
+
+	if err := json.Unmarshal(body, &requestData); err != nil {
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	// Update memory in database
+	err = llms.UpdateUserMemory(s.DB, uint(userID), requestData.Memory)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "Memory updated successfully"})
 }
