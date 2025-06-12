@@ -10,19 +10,19 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func NewClientFromModel(db *sql.DB, model models.LLMModel) *models.LLMClient {
+func NewClientFromModel(db *sql.DB, model models.LLMModel, userID int) *models.LLMClient {
 	config := openai.DefaultConfig(model.Provider.APIKey)
 	config.BaseURL = model.Provider.BaseURL
 
-	client := NewClient(db, config)
+	client := NewClient(db, config, userID)
 	client.Model = &model
 	return client
 }
 
-func NewDefaultClient(db *sql.DB) *models.LLMClient {
+func NewDefaultClient(db *sql.DB, userID int) *models.LLMClient {
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
 	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-	client := NewClient(db, config)
+	client := NewClient(db, config, userID)
 	provider := models.LLMProvider{
 		APIKey:  os.Getenv("ZETTEL_LLM_KEY"),
 		BaseURL: os.Getenv("ZETTEL_LLM_ENDPOINT"),
@@ -34,7 +34,7 @@ func NewDefaultClient(db *sql.DB) *models.LLMClient {
 	return client
 }
 
-func NewClient(db *sql.DB, config openai.ClientConfig) *models.LLMClient {
+func NewClient(db *sql.DB, config openai.ClientConfig, userID int) *models.LLMClient {
 	config.HTTPClient = &http.Client{
 		Transport: headerTransport{http.DefaultTransport},
 	}
@@ -43,6 +43,7 @@ func NewClient(db *sql.DB, config openai.ClientConfig) *models.LLMClient {
 		Client:         openai.NewClientWithConfig(config),
 		Testing:        false,
 		EmbeddingQueue: models.NewEmbeddingQueue(db),
+		UserID:         userID,
 	}
 }
 

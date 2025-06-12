@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Handler) GenerateMemory(userID uint, cardContent string) {
-	client := llms.NewDefaultClient(s.DB)
+	client := llms.NewDefaultClient(s.DB, int(userID))
 	_, err := llms.GenerateUserMemory(s.DB, client, userID, cardContent)
 	if err != nil {
 		log.Printf("error generating user memory: %v", err)

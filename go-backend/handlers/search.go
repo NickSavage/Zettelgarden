@@ -508,7 +508,7 @@ func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]
 		return searchResults, nil
 	}
 
-	client := llms.NewDefaultClient(s.DB)
+	client := llms.NewDefaultClient(s.DB, userID)
 
 	reranked, err := llms.RerankSearchResults(client, params.SearchTerm, searchResults)
 	return reranked, err
@@ -593,7 +593,7 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 		} else {
 			if len(searchResults) > 0 {
 
-				client := llms.NewDefaultClient(s.DB)
+				client := llms.NewDefaultClient(s.DB, userID)
 
 				reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, searchResults)
 				if err != nil {

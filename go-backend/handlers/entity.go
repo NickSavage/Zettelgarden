@@ -31,7 +31,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 		return err
 	}
 
-	client := llms.NewDefaultClient(s.DB)
+	client := llms.NewDefaultClient(s.DB, userID)
 
 	for _, chunk := range chunks {
 		entities, err := llms.FindEntities(client, chunk)
@@ -57,7 +57,7 @@ func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []mod
 			return err
 		}
 
-		client := llms.NewDefaultClient(s.DB)
+		client := llms.NewDefaultClient(s.DB, userID)
 
 		entity, err = llms.CheckExistingEntities(client, similarEntities, entity)
 
@@ -571,7 +571,7 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 
 func (s *Handler) CalculateEmbeddingForEntity(entity models.Entity) error {
 
-	client := llms.NewDefaultClient(s.DB)
+	client := llms.NewDefaultClient(s.DB, entity.UserID)
 
 	embedding, err := llms.GenerateEntityEmbedding(client, entity)
 	if err != nil {

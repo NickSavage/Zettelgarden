@@ -790,7 +790,7 @@ func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
 		return err
 	}
 
-	client := llms.NewDefaultClient(s.DB)
+	client := llms.NewDefaultClient(s.DB, userID)
 
 	for _, chunk := range chunks {
 		client.EmbeddingQueue.Push(models.LLMRequest{

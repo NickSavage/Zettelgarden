@@ -204,7 +204,7 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	client := llms.NewClientFromModel(s.DB, model)
+	client := llms.NewClientFromModel(s.DB, model, userID)
 
 	message, err = s.GetChatCompletion(userID, client, message.ConversationID)
 	if err != nil {
@@ -214,7 +214,7 @@ func (s *Handler) PostChatMessageRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newConversation {
-		summaryClient := llms.NewDefaultClient(s.DB)
+		summaryClient := llms.NewDefaultClient(s.DB, userID)
 		summary, err := llms.CreateConversationSummary(summaryClient, message)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

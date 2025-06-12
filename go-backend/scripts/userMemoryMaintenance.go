@@ -37,9 +37,6 @@ func main() {
 
 	db, err := ConnectToDatabase(dbConfig)
 
-	client := llms.NewDefaultClient(db)
-	log.Printf("cient %v", client)
-
 	if err != nil {
 		log.Fatalf("unable to connect to db: %v", err.Error())
 		return
@@ -53,7 +50,7 @@ func main() {
 			return
 		}
 
-		log.Printf("user %v", userID)
+		client := llms.NewDefaultClient(db, int(userID))
 		llms.CompressUserMemory(db, client, userID)
 
 		_, err := db.Exec("UPDATE users SET memory_has_changed = false WHERE id = $1", userID)

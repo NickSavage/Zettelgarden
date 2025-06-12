@@ -63,6 +63,7 @@ type LLMClient struct {
 	Testing        bool
 	EmbeddingQueue *LLMRequestQueue
 	Model          *LLMModel
+	UserID         int
 }
 
 func NewEmbeddingQueue(db *sql.DB) *LLMRequestQueue {
