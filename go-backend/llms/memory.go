@@ -103,21 +103,26 @@ func CompressUserMemory(db *sql.DB, client *models.LLMClient, userID uint) (stri
 	prompt := fmt.Sprintf(
 
 		`
+		You are an expert AI knowledge architect and editor. Your purpose is to perform a daily consolidation of the user's memory file. Your primary goal is to maintain a **concise, high-signal Long-Term Memory** that fits efficiently within a limited context window.
 
-		You are an expert AI knowledge architect. Your purpose is to perform a daily consolidation of the user's memory file. You will analyze the "Recent Observations" and integrate the meaningful patterns into the "Long-Term Memory".
-
-Your task is to produce a new, superior version of the entire memory block.
+Your task is to produce a new, superior, and more compact version of the entire memory block.
 
 **Your Process:**
 
 1.  **Analyze Both Sections:** Read and understand the existing '## Long-Term Memory' and all the raw data in '## Recent Observations'.
-2.  **Synthesize and Refactor LTM:** Integrate the significant insights and themes from the "Recent Observations" into the "Long-Term Memory."
-    *   Strengthen existing points with new evidence.
-    *   Create new high-level abstractions that cover multiple observations.
-    *   Add new domains or traits if a strong new pattern has emerged.
-    *   Restructure and refine the LTM for maximum clarity and density.
-3.  **Empty the Recent Observations:** After synthesis, the "Recent Observations" section has served its purpose. **You must clear it out**, leaving it empty for the next cycle of observations.
-4.  **Output the Full Document:** Your final output is the complete, updated memory block, containing the newly refactored Long-Term Memory and the empty Recent Observations section.
+2.  **Synthesize and Integrate:** Integrate the significant insights and themes from the "Recent Observations" into the "Long-Term Memory."
+    *   Strengthen existing points with new evidence *or* replace them with a more insightful abstraction.
+    *   Add new domains or traits **only if a strong, new, and consolidated pattern has emerged.**
+    *   Restructure and refine the LTM for maximum clarity and semantic density.
+
+3.  **Prune and Compress the LTM:** This is a critical step. After integrating new insights, you must actively shorten the Long-Term Memory section itself.
+    *   **Merge Redundancies:** Find two or more points that describe the same core trait and combine them into a single, more powerful statement.
+    *   **Remove Obsolete Details:** If an abstraction (e.g., "Deep interest in operational reliability") now covers several older, specific points (e.g., "mentioned BGP," "talked about on-call"), remove the older, specific points.
+    *   **Rephrase for Brevity:** Edit existing statements to be more direct and concise without losing their meaning.
+
+4.  **Empty the Recent Observations:** After synthesis and compression, clear the "Recent Observations" section. It has served its purpose and must be empty for the next cycle.
+
+5.  **Output the Full Document:** Your final output is the complete, updated memory block, containing the newly refactored Long-Term Memory and the empty Recent Observations section.
 
 **Full Memory Block to be Refactored:**
 %s
