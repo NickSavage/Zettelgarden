@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"go-backend/models"
+	"log"
 	"net/http"
 	"os"
 
@@ -66,5 +67,23 @@ func ExecuteLLMRequest(c *models.LLMClient, messages []openai.ChatCompletionMess
 			Messages: messages,
 		},
 	)
+
+	if err == nil {
+		logLLMRequest(c, resp)
+	}
+
 	return resp, err
+}
+
+func logLLMRequest(c *models.LLMClient, resp openai.ChatCompletionResponse) {
+	// fire and forget
+	go func() {
+		_, err := c.EmbeddingQueue.DB.Exec(`
+		INSERT INTO llm_query_log (user_id, model, prompt_tokens, completion_tokens)
+		VALUES ($1, $2, $3, $4)
+	`, c.UserID, c.Model.ModelIdentifier, resp.Usage.PromptTokens, resp.Usage.CompletionTokens)
+		if err != nil {
+			log.Printf("Error logging llm request: %v", err)
+		}
+	}()
 }
