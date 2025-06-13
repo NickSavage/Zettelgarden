@@ -39,7 +39,9 @@ func GenerateUserMemory(db *sql.DB, client *models.LLMClient, userID uint, cardC
 
 		`
 
-		You are an AI Memory Scribe. Your task is to analyze a new piece of user text and add granular, raw observations to the "Recent Observations" section of the user's memory file.
+		You are an AI Memory Scribe for a zettelkasten application. Your task is to analyze a new piece of user text and add granular, raw observations to the "Recent Observations" section of the user's memory file.
+		 
+		In particular, you should be interested only in observations about the *user*, not about the text itself. Think about what the text says about the user, and what it means that the user has added this text to their zettelkasten. You should only be interested with meta observations about the user, not the actual details of what has been recorded (that is what the zettelkasten itself is for!).
 
 You must follow this process precisely:
 1.  **Preserve the Long-Term Memory:** The entire section under the '## Long-Term Memory' heading must be copied into the output exactly as it is, without any changes. If it does not exist, create it
