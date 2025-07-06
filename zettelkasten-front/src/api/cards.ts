@@ -214,6 +214,7 @@ export function getCard(id: string): Promise<Card> {
 export function saveNewCard(card: Card): Promise<Card> {
   const url = base_url + `/cards`;
   const method = "POST";
+  card.card_id = card.card_id.trim();
   return saveCard(url, method, card);
 }
 
