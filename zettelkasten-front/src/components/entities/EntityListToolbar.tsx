@@ -3,9 +3,9 @@ import React from "react";
 interface EntityListToolbarProps {
   filterText: string;
   onFilterChange: (value: string) => void;
-  sortBy: "name" | "cards";
+  sortBy: "name" | "cards" | "created_at";
   sortDirection: "asc" | "desc";
-  onSortChange: (sortBy: "name" | "cards", direction: "asc" | "desc") => void;
+  onSortChange: (sortBy: "name" | "cards" | "created_at", direction: "asc" | "desc") => void;
 }
 
 export function EntityListToolbar({
@@ -28,7 +28,7 @@ export function EntityListToolbar({
         value={`${sortBy}-${sortDirection}`}
         onChange={(e) => {
           const [newSortBy, newDirection] = e.target.value.split("-") as [
-            "name" | "cards",
+            "name" | "cards" | "created_at",
             "asc" | "desc"
           ];
           onSortChange(newSortBy, newDirection);
@@ -39,6 +39,8 @@ export function EntityListToolbar({
         <option value="name-desc">Name (Z-A)</option>
         <option value="cards-desc">Most Cards</option>
         <option value="cards-asc">Least Cards</option>
+        <option value="created_at-desc">Newest First</option>
+        <option value="created_at-asc">Oldest First</option>
       </select>
     </div>
   );

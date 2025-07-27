@@ -16,7 +16,7 @@ export function EntityPage() {
   const [filterText, setFilterText] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"name" | "cards">("name");
+  const [sortBy, setSortBy] = useState<"name" | "cards" | "created_at">("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selectedEntities, setSelectedEntities] = useState<number[]>([]);
   const [isMerging, setIsMerging] = useState(false);
@@ -158,10 +158,16 @@ export function EntityPage() {
         return sortDirection === "asc"
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
-      } else {
+      } else if (sortBy === "cards") {
         return sortDirection === "asc"
           ? a.card_count - b.card_count
           : b.card_count - a.card_count;
+      } else { // created_at
+        const aDate = new Date(a.created_at).getTime();
+        const bDate = new Date(b.created_at).getTime();
+        return sortDirection === "asc"
+          ? aDate - bDate
+          : bDate - aDate;
       }
     });
   };
