@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"go-backend/models"
+	"log"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -93,6 +94,7 @@ You must follow this process precisely:
 func CompressUserMemory(db *sql.DB, client *models.LLMClient, userID uint) (string, error) {
 	userMemory, err := GetUserMemory(db, userID)
 	if err != nil {
+		log.Printf("error getting memory: %v", err)
 		return "", err
 	}
 	// skip if the user hasn't changed a card
@@ -139,6 +141,7 @@ Your task is to produce a new, superior, and more compact version of the entire 
 
 	response, err := ExecuteLLMRequest(client, messages)
 	if err != nil {
+		log.Printf("error getting LLM response: %v", err)
 		return "", err
 	}
 
