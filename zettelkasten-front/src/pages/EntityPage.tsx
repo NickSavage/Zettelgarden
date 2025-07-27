@@ -434,6 +434,7 @@ export function EntityPage() {
         entity={selectedEntityForDialog}
         isOpen={isEntityDialogOpen}
         onClose={() => setIsEntityDialogOpen(false)}
+        onEdit={handleEditClick}
       />
     </div>
   );

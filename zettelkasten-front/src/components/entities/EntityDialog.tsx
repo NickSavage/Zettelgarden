@@ -12,9 +12,10 @@ interface EntityDialogProps {
     entity: Entity | null;
     isOpen: boolean;
     onClose: () => void;
+    onEdit?: (entity: Entity, event: React.MouseEvent) => void;
 }
 
-export function EntityDialog({ entity, isOpen, onClose }: EntityDialogProps) {
+export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogProps) {
     const [associatedCards, setAssociatedCards] = useState<PartialCard[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -114,7 +115,18 @@ export function EntityDialog({ entity, isOpen, onClose }: EntityDialogProps) {
                         )}
                     </div>
 
-                    <div className="mt-6 flex justify-end">
+                    <div className="mt-6 flex justify-end gap-3">
+                        {entity && onEdit && (
+                            <Button 
+                                onClick={(e) => {
+                                    onEdit(entity, e);
+                                    onClose();
+                                }}
+                                className="bg-blue-500 text-white hover:bg-blue-600"
+                            >
+                                Edit
+                            </Button>
+                        )}
                         <Button onClick={onClose}>
                             Close
                         </Button>
