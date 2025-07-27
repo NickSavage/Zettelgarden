@@ -32,10 +32,6 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
   setFilesToUpdate,
 }: CardBodyTextAreaProps, ref) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [isLinkMode, setIsLinkMode] = useState<boolean>(false);
-  const [linkText, setLinkText] = useState<string>("");
-  const [topResults, setTopResults] = useState<PartialCard[]>([]);
-  const [cursorPosition, setCursorPosition] = useState<number | null>(null);
   const { partialCards } = usePartialCardContext();
   const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
 
@@ -80,57 +76,7 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
     }
   };
 
-  function handleSearch(searchTerm: string) {
-    if (searchTerm !== "") {
-      let results = quickFilterCards(partialCards, searchTerm);
-      setTopResults(results);
-    } else {
-      setTopResults([]);
-    }
-    setLinkText(searchTerm);
-  }
-
   function handleBodyChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
-    const inputValue = event.target.value;
-    const newCursorPosition = event.target.selectionStart;
-    setCursorPosition(newCursorPosition);
-
-    let word = "";
-
-    try {
-      const wordBoundaries = findWordBoundaries(inputValue, newCursorPosition);
-      word = inputValue.slice(wordBoundaries.start, wordBoundaries.end);
-      setCursorPosition(wordBoundaries.start);
-    } catch (error) {
-      // Log the error if needed
-      console.error("Error finding word boundaries:", error);
-      // Do nothing and continue execution
-    }
-
-    let processedWord = word;
-
-    if (word.startsWith("[")) {
-      processedWord = word.slice(1); // Remove the preceding `[`
-    }
-    if (processedWord.endsWith("]")) {
-      processedWord = processedWord.slice(0, -1); // Remove the final `]`
-    }
-
-    if (word.startsWith("[")) {
-      setLinkText(processedWord);
-      setIsLinkMode(true);
-
-      // Adding console logs to debug
-      // Check filtered results
-
-      let results = quickFilterCards(partialCards, processedWord);
-      setTopResults(results);
-      console.log("results", results);
-    } else {
-      setLinkText("");
-      setIsLinkMode(false);
-    }
-
     setEditingCard({ ...editingCard, body: event.target.value });
   }
 
@@ -221,29 +167,6 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
       }
     }
   };
-
-  function handleDropdownClick(card: PartialCard) {
-    let append_text = "[" + card.card_id + "]";
-    append_text.trim();
-    let updatedBody = editingCard.body;
-    if (cursorPosition === null) {
-      updatedBody = updatedBody + "\n\n" + append_text;
-    } else {
-      updatedBody =
-        editingCard.body.slice(0, cursorPosition) +
-        append_text +
-        editingCard.body.slice(cursorPosition + linkText.length);
-    }
-    console.log(editingCard.body);
-    console.log(updatedBody);
-    let prevEditingCard = {
-      ...editingCard,
-      body: updatedBody,
-    };
-    setEditingCard(prevEditingCard);
-    setIsLinkMode(false);
-    setLinkText("");
-  }
 
   // Format text function for the markdown toolbar
   const formatText = (formatType: string) => {
@@ -487,19 +410,6 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
           onPaste={handlePaste}
           placeholder="Body"
         />
-      )}
-      {isLinkMode && !isPreviewMode && ( // Only show link suggestions in edit mode
-        <div>
-          {topResults.length > 0 && (
-            <div className="absolute top-auto left-1/2 w-1/4 p-4 bg-white border border-gray-200 z-10 shadow">
-              <BacklinkInputDropdownList
-                onSelect={handleDropdownClick}
-                onSearch={handleSearch}
-                cards={topResults}
-              />
-            </div>
-          )}
-        </div>
       )}
     </div>
   );
