@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Dialog } from "@headlessui/react";
 import { EditEntityDialog } from "../components/entities/EditEntityDialog";
 import { EntityDialog } from "../components/entities/EntityDialog"; // Import the new dialog
-import { EntityCard } from "../components/entities/EntityCard";
+import { EntityTable } from "../components/entities/EntityTable";
 import { EntityListToolbar } from "../components/entities/EntityListToolbar";
 import { EntitySelectionActions } from "../components/entities/EntitySelectionActions";
 
@@ -271,19 +271,14 @@ export function EntityPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {getPagedEntities().map((entity) => (
-          <EntityCard
-            key={entity.id}
-            entity={entity}
-            isSelected={selectedEntities.includes(entity.id)}
-            selectionInfo={getSelectionInfo(entity.id)}
-            selectionMode={selectionMode}
-            onEdit={handleEditClick}
-            onClick={handleEntityClick}
-          />
-        ))}
-      </div>
+      <EntityTable
+        entities={getPagedEntities()}
+        selectedEntities={selectedEntities}
+        selectionMode={selectionMode}
+        onEdit={handleEditClick}
+        onClick={handleEntityClick}
+        getSelectionInfo={getSelectionInfo}
+      />
 
       {filteredEntities.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
