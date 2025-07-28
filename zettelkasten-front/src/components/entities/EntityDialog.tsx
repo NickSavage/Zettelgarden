@@ -20,6 +20,13 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const handleEditClick = () => {
+        if (entity && onEdit) {
+            onEdit(entity, {} as React.MouseEvent);
+            onClose();
+        }
+    };
+
     useEffect(() => {
         if (isOpen && entity) {
             setIsLoading(true);
@@ -118,10 +125,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                     <div className="mt-6 flex justify-end gap-3">
                         {entity && onEdit && (
                             <Button 
-                                onClick={(e) => {
-                                    onEdit(entity, e);
-                                    onClose();
-                                }}
+                                onClick={handleEditClick}
                                 className="bg-blue-500 text-white hover:bg-blue-600"
                             >
                                 Edit
