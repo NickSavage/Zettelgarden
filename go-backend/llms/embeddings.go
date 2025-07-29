@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/pgvector/pgvector-go"
 	openai "github.com/sashabaranov/go-openai"
@@ -33,56 +32,22 @@ func chunkInput(input string) []string {
 	return chunks
 }
 
-func StartProcessingQueue(c *models.LLMClient) {
-	log.Printf("start processing")
-	c.EmbeddingQueue.Mu.Lock()
-	if c.EmbeddingQueue.IsProcessing {
-		c.EmbeddingQueue.Mu.Unlock()
+func ProcessEmbeddings(db *sql.DB, request models.LLMRequest) {
+	embeddings, err := GenerateChunkEmbeddings(request.Chunk, false)
+	if err != nil {
+		log.Printf("failed to generate embeddings for %v: %v", request.Chunk.ID, err)
 		return
 	}
-	c.EmbeddingQueue.IsProcessing = true
-	c.EmbeddingQueue.Mu.Unlock()
-
-	go ProcessQueue(c)
-}
-
-func ProcessQueue(c *models.LLMClient) {
-	for {
-		request, ok := c.EmbeddingQueue.Pop()
-		if !ok {
-			c.EmbeddingQueue.Mu.Lock()
-			c.EmbeddingQueue.IsProcessing = false
-			c.EmbeddingQueue.Mu.Unlock()
-			return
-		}
-		embeddings, err := GenerateChunkEmbeddings(request.Chunk, false)
-		if err != nil {
-			// handle error
-			log.Printf("failed to generate embeddings for %v", request.Chunk.ID)
-			request.Retries += 1
-			if request.Retries < 4 {
-				c.EmbeddingQueue.Push(request)
-			}
-			continue
-		}
-		err = StoreEmbeddings(
-			c.EmbeddingQueue.DB,
-			request.UserID,
-			request.CardPK,
-			[][]pgvector.Vector{embeddings},
-		)
-		if err != nil {
-			log.Printf("failed to store embed")
-			request.Retries += 1
-			if request.Retries < 4 {
-				c.EmbeddingQueue.Push(request)
-			}
-			continue
-		}
-
-		time.Sleep(1000 * time.Millisecond)
+	err = StoreEmbeddings(
+		db,
+		request.UserID,
+		request.CardPK,
+		[][]pgvector.Vector{embeddings},
+	)
+	if err != nil {
+		log.Printf("failed to store embed")
+		return
 	}
-
 }
 
 // GetEmbedding generates an embedding vector for a given text string

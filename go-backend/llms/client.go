@@ -41,10 +41,10 @@ func NewClient(db *sql.DB, config openai.ClientConfig, userID int) *models.LLMCl
 	}
 
 	return &models.LLMClient{
-		Client:         openai.NewClientWithConfig(config),
-		Testing:        false,
-		EmbeddingQueue: models.NewEmbeddingQueue(db),
-		UserID:         userID,
+		Client:  openai.NewClientWithConfig(config),
+		Testing: false,
+		UserID:  userID,
+		DB:      db,
 	}
 }
 
@@ -78,7 +78,7 @@ func ExecuteLLMRequest(c *models.LLMClient, messages []openai.ChatCompletionMess
 func logLLMRequest(c *models.LLMClient, resp openai.ChatCompletionResponse) {
 	// fire and forget
 	go func() {
-		_, err := c.EmbeddingQueue.DB.Exec(`
+		_, err := c.DB.Exec(`
 		INSERT INTO llm_query_log (user_id, model, prompt_tokens, completion_tokens)
 		VALUES ($1, $2, $3, $4)
 	`, c.UserID, c.Model.ModelIdentifier, resp.Usage.PromptTokens, resp.Usage.CompletionTokens)
