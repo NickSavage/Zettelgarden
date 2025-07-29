@@ -38,10 +38,10 @@ function MainAppContent() {
   const [searchConfig, setSearchConfig] = useState({
     sortBy: "sortCreatedNewOld",
     currentPage: 1,
-    useClassicSearch: true,
+    useClassicSearch: false,
     useFullText: false,
     onlyParentCards: false,
-    showEntities: false,
+    showEntities: true,
     showPreview: true
   });
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
