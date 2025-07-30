@@ -58,4 +58,27 @@ func main() {
 		s.ChunkEmbedCard(userID, cardPK)
 	}
 
+	rows, _ = db.Query("select id, user_id, name, type, description from entities where embedding_nomic is null")
+
+	for rows.Next() {
+		var entityPK int
+		var userID int
+		var name, entity_type, description string
+
+		if err := rows.Scan(&entityPK, &userID, &name, &entity_type, &description); err != nil {
+			log.Fatalf("something is wrong: %v", err.Error())
+			return
+		}
+
+		entity := models.Entity{
+			ID:          entityPK,
+			UserID:      userID,
+			Name:        name,
+			Type:        entity_type,
+			Description: description,
+		}
+
+		s.CalculateEmbeddingForEntity(entity)
+		log.Printf("%v %v", entityPK, userID)
+	}
 }
