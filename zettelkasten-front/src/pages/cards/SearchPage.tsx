@@ -208,13 +208,13 @@ export function SearchPage({
               children={"Search"}
             />
             <select value={searchConfig.sortBy} onChange={handleSortChange}>
+              <option value="sortByRanking">Ranking Score</option>
               <option value="sortCreatedNewOld">Creation Date (Newest)</option>
               <option value="sortCreatedOldNew">Creation Date (Oldest)</option>
               <option value="sortNewOld">Last Updated (Newest)</option>
               <option value="sortOldNew">Last Updated (Oldest)</option>
               <option value="sortBigSmall">A to Z</option>
               <option value="sortSmallBig">Z to A</option>
-              <option value="sortByRanking">Ranking Score</option>
             </select>
             <SearchTagMenu
               tags={tags}
