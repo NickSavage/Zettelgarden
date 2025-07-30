@@ -165,7 +165,7 @@ func TestBuildPartialCardSqlSearchTermStringWithEntities(t *testing.T) {
 }
 
 // Add an integration test that actually executes the query
-func TestClassicSearch(t *testing.T) {
+func TestClassicCardSearch(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
 
@@ -192,13 +192,13 @@ func TestClassicSearch(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cards, err := s.ClassicSearch(1, SearchRequestParams{SearchTerm: tc.searchTerm})
+			cards, err := s.ClassicCardSearch(1, SearchRequestParams{SearchTerm: tc.searchTerm})
 			if err != nil {
-				t.Errorf("ClassicSearch() error = %v", err)
+				t.Errorf("ClassicCardSearch() error = %v", err)
 				return
 			}
 			if len(cards) != tc.wantCount {
-				t.Errorf("ClassicSearch() got %v cards, want %v", len(cards), tc.wantCount)
+				t.Errorf("ClassicCardSearch() got %v cards, want %v", len(cards), tc.wantCount)
 			}
 		})
 	}
@@ -234,13 +234,13 @@ func TestFullTextSearch(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cards, err := s.ClassicSearch(1, tc.params)
+			cards, err := s.ClassicCardSearch(1, tc.params)
 			if err != nil {
-				t.Errorf("ClassicSearch() error = %v", err)
+				t.Errorf("ClassicCardSearch() error = %v", err)
 				return
 			}
 			if len(cards) != tc.wantCount {
-				t.Errorf("ClassicSearch() got %v cards, want %v", len(cards), tc.wantCount)
+				t.Errorf("ClassicCardSearch() got %v cards, want %v", len(cards), tc.wantCount)
 			}
 			// If we want to check for specific cards
 			if tc.wantCardID != "" && len(cards) > 0 {
@@ -252,7 +252,7 @@ func TestFullTextSearch(t *testing.T) {
 					}
 				}
 				if !found {
-					t.Errorf("ClassicSearch() did not find expected card with ID %s", tc.wantCardID)
+					t.Errorf("ClassicCardSearch() did not find expected card with ID %s", tc.wantCardID)
 				}
 			}
 		})

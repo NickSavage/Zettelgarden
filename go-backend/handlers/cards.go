@@ -395,11 +395,10 @@ func (s *Handler) GetCardsRoute(w http.ResponseWriter, r *http.Request) {
 		sortMethod = "date"
 	}
 
-	// Use the shared ClassicSearch function
 	searchParams := SearchRequestParams{
 		SearchTerm: searchTerm,
 	}
-	cards, err := s.ClassicSearch(userID, searchParams)
+	cards, err := s.ClassicCardSearch(userID, searchParams)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

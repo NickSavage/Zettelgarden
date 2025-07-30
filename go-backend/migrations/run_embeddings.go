@@ -8,7 +8,7 @@ import (
 func RunEmbeddings(h *handlers.Handler) {
 	users, _ := h.QueryUsers()
 	for _, user := range users {
-		cards, _ := h.ClassicSearch(user.ID, handlers.SearchRequestParams{SearchTerm: ""})
+		cards, _ := h.ClassicCardSearch(user.ID, handlers.SearchRequestParams{SearchTerm: ""})
 		for _, card := range cards {
 			log.Printf("user %v - card %v - %v", user.ID, card.CardID, card.Title)
 			err := h.ChunkCard(card)

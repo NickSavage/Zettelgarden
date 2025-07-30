@@ -434,7 +434,7 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 	return entities, nil
 }
 
-func (s *Handler) ClassicSearch(userID int, params SearchRequestParams) ([]models.Card, error) {
+func (s *Handler) ClassicCardSearch(userID int, params SearchRequestParams) ([]models.Card, error) {
 	searchString := BuildPartialCardSqlSearchTermString(params.SearchTerm, params.FullText)
 	query := `
 	SELECT
@@ -514,6 +514,86 @@ func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]
 	return reranked, err
 }
 
+func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
+
+	var searchResults []models.SearchResult
+
+	// Get card results
+	cards, err := s.ClassicCardSearch(userID, searchParams)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert cards to SearchResults
+	for _, card := range cards {
+		var tags []models.Tag
+		if card.TagCount > 0 {
+			tags, _ = s.QueryTagsForCard(userID, card.ID)
+		}
+		searchResults = append(searchResults, models.SearchResult{
+			ID:        card.CardID,
+			Type:      "card",
+			Title:     card.Title,
+			Preview:   card.Body,
+			Score:     1.0, // Classic search doesn't have scoring
+			CreatedAt: card.CreatedAt,
+			UpdatedAt: card.UpdatedAt,
+			Tags:      tags,
+			Metadata: map[string]interface{}{
+				"id":        card.ID,
+				"parent_id": card.ParentID,
+			},
+		})
+	}
+
+	//Get entity results
+	var entities []models.Entity
+
+	// I want to check if the search term has any entities in it
+	// if it does, we don't wan tto populate with more entities
+	params := ParseSearchText(searchParams.SearchTerm)
+	if len(params.Entities) == 0 && searchParams.ShowEntities {
+		entities, err = s.ClassicEntitySearch(userID, searchParams)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	//Convert entities to SearchResults and append them
+	for _, entity := range entities {
+		searchResults = append(searchResults, models.SearchResult{
+			ID:        strconv.Itoa(entity.ID),
+			Type:      "entity",
+			Title:     entity.Name,
+			Preview:   entity.Description,
+			Score:     1.0,
+			CreatedAt: entity.CreatedAt,
+			UpdatedAt: entity.UpdatedAt,
+			Metadata: map[string]interface{}{
+				"id":         entity.ID,
+				"type":       entity.Type,
+				"card_count": entity.CardCount,
+			},
+		})
+	}
+
+	var reranked []models.SearchResult
+	if s.Server.Testing {
+		reranked = searchResults
+	} else {
+		if len(searchResults) > 0 {
+
+			client := llms.NewDefaultClient(s.DB, userID)
+
+			reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, searchResults)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return reranked, nil
+}
+
 func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	var searchParams SearchRequestParams
@@ -523,93 +603,21 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var searchResults []models.SearchResult
-
 	if searchParams.SearchType == "classic" {
-		// Get card results
-		cards, err := s.ClassicSearch(userID, searchParams)
+
+		searchResults, err := s.ClassicSearch(searchParams, userID)
 		if err != nil {
+			log.Printf("search err %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Convert cards to SearchResults
-		for _, card := range cards {
-			var tags []models.Tag
-			if card.TagCount > 0 {
-				tags, _ = s.QueryTagsForCard(userID, card.ID)
-			}
-			searchResults = append(searchResults, models.SearchResult{
-				ID:        card.CardID,
-				Type:      "card",
-				Title:     card.Title,
-				Preview:   card.Body,
-				Score:     1.0, // Classic search doesn't have scoring
-				CreatedAt: card.CreatedAt,
-				UpdatedAt: card.UpdatedAt,
-				Tags:      tags,
-				Metadata: map[string]interface{}{
-					"id":        card.ID,
-					"parent_id": card.ParentID,
-				},
-			})
-		}
-
-		//Get entity results
-		var entities []models.Entity
-
-		// I want to check if the search term has any entities in it
-		// if it does, we don't wan tto populate with more entities
-		params := ParseSearchText(searchParams.SearchTerm)
-		if len(params.Entities) == 0 && searchParams.ShowEntities {
-			entities, err = s.ClassicEntitySearch(userID, searchParams)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-
-		//Convert entities to SearchResults and append them
-		for _, entity := range entities {
-			searchResults = append(searchResults, models.SearchResult{
-				ID:        strconv.Itoa(entity.ID),
-				Type:      "entity",
-				Title:     entity.Name,
-				Preview:   entity.Description,
-				Score:     1.0,
-				CreatedAt: entity.CreatedAt,
-				UpdatedAt: entity.UpdatedAt,
-				Metadata: map[string]interface{}{
-					"id":         entity.ID,
-					"type":       entity.Type,
-					"card_count": entity.CardCount,
-				},
-			})
-		}
-
-		var reranked []models.SearchResult
-		if s.Server.Testing {
-			reranked = searchResults
-		} else {
-			if len(searchResults) > 0 {
-
-				client := llms.NewDefaultClient(s.DB, userID)
-
-				reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, searchResults)
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
-			}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(reranked)
+		json.NewEncoder(w).Encode(searchResults)
 		return
 	}
 
 	// Handle semantic search
-	searchResults, err = s.SemanticCardSearch(userID, searchParams)
+	searchResults, err := s.SemanticCardSearch(userID, searchParams)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
