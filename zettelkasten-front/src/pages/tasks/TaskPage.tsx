@@ -225,6 +225,7 @@ export function TaskPage({ }: TaskListProps) {
             <TaskPageOptionsMenu
               tags={tags}
               handleTagClick={handleTagClick}
+              tasks={tasksToDisplay}
             />
           </div>
           <span className="bg-slate-300 text-slate-700 px-2 py-0.5 rounded-full text-sm">

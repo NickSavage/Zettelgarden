@@ -2,28 +2,39 @@ import React, { useState } from "react";
 import { useTaskContext } from "../../contexts/TaskContext";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { Tag } from "../../models/Tags";
+import { BulkTaskDateDisplay } from "./BulkTaskDateDisplay";
+import { Task } from "../../models/Task";
 
 interface TaskPageOptionsMenu {
   tags: Tag[];
   handleTagClick: (tag: string) => void;
+  tasks: Task[];
 }
 
 export function TaskPageOptionsMenu({
   tags,
   handleTagClick,
+  tasks,
 }: TaskPageOptionsMenu) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const { setRefreshTasks, showCompleted, setShowCompleted } = useTaskContext();
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
+  const [showBulkEdit, setShowBulkEdit] = useState<boolean>(false);
 
   function toggleMenu() {
     setShowMenu(!showMenu);
     setShowTagMenu(false);
+    setShowBulkEdit(false);
   }
 
   function toggleTagMenu() {
     setShowMenu(false);
     setShowTagMenu(true);
+  }
+
+  function toggleBulkEdit() {
+    setShowMenu(false);
+    setShowBulkEdit(true);
   }
 
   function toggleViewCompleted() {
@@ -50,6 +61,7 @@ export function TaskPageOptionsMenu({
             )}
 
             <button onClick={toggleTagMenu}>Add Tags</button>
+            <button onClick={toggleBulkEdit}>Bulk Edit Date</button>
           </div>
         )}
       </div>
@@ -60,6 +72,9 @@ export function TaskPageOptionsMenu({
           handleTagClick={handleTagClick}
           setShowTagMenu={setShowTagMenu}
         />
+      )}
+      {showBulkEdit && (
+        <BulkTaskDateDisplay tasks={tasks} setShowBulkEdit={setShowBulkEdit} />
       )}
     </div>
   );
