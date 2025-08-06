@@ -49,7 +49,7 @@ export function AddTagMenu({ task, handleAddTag }: AddTagMenuProps) {
             tag.name.toLowerCase().includes(textInput.toLowerCase()),
           )
           .map((tag) =>
-            task.title.includes(tag.name) ? (
+            task.title.includes("#" + tag.name) ? (
               <div key={tag.id}></div>
             ) : (
               <button key={tag.id} onClick={() => handleExistingTagClick(tag)}>
