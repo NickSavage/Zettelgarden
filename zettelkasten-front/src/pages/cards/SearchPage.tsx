@@ -11,6 +11,8 @@ import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { PinSearchDialog } from "../../components/search/PinSearchDialog";
 import { getPinnedSearches } from "../../api/pinnedSearches";
 import { useTagContext } from "../../contexts/TagContext";
+import { EntityDialog } from "../../components/entities/EntityDialog";
+import { Entity } from "../../models/Card";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -42,6 +44,8 @@ export function SearchPage({
   const { tags } = useTagContext();
   const [showPinSearchDialog, setShowPinSearchDialog] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+  const [selectedEntityForDialog, setSelectedEntityForDialog] = useState<Entity | null>(null);
+  const [isEntityDialogOpen, setIsEntityDialogOpen] = useState(false);
 
   const params = new URLSearchParams(location.search);
   const pinnedId = params.get("pinned");
@@ -134,6 +138,37 @@ export function SearchPage({
   function handleTagClick(tagName: string) {
     setSearchTerm("#" + tagName);
     handleSearch(searchConfig.useClassicSearch, tagName);
+  }
+
+  function handleEntityClick(entityName: string) {
+    // Extract entity name from @[EntityName] format
+    const cleanEntityName = entityName.replace('@[', '').replace(']', '');
+    
+    // Create a minimal Entity object for the dialog
+    const entity: Entity = {
+      id: 0, // We don't have the actual ID from search results
+      user_id: 0, // Will be filled by backend
+      name: cleanEntityName,
+      type: 'PERSON', // Default type, could be enhanced
+      description: '',
+      created_at: new Date(),
+      updated_at: new Date(),
+      card_count: 0,
+      card_pk: null,
+      card: { 
+        id: 0, 
+        card_id: '', 
+        title: '', 
+        parent_id: 0,
+        user_id: 0,
+        created_at: new Date(),
+        updated_at: new Date(),
+        tags: []
+      }
+    };
+    
+    setSelectedEntityForDialog(entity);
+    setIsEntityDialogOpen(true);
   }
 
   function getPagedResults(): SearchResult[] {
@@ -302,10 +337,7 @@ export function SearchPage({
                 <SearchResultList
                   results={getPagedResults()}
                   showPreview={searchConfig.showPreview}
-                  onEntityClick={(entityName) => {
-                    setSearchTerm(entityName);
-                    handleSearch(searchConfig.useClassicSearch, entityName);
-                  }}
+                  onEntityClick={handleEntityClick}
                   onTagClick={handleTagClick}
                 />
                 <div className="flex justify-center gap-4 mt-4">
@@ -360,6 +392,13 @@ export function SearchPage({
           setMessage={setMessage}
         />
       )}
+
+      {/* Entity Dialog */}
+      <EntityDialog
+        entity={selectedEntityForDialog}
+        isOpen={isEntityDialogOpen}
+        onClose={() => setIsEntityDialogOpen(false)}
+      />
     </div>
   );
 }
