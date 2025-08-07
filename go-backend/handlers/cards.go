@@ -724,6 +724,10 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 }
 
 func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.Card, error) {
+	// Strip all whitespace from card_id before proceeding
+	params.CardID = strings.ReplaceAll(params.CardID, " ", "")
+	params.CardID = regexp.MustCompile(`\s+`).ReplaceAllString(params.CardID, "")
+
 	parent, err := s.QueryPartialCard(userID, getParentIdAlternating(params.CardID))
 	query := `
 	INSERT INTO cards 
