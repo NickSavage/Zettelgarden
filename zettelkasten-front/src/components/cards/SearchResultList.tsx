@@ -17,6 +17,7 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
   const isEntity = result.type === "entity";
   const isCard = result.type === "card";
   const cardId = Number(result.metadata?.id) || 0;
+  const linkedCard = isEntity ? result.metadata?.linked_card : null;
 
   const handleClick = (e: React.MouseEvent) => {
     if (isEntity && onEntityClick) {
@@ -53,6 +54,19 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
               )}
               <span>{result.title}</span>
             </Link>
+            {/* Show linked card for entities */}
+            {isEntity && linkedCard && (
+              <>
+                <span className="mx-2 text-gray-400">→</span>
+                <Link
+                  to={`/app/card/${linkedCard.id}`}
+                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  <CardIcon className="w-3 h-3 mr-1" />
+                  [{linkedCard.card_id}] {linkedCard.title}
+                </Link>
+              </>
+            )}
             {/* Parse preview text for hashtags */}
             {result.preview && (
               <>

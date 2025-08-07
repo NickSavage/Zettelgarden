@@ -400,11 +400,21 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 	query := `
 		SELECT 
 			e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at,
-			COUNT(ecj.id) as card_count
+			e.card_pk,
+			COUNT(ecj.id) as card_count,
+			c.id as linked_card_id,
+			c.card_id as linked_card_card_id,
+			c.title as linked_card_title,
+			c.user_id as linked_card_user_id,
+			c.parent_id as linked_card_parent_id,
+			c.created_at as linked_card_created_at,
+			c.updated_at as linked_card_updated_at
 		FROM entities e
 		LEFT JOIN entity_card_junction ecj ON e.id = ecj.entity_id
+		LEFT JOIN cards c ON e.card_pk = c.id AND c.is_deleted = FALSE
 		WHERE e.user_id = $1` + searchString + `
-		GROUP BY e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at`
+		GROUP BY e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at, e.card_pk,
+				c.id, c.card_id, c.title, c.user_id, c.parent_id, c.created_at, c.updated_at`
 
 	rows, err := s.DB.Query(query, userID)
 	if err != nil {
@@ -415,6 +425,11 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 	var entities []models.Entity
 	for rows.Next() {
 		var entity models.Entity
+		var cardID sql.NullInt64
+		var cardCardID, cardTitle sql.NullString
+		var cardUserID, cardParentID sql.NullInt64
+		var cardCreatedAt, cardUpdatedAt sql.NullTime
+
 		err := rows.Scan(
 			&entity.ID,
 			&entity.UserID,
@@ -423,11 +438,33 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 			&entity.Type,
 			&entity.CreatedAt,
 			&entity.UpdatedAt,
+			&entity.CardPK,
 			&entity.CardCount,
+			&cardID,
+			&cardCardID,
+			&cardTitle,
+			&cardUserID,
+			&cardParentID,
+			&cardCreatedAt,
+			&cardUpdatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		// Set the linked card if it exists
+		if cardID.Valid {
+			entity.Card = &models.PartialCard{
+				ID:        int(cardID.Int64),
+				CardID:    cardCardID.String,
+				Title:     cardTitle.String,
+				UserID:    int(cardUserID.Int64),
+				ParentID:  int(cardParentID.Int64),
+				CreatedAt: cardCreatedAt.Time,
+				UpdatedAt: cardUpdatedAt.Time,
+			}
+		}
+
 		entities = append(entities, entity)
 	}
 
@@ -561,6 +598,22 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 
 	//Convert entities to SearchResults and append them
 	for _, entity := range entities {
+		metadata := map[string]interface{}{
+			"id":         entity.ID,
+			"type":       entity.Type,
+			"card_count": entity.CardCount,
+		}
+		
+		// Include linked card information if it exists
+		if entity.Card != nil {
+			metadata["linked_card"] = map[string]interface{}{
+				"id":        entity.Card.ID,
+				"card_id":   entity.Card.CardID,
+				"title":     entity.Card.Title,
+				"parent_id": entity.Card.ParentID,
+			}
+		}
+
 		searchResults = append(searchResults, models.SearchResult{
 			ID:        strconv.Itoa(entity.ID),
 			Type:      "entity",
@@ -569,11 +622,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 			Score:     1.0,
 			CreatedAt: entity.CreatedAt,
 			UpdatedAt: entity.UpdatedAt,
-			Metadata: map[string]interface{}{
-				"id":         entity.ID,
-				"type":       entity.Type,
-				"card_count": entity.CardCount,
-			},
+			Metadata:  metadata,
 		})
 	}
 
