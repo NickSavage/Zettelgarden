@@ -263,5 +263,10 @@ func main() {
 	})
 
 	handler := c.Handler(r)
-	http.ListenAndServe(":8080", handler)
+
+	port := os.Getenv("ZETTEL_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	http.ListenAndServe(":"+port, handler)
 }
