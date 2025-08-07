@@ -738,3 +738,94 @@ func (s *Handler) RemoveEntityFromCardRoute(w http.ResponseWriter, r *http.Reque
 		"message": "Entity removed from card successfully",
 	})
 }
+
+func (s *Handler) GetEntityByNameRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	// Extract entity name from URL parameters
+	vars := mux.Vars(r)
+	entityName := vars["name"]
+	if entityName == "" {
+		http.Error(w, "Entity name is required", http.StatusBadRequest)
+		return
+	}
+
+	query := `
+        SELECT 
+            e.id,
+            e.user_id,
+            e.name,
+            e.description,
+            e.type,
+            e.created_at,
+            e.updated_at,
+            e.card_pk,
+            COUNT(DISTINCT ecj.card_pk) as card_count,
+            c.id as linked_card_id,
+            c.card_id as linked_card_card_id,
+            c.title as linked_card_title,
+            c.user_id as linked_card_user_id,
+            c.parent_id as linked_card_parent_id,
+            c.created_at as linked_card_created_at,
+            c.updated_at as linked_card_updated_at
+        FROM 
+            entities e
+            LEFT JOIN entity_card_junction ecj ON e.id = ecj.entity_id
+            LEFT JOIN cards c ON e.card_pk = c.id AND c.is_deleted = FALSE
+        WHERE 
+            e.user_id = $1 AND e.name = $2
+        GROUP BY 
+            e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at, e.card_pk,
+            c.id, c.card_id, c.title, c.user_id, c.parent_id, c.created_at, c.updated_at
+    `
+
+	var entity models.Entity
+	var cardID sql.NullInt64
+	var cardCardID, cardTitle sql.NullString
+	var cardUserID, cardParentID sql.NullInt64
+	var cardCreatedAt, cardUpdatedAt sql.NullTime
+
+	err := s.DB.QueryRow(query, userID, entityName).Scan(
+		&entity.ID,
+		&entity.UserID,
+		&entity.Name,
+		&entity.Description,
+		&entity.Type,
+		&entity.CreatedAt,
+		&entity.UpdatedAt,
+		&entity.CardPK,
+		&entity.CardCount,
+		&cardID,
+		&cardCardID,
+		&cardTitle,
+		&cardUserID,
+		&cardParentID,
+		&cardCreatedAt,
+		&cardUpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Entity not found", http.StatusNotFound)
+			return
+		}
+		log.Printf("error querying entity by name: %v", err)
+		http.Error(w, "Failed to query entity", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the linked card if it exists
+	if cardID.Valid {
+		entity.Card = &models.PartialCard{
+			ID:        int(cardID.Int64),
+			CardID:    cardCardID.String,
+			Title:     cardTitle.String,
+			UserID:    int(cardUserID.Int64),
+			ParentID:  int(cardParentID.Int64),
+			CreatedAt: cardCreatedAt.Time,
+			UpdatedAt: cardUpdatedAt.Time,
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(entity)
+}

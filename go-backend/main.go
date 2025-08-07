@@ -241,6 +241,7 @@ func main() {
 	addRoute(r, "/api/webhook", h.HandleWebhook, "POST")
 
 	addProtectedRoute(r, "/api/entities", h.GetEntitiesRoute, "GET")
+	addProtectedRoute(r, "/api/entities/name/{name}", h.GetEntityByNameRoute, "GET")
 	addProtectedRoute(r, "/api/entities/merge", h.MergeEntitiesRoute, "POST")
 	addProtectedRoute(r, "/api/entities/id/{id}", h.DeleteEntityRoute, "DELETE")
 	addProtectedRoute(r, "/api/entities/id/{id}", h.UpdateEntityRoute, "PUT")

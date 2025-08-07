@@ -13,6 +13,7 @@ import { getPinnedSearches } from "../../api/pinnedSearches";
 import { useTagContext } from "../../contexts/TagContext";
 import { EntityDialog } from "../../components/entities/EntityDialog";
 import { Entity } from "../../models/Card";
+import { fetchEntityByName } from "../../api/entities";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -140,35 +141,32 @@ export function SearchPage({
     handleSearch(searchConfig.useClassicSearch, tagName);
   }
 
-  function handleEntityClick(entityName: string) {
+  async function handleEntityClick(entityName: string) {
     // Extract entity name from @[EntityName] format
     const cleanEntityName = entityName.replace('@[', '').replace(']', '');
     
-    // Create a minimal Entity object for the dialog
-    const entity: Entity = {
-      id: 0, // We don't have the actual ID from search results
-      user_id: 0, // Will be filled by backend
-      name: cleanEntityName,
-      type: 'PERSON', // Default type, could be enhanced
-      description: '',
-      created_at: new Date(),
-      updated_at: new Date(),
-      card_count: 0,
-      card_pk: null,
-      card: { 
-        id: 0, 
-        card_id: '', 
-        title: '', 
-        parent_id: 0,
+    try {
+      // Fetch the real entity data from the backend
+      const entity = await fetchEntityByName(cleanEntityName);
+      setSelectedEntityForDialog(entity);
+      setIsEntityDialogOpen(true);
+    } catch (error) {
+      console.error('Failed to fetch entity details:', error);
+      // Fallback: still open dialog but with minimal entity data
+      const fallbackEntity: Entity = {
+        id: 0,
         user_id: 0,
+        name: cleanEntityName,
+        type: 'PERSON',
+        description: '',
         created_at: new Date(),
         updated_at: new Date(),
-        tags: []
-      }
-    };
-    
-    setSelectedEntityForDialog(entity);
-    setIsEntityDialogOpen(true);
+        card_count: 0,
+        card_pk: null,
+      };
+      setSelectedEntityForDialog(fallbackEntity);
+      setIsEntityDialogOpen(true);
+    }
   }
 
   function getPagedResults(): SearchResult[] {

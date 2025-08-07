@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"go-backend/models"
 	"go-backend/tests"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -601,5 +603,263 @@ func TestRemoveEntityFromCardNonExistent(t *testing.T) {
 	}
 	if count != originalCount {
 		t.Errorf("Expected %d relationships in total, got %d", originalCount, count)
+	}
+}
+
+func TestGetEntityByNameRouteSuccess(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Generate test JWT for user 1
+	token, _ := tests.GenerateTestJWT(1)
+	
+	// Create request for existing entity "Test Entity 1"
+	entityName := "Test Entity 1"
+	req, err := http.NewRequest("GET", "/api/entities/name/"+url.QueryEscape(entityName), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	// Set up router with path variable
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/entities/name/{name}", s.JwtMiddleware(s.GetEntityByNameRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check status code
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	// Parse response
+	var entity models.Entity
+	err = json.Unmarshal(rr.Body.Bytes(), &entity)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response: %v", err)
+	}
+
+	// Verify entity details
+	if entity.ID != 1 {
+		t.Errorf("Expected entity ID 1, got %d", entity.ID)
+	}
+	if entity.Name != "Test Entity 1" {
+		t.Errorf("Expected entity name 'Test Entity 1', got %s", entity.Name)
+	}
+	if entity.Description != "Original entity" {
+		t.Errorf("Expected entity description 'Original entity', got %s", entity.Description)
+	}
+	if entity.Type != "person" {
+		t.Errorf("Expected entity type 'person', got %s", entity.Type)
+	}
+	if entity.UserID != 1 {
+		t.Errorf("Expected entity user_id 1, got %d", entity.UserID)
+	}
+	if entity.CardCount != 2 {
+		t.Errorf("Expected entity card_count 2, got %d", entity.CardCount)
+	}
+}
+
+func TestGetEntityByNameRouteNotFound(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Generate test JWT for user 1
+	token, _ := tests.GenerateTestJWT(1)
+	
+	// Create request for non-existent entity
+	entityName := "Non Existent Entity"
+	req, err := http.NewRequest("GET", "/api/entities/name/"+url.QueryEscape(entityName), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	// Set up router with path variable
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/entities/name/{name}", s.JwtMiddleware(s.GetEntityByNameRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check status code
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestGetEntityByNameRouteWrongUser(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Generate test JWT for user 2
+	token, _ := tests.GenerateTestJWT(2)
+	
+	// Create request for entity belonging to user 1 ("Test Entity 1")
+	entityName := "Test Entity 1"
+	req, err := http.NewRequest("GET", "/api/entities/name/"+url.QueryEscape(entityName), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	// Set up router with path variable
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/entities/name/{name}", s.JwtMiddleware(s.GetEntityByNameRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check status code - should be not found since user 2 can't see user 1's entities
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestGetEntityByNameRouteSuccessWithLinkedCard(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// First, link entity 1 to card 1 by setting card_pk
+	_, err := s.DB.Exec("UPDATE entities SET card_pk = 1 WHERE id = 1")
+	if err != nil {
+		t.Fatalf("Failed to link entity to card: %v", err)
+	}
+
+	// Generate test JWT for user 1
+	token, _ := tests.GenerateTestJWT(1)
+	
+	// Create request for entity with linked card
+	entityName := "Test Entity 1"
+	req, err := http.NewRequest("GET", "/api/entities/name/"+url.QueryEscape(entityName), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	// Set up router with path variable
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/entities/name/{name}", s.JwtMiddleware(s.GetEntityByNameRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check status code
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	// Parse response
+	var entity models.Entity
+	err = json.Unmarshal(rr.Body.Bytes(), &entity)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response: %v", err)
+	}
+
+	// Verify entity has linked card
+	if entity.Card == nil {
+		t.Error("Expected entity to have linked card, got nil")
+	} else {
+		if entity.Card.ID != 1 {
+			t.Errorf("Expected linked card ID 1, got %d", entity.Card.ID)
+		}
+		if entity.Card.CardID != "1" {
+			t.Errorf("Expected linked card CardID '1', got %s", entity.Card.CardID)
+		}
+	}
+}
+
+func TestGetEntityByNameRouteUnauthorized(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Create request without authorization token
+	entityName := "Test Entity 1"
+	req, err := http.NewRequest("GET", "/api/entities/name/"+url.QueryEscape(entityName), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// No Authorization header set
+
+	// Set up router with path variable
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/entities/name/{name}", s.JwtMiddleware(s.GetEntityByNameRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check status code
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
+	}
+}
+
+func TestGetEntityByNameRouteEmptyName(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Generate test JWT for user 1
+	token, _ := tests.GenerateTestJWT(1)
+	
+	// Create request with empty entity name
+	req, err := http.NewRequest("GET", "/api/entities/name/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	// Set up router with path variable
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/entities/name/{name}", s.JwtMiddleware(s.GetEntityByNameRoute))
+	router.ServeHTTP(rr, req)
+
+	// This should return 404 since the route won't match
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestGetEntityByNameRouteSpecialCharacters(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Insert an entity with special characters in the name
+	_, err := s.DB.Exec(`
+		INSERT INTO entities (user_id, name, description, type, created_at, updated_at)
+		VALUES (1, 'Entity with special chars: @#$%&*()!', 'Test entity with special characters', 'person', NOW(), NOW())
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test entity: %v", err)
+	}
+
+	// Generate test JWT for user 1
+	token, _ := tests.GenerateTestJWT(1)
+	
+	// Create request for entity with special characters (should be URL encoded)
+	entityName := "Entity with special chars: @#$%&*()!"
+	req, err := http.NewRequest("GET", "/api/entities/name/"+url.QueryEscape(entityName), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	// Set up router with path variable
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/entities/name/{name}", s.JwtMiddleware(s.GetEntityByNameRoute))
+	router.ServeHTTP(rr, req)
+
+	// Check status code
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	// Parse response
+	var entity models.Entity
+	err = json.Unmarshal(rr.Body.Bytes(), &entity)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response: %v", err)
+	}
+
+	// Verify entity name matches
+	if entity.Name != entityName {
+		t.Errorf("Expected entity name '%s', got %s", entityName, entity.Name)
 	}
 }

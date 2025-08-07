@@ -136,4 +136,27 @@ export function addEntityToCard(entityId: number, cardId: number): Promise<void>
       }
       return;
     });
+}
+
+export function fetchEntityByName(name: string): Promise<Entity> {
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/name/${encodeURIComponent(name)}`;
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((entity: Entity) => {
+          return {
+            ...entity,
+            created_at: new Date(entity.created_at),
+            updated_at: new Date(entity.updated_at),
+          };
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
 } 
