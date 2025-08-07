@@ -14,6 +14,7 @@ import {
 } from "../../utils/dates";
 import { Button } from "../../components/Button";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
+import { EisenhowerMatrix } from "../../components/tasks/EisenhowerMatrix";
 
 // import { SearchTagMenu } from "../../components/tags/SearchTagMenu"; // SearchTagMenu is not used
 import { filterTasks } from "../../utils/tasks";
@@ -32,6 +33,7 @@ export function TaskPage({ }: TaskListProps) {
   const [sortField, setSortField] = useState<SortField>("priority");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [showFilterHelp, setShowFilterHelp] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<"list" | "matrix">("list");
 
   const { tags } = useTagContext();
 
@@ -88,6 +90,10 @@ export function TaskPage({ }: TaskListProps) {
   }
 
   const tasksToDisplay = useMemo(() => {
+    if (viewMode === "matrix") {
+      // In matrix mode, still filter/search but don't sort
+      return filterTasks(tasks, filterString);
+    }
     let filtered = tasks.filter(changeDateView);
     let searched = filterTasks(filtered, filterString);
 
@@ -217,6 +223,14 @@ export function TaskPage({ }: TaskListProps) {
               </div>
             )}
           </div>
+          <select
+            className="p-1 border border-slate-400 rounded"
+            value={viewMode}
+            onChange={(e) => setViewMode(e.target.value as "list" | "matrix")}
+          >
+            <option value="list">List View</option>
+            <option value="matrix">Eisenhower Matrix</option>
+          </select>
         </div>
         {/* Row 2: Action buttons (left) & Task count (right) */}
         <div className="flex items-center justify-between gap-2">
@@ -263,15 +277,19 @@ export function TaskPage({ }: TaskListProps) {
         )}
       </div>
       <div className="p-4">
-        <ul>
-          {tasksToDisplay.length > 0 ? (
-            <TaskList onTagClick={handleTagClick} tasks={tasksToDisplay} />
-          ) : (
-            <div className="flex justify-center items-center">
-              No tasks, you're done for the day!
-            </div>
-          )}
-        </ul>
+        {viewMode === "list" ? (
+          <ul>
+            {tasksToDisplay.length > 0 ? (
+              <TaskList onTagClick={handleTagClick} tasks={tasksToDisplay} />
+            ) : (
+              <div className="flex justify-center items-center">
+                No tasks, you're done for the day!
+              </div>
+            )}
+          </ul>
+        ) : (
+          <EisenhowerMatrix onTagClick={handleTagClick} tasks={tasksToDisplay} />
+        )}
       </div>
     </div>
   );
