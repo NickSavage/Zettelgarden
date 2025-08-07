@@ -624,7 +624,7 @@ func randomMaybeNullDate(start, end time.Time) *time.Time {
 }
 
 func GenerateTestJWT(userID int) (string, error) {
-	var jwtKey = []byte(os.Getenv("SECRET_KEY"))
+	var jwtKey = []byte("")
 	now := time.Now()
 
 	claims := &models.Claims{

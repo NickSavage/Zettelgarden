@@ -19,7 +19,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	openai "github.com/sashabaranov/go-openai"
-	"github.com/stripe/stripe-go"
 )
 
 var s *server.Server
@@ -131,8 +130,6 @@ func main() {
 
 	s.S3 = h.CreateS3Client()
 
-	s.StripeKey = os.Getenv("STRIPE_SECRET_KEY")
-	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
 	s.Mail = &mail.MailClient{
 		Host:     os.Getenv("MAIL_HOST"),
@@ -145,9 +142,6 @@ func main() {
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
 	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
 
-	go func() {
-		h.SyncStripePlans()
-	}()
 
 	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
 		go func() {
