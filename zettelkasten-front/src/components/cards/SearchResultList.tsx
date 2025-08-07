@@ -62,7 +62,9 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
                   to={`/app/card/${linkedCard.id}`}
                   className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
                 >
-                  <CardIcon className="w-3 h-3 mr-1" />
+                  <div className="w-3 h-3 mr-1 text-gray-400">
+                    <CardIcon />
+                  </div>
                   [{linkedCard.card_id}] {linkedCard.title}
                 </Link>
               </>
