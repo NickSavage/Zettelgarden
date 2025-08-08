@@ -37,6 +37,8 @@ export function TaskPage({ }: TaskListProps) {
 
   const { tags } = useTagContext();
 
+  const [showDisplayMenu, setShowDisplayMenu] = useState<boolean>(false);
+
   // changeDateView is used in useMemo, so it needs to be stable or part of dependencies.
   // Let's define it using useCallback or ensure it's stable if it doesn't depend on component state/props that change.
   // For now, assuming it's stable enough or will be correctly handled by useMemo's deps.
@@ -188,84 +190,115 @@ export function TaskPage({ }: TaskListProps) {
 
   return (
     <div>
-      <div className="bg-slate-200 p-2 border-slate-400 border">
-        {/* Row 1: Date view, Filter input, & Sorting controls */}
-        <div className="flex items-center gap-2 mb-3">
-          <select className="p-1 border border-slate-400 rounded" value={dateView} onChange={handleDateChange}>
-            <option value="today">Today</option>
-            <option value="tomorrow">Tomorrow</option>
-            <option value="all">All</option>
-          </select>
-          <div className="flex-grow relative flex items-center"> {/* Added relative and flex items-center */}
-            <input
-              type="text"
-              value={filterString}
-              onChange={handleFilterChange}
-              placeholder="Filter tasks..."
-              className="w-full p-1 border border-slate-400 rounded"
-            />
-            <span
-              className="ml-2 cursor-pointer text-slate-500 hover:text-slate-700"
-              onMouseEnter={() => setShowFilterHelp(true)}
-              onMouseLeave={() => setShowFilterHelp(false)}
-              aria-label="Filter help"
-            >
-              ?
+      {/* Redesigned toolbar header */}
+      <div className="bg-slate-100 p-3 border-b border-slate-300">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Left section: Filter */}
+          <div className="flex flex-wrap items-center gap-2 flex-grow min-w-0">
+            <div className="relative flex-grow max-w-md">
+              <input
+                type="text"
+                value={filterString}
+                onChange={handleFilterChange}
+                placeholder="Filter tasks..."
+                className="h-9 w-full pl-3 pr-8 border border-slate-300 rounded-md text-sm"
+              />
+              <span
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 cursor-help"
+                onMouseEnter={() => setShowFilterHelp(true)}
+                onMouseLeave={() => setShowFilterHelp(false)}
+              >
+                ?
+              </span>
+              {showFilterHelp && (
+                <div className="absolute top-full mt-2 left-0 bg-white p-3 border border-slate-300 rounded shadow-lg z-20 w-auto min-w-[280px]">
+                  <h4 className="font-semibold mb-2 text-slate-700">Filter Options:</h4>
+                  <ul className="list-none space-y-1 text-sm text-slate-600">
+                    <li><strong>Text:</strong> e.g., <code>meeting</code></li>
+                    <li><strong>Tag:</strong> <code>#tagName</code></li>
+                    <li><strong>Priority:</strong> <code>priority:A</code></li>
+                    <li><strong>Negate:</strong> prepend <code>!</code></li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Right section: Count, Display menu, Actions */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs whitespace-nowrap">
+              {tasksToDisplay.length}/{totalTasksForDateView}
+              {dateView === "today"
+                ? " today"
+                : dateView === "tomorrow"
+                  ? " tomorrow"
+                  : ""} tasks
             </span>
-            {showFilterHelp && (
-              <div className="absolute top-full mt-2 left-0 bg-white p-3 border border-slate-300 rounded shadow-lg z-20 w-auto min-w-[280px]">
-                <h4 className="font-semibold mb-2 text-slate-700">Filter Options:</h4>
-                <ul className="list-none space-y-1 text-sm text-slate-600">
-                  <li><strong>Text:</strong> Searches task titles (e.g., <code>meeting</code>).</li>
-                  <li><strong>Tag:</strong> <code>#tagName</code> (e.g., <code>#work</code>).</li>
-                  <li><strong>Priority:</strong> <code>priority:A</code> (or B, C, etc.).</li>
-                  <li><strong>Negate:</strong> Prepend <code>!</code> (e.g., <code>!#home</code>, <code>!priority:C</code>).</li>
-                </ul>
-              </div>
-            )}
+            {/* Display dropdown */}
+            <div className="relative">
+              <Button
+                className="h-9 px-3 text-sm bg-slate-300 rounded-md"
+                onClick={() => setShowDisplayMenu((prev: boolean) => !prev)}
+              >
+                Display ▾
+              </Button>
+              {showDisplayMenu && (
+                <div className="absolute right-0 mt-1 w-64 bg-white border border-slate-300 rounded shadow-lg p-3 z-20">
+                  <div className="mb-2">
+                    <label className="block text-xs font-semibold mb-1">Date Range</label>
+                    <select
+                      className="w-full p-1 border border-slate-300 rounded-md text-sm"
+                      value={dateView}
+                      onChange={handleDateChange}
+                    >
+                      <option value="today">Today</option>
+                      <option value="tomorrow">Tomorrow</option>
+                      <option value="all">All</option>
+                    </select>
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-xs font-semibold mb-1">View Mode</label>
+                    <select
+                      className="w-full p-1 border border-slate-300 rounded-md text-sm"
+                      value={viewMode}
+                      onChange={(e) => setViewMode(e.target.value as "list" | "matrix")}
+                    >
+                      <option value="list">List View</option>
+                      <option value="matrix">Eisenhower Matrix</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Sort By</label>
+                    <div className="flex items-center gap-1">
+                      <select
+                        id="sort-select"
+                        className="flex-grow p-1 border border-slate-300 rounded-md text-sm"
+                        value={sortField}
+                        onChange={handleSortFieldChange}
+                      >
+                        <option value="updated_at">Updated</option>
+                        <option value="title">Name</option>
+                        <option value="priority">Priority</option>
+                        <option value="id">ID</option>
+                      </select>
+                      <Button onClick={toggleSortDirection} className="p-1 text-xs border border-slate-300 rounded-md">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <Button onClick={toggleShowTaskWindow} className="h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 text-sm">
+              Add Task
+            </Button>
+            <div className="h-9 flex items-center">
+              <TaskPageOptionsMenu
+                tags={tags}
+                handleTagClick={handleTagClick}
+                tasks={tasksToDisplay}
+              />
+            </div>
           </div>
-          <select
-            className="p-1 border border-slate-400 rounded"
-            value={viewMode}
-            onChange={(e) => setViewMode(e.target.value as "list" | "matrix")}
-          >
-            <option value="list">List View</option>
-            <option value="matrix">Eisenhower Matrix</option>
-          </select>
-        </div>
-        {/* Row 2: Action buttons (left) & Task count (right) */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Button onClick={toggleShowTaskWindow} children="Add Task" />
-            <TaskPageOptionsMenu
-              tags={tags}
-              handleTagClick={handleTagClick}
-              tasks={tasksToDisplay}
-            />
-          </div>
-          <span className="bg-slate-300 text-slate-700 px-2 py-0.5 rounded-full text-sm">
-            {tasksToDisplay.length}/{totalTasksForDateView} tasks
-            {dateView === "today"
-              ? " today"
-              : dateView === "tomorrow"
-                ? " tomorrow"
-                : ""}
-          </span>
-          <label htmlFor="sort-select" className="text-sm font-medium whitespace-nowrap">Sort by:</label>
-          <select
-            id="sort-select"
-            className="p-1 border border-slate-400 rounded"
-            value={sortField}
-            onChange={handleSortFieldChange}
-          >
-            <option value="updated_at">Date (Updated)</option>
-            <option value="title">Name</option>
-            <option value="priority">Priority</option>
-            <option value="id">ID (Default)</option>
-          </select>
-          <Button onClick={toggleSortDirection} className="p-1">
-            {sortDirection === "asc" ? "↑ Asc" : "↓ Desc"}
-          </Button>
         </div>
       </div>
       <div>
@@ -292,6 +325,6 @@ export function TaskPage({ }: TaskListProps) {
           <EisenhowerMatrix onTagClick={handleTagClick} tasks={tasksToDisplay} />
         )}
       </div>
-    </div>
+    </div >
   );
 }
