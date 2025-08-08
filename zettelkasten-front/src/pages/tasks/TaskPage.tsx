@@ -91,8 +91,9 @@ export function TaskPage({ }: TaskListProps) {
 
   const tasksToDisplay = useMemo(() => {
     if (viewMode === "matrix") {
-      // In matrix mode, still filter/search but don't sort
-      return filterTasks(tasks, filterString);
+      // In matrix mode, apply date filter first, then search
+      let filteredByDate = tasks.filter(changeDateView);
+      return filterTasks(filteredByDate, filterString);
     }
     let filtered = tasks.filter(changeDateView);
     let searched = filterTasks(filtered, filterString);

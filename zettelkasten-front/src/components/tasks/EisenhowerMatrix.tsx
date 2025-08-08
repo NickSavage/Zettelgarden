@@ -36,10 +36,10 @@ export function EisenhowerMatrix({ tasks, onTagClick }: EisenhowerMatrixProps) {
     const q4 = tasks.filter(t => getQuadrant(t) === 4);
 
     const quadrantTitles: Record<number, string> = {
-        1: "Q1: Do First (Important & Urgent)",
-        2: "Q2: Schedule (Important, Not Urgent)",
-        3: "Q3: Delegate (Not Important, Urgent)",
-        4: "Q4: Eliminate (Not Important, Not Urgent)",
+        1: "Do First (Important and Urgent)",
+        2: "Schedule (Important and Not Urgent)",
+        3: "Delegate (Not Important and Urgent)",
+        4: "Eliminate (Not Important and Not Urgent)",
     };
 
     const quadrantData: Record<number, Task[]> = { 1: q1, 2: q2, 3: q3, 4: q4 };
