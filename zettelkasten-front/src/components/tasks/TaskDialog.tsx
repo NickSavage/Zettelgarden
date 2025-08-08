@@ -23,7 +23,6 @@ interface TaskDialogProps {
 }
 
 function formatAuditEvent(event: TaskAuditEvent): string {
-  console.log("Formatting event:", event);
 
   if (event.action === "create") {
     return "Task created";
