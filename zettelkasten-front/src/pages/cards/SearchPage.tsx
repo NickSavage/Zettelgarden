@@ -47,6 +47,7 @@ export function SearchPage({
   const [message, setMessage] = useState<string>("");
   const [selectedEntityForDialog, setSelectedEntityForDialog] = useState<Entity | null>(null);
   const [isEntityDialogOpen, setIsEntityDialogOpen] = useState(false);
+  const latestRequestId = React.useRef(0);
 
   const params = new URLSearchParams(location.search);
   const pinnedId = params.get("pinned");
@@ -56,6 +57,8 @@ export function SearchPage({
   }
 
   async function handleSearch(classicSearch: boolean, inputTerm: string) {
+    const requestId = ++latestRequestId.current;
+
     setIsLoading(true);
     setError(null);
 
@@ -64,12 +67,18 @@ export function SearchPage({
 
     try {
       const results = await semanticSearchCards(term, classicSearch, searchConfig.useFullText, searchConfig.showEntities);
-      setSearchResults(results || []);
+      if (requestId === latestRequestId.current) {
+        setSearchResults(results || []);
+      }
     } catch (error) {
       console.error("Search error:", error);
-      setError(error);
+      if (requestId === latestRequestId.current) {
+        setError(error);
+      }
     } finally {
-      setIsLoading(false);
+      if (requestId === latestRequestId.current) {
+        setIsLoading(false);
+      }
     }
   }
 
