@@ -26,14 +26,35 @@ type SortDirection = "asc" | "desc";
 
 export function TaskPage({ }: TaskListProps) {
   const { tasks, showCompleted } = useTaskContext(); // setRefreshTasks is not used
-  const [dateView, setDateView] = useState<string>("today");
+  // Load any saved settings from localStorage
+  const savedSettings = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("taskPageSettings") || "{}");
+    } catch {
+      return {};
+    }
+  }, []);
+
+  const [dateView, setDateView] = useState<string>(savedSettings.dateView || "today");
   const { showCreateTaskWindow, setShowCreateTaskWindow } =
     useShortcutContext();
-  const [filterString, setFilterString] = useState<string>("");
-  const [sortField, setSortField] = useState<SortField>("priority");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [filterString, setFilterString] = useState<string>(savedSettings.filterString || "");
+  const [sortField, setSortField] = useState<SortField>(savedSettings.sortField || "priority");
+  const [sortDirection, setSortDirection] = useState<SortDirection>(savedSettings.sortDirection || "asc");
   const [showFilterHelp, setShowFilterHelp] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<"list" | "matrix">("list");
+  const [viewMode, setViewMode] = useState<"list" | "matrix">(savedSettings.viewMode || "list");
+
+  // Persist settings whenever they change
+  useEffect(() => {
+    const settings = {
+      dateView,
+      viewMode,
+      filterString,
+      sortField,
+      sortDirection
+    };
+    localStorage.setItem("taskPageSettings", JSON.stringify(settings));
+  }, [dateView, viewMode, filterString, sortField, sortDirection]);
 
   const { tags } = useTagContext();
 
