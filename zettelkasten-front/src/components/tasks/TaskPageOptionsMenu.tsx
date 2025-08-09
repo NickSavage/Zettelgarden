@@ -53,7 +53,7 @@ export function TaskPageOptionsMenu({
           Actions
         </button>
         {showMenu && (
-          <div className="popup-menu w-64 absolute left-0">
+          <div className="popup-menu w-64 absolute right-0">
             {showCompleted ? (
               <button onClick={toggleViewCompleted}>Hide Completed</button>
             ) : (
