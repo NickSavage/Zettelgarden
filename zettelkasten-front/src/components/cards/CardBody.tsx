@@ -262,12 +262,12 @@ function renderCardText(
   );
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({ viewingCard, entities }) => {
+export const CardBody: React.FC<CardBodyProps> = ({ viewingCard }) => {
   const navigate = useNavigate();
 
   function handleCardClick(card_id: number) {
     navigate(`/app/card/${card_id}`);
   }
 
-  return <div>{renderCardText(viewingCard, handleCardClick, entities)}</div>;
+  return <div>{renderCardText(viewingCard, handleCardClick)}</div>;
 };
