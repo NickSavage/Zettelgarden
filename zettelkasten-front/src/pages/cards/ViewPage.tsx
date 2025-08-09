@@ -6,7 +6,7 @@ import { getCard, saveExistingCard, pinCard, unpinCard } from "../../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-import { Card, PartialCard } from "../../models/Card";
+import { Card, PartialCard, Entity } from "../../models/Card";
 import { isErrorResponse } from "../../models/common";
 import { TaskListItem } from "../../components/tasks/TaskListItem";
 import { useTaskContext } from "../../contexts/TaskContext";
@@ -29,6 +29,7 @@ import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { FileUpload } from "../../components/files/FileUpload";
 
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
+import { EntityDialog } from "../../components/entities/EntityDialog";
 import { compareCardIds } from "../../utils/cards";
 
 import { CardList } from "../../components/cards/CardList";
@@ -53,6 +54,9 @@ export function ViewPage({ }: ViewPageProps) {
 
   const { tags } = useTagContext();
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
+
+  const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
+  const [isEntityDialogOpen, setEntityDialogOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -178,6 +182,36 @@ export function ViewPage({ }: ViewPageProps) {
     setShowCreateTaskWindow(!showCreateTaskWindow);
   }
 
+  function escapeRegex(str: string) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function highlightEntities(text: string, entities: Entity[] | null | undefined): string {
+    if (!entities || entities.length === 0) return text;
+    let processed = text;
+    entities.forEach(entity => {
+      const escapedName = escapeRegex(entity.name);
+      const regex = new RegExp(`(${escapedName})`, "gi");
+      processed = processed.replace(
+        regex,
+        `<span class="bg-yellow-200 cursor-pointer hover:bg-yellow-300" data-entity="${entity.id}">$1</span>`
+      );
+    });
+    return processed;
+  }
+
+  function handleEntityClick(e: React.MouseEvent<HTMLDivElement>) {
+    const target = e.target as HTMLElement;
+    const entityId = target.getAttribute("data-entity");
+    if (entityId && viewingCard) {
+      const entity = viewingCard.entities.find(ent => ent.id === Number(entityId));
+      if (entity) {
+        setSelectedEntity(entity);
+        setEntityDialogOpen(true);
+      }
+    }
+  }
+
   // For initial fetch and when id changes
   useEffect(() => {
     setError("");
@@ -215,9 +249,13 @@ export function ViewPage({ }: ViewPageProps) {
             <div className="flex flex-col md:flex-row gap-4">
               {/* Card Body */}
               <div className="md:w-2/3 space-y-4">
-                <div className="bg-white rounded-lg p-6 prose shadow-sm max-w-none">
-                  <CardBody viewingCard={viewingCard} />
-                </div>
+                <div
+                  className="bg-white rounded-lg p-6 prose shadow-sm max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: highlightEntities(viewingCard.body, viewingCard.entities),
+                  }}
+                  onClick={handleEntityClick}
+                />
 
 
                 <div>
@@ -231,7 +269,14 @@ export function ViewPage({ }: ViewPageProps) {
                         card={viewingCard}
                       />
                       <hr />
-                    </div>
+                      {selectedEntity && (
+        <EntityDialog
+          entity={selectedEntity}
+          isOpen={isEntityDialogOpen}
+          onClose={() => setEntityDialogOpen(false)}
+        />
+      )}
+    </div>
                   )}
                 </div>
                 <div>
