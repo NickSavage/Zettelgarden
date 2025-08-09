@@ -203,8 +203,10 @@ export function ViewPage({ }: ViewPageProps) {
   function handleEntityClick(e: React.MouseEvent<HTMLDivElement>) {
     const target = e.target as HTMLElement;
     const entityId = target.getAttribute("data-entity");
+    console.log("entity id", entityId)
     if (entityId && viewingCard) {
       const entity = viewingCard.entities.find(ent => ent.id === Number(entityId));
+      console.log("entity", entity)
       if (entity) {
         setSelectedEntity(entity);
         setEntityDialogOpen(true);
@@ -269,14 +271,8 @@ export function ViewPage({ }: ViewPageProps) {
                         card={viewingCard}
                       />
                       <hr />
-                      {selectedEntity && (
-        <EntityDialog
-          entity={selectedEntity}
-          isOpen={isEntityDialogOpen}
-          onClose={() => setEntityDialogOpen(false)}
-        />
-      )}
-    </div>
+
+                    </div>
                   )}
                 </div>
                 <div>
@@ -434,6 +430,13 @@ export function ViewPage({ }: ViewPageProps) {
 
           </div>
         </div>
+      )}
+      {selectedEntity && (
+        <EntityDialog
+          entity={selectedEntity}
+          isOpen={isEntityDialogOpen}
+          onClose={() => setEntityDialogOpen(false)}
+        />
       )}
     </div>
   );
