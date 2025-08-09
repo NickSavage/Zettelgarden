@@ -1,19 +1,19 @@
 import Markdown from "react-markdown";
 import React, { useState, useEffect } from "react";
 import { downloadFile } from "../../api/files";
-import { Card } from "../../models/Card";
+import { Card, Entity } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 
 import { CardLinkWithPreview } from "./CardLinkWithPreview";
-import { H1, H2, H3, H4,H5,H6 } from "../Header";
-import { 
-  Table, 
-  TableHead, 
-  TableBody, 
-  TableRow, 
-  TableHeader, 
-  TableCell 
+import { H1, H2, H3, H4, H5, H6 } from "../Header";
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableHeader,
+  TableCell
 } from "../table/TableComponents";
 import { DataviewTable } from "../dataview/DataviewTable";
 import { saveExistingCard } from "../../api/cards";
@@ -29,31 +29,52 @@ interface CardBodyProps {
 }
 
 // Function to identify dataview blocks and mark them with special markers
-function preprocessDataviewBlocks(body: string): { 
-  processedBody: string, 
-  dataviews: { id: string, original: string, content: string }[] 
+function preprocessDataviewBlocks(body: string): {
+  processedBody: string,
+  dataviews: { id: string, original: string, content: string }[]
 } {
   const dataviews: { id: string, original: string, content: string }[] = [];
   let id = 0;
-  
+
   // Replace dataview blocks with special markers
   const processedBody = body.replace(/```dataview\s+([\s\S]*?)```/g, (match, content) => {
     const blockId = `dataview-${id++}`;
-    dataviews.push({ 
-      id: blockId, 
-      original: match, 
-      content: content.trim() 
+    dataviews.push({
+      id: blockId,
+      original: match,
+      content: content.trim()
     });
     // Use a format that will be preserved as a code block by the markdown parser
     return `\`\`\`dataview-marker\n${blockId}\n\`\`\``;
   });
-  
+
   return { processedBody, dataviews };
 }
 
 function preprocessCardLinks(body: string): string {
   // Only match IDs without parentheses after - this preserves standard markdown links
   return body.replace(/\[([A-Za-z0-9_.-/]+)\](?!\()/g, "[$1](#)");
+}
+
+// Preprocess entity highlighting by injecting placeholder markers into markdown text
+function preprocessEntities(body: string, entities?: Entity[]): string {
+  if (!entities || entities.length === 0) return body;
+
+  // Sort entities by length (desc) to avoid partial match conflicts
+  const sortedEntities = [...entities].sort((a, b) => b.name.length - a.name.length);
+
+  let processed = body;
+
+  sortedEntities.forEach(entity => {
+    const escapedName = entity.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${escapedName})`, "gi");
+    processed = processed.replace(
+      regex,
+      (match) => `§ENTITY:${entity.id}§${match}§/ENTITY§`
+    );
+  });
+
+  return processed;
 }
 
 const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
@@ -94,38 +115,39 @@ const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
 
 function renderCardText(
   card: Card,
-  handleViewBacklink: (card_id: number) => void
+  handleViewBacklink: (card_id: number) => void,
+  entities?: Entity[]
 ) {
   const [cardBody, setCardBody] = useState(card.body);
   const [dataviews, setDataviews] = useState<{ id: string, original: string, content: string }[]>([]);
-  
+
   // Process the card body to identify dataview blocks
   useEffect(() => {
     const { processedBody, dataviews } = preprocessDataviewBlocks(card.body);
     setCardBody(processedBody);
     setDataviews(dataviews);
   }, [card.body]);
-  
+
   // Handle saving dataview changes
   const handleDataviewSave = (originalBlock: string, newContent: string) => {
     // Replace the original dataview block with the updated one
     const updatedBody = card.body.replace(
-      originalBlock, 
+      originalBlock,
       `\`\`\`dataview\n${newContent}\n\`\`\``
     );
-    
+
     // Create updated card object
     const updatedCard = {
       ...card,
       body: updatedBody
     };
-    
+
     // Save the updated card
     saveExistingCard(updatedCard)
       .then(() => {
         // Reprocess the updated body to identify dataview blocks
         const { processedBody, dataviews: updatedDataviews } = preprocessDataviewBlocks(updatedBody);
-        
+
         // Update both states
         setCardBody(processedBody);
         setDataviews(updatedDataviews);
@@ -134,29 +156,29 @@ function renderCardText(
         console.error("Error saving card:", error);
       });
   };
-  
-  // Process card links
-  let processedBody = preprocessCardLinks(cardBody);
+
+  // Preprocess card links first, then entities with safe markers
+  // let processedBody = preprocessEntities(preprocessCardLinks(cardBody), entities);
 
   // Custom component for handling our dataview code blocks
   const CustomCodeBlock = ({ node, inline, className, children, ...props }: any) => {
     const value = String(children).trim();
     const language = className?.replace(/language-/, '');
-    
+
     // Check if this is one of our dataview markers
     if (language === 'dataview-marker') {
       const id = value;
       const dataview = dataviews.find(d => d.id === id);
       if (dataview) {
         return (
-          <DataviewTable 
-            content={dataview.content} 
-            onSave={(newContent) => handleDataviewSave(dataview.original, newContent)} 
+          <DataviewTable
+            content={dataview.content}
+            onSave={(newContent) => handleDataviewSave(dataview.original, newContent)}
           />
         );
       }
     }
-    
+
     // Otherwise render as regular code block
     return (
       <pre className={className}>
@@ -167,7 +189,7 @@ function renderCardText(
 
   return (
     <Markdown
-      children={processedBody}
+      children={cardBody}
       remarkPlugins={[remarkGfm]}
       components={{
         // Add our custom component for code blocks
@@ -183,7 +205,7 @@ function renderCardText(
                 handleViewBacklink={handleViewBacklink}
               />
             );
-          } 
+          }
           // For external links, render a regular anchor tag
           else {
             return (
@@ -193,23 +215,23 @@ function renderCardText(
             );
           }
         },
-        h1( {children, ...props}) {
-          return (<H1 children={children as string}/>)
+        h1({ children, ...props }) {
+          return (<H1 children={children as string} />)
         },
-        h2( {children, ...props}) {
-          return (<H2 children={children as string}/>)
+        h2({ children, ...props }) {
+          return (<H2 children={children as string} />)
         },
-        h3( {children, ...props}) {
-          return (<H3 children={children as string}/>)
+        h3({ children, ...props }) {
+          return (<H3 children={children as string} />)
         },
-        h4( {children, ...props}) {
-          return (<H4 children={children as string}/>)
+        h4({ children, ...props }) {
+          return (<H4 children={children as string} />)
         },
-        h5( {children, ...props}) {
-          return (<H5 children={children as string}/>)
+        h5({ children, ...props }) {
+          return (<H5 children={children as string} />)
         },
-        h6( {children, ...props}) {
-          return (<H6 children={children as string}/>)
+        h6({ children, ...props }) {
+          return (<H6 children={children as string} />)
         },
         // Table components
         table({ children, ...props }) {
@@ -240,12 +262,12 @@ function renderCardText(
   );
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({ viewingCard }) => {
+export const CardBody: React.FC<CardBodyProps> = ({ viewingCard, entities }) => {
   const navigate = useNavigate();
 
   function handleCardClick(card_id: number) {
     navigate(`/app/card/${card_id}`);
   }
 
-  return <div>{renderCardText(viewingCard, handleCardClick)}</div>;
+  return <div>{renderCardText(viewingCard, handleCardClick, entities)}</div>;
 };

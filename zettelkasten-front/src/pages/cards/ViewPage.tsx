@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { CardBody } from "../../components/cards/CardBody";
 import { CardItem } from "../../components/cards/CardItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { getCard, saveExistingCard, pinCard, unpinCard } from "../../api/cards";
@@ -33,6 +32,7 @@ import { EntityDialog } from "../../components/entities/EntityDialog";
 import { compareCardIds } from "../../utils/cards";
 
 import { CardList } from "../../components/cards/CardList";
+import { CardBody } from "../../components/cards/CardBody";
 
 interface ViewPageProps { }
 
@@ -181,39 +181,6 @@ export function ViewPage({ }: ViewPageProps) {
   function toggleCreateTaskWindow() {
     setShowCreateTaskWindow(!showCreateTaskWindow);
   }
-
-  function escapeRegex(str: string) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  }
-
-  function highlightEntities(text: string, entities: Entity[] | null | undefined): string {
-    if (!entities || entities.length === 0) return text;
-    let processed = text;
-    entities.forEach(entity => {
-      const escapedName = escapeRegex(entity.name);
-      const regex = new RegExp(`(${escapedName})`, "gi");
-      processed = processed.replace(
-        regex,
-        `<span class="bg-yellow-200 cursor-pointer hover:bg-yellow-300" data-entity="${entity.id}">$1</span>`
-      );
-    });
-    return processed;
-  }
-
-  function handleEntityClick(e: React.MouseEvent<HTMLDivElement>) {
-    const target = e.target as HTMLElement;
-    const entityId = target.getAttribute("data-entity");
-    console.log("entity id", entityId)
-    if (entityId && viewingCard) {
-      const entity = viewingCard.entities.find(ent => ent.id === Number(entityId));
-      console.log("entity", entity)
-      if (entity) {
-        setSelectedEntity(entity);
-        setEntityDialogOpen(true);
-      }
-    }
-  }
-
   // For initial fetch and when id changes
   useEffect(() => {
     setError("");
@@ -253,11 +220,11 @@ export function ViewPage({ }: ViewPageProps) {
               <div className="md:w-2/3 space-y-4">
                 <div
                   className="bg-white rounded-lg p-6 prose shadow-sm max-w-none"
-                  dangerouslySetInnerHTML={{
-                    __html: highlightEntities(viewingCard.body, viewingCard.entities),
-                  }}
-                  onClick={handleEntityClick}
-                />
+                >
+                  <CardBody
+                    viewingCard={viewingCard}
+                  />
+                </div>
 
 
                 <div>
