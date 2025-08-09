@@ -13,11 +13,24 @@ import { EntitySelectionActions } from "../components/entities/EntitySelectionAc
 export function EntityPage() {
   const [entities, setEntities] = useState<Entity[]>([]);
   const [filteredEntities, setFilteredEntities] = useState<Entity[]>([]);
-  const [filterText, setFilterText] = useState("");
+  const STORAGE_KEY = "entityPageState";
+  const SCROLL_KEY = "entityPageScroll";
+
+  // Hydrate persisted state on init
+  const getInitialState = () => {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  };
+  const initial = getInitialState();
+
+  const [filterText, setFilterText] = useState(initial.filterText || "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"name" | "cards" | "created_at">("name");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = useState<"name" | "cards" | "created_at">(initial.sortBy || "name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(initial.sortDirection || "asc");
   const [selectedEntities, setSelectedEntities] = useState<number[]>([]);
   const [isMerging, setIsMerging] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -29,7 +42,7 @@ export function EntityPage() {
   const [entityToDelete, setEntityToDelete] = useState<Entity | null>(null);
   const [selectedEntityForDialog, setSelectedEntityForDialog] = useState<Entity | null>(null); // State for the new dialog
   const [isEntityDialogOpen, setIsEntityDialogOpen] = useState(false); // State for new dialog visibility
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initial.currentPage || 1);
   const [itemsPerPage] = useState(20);
   const navigate = useNavigate();
 
@@ -50,7 +63,56 @@ export function EntityPage() {
 
   useEffect(() => {
     loadEntities();
+
+    // Restore scroll
+    const savedScroll = localStorage.getItem(SCROLL_KEY);
+    if (savedScroll) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScroll, 10) || 0);
+      }, 0);
+    }
   }, []);
+
+  // Persist state when changes occur (avoid overwriting with initial empty load)
+  useEffect(() => {
+    // Skip persisting until after the initial load to prevent overwriting saved state with defaults
+    if (loading) return;
+    const stateToSave = { filterText, sortBy, sortDirection, currentPage };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+  }, [filterText, sortBy, sortDirection, currentPage, loading]);
+
+  // Persist scroll position
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      localStorage.setItem(SCROLL_KEY, String(window.scrollY));
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(handleScroll);
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // // After entities load, reapply persisted filters without overriding them to empty
+  // useEffect(() => {
+  //   try {
+  //     const savedState = localStorage.getItem(STORAGE_KEY);
+  //     if (savedState) {
+  //       const { filterText: savedFilter, sortBy: savedSortBy, sortDirection: savedSortDirection, currentPage: savedPage } = JSON.parse(savedState);
+  //       if (savedFilter !== undefined && savedFilter !== filterText) setFilterText(savedFilter);
+  //       if (savedSortBy !== undefined && savedSortBy !== sortBy) setSortBy(savedSortBy);
+  //       if (savedSortDirection !== undefined && savedSortDirection !== sortDirection) setSortDirection(savedSortDirection);
+  //       if (savedPage !== undefined && savedPage !== currentPage) setCurrentPage(savedPage);
+  //     }
+  //   } catch (e) {
+  //     console.error("Failed to reapply saved entity page state", e);
+  //   }
+  // }, [entities]);
 
   useEffect(() => {
     const filtered = entities.filter((entity) => {
@@ -62,7 +124,7 @@ export function EntityPage() {
       );
     });
     setFilteredEntities(filtered);
-    setCurrentPage(1);
+//    setCurrentPage(1);
   }, [filterText, entities]);
 
   const handleEntityClick = (entity: Entity, event: React.MouseEvent) => {
@@ -142,6 +204,16 @@ export function EntityPage() {
 
   const handleDeselectAll = () => {
     setSelectedEntities([]);
+  };
+
+  const handleClearFilters = () => {
+    setFilterText("");
+    setSortBy("name");
+    setSortDirection("asc");
+    setCurrentPage(1);
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(SCROLL_KEY);
+    window.scrollTo(0, 0);
   };
 
   const getSelectionInfo = (entityId: number) => {
@@ -231,6 +303,12 @@ export function EntityPage() {
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
+        <button
+          onClick={handleClearFilters}
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm font-medium"
+        >
+          Clear Filters
+        </button>
         <button
           onClick={handleSelectionModeToggle}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
