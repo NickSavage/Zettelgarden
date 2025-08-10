@@ -223,6 +223,7 @@ export function ViewPage({ }: ViewPageProps) {
                 >
                   <CardBody
                     viewingCard={viewingCard}
+                    entities={viewingCard.entities}
                   />
                 </div>
 
@@ -397,13 +398,6 @@ export function ViewPage({ }: ViewPageProps) {
 
           </div>
         </div>
-      )}
-      {selectedEntity && (
-        <EntityDialog
-          entity={selectedEntity}
-          isOpen={isEntityDialogOpen}
-          onClose={() => setEntityDialogOpen(false)}
-        />
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import { downloadFile } from "../../api/files";
 import { Card, Entity } from "../../models/Card";
 import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from 'rehype-raw'
 
 import { CardLinkWithPreview } from "./CardLinkWithPreview";
 import { H1, H2, H3, H4, H5, H6 } from "../Header";
@@ -26,29 +27,7 @@ interface CustomImageRendererProps {
 
 interface CardBodyProps {
   viewingCard: Card;
-}
-
-// Function to identify dataview blocks and mark them with special markers
-function preprocessDataviewBlocks(body: string): {
-  processedBody: string,
-  dataviews: { id: string, original: string, content: string }[]
-} {
-  const dataviews: { id: string, original: string, content: string }[] = [];
-  let id = 0;
-
-  // Replace dataview blocks with special markers
-  const processedBody = body.replace(/```dataview\s+([\s\S]*?)```/g, (match, content) => {
-    const blockId = `dataview-${id++}`;
-    dataviews.push({
-      id: blockId,
-      original: match,
-      content: content.trim()
-    });
-    // Use a format that will be preserved as a code block by the markdown parser
-    return `\`\`\`dataview-marker\n${blockId}\n\`\`\``;
-  });
-
-  return { processedBody, dataviews };
+  entities?: Entity[];
 }
 
 function preprocessCardLinks(body: string): string {
@@ -70,7 +49,7 @@ function preprocessEntities(body: string, entities?: Entity[]): string {
     const regex = new RegExp(`(${escapedName})`, "gi");
     processed = processed.replace(
       regex,
-      (match) => `§ENTITY:${entity.id}§${match}§/ENTITY§`
+      (match) => `<span style="background-color: #fff9c4;">${match}</span>`
     );
   });
 
@@ -118,67 +97,13 @@ function renderCardText(
   handleViewBacklink: (card_id: number) => void,
   entities?: Entity[]
 ) {
-  const [cardBody, setCardBody] = useState(card.body);
-  const [dataviews, setDataviews] = useState<{ id: string, original: string, content: string }[]>([]);
-
-  // Process the card body to identify dataview blocks
-  useEffect(() => {
-    const { processedBody, dataviews } = preprocessDataviewBlocks(card.body);
-    setCardBody(processedBody);
-    setDataviews(dataviews);
-  }, [card.body]);
-
-  // Handle saving dataview changes
-  const handleDataviewSave = (originalBlock: string, newContent: string) => {
-    // Replace the original dataview block with the updated one
-    const updatedBody = card.body.replace(
-      originalBlock,
-      `\`\`\`dataview\n${newContent}\n\`\`\``
-    );
-
-    // Create updated card object
-    const updatedCard = {
-      ...card,
-      body: updatedBody
-    };
-
-    // Save the updated card
-    saveExistingCard(updatedCard)
-      .then(() => {
-        // Reprocess the updated body to identify dataview blocks
-        const { processedBody, dataviews: updatedDataviews } = preprocessDataviewBlocks(updatedBody);
-
-        // Update both states
-        setCardBody(processedBody);
-        setDataviews(updatedDataviews);
-      })
-      .catch(error => {
-        console.error("Error saving card:", error);
-      });
-  };
 
   // Preprocess card links first, then entities with safe markers
-  // let processedBody = preprocessEntities(preprocessCardLinks(cardBody), entities);
+  let processedBody = preprocessEntities(preprocessCardLinks(card.body), entities);
+  //let processedBody = preprocessCardLinks(cardBody)
 
   // Custom component for handling our dataview code blocks
   const CustomCodeBlock = ({ node, inline, className, children, ...props }: any) => {
-    const value = String(children).trim();
-    const language = className?.replace(/language-/, '');
-
-    // Check if this is one of our dataview markers
-    if (language === 'dataview-marker') {
-      const id = value;
-      const dataview = dataviews.find(d => d.id === id);
-      if (dataview) {
-        return (
-          <DataviewTable
-            content={dataview.content}
-            onSave={(newContent) => handleDataviewSave(dataview.original, newContent)}
-          />
-        );
-      }
-    }
-
     // Otherwise render as regular code block
     return (
       <pre className={className}>
@@ -189,8 +114,9 @@ function renderCardText(
 
   return (
     <Markdown
-      children={cardBody}
+      children={processedBody}
       remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw]}
       components={{
         // Add our custom component for code blocks
         code: CustomCodeBlock,
@@ -262,12 +188,12 @@ function renderCardText(
   );
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({ viewingCard }) => {
+export const CardBody: React.FC<CardBodyProps> = ({ viewingCard, entities }) => {
   const navigate = useNavigate();
 
   function handleCardClick(card_id: number) {
     navigate(`/app/card/${card_id}`);
   }
 
-  return <div>{renderCardText(viewingCard, handleCardClick)}</div>;
+  return <div>{renderCardText(viewingCard, handleCardClick, entities)}</div>;
 };
