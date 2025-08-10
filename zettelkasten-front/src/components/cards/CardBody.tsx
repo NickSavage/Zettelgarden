@@ -42,20 +42,51 @@ function preprocessCardLinks(body: string): string {
 function preprocessEntities(body: string, entities?: Entity[]): string {
   if (!entities || entities.length === 0) return body;
 
-  // Sort entities by length (desc) to avoid partial match conflicts
+  // Sort entities by length (desc) to give priority to longer entity names
   const sortedEntities = [...entities].sort((a, b) => b.name.length - a.name.length);
 
-  let processed = body;
+  // Collect all matches for all entities
+  type Match = { start: number; end: number; id: number; text: string };
+  const matches: Match[] = [];
 
   sortedEntities.forEach(entity => {
     const escapedName = entity.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(`(${escapedName})`, "gi");
-    processed = processed.replace(
-      regex,
-      (match) => `&ENTITY:${entity.id}:${match}&`
-    );
+    const regex = new RegExp(`\\b(${escapedName})\\b`, "gi");
+    let match;
+    while ((match = regex.exec(body)) !== null) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        id: entity.id,
+        text: match[0]
+      });
+    }
   });
-  return processed;
+
+  // Sort matches by start index, then by length descending
+  matches.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+
+  // Filter to remove overlapping matches, keeping the longest first
+  const nonOverlapping: Match[] = [];
+  let lastEnd = -1;
+  matches.forEach(m => {
+    if (m.start >= lastEnd) {
+      nonOverlapping.push(m);
+      lastEnd = m.end;
+    }
+  });
+
+  // Build the processed string with replacements
+  let result = "";
+  let currentIndex = 0;
+  nonOverlapping.forEach(m => {
+    result += body.slice(currentIndex, m.start);
+    result += `&ENTITY:${m.id}:${m.text}&`;
+    currentIndex = m.end;
+  });
+  result += body.slice(currentIndex);
+
+  return result;
 }
 
 const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
