@@ -2,6 +2,7 @@ import Markdown from "react-markdown";
 import React, { useState, useEffect } from "react";
 import { downloadFile } from "../../api/files";
 import { Card, Entity } from "../../models/Card";
+import remarkEntity from "../../remark-entity";
 import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
@@ -18,6 +19,8 @@ import {
 } from "../table/TableComponents";
 import { DataviewTable } from "../dataview/DataviewTable";
 import { saveExistingCard } from "../../api/cards";
+import { EntityDialog } from "../entities/EntityDialog";
+import { fetchEntityByName } from "../../api/entities";
 
 interface CustomImageRendererProps {
   src?: string; // Make src optional
@@ -49,10 +52,9 @@ function preprocessEntities(body: string, entities?: Entity[]): string {
     const regex = new RegExp(`(${escapedName})`, "gi");
     processed = processed.replace(
       regex,
-      (match) => `<span style="background-color: #fff9c4;">${match}</span>`
+      (match) => `&ENTITY:${entity.id}:${match}&`
     );
   });
-
   return processed;
 }
 
@@ -92,10 +94,54 @@ const CustomImageRenderer: React.FC<CustomImageRendererProps> = ({
   );
 };
 
-function renderCardText(
+function renderCardTextWithDialog(
   card: Card,
   handleViewBacklink: (card_id: number) => void,
   entities?: Entity[]
+) {
+  const [selectedEntity, setSelectedEntity] = React.useState<Entity | null>(null);
+  const [isEntityDialogOpen, setIsEntityDialogOpen] = React.useState(false);
+
+  async function handleEntityClickById(id: string, name: string) {
+    try {
+      const entity = await fetchEntityByName(name);
+      setSelectedEntity(entity);
+    } catch (error) {
+      console.error("Failed to fetch entity details:", error);
+      const fallbackEntity: Entity = {
+        id: Number(id) || 0,
+        user_id: 0,
+        name,
+        type: "UNKNOWN",
+        description: "",
+        created_at: new Date(),
+        updated_at: new Date(),
+        card_count: 0,
+        card_pk: null,
+      };
+      setSelectedEntity(fallbackEntity);
+    }
+    setIsEntityDialogOpen(true);
+  }
+
+  const markdown = renderCardText(card, handleViewBacklink, entities, handleEntityClickById as any);
+  return (
+    <>
+      {markdown}
+      <EntityDialog
+        entity={selectedEntity}
+        isOpen={isEntityDialogOpen}
+        onClose={() => setIsEntityDialogOpen(false)}
+      />
+    </>
+  );
+}
+
+function renderCardText(
+  card: Card,
+  handleViewBacklink: (card_id: number) => void,
+  entities?: Entity[],
+  onEntityClick?: (id: string, name: string) => void
 ) {
 
   // Preprocess card links first, then entities with safe markers
@@ -115,8 +161,7 @@ function renderCardText(
   return (
     <Markdown
       children={processedBody}
-      remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw]}
+      remarkPlugins={[remarkGfm, remarkEntity]}
       components={{
         // Add our custom component for code blocks
         code: CustomCodeBlock,
@@ -178,6 +223,22 @@ function renderCardText(
         td({ children, ...props }) {
           return <TableCell {...props}>{children}</TableCell>;
         },
+        span: ({ node, children, ...props }) => {
+          const propsData = (node as any).properties || {};
+          if (propsData.className === "entity" || propsData["data-id"]) {
+            const id = propsData["data-id"];
+            const name = propsData["data-name"] || children;
+            return (
+              <span
+                style={{ backgroundColor: "#fff9c4", cursor: "pointer" }}
+                onClick={() => onEntityClick?.(id, name)}
+              >
+                {name}
+              </span>
+            );
+          }
+          return <span {...props}>{children}</span>;
+        },
         img({ src, alt, title, ...props }) {
           return (
             <CustomImageRenderer src={src} alt={alt} title={title} {...props} />
@@ -195,5 +256,5 @@ export const CardBody: React.FC<CardBodyProps> = ({ viewingCard, entities }) => 
     navigate(`/app/card/${card_id}`);
   }
 
-  return <div>{renderCardText(viewingCard, handleCardClick, entities)}</div>;
+  return <div>{renderCardTextWithDialog(viewingCard, handleCardClick, entities)}</div>;
 };
