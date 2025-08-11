@@ -343,7 +343,14 @@ export function TaskPage({ }: TaskListProps) {
             )}
           </ul>
         ) : (
-          <EisenhowerMatrix onTagClick={handleTagClick} tasks={tasksToDisplay} />
+          <EisenhowerMatrix
+            onTagClick={handleTagClick}
+            tasks={tasksToDisplay}
+            onAddTaskWithTags={(tags: string[]) => {
+              setFilterString(tags.join(" "));
+              setShowCreateTaskWindow(true);
+            }}
+          />
         )}
       </div>
     </div >

@@ -6,6 +6,7 @@ import { TaskList } from "./TaskList";
 interface EisenhowerMatrixProps {
     tasks: Task[];
     onTagClick: (tag: string) => void;
+    onAddTaskWithTags?: (tags: string[]) => void;
 }
 
 function normalizeTag(tag: string) {
@@ -28,7 +29,7 @@ function getQuadrant(task: Task): 1 | 2 | 3 | 4 {
 import { saveExistingTask } from "../../api/tasks";
 import { useTaskContext } from "../../contexts/TaskContext";
 
-export function EisenhowerMatrix({ tasks, onTagClick }: EisenhowerMatrixProps) {
+export function EisenhowerMatrix({ tasks, onTagClick, onAddTaskWithTags }: EisenhowerMatrixProps) {
     const { setRefreshTasks } = useTaskContext();
     const q1 = tasks.filter(t => getQuadrant(t) === 1);
     const q2 = tasks.filter(t => getQuadrant(t) === 2);
@@ -43,6 +44,13 @@ export function EisenhowerMatrix({ tasks, onTagClick }: EisenhowerMatrixProps) {
     };
 
     const quadrantData: Record<number, Task[]> = { 1: q1, 2: q2, 3: q3, 4: q4 };
+
+    const quadrantTags: Record<number, string[]> = {
+        1: ["#urgent", "#important"],
+        2: ["#important"],
+        3: ["#urgent"],
+        4: [],
+    };
 
     function updateTaskTagsForQuadrant(task: Task, quadrant: number): Task {
         // Remove #urgent / #important from title
@@ -98,7 +106,17 @@ export function EisenhowerMatrix({ tasks, onTagClick }: EisenhowerMatrixProps) {
                         : "border-slate-400 bg-white"
                         }`}
                 >
-                    <h3 className="font-bold mb-2">{quadrantTitles[quadrant]} ({quadrantData[quadrant].length})</h3>
+                    <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-bold">{quadrantTitles[quadrant]} ({quadrantData[quadrant].length})</h3>
+                        {typeof onAddTaskWithTags === "function" && (
+                            <button
+                                onClick={() => onAddTaskWithTags(quadrantTags[quadrant])}
+                                className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                            >
+                                + Add Task
+                            </button>
+                        )}
+                    </div>
                     {quadrantData[quadrant].length > 0 ? (
                         quadrantData[quadrant].map((task, idx) => (
                             <Draggable key={task.id.toString()} draggableId={task.id.toString()} index={idx}>
