@@ -101,6 +101,7 @@ export function EditPage({ newCard }: EditPageProps) {
     document.title = "Zettelgarden - " + refreshed.card_id + " - Edit";
   }
 
+  // clear draft on save
   async function handleSaveCard() {
     let response;
     if (newCard) {
@@ -110,6 +111,9 @@ export function EditPage({ newCard }: EditPageProps) {
     }
 
     if (!("error" in response)) {
+      if (newCard) {
+        localStorage.removeItem('newCardBodyDraft');
+      }
       filesToUpdate.map((file) =>
         editFile(file["id"].toString(), {
           name: file.name,
@@ -124,14 +128,17 @@ export function EditPage({ newCard }: EditPageProps) {
     setRefreshPartialCards(true);
   }
 
+  // on mount, restore draft if newCard
   useEffect(() => {
     if (!newCard) {
       fetchCard(id!);
     } else {
       document.title = "Zettelgarden - New Card";
+      const draft = localStorage.getItem('newCardBodyDraft') || "";
       setEditingCard({
         ...defaultCard,
         card_id: nextCardId || (lastCard ? lastCard.card_id : ""),
+        body: draft
       });
       if (nextCardId) {
         setNextCardId(null);
@@ -139,8 +146,10 @@ export function EditPage({ newCard }: EditPageProps) {
     }
   }, [id]);
 
+  // clear draft on cancel
   function handleCancelButtonClick() {
     if (newCard) {
+      localStorage.removeItem('newCardBodyDraft');
       console.log(lastCard);
       if (lastCard) {
         navigate(`/app/card/${lastCard.id}`);
@@ -307,7 +316,13 @@ export function EditPage({ newCard }: EditPageProps) {
               <CardBodyTextArea
                 ref={cardBodyRef}
                 editingCard={editingCard}
-                setEditingCard={setEditingCard}
+                setEditingCard={(card) => {
+                  setEditingCard(card);
+                  console.log("saving", newCard)
+                  if (newCard) {
+                    localStorage.setItem('newCardBodyDraft', card.body);
+                  }
+                }}
                 setMessage={setMessage}
                 newCard={newCard}
                 filesToUpdate={filesToUpdate}
