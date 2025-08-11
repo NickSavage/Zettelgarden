@@ -20,7 +20,8 @@ import {
 import { DataviewTable } from "../dataview/DataviewTable";
 import { saveExistingCard } from "../../api/cards";
 import { EntityDialog } from "../entities/EntityDialog";
-import { fetchEntityByName } from "../../api/entities";
+//import { fetchEntityByName } from "../../api/entities";
+import { fetchEntityById } from "../../api/entities";
 
 interface CustomImageRendererProps {
   src?: string; // Make src optional
@@ -133,9 +134,10 @@ function renderCardTextWithDialog(
   const [selectedEntity, setSelectedEntity] = React.useState<Entity | null>(null);
   const [isEntityDialogOpen, setIsEntityDialogOpen] = React.useState(false);
 
+
   async function handleEntityClickById(id: string, name: string) {
     try {
-      const entity = await fetchEntityByName(name);
+      const entity = await fetchEntityById(Number(id));
       setSelectedEntity(entity);
     } catch (error) {
       console.error("Failed to fetch entity details:", error);

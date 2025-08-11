@@ -138,6 +138,30 @@ export function addEntityToCard(entityId: number, cardId: number): Promise<void>
     });
 }
 
+// Fetch entity by ID (new API to avoid case-sensitivity issues)
+export function fetchEntityById(id: number): Promise<Entity> {
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/id/${id}`;
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((entity: Entity) => {
+          return {
+            ...entity,
+            created_at: new Date(entity.created_at),
+            updated_at: new Date(entity.updated_at),
+          };
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export function fetchEntityByName(name: string): Promise<Entity> {
   let token = localStorage.getItem("token");
   const url = base_url + `/entities/name/${encodeURIComponent(name)}`;
@@ -159,4 +183,4 @@ export function fetchEntityByName(name: string): Promise<Entity> {
         return Promise.reject(new Error("Response is undefined"));
       }
     });
-} 
+}
