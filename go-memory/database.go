@@ -1,0 +1,112 @@
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"sort"
+	"time"
+
+	_ "github.com/lib/pq"
+)
+
+type DatabaseConfig struct {
+	Host         string
+	Port         string
+	User         string
+	Password     string
+	DatabaseName string
+}
+
+func ConnectToDatabase(dbConfig DatabaseConfig) (*sql.DB, error) {
+	psqlInfo := fmt.Sprintf("host=%v port=%v user=%v "+
+		"password=%v dbname=%v sslmode=disable",
+		dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DatabaseName)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatalf("Unable to connect to the database: %v\n", err)
+	}
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+	return db, err
+}
+
+func ResetDatabase(S *Server) error {
+	_, err := S.DB.Exec(`
+			DROP TABLE IF EXISTS migrations CASCADE;
+
+			CREATE TABLE IF NOT EXISTS migrations (
+				id SERIAL PRIMARY KEY,
+				migration_name VARCHAR(255) NOT NULL,
+				applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+		`)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func RunMigrations(S *Server) {
+	if S.Testing {
+		if err := ResetDatabase(S); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	queryString := "SELECT applied_at FROM migrations WHERE migration_name = $1"
+	insertString := "INSERT INTO migrations (migration_name) VALUES ($1)"
+
+	files, err := ioutil.ReadDir(S.SchemaDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var fileNames []string
+	for _, file := range files {
+		fileNames = append(fileNames, file.Name())
+	}
+	sort.Strings(fileNames)
+
+	for _, fileName := range fileNames {
+		var result time.Time
+		err = S.DB.QueryRow(queryString, fileName).Scan(&result)
+
+		if err == sql.ErrNoRows {
+			content, err := ioutil.ReadFile(S.SchemaDir + "/" + fileName)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			tx, err := S.DB.Begin()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			_, err = tx.Exec(string(content))
+			if err != nil {
+				tx.Rollback()
+				log.Fatal(err)
+			}
+
+			_, err = tx.Exec(insertString, fileName)
+			if err != nil {
+				tx.Rollback()
+				log.Fatal(err)
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			//	fmt.Println("Running migration:", fileName)
+		} else if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
