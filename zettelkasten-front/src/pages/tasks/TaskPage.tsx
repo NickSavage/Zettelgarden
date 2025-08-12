@@ -213,10 +213,10 @@ export function TaskPage({ }: TaskListProps) {
     <div>
       {/* Redesigned toolbar header */}
       <div className="bg-slate-100 p-3 border-b border-slate-300">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-between gap-2 sm:gap-3">
           {/* Left section: Filter */}
-          <div className="flex flex-wrap items-center gap-2 flex-grow min-w-0">
-            <div className="relative flex-grow max-w-md">
+          <div className="flex flex-wrap items-center gap-2 flex-grow min-w-0 w-full sm:w-auto">
+            <div className="relative flex-grow w-full sm:max-w-md">
               <input
                 type="text"
                 value={filterString}

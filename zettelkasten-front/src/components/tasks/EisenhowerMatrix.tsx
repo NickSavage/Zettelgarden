@@ -106,7 +106,7 @@ export function EisenhowerMatrix({ tasks, onTagClick, onAddTaskWithTags }: Eisen
                         : "border-slate-400 bg-white"
                         }`}
                 >
-                    <div className="flex justify-between items-center mb-2">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-2">
                         <h3 className="font-bold">{quadrantTitles[quadrant]} ({quadrantData[quadrant].length})</h3>
                         {typeof onAddTaskWithTags === "function" && (
                             <button
@@ -146,7 +146,8 @@ export function EisenhowerMatrix({ tasks, onTagClick, onAddTaskWithTags }: Eisen
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {quadrantBox(1)}
                 {quadrantBox(2)}
                 {quadrantBox(3)}
