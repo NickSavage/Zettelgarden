@@ -32,22 +32,86 @@ func chunkInput(input string) []string {
 	return chunks
 }
 
-func ProcessEmbeddings(db *sql.DB, request models.LLMRequest) {
-	embeddings, err := GenerateChunkEmbeddings(request.Chunk, false)
-	if err != nil {
-		log.Printf("failed to generate embeddings for %v: %v", request.Chunk.ID, err)
-		return
+func ProcessEmbeddings(db *sql.DB, userID, cardPK int, chunks []models.CardChunk) {
+	var allEmbeddings [][]pgvector.Vector
+	var allEmbeddings1024 [][]pgvector.Vector
+
+	for _, chunk := range chunks {
+		embeddings, err := GenerateChunkEmbeddings(chunk, false)
+		if err != nil {
+			log.Printf("failed to generate embeddings for card %v chunk %v: %v", cardPK, chunk.ID, err)
+			return
+		}
+		embeddings1024, err := GenerateChunkEmbeddings1024(chunk, false)
+		if err != nil {
+			log.Printf("failed to generate embeddings1024 for card %v chunk %v: %v", cardPK, chunk.ID, err)
+			return
+		}
+		allEmbeddings = append(allEmbeddings, embeddings)
+		allEmbeddings1024 = append(allEmbeddings1024, embeddings1024)
 	}
-	err = StoreEmbeddings(
+
+	if err := StoreBothEmbeddings(
 		db,
-		request.UserID,
-		request.CardPK,
-		[][]pgvector.Vector{embeddings},
-	)
-	if err != nil {
-		log.Printf("failed to store embed")
+		userID,
+		cardPK,
+		allEmbeddings,
+		allEmbeddings1024,
+	); err != nil {
+		log.Printf("failed to store embeddings for %v: %v", cardPK, err)
 		return
 	}
+}
+
+// GetEmbedding generates an embedding vector for a given text string
+func GetEmbedding1024(text string, useForQuery bool) (pgvector.Vector, error) {
+	url := os.Getenv("ZETTEL_EMBEDDING_1024_API")
+	if url == "" {
+		return pgvector.Vector{}, errors.New("no embedding url given - set ZETTEL_EMBEDDING_1024_API")
+	}
+
+	prompt := text
+	if useForQuery {
+		prompt = "Represent this sentence for searching relevant passages:" + prompt
+	}
+
+	payload := map[string]string{
+		"inputs": prompt,
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return pgvector.Vector{}, fmt.Errorf("error creating JSON payload: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return pgvector.Vector{}, fmt.Errorf("error creating request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return pgvector.Vector{}, fmt.Errorf("error communicating with the embedding API: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return pgvector.Vector{}, fmt.Errorf("error generating embeddings: %d - %s", resp.StatusCode, resp.Status)
+	}
+
+	var embeddings [][]float32
+	if err := json.NewDecoder(resp.Body).Decode(&embeddings); err != nil {
+		return pgvector.Vector{}, fmt.Errorf("error decoding embedding API response: %w", err)
+	}
+
+	if len(embeddings) == 0 {
+		return pgvector.Vector{}, errors.New("no embeddings returned")
+	}
+
+	// use the first embedding
+	return pgvector.NewVector(embeddings[0]), nil
 }
 
 // GetEmbedding generates an embedding vector for a given text string
@@ -99,6 +163,13 @@ func GetEmbedding(text string, useForQuery bool) (pgvector.Vector, error) {
 	return pgvector.NewVector(response.Embedding), nil
 }
 
+func GenerateChunkEmbeddings1024(chunk models.CardChunk, useForQuery bool) ([]pgvector.Vector, error) {
+	embedding, err := GetEmbedding1024(chunk.Chunk, useForQuery)
+	if err != nil {
+		return nil, err
+	}
+	return []pgvector.Vector{embedding}, nil
+}
 func GenerateChunkEmbeddings(chunk models.CardChunk, useForQuery bool) ([]pgvector.Vector, error) {
 	embedding, err := GetEmbedding(chunk.Chunk, useForQuery)
 	if err != nil {
@@ -120,30 +191,39 @@ func GenerateEmbeddingsFromCard(db *sql.DB, chunks []models.CardChunk) ([][]pgve
 	return results, nil
 }
 
-func StoreEmbeddings(db *sql.DB, userID, cardPK int, embeddings [][]pgvector.Vector) error {
+func StoreBothEmbeddings(db *sql.DB, userID, cardPK int, embeddings [][]pgvector.Vector, embeddings1024 [][]pgvector.Vector) error {
+	if len(embeddings) != len(embeddings1024) {
+		return fmt.Errorf("embedding lengths do not match: %d vs %d", len(embeddings), len(embeddings1024))
+	}
+
 	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
 	query := `DELETE FROM card_embeddings WHERE card_pk = $1 AND user_id = $2`
-	_, err = tx.Exec(query, cardPK, userID)
-	for i, vec := range embeddings {
+	if _, err := tx.Exec(query, cardPK, userID); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error clearing existing card embeddings: %w", err)
+	}
 
-		if err != nil {
-			log.Printf("error %v", err)
+	for i := range embeddings {
+		if len(embeddings[i]) != len(embeddings1024[i]) {
 			tx.Rollback()
-			return fmt.Errorf("error updating card %d: %w", cardPK, err)
+			return fmt.Errorf("embedding chunk %d length mismatch: %d vs %d", i, len(embeddings[i]), len(embeddings1024[i]))
 		}
-		for _, embedding := range vec {
-			query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding_nomic) VALUES ($1, $2, $3, $4)`
-
-			_, err = tx.Exec(query, cardPK, userID, i, embedding)
-			if err != nil {
-				log.Printf("error %v", err)
+		for j := range embeddings[i] {
+			query = `INSERT INTO card_embeddings (card_pk, user_id, chunk, embedding_nomic, embedding_1024) VALUES ($1, $2, $3, $4, $5)`
+			if _, err := tx.Exec(query, cardPK, userID, i, embeddings[i][j], embeddings1024[i][j]); err != nil {
 				tx.Rollback()
-				return fmt.Errorf("error updating card %d: %w", cardPK, err)
+				return fmt.Errorf("error inserting embeddings for card %d: %w", cardPK, err)
 			}
-
 		}
 	}
-	tx.Commit()
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit error: %w", err)
+	}
 	return nil
 }
 func GenerateSemanticSearchQuery(c *models.LLMClient, userQuery string) ([]pgvector.Vector, error) {

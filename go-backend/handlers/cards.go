@@ -793,16 +793,8 @@ func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
 		return err
 	}
 
-	for i, chunk := range chunks {
-		log.Printf("process chunk %v for card %v user %v", i, cardPK, userID)
-		llms.ProcessEmbeddings(
-			s.DB,
-			models.LLMRequest{
-				UserID: userID,
-				CardPK: cardPK,
-				Chunk:  chunk,
-			})
-	}
+	log.Printf("process chunks for card %v user %v", cardPK, userID)
+	llms.ProcessEmbeddings(s.DB, userID, cardPK, chunks)
 	return nil
 }
 
