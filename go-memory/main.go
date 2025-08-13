@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -59,9 +62,9 @@ func ExecuteLLMRequest(c *LLMClient, messages []openai.ChatCompletionMessage) (o
 		},
 	)
 
-	if err == nil {
-		logLLMRequest(c, resp)
-	}
+	// if err == nil {
+	// 	logLLMRequest(c, resp)
+	// }
 
 	return resp, err
 }
@@ -97,6 +100,7 @@ func main() {
 		SchemaDir: "./schema",
 	}
 	log.Printf("%v", s)
+	RunMigrations(&s)
 
 	authPassword := os.Getenv("AUTH_PASSWORD")
 	if authPassword == "" {
@@ -125,6 +129,74 @@ func main() {
 	// Hello World route (requires authentication)
 	r.Handle("/hello", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello, World!"))
+	}))
+
+	// Facts route
+	r.Handle("/facts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		type reqBody struct {
+			Input string `json:"input"`
+		}
+		var body reqBody
+		rawBody, _ := io.ReadAll(r.Body)
+		if err := json.Unmarshal(rawBody, &body); err != nil {
+			http.Error(w, "Invalid input", http.StatusBadRequest)
+			return
+		}
+		if body.Input == "" {
+			http.Error(w, "Invalid input", http.StatusBadRequest)
+			return
+		}
+
+		llm := NewClient(s.DB, config, 1)
+		llm.Model = os.Getenv("MEMORY_LLM_MODEL")
+		if llm.Model == "" {
+			llm.Model = "gpt-5-chat"
+		}
+
+		prompt := "From the following input, extract all discrete factual statements as a JSON array of strings. Return only valid JSON. Input: " + body.Input
+		messages := []openai.ChatCompletionMessage{
+			{Role: openai.ChatMessageRoleUser, Content: prompt},
+		}
+
+		respLLM, err := ExecuteLLMRequest(llm, messages)
+		if err != nil || len(respLLM.Choices) == 0 {
+			http.Error(w, "LLM request failed", http.StatusInternalServerError)
+			return
+		}
+
+		log.Printf("%v", respLLM.Choices[0].Message.Content)
+		// Clean LLM output in case it's wrapped in markdown code fences
+		rawOutput := respLLM.Choices[0].Message.Content
+		log.Printf("DEBUG: Raw LLM output: %s", rawOutput)
+		cleanOutput := rawOutput
+		if strings.HasPrefix(strings.TrimSpace(cleanOutput), "```") {
+			lines := strings.Split(cleanOutput, "\n")
+			var filtered []string
+			for _, line := range lines {
+				if strings.HasPrefix(line, "```") {
+					continue
+				}
+				filtered = append(filtered, line)
+			}
+			cleanOutput = strings.Join(filtered, "\n")
+			log.Printf("DEBUG: Stripped code fences from LLM output")
+		}
+
+		var facts []string
+		if err := json.Unmarshal([]byte(cleanOutput), &facts); err != nil {
+			log.Printf("DEBUG: JSON unmarshal error: %v", err)
+			http.Error(w, "Failed to parse LLM output", http.StatusInternalServerError)
+			return
+		}
+
+		for _, f := range facts {
+			if _, err := s.DB.Exec(`INSERT INTO facts (user_id, fact) VALUES ($1, $2)`, llm.UserID, f); err != nil {
+				http.Error(w, "Database insert failed", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}))
 
 	c := cors.New(cors.Options{

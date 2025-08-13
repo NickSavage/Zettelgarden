@@ -4,6 +4,11 @@ CREATE TABLE IF NOT EXISTS migrations (
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS users (
+       id SERIAL PRIMARY KEY,
+       name TEXT
+);
+
 CREATE TABLE IF NOT EXISTS llm_query_log (
        id SERIAL PRIMARY KEY,
        user_id int,
@@ -13,4 +18,3 @@ CREATE TABLE IF NOT EXISTS llm_query_log (
        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        FOREIGN KEY (user_id) REFERENCES users(id)
 );
-
