@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"github.com/sashabaranov/go-openai"
 )
 
 type Server struct {
@@ -16,15 +18,79 @@ type Server struct {
 	SchemaDir string
 }
 
+type LLMClient struct {
+	Client  *openai.Client
+	Testing bool
+	Model   string
+	UserID  int
+	DB      *sql.DB
+}
+
+type headerTransport struct {
+	http.RoundTripper
+}
+
+func (t headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("HTTP-Referer", "http://nicksavage.ca")
+	req.Header.Set("X-Title", "Zettelgarden Memory Dev")
+
+	return t.RoundTripper.RoundTrip(req)
+}
+
+func NewClient(db *sql.DB, config openai.ClientConfig, userID int) *LLMClient {
+	config.HTTPClient = &http.Client{
+		Transport: headerTransport{http.DefaultTransport},
+	}
+
+	return &LLMClient{
+		Client:  openai.NewClientWithConfig(config),
+		Testing: false,
+		UserID:  userID,
+		DB:      db,
+	}
+}
+
+func ExecuteLLMRequest(c *LLMClient, messages []openai.ChatCompletionMessage) (openai.ChatCompletionResponse, error) {
+	resp, err := c.Client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:    c.Model,
+			Messages: messages,
+		},
+	)
+
+	if err == nil {
+		logLLMRequest(c, resp)
+	}
+
+	return resp, err
+}
+
+func logLLMRequest(c *LLMClient, resp openai.ChatCompletionResponse) {
+	// fire and forget
+	go func() {
+		_, err := c.DB.Exec(`
+		INSERT INTO llm_query_log (user_id, model, prompt_tokens, completion_tokens)
+		VALUES ($1, $2, $3, $4)
+	`, c.UserID, c.Model, resp.Usage.PromptTokens, resp.Usage.CompletionTokens)
+		if err != nil {
+			log.Printf("Error logging llm request: %v", err)
+		}
+	}()
+}
+
 func main() {
 	dbConfig := DatabaseConfig{}
-	dbConfig.Host = os.Getenv("DB_HOST")
-	dbConfig.Port = os.Getenv("DB_PORT")
-	dbConfig.User = os.Getenv("DB_USER")
-	dbConfig.Password = os.Getenv("DB_PASS")
-	dbConfig.DatabaseName = os.Getenv("DB_NAME")
+	dbConfig.Host = os.Getenv("MEMORY_DB_HOST")
+	dbConfig.Port = os.Getenv("MEMORY_DB_PORT")
+	dbConfig.User = os.Getenv("MEMORY_DB_USER")
+	dbConfig.Password = os.Getenv("MEMORY_DB_PASS")
+	dbConfig.DatabaseName = os.Getenv("MEMORY_DB_NAME")
 
 	db, _ := ConnectToDatabase(dbConfig)
+
+	config := openai.DefaultConfig(os.Getenv("MEMORY_LLM_KEY"))
+	config.BaseURL = os.Getenv("MEMORY_LLM_ENDPOINT")
 
 	s := Server{
 		DB:        db,
@@ -71,6 +137,24 @@ func main() {
 	})
 
 	handler := c.Handler(r)
+
+	// Test LLM query before starting server
+	llm := NewClient(db, config, 0)
+	llm.Model = os.Getenv("MEMORY_LLM_MODEL")
+	if llm.Model == "" {
+		llm.Model = "gpt-5-chat"
+	}
+
+	messages := []openai.ChatCompletionMessage{
+		{Role: openai.ChatMessageRoleUser, Content: "Hello from Go test query"},
+	}
+
+	respLLM, err := ExecuteLLMRequest(llm, messages)
+	if err != nil {
+		log.Printf("Test LLM query failed: %v", err)
+	} else if len(respLLM.Choices) > 0 {
+		log.Printf("Test LLM query response: %s", respLLM.Choices[0].Message.Content)
+	}
 
 	http.ListenAndServe(":8078", handler)
 }
