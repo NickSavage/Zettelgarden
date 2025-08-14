@@ -89,10 +89,9 @@ func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []mod
                 UPDATE entities 
                 SET description = $1, 
                     type = $2,
-                    card_pk = $3,
                     updated_at = NOW()
-                WHERE id = $4
-            `, entity.Description, entity.Type, entity.CardPK, entityID)
+                WHERE id = $3
+            `, entity.Description, entity.Type, entityID)
 			if err != nil {
 				log.Printf("error updating entity: %v", err)
 				continue
