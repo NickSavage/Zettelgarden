@@ -58,7 +58,7 @@ func main() {
 		s.ChunkEmbedCard(userID, cardPK)
 	}
 
-	rows, _ = db.Query("select id, user_id, name, type, description from entities where embedding_nomic is null")
+	rows, _ = db.Query("select id, user_id, name, type, description from entities where embedding_1024 is null")
 
 	for rows.Next() {
 		var entityPK int

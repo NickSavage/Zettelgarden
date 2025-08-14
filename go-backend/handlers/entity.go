@@ -72,7 +72,7 @@ func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []mod
 		if err == sql.ErrNoRows {
 			// Entity doesn't exist, insert it
 			err = s.DB.QueryRow(`
-                INSERT INTO entities (user_id, name, description, type, embedding_nomic, card_pk)
+                INSERT INTO entities (user_id, name, description, type, embedding_1024, card_pk)
                 VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id
             `, userID, entity.Name, entity.Description, entity.Type, entity.Embedding, entity.CardPK).Scan(&entityID)
@@ -118,8 +118,8 @@ func (s *Handler) FindPotentialDuplicates(userID int, entity models.Entity) ([]m
 	const query = `
         SELECT id, name, description, type
         FROM entities
-        WHERE user_id = $1 AND (embedding_nomic <=> $2) < $3
-        ORDER BY embedding_nomic <=> $2
+        WHERE user_id = $1 AND (embedding_1024 <=> $2) < $3
+        ORDER BY embedding_1024 <=> $2
         LIMIT 5;
     `
 
@@ -288,7 +288,7 @@ func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error 
 	// Verify both entities exist and belong to the user
 	var entity1, entity2 models.Entity
 	err = tx.QueryRow(`
-		SELECT id, user_id, name, description, type, embedding_nomic
+		SELECT id, user_id, name, description, type, embedding_1024
 		FROM entities
 		WHERE id = $1 AND user_id = $2`,
 		entity1ID, userID).Scan(
@@ -299,7 +299,7 @@ func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error 
 	}
 
 	err = tx.QueryRow(`
-		SELECT id, user_id, name, description, type, embedding_nomic
+		SELECT id, user_id, name, description, type, embedding_1024
 		FROM entities
 		WHERE id = $1 AND user_id = $2`,
 		entity2ID, userID).Scan(
@@ -589,7 +589,7 @@ func (s *Handler) CalculateEmbeddingForEntity(entity models.Entity) error {
 
 	_, err = tx.Exec(`
 				UPDATE entities 
-				SET embedding_nomic = $1,
+				SET embedding_1024 = $1,
 					updated_at = NOW()
 				WHERE id = $2 AND user_id = $3`,
 		embedding, entity.ID, entity.UserID)

@@ -89,7 +89,7 @@ Return only valid JSON matching the specified structure.`
 	var results []models.Entity
 	for _, entity := range entities {
 		text := fmt.Sprintf("%v - %v - %v", entity.Name, entity.Type, entity.Description)
-		embedding, err := GetEmbedding(text, false)
+		embedding, err := GetEmbedding1024(text, false)
 		if err != nil {
 			continue
 		}
@@ -189,7 +189,7 @@ func GenerateEntityEmbedding(c *models.LLMClient, entity models.Entity) (pgvecto
 	text := fmt.Sprintf("%s - %s - %s", entity.Name, entity.Type, entity.Description)
 
 	// Generate embedding using existing function
-	embedding, err := GetEmbedding(text, false)
+	embedding, err := GetEmbedding1024(text, false)
 	if err != nil {
 		return pgvector.Vector{}, fmt.Errorf("failed to generate embedding: %w", err)
 	}
