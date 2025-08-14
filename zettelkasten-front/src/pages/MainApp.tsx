@@ -131,7 +131,6 @@ function MainAppContent() {
           </Routes>
         </div>
       </div>
-      {hasSubscription && showChat && <ChatPage />}
     </div>
   );
 }
