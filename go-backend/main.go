@@ -208,19 +208,6 @@ func main() {
 
 	addProtectedRoute(r, "/api/url/parse", h.ParseURLRoute, "POST")
 
-	addProtectedRoute(r, "/api/chat", h.GetUserConversationsRoute, "GET")
-	addProtectedRoute(r, "/api/chat/{id}", h.GetChatConversationRoute, "GET")
-	addProtectedRoute(r, "/api/chat", h.PostChatMessageRoute, "POST")
-
-	addProtectedRoute(r, "/api/llms/configurations", h.GetUserLLMConfigurationsRoute, "GET")
-	addProtectedRoute(r, "/api/llms/providers", h.GetUserLLMProvidersRoute, "GET")
-	addProtectedRoute(r, "/api/llms/providers", h.CreateLLMProviderRoute, "POST")
-	addProtectedRoute(r, "/api/llms/providers/{id}", h.UpdateLLMProviderRoute, "PUT")
-	addProtectedRoute(r, "/api/llms/providers/{id}", h.DeleteLLMProviderRoute, "DELETE")
-	addProtectedRoute(r, "/api/llms/models", h.CreateLLMModelRoute, "POST")
-	addProtectedRoute(r, "/api/llms/models/{id}", h.DeleteLLMModelRoute, "DELETE")
-	addProtectedRoute(r, "/api/llms/models/{id}", h.UpdateLLMConfigurationRoute, "PUT")
-
 	addRoute(r, "/api/mailing-list", h.AddToMailingListRoute, "POST")
 	addProtectedRoute(r, "/api/mailing-list", h.GetMailingListSubscribersRoute, "GET")
 	addProtectedRoute(r, "/api/mailing-list/messages", h.GetMailingListMessagesRoute, "GET")

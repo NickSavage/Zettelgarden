@@ -16,7 +16,6 @@ import { FileIcon } from "../assets/icons/FileIcon";
 import { ChatIcon } from "../assets/icons/ChatIcon";
 import { MenuIcon } from "../assets/icons/MenuIcon";
 import { Button } from "./Button";
-import { getUserConversations } from "../api/chat";
 import { ConversationSummary } from "../models/Chat";
 
 import { useShortcutContext } from "../contexts/ShortcutContext";
