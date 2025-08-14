@@ -52,6 +52,19 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 
 func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []models.Entity, chunk models.CardChunk) error {
 	for _, entity := range entities {
+		// Check if a card exists with same name and same user_id
+		var matchingCardID int
+		err := s.DB.QueryRow(`
+			SELECT id FROM cards 
+			WHERE user_id = $1 AND title = $2 AND is_deleted = FALSE
+			LIMIT 1
+		`, userID, entity.Name).Scan(&matchingCardID)
+		if err == nil {
+			entity.CardPK = &matchingCardID
+		} else if err != sql.ErrNoRows {
+			log.Printf("error checking for matching card: %v", err)
+		}
+
 		similarEntities, err := s.FindPotentialDuplicates(userID, entity)
 		if err != nil {
 			return err
