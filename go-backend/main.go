@@ -130,7 +130,6 @@ func main() {
 
 	s.S3 = h.CreateS3Client()
 
-
 	s.Mail = &mail.MailClient{
 		Host:     os.Getenv("MAIL_HOST"),
 		Password: os.Getenv("MAIL_PASSWORD"),
@@ -141,7 +140,6 @@ func main() {
 	s.JwtSecretKey = []byte(os.Getenv("SECRET_KEY"))
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))
 	config.BaseURL = os.Getenv("ZETTEL_LLM_ENDPOINT")
-
 
 	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
 		go func() {
@@ -229,11 +227,6 @@ func main() {
 	addProtectedRoute(r, "/api/mailing-list/messages/send", h.SendMailingListMessageRoute, "POST")
 	addProtectedRoute(r, "/api/mailing-list/messages/recipients", h.GetMessageRecipientsRoute, "GET")
 	addProtectedRoute(r, "/api/mailing-list/unsubscribe", h.UnsubscribeMailingListRoute, "POST")
-
-	addRoute(r, "/api/billing/create_checkout_session", h.CreateCheckoutSession, "POST")
-	addRoute(r, "/api/billing/success", h.GetSuccessfulSessionData, "GET")
-	addRoute(r, "/api/webhook", h.HandleWebhook, "POST")
-
 
 	addProtectedRoute(r, "/api/entities", h.GetEntitiesRoute, "GET")
 	addProtectedRoute(r, "/api/entities/id/{id}", h.GetEntityByIDRoute, "GET")

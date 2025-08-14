@@ -648,7 +648,7 @@ func GenerateTestJWT(userID int) (string, error) {
 }
 func loadChatData(tx *sql.Tx) error {
 	// Read the JSON file
-	jsonData, err := os.ReadFile("../testdata/chat.json")
+	jsonData, err := os.ReadFile("../tests/chat.json")
 	if err != nil {
 		return fmt.Errorf("failed to read chat JSON file: %w", err)
 	}
@@ -683,7 +683,7 @@ func loadChatData(tx *sql.Tx) error {
 }
 func loadChatConversationsData(tx *sql.Tx) error {
 	// Read the JSON file
-	jsonData, err := os.ReadFile("../testdata/chat_conversations.json")
+	jsonData, err := os.ReadFile("../tests/chat_conversations.json")
 	if err != nil {
 		return fmt.Errorf("failed to read chat conversations JSON file: %w", err)
 	}

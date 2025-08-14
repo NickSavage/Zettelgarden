@@ -83,7 +83,7 @@ docker-compose up  # Start all services locally
 ### Testing
 - Go: Standard `testing` package with test helpers in `handlers/test_helpers.go`
 - Frontend: Vitest with React Testing Library setup
-- Test data in `testdata/` directory
+- Test data in `tests/` directory
 
 ## Environment Configuration
 

@@ -19,7 +19,7 @@ import (
 )
 
 func uploadTestFile(s *Handler) {
-	testFile, err := os.Open("../testdata/test.txt")
+	testFile, err := os.Open("../tests/test.txt")
 	if err != nil {
 		log.Fatal("unable to open test file")
 		return
@@ -266,7 +266,7 @@ func createTestFile(t *testing.T, buffer bytes.Buffer, writer *multipart.Writer)
 	}
 
 	// Open a test file to upload
-	testFile, err := os.Open("../testdata/test.txt")
+	testFile, err := os.Open("../tests/test.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -369,7 +369,7 @@ func TestUploadFileNotAllowed(t *testing.T) {
 	}
 
 	// Open a test file to upload
-	testFile, err := os.Open("../testdata/test.txt")
+	testFile, err := os.Open("../tests/test.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
