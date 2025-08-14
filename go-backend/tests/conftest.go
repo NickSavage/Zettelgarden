@@ -519,7 +519,7 @@ func generateData() map[string]interface{} {
 		embeddings = append(embeddings, embedding)
 	}
 
-	vectorData = make([]float32, 768)
+	vectorData = make([]float32, 1024)
 	for i := range vectorData {
 		vectorData[i] = float32(i)
 	}
