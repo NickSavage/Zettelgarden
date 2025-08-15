@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { setDocumentTitle } from "../utils/title";
 import Markdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { BlogPost } from "./models";
@@ -29,7 +30,7 @@ export const BlogPostComponent: React.FC = () => {
         const postData = await getPost(slug);
         if (postData) {
           setPost(postData);
-	  document.title = postData.title + " - Zettelgarden"
+	  setDocumentTitle(postData.title);
         } else {
           setError("Post not found");
         }

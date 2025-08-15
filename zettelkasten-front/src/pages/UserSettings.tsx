@@ -6,6 +6,7 @@ import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
 import { TemplatesList } from "../components/templates/TemplatesList";
+import { setDocumentTitle } from "../utils/title";
 import { EditableMemory } from "../components/memory/EditableMemory";
 
 export function UserSettingsPage() {
@@ -102,7 +103,7 @@ export function UserSettingsPage() {
       }
     }
 
-    document.title = "Zettelgarden - Settings";
+    setDocumentTitle("Settings");
     fetchUserAndSubscription();
   }, []);
 

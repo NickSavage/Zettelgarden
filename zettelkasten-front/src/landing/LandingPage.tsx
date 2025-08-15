@@ -5,9 +5,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import landingImage from "../assets/landing.png";
 import { Footer } from "./Footer";
+import { setDocumentTitle } from "../utils/title";
 import { LandingHeader } from "./LandingHeader";
 import { RecentBlogPosts } from "./RecentBlogPosts";
 import { addToMailingList } from "../api/users";
+
+const zettel_env = import.meta.env.VITE_ENV;
 
 // Add RSS Icon component
 const RssIcon = () => (
@@ -39,7 +42,7 @@ function LandingPage() {
   }
 
   useEffect(() => {
-    document.title = "Zettelgarden"
+    setDocumentTitle();
   }, []);
 
   return (

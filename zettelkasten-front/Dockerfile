@@ -16,9 +16,8 @@ COPY . .
 
 # Set environment variables and run the build
 ARG VITE_URL
-ARG VITE_USERNAME
-ARG VITE_PASSWORD
-RUN VITE_URL=${VITE_URL} npm run build
+ARG VITE_ENV
+RUN VITE_URL=${VITE_URL} VITE_ENV=${VITE_ENV} npm run build
 
 # Use serve to serve the build folder
 RUN npm install -g serve

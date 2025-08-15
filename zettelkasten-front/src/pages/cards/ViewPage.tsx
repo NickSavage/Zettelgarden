@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { setDocumentTitle } from "../../utils/title";
 import { CardItem } from "../../components/cards/CardItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { getCard, saveExistingCard, pinCard, unpinCard } from "../../api/cards";
@@ -137,7 +138,7 @@ export function ViewPage({ }: ViewPageProps) {
         setError(refreshed["error"]);
       } else {
         setViewCard(refreshed);
-        document.title = "Zettelgarden - " + refreshed.card_id + " - View";
+        setDocumentTitle(refreshed.card_id + " - View");
         setLastCard(convertCardToPartialCard(refreshed));
 
         if (refreshed.parent && "id" in refreshed.parent) {

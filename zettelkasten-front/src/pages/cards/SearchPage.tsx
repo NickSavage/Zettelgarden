@@ -14,6 +14,7 @@ import { useTagContext } from "../../contexts/TagContext";
 import { EntityDialog } from "../../components/entities/EntityDialog";
 import { Entity } from "../../models/Card";
 import { fetchEntityByName } from "../../api/entities";
+import { setDocumentTitle } from "../../utils/title";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -84,7 +85,7 @@ export function SearchPage({
 
   useEffect(() => {
     const initializeSearch = async () => {
-      document.title = "Zettelgarden - Search";
+      setDocumentTitle("Search")
       const params = new URLSearchParams(location.search);
       const recent = params.get("recent");
       const term = params.get("term") || "";

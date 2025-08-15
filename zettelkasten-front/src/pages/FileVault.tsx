@@ -10,6 +10,7 @@ import { useFileContext } from "../contexts/FileContext";
 import { File } from "../models/File";
 import { defaultCard } from "../models/Card";
 import { H6 } from "../components/Header";
+import { setDocumentTitle } from "../utils/title";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -77,7 +78,7 @@ export function FileVault() {
   }, [refreshFiles]);
 
   useEffect(() => {
-    document.title = "Zettelgarden - Files";
+    setDocumentTitle("Files");
     setRefreshFiles(true);
   }, []);
 

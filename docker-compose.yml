@@ -7,11 +7,13 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_URL: ${VITE_URL}
+        VITE_ENV: ${VITE_ENV}
     image: nsavage/zettelgarden_frontend:latest
     ports:
       - "3001:3000"
     environment:
       - VITE_URL=${VITE_URL}
+      - VITE_ENV=${VITE_ENV}
 
   go-backend:
     build:

@@ -5,6 +5,7 @@ import { TaskPageOptionsMenu } from "../../components/tasks/TaskPageOptionsMenu"
 import { CreateTaskWindow } from "../../components/tasks/CreateTaskWindow";
 import { useTaskContext } from "../../contexts/TaskContext";
 import { useTagContext } from "../../contexts/TagContext";
+import { setDocumentTitle } from "../../utils/title";
 
 import {
   compareDates,
@@ -195,7 +196,7 @@ export function TaskPage({ }: TaskListProps) {
   };
 
   useEffect(() => {
-    document.title = "Zettelgarden - Tasks";
+    setDocumentTitle("Tasks");
 
     const params = new URLSearchParams(location.search);
     const term = params.get("term");

@@ -15,6 +15,8 @@ import { FileUpload } from "../components/files/FileUpload";
 import { useShortcutContext } from "../contexts/ShortcutContext";
 import { CardList } from "../components/cards/CardList";
 
+import { setDocumentTitle } from "../utils/title";
+
 export function DashboardPage() {
   const { partialCards } = usePartialCardContext();
   const [refresh, setRefresh] = React.useState<boolean>(false);
@@ -26,6 +28,10 @@ export function DashboardPage() {
   const recentCards = partialCards.slice(0, 10).sort((a, b) => 
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
+
+  useEffect(() => {
+    setDocumentTitle("Index");
+  })
 
   return (
     <div>

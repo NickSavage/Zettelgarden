@@ -23,6 +23,7 @@ import { BacklinkInput } from "../../components/cards/BacklinkInput";
 import { useTagContext } from "../../contexts/TagContext";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { HeaderSubSection } from "../../components/Header";
+import { setDocumentTitle } from "../../utils/title";
 
 interface EditPageProps {
   newCard: boolean;
@@ -98,7 +99,7 @@ export function EditPage({ newCard }: EditPageProps) {
   async function fetchCard(id: string) {
     let refreshed = await getCard(id);
     setEditingCard(refreshed);
-    document.title = "Zettelgarden - " + refreshed.card_id + " - Edit";
+    setDocumentTitle(refreshed.card_id + " - Edit")
   }
 
   // clear draft on save
@@ -133,7 +134,7 @@ export function EditPage({ newCard }: EditPageProps) {
     if (!newCard) {
       fetchCard(id!);
     } else {
-      document.title = "Zettelgarden - New Card";
+      setDocumentTitle("New Card");
       const draft = localStorage.getItem('newCardBodyDraft') || "";
       setEditingCard({
         ...defaultCard,
