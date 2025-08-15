@@ -54,24 +54,39 @@ export const CardBodyTextArea = forwardRef<CardBodyTextAreaHandle, CardBodyTextA
         const indentation = bulletMatch[1] || '';
         const bulletFormat = '- ';
 
-        // Insert a new line with the same bullet format
-        const newText = `\n${indentation}${bulletFormat}`;
+        // Case 1: Empty bullet -> remove bullet and just insert newline (exit list)
+        if (currentLine.trim() === '-') {
+          const newText = `\n`;
 
-        // Update the text and position the cursor after the bullet point
-        const newBody =
-          value.substring(0, selectionStart) +
-          newText +
-          value.substring(selectionStart);
+          const newBody =
+            value.substring(0, currentLineStart) +
+            newText +
+            value.substring(selectionStart);
 
-        setEditingCard({ ...editingCard, body: newBody });
+          setEditingCard({ ...editingCard, body: newBody });
 
-        // Position cursor after the bullet point on the new line
-        setTimeout(() => {
-          textarea.setSelectionRange(
-            selectionStart + newText.length,
-            selectionStart + newText.length
-          );
-        }, 0);
+          setTimeout(() => {
+            const cursorPos = currentLineStart + newText.length;
+            textarea.setSelectionRange(cursorPos, cursorPos);
+          }, 0);
+        } else {
+          // Case 2: Non-empty bullet -> continue list with new bullet
+          const newText = `\n${indentation}${bulletFormat}`;
+
+          const newBody =
+            value.substring(0, selectionStart) +
+            newText +
+            value.substring(selectionStart);
+
+          setEditingCard({ ...editingCard, body: newBody });
+
+          setTimeout(() => {
+            textarea.setSelectionRange(
+              selectionStart + newText.length,
+              selectionStart + newText.length
+            );
+          }, 0);
+        }
       }
     }
   };
