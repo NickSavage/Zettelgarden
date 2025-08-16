@@ -726,6 +726,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	if err != nil {
 		log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
 	}
+	s.SummarizeCardIfEligible(userID, newCard)
 	return s.QueryFullCard(userID, cardPK)
 }
 
@@ -789,6 +790,7 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	if err != nil {
 		log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
 	}
+	s.SummarizeCardIfEligible(userID, newCard)
 	return s.QueryFullCard(userID, id)
 }
 

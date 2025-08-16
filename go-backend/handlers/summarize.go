@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"strings"
+
 	"github.com/gorilla/mux"
 )
 
@@ -20,6 +22,44 @@ type SummarizeJobResponse struct {
 	ID     int    `json:"id"`
 	Status string `json:"status"`
 	Result string `json:"result,omitempty"`
+}
+
+func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
+	// Skip during testing to avoid external LLM calls
+	if h.Server.Testing {
+		return
+	}
+
+	wordCount := len(strings.Fields(card.Body))
+	if wordCount < 100 {
+		return
+	}
+
+	go func() {
+		var id int
+		err := h.DB.QueryRow(`
+			INSERT INTO summarizations (user_id, input_text, status, created_at, updated_at)
+			VALUES ($1, $2, 'pending', NOW(), NOW())
+			RETURNING id
+		`, userID, card.Body).Scan(&id)
+		if err != nil {
+			log.Printf("Failed to create summarization job: %v", err)
+			return
+		}
+
+		client := llms.NewDefaultClient(h.DB, userID)
+		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, id, time.Now())
+
+		result, err := llms.AnalyzeAndSummarizeText(client, card.Body)
+		if err != nil {
+			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
+				id, err.Error(), time.Now())
+			return
+		}
+
+		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`,
+			id, result, time.Now())
+	}()
 }
 
 // CreateSummarizationRoute creates a summarization job and runs it asynchronously
