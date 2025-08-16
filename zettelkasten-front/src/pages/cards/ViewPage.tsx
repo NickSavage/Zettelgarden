@@ -34,6 +34,7 @@ import { compareCardIds } from "../../utils/cards";
 
 import { CardList } from "../../components/cards/CardList";
 import { CardBody } from "../../components/cards/CardBody";
+import { fetchSummarizations, SummarizeJobResponse } from "../../api/summarizer";
 
 interface ViewPageProps { }
 
@@ -58,6 +59,8 @@ export function ViewPage({ }: ViewPageProps) {
 
   const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
   const [isEntityDialogOpen, setEntityDialogOpen] = useState(false);
+
+  const [summaries, setSummaries] = useState<SummarizeJobResponse[] | null>(null);
 
   const navigate = useNavigate();
 
@@ -130,6 +133,15 @@ export function ViewPage({ }: ViewPageProps) {
     navigate('/app/card/new');
   }
 
+  async function loadSummaries() {
+    try {
+      const jobs = await fetchSummarizations();
+      setSummaries(jobs);
+    } catch (err: any) {
+      console.error("Failed to fetch summaries", err);
+    }
+  }
+
   async function fetchCard(id: string) {
     try {
       let refreshed = await getCard(id);
@@ -186,6 +198,7 @@ export function ViewPage({ }: ViewPageProps) {
   useEffect(() => {
     setError("");
     fetchCard(id!);
+    loadSummaries();
   }, [id, refreshTasks, refreshFiles, refreshTrigger]);
 
   return (
@@ -281,6 +294,20 @@ export function ViewPage({ }: ViewPageProps) {
                     setError={setError}
                   />
                 </div>
+
+                {summaries && summaries.length > 0 && (
+                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                    <HeaderSubSection text="Summaries" />
+                    <div className="mt-2 space-y-2">
+                      {summaries.map((s) => (
+                        <div key={s.id} className="border-b pb-2">
+                          <div className="text-xs text-gray-500">#{s.id} - {s.status}</div>
+                          {s.result && <div className="text-sm">{s.result}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
               </div>
 

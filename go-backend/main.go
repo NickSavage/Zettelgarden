@@ -227,6 +227,7 @@ func main() {
 	// Summarize routes
 	addProtectedRoute(r, "/api/summarize", h.CreateSummarizationRoute, "POST")
 	addProtectedRoute(r, "/api/summarize/{id}", h.GetSummarizationRoute, "GET")
+	addProtectedRoute(r, "/api/summarizations", h.ListSummarizationsRoute, "GET")
 
 	// Pinned searches routes
 	addProtectedRoute(r, "/api/searches/pin", h.PinSearchRoute, "POST")

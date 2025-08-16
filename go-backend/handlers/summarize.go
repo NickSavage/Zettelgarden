@@ -18,6 +18,36 @@ type SummarizeRequest struct {
 	Text string `json:"text"`
 }
 
+// ListSummarizationsRoute returns all summarization jobs (lightweight view) for the current user
+func (h *Handler) ListSummarizationsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	rows, err := h.DB.Query(`
+		SELECT id, status, COALESCE(result, '')
+		FROM summarizations
+		WHERE user_id = $1
+		ORDER BY created_at DESC
+	`, userID)
+	if err != nil {
+		http.Error(w, "Failed to query summarizations", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var jobs []SummarizeJobResponse
+	for rows.Next() {
+		var job SummarizeJobResponse
+		if err := rows.Scan(&job.ID, &job.Status, &job.Result); err != nil {
+			http.Error(w, "Error scanning row", http.StatusInternalServerError)
+			return
+		}
+		jobs = append(jobs, job)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(jobs)
+}
+
 type SummarizeJobResponse struct {
 	ID     int    `json:"id"`
 	Status string `json:"status"`
@@ -38,10 +68,10 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 	go func() {
 		var id int
 		err := h.DB.QueryRow(`
-			INSERT INTO summarizations (user_id, input_text, status, created_at, updated_at)
-			VALUES ($1, $2, 'pending', NOW(), NOW())
+			INSERT INTO summarizations (user_id, card_pk, input_text, status, created_at, updated_at)
+			VALUES ($1, $2, $3, 'pending', NOW(), NOW())
 			RETURNING id
-		`, userID, card.Body).Scan(&id)
+		`, userID, card.ID, card.Body).Scan(&id)
 		if err != nil {
 			log.Printf("Failed to create summarization job: %v", err)
 			return
