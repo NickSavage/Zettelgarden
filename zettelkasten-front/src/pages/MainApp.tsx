@@ -29,6 +29,7 @@ import { ShortcutProvider } from "../contexts/ShortcutContext";
 import { FileProvider } from "../contexts/FileContext";
 import { EntityPage } from "./EntityPage";
 import { CardRefreshProvider } from "../contexts/CardRefreshContext";
+import { Summarizer } from "./Summarizer";
 
 function MainAppContent() {
   const navigate = useNavigate();
@@ -120,6 +121,7 @@ function MainAppContent() {
                 <Route path="tasks" element={<TaskPage />} />
                 <Route path="tags" element={<TagsPage />} />
                 <Route path="entities" element={<EntityPage />} />
+                <Route path="summarizer" element={<Summarizer />} />
                 <Route path="*" element={<DashboardPage />} />
               </>
             ) : (
