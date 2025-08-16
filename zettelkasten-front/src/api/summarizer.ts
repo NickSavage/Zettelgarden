@@ -8,6 +8,21 @@ export interface SummarizeJobResponse {
     result?: string;
 }
 
+export function fetchSummariesForCard(cardId: number): Promise<SummarizeJobResponse[]> {
+    let token = localStorage.getItem("token");
+    return fetch(`${base_url}/cards/${cardId}/summaries`, {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+        .then(checkStatus)
+        .then((response) => {
+            if (response) {
+                return response.json() as Promise<SummarizeJobResponse[]>;
+            } else {
+                return Promise.reject(new Error("Response is undefined"));
+            }
+        });
+}
+
 export function fetchSummarizations(): Promise<SummarizeJobResponse[]> {
     let token = localStorage.getItem("token");
     return fetch(base_url + "/summarizations", {

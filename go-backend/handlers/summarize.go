@@ -14,8 +14,45 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// SummarizeRequest defines the payload for creating a summarization job
 type SummarizeRequest struct {
 	Text string `json:"text"`
+}
+
+// GetSummariesByCardRoute returns all summarizations for a given card_pk
+func (h *Handler) GetSummariesByCardRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	cardIDStr := mux.Vars(r)["card_pk"]
+	cardID, err := strconv.Atoi(cardIDStr)
+	if err != nil {
+		http.Error(w, "Invalid card_pk", http.StatusBadRequest)
+		return
+	}
+
+	rows, err := h.DB.Query(`
+		SELECT id, status, COALESCE(result, '')
+		FROM summarizations
+		WHERE user_id = $1 AND card_pk = $2
+		ORDER BY created_at DESC
+	`, userID, cardID)
+	if err != nil {
+		http.Error(w, "Failed to query summarizations", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var summaries []SummarizeJobResponse
+	for rows.Next() {
+		var job SummarizeJobResponse
+		if err := rows.Scan(&job.ID, &job.Status, &job.Result); err != nil {
+			http.Error(w, "Error scanning row", http.StatusInternalServerError)
+			return
+		}
+		summaries = append(summaries, job)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(summaries)
 }
 
 // ListSummarizationsRoute returns all summarization jobs (lightweight view) for the current user

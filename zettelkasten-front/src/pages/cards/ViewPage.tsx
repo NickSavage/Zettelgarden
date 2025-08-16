@@ -35,7 +35,7 @@ import { SummaryDialog } from "../../components/summaries/SummaryDialog";
 
 import { CardList } from "../../components/cards/CardList";
 import { CardBody } from "../../components/cards/CardBody";
-import { fetchSummarizations, SummarizeJobResponse } from "../../api/summarizer";
+import { fetchSummariesForCard, fetchSummarizations, SummarizeJobResponse } from "../../api/summarizer";
 
 interface ViewPageProps { }
 
@@ -136,9 +136,9 @@ export function ViewPage({ }: ViewPageProps) {
     navigate('/app/card/new');
   }
 
-  async function loadSummaries() {
+  async function loadSummaries(id: Number) {
     try {
-      const jobs = await fetchSummarizations();
+      const jobs = await fetchSummariesForCard(id);
       setSummaries(jobs);
     } catch (err: any) {
       console.error("Failed to fetch summaries", err);
@@ -201,7 +201,9 @@ export function ViewPage({ }: ViewPageProps) {
   useEffect(() => {
     setError("");
     fetchCard(id!);
-    loadSummaries();
+    if (id) {
+      loadSummaries(Number(id));
+    }
   }, [id, refreshTasks, refreshFiles, refreshTrigger]);
 
   useEffect(() => {
