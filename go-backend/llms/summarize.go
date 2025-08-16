@@ -182,7 +182,7 @@ Summarize the following aggregated analysis into a two-part markdown summary.
 The output should be **structured, concise, and tailored to distinct audiences**.
 
 ### Instructions:
-1. **Format:** Output in Markdown only, using headings, subheadings, and bullets for clarity.
+1. **Format:** Use headings, subheadings, and bullets for clarity.
 
 2. **Section 1: High-Level Digest (Executive Summary)**  
    - Audience: Senior management, decision-makers, or non-specialist readers.  

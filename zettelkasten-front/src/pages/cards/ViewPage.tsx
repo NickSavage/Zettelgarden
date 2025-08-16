@@ -31,6 +31,7 @@ import { FileUpload } from "../../components/files/FileUpload";
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
 import { EntityDialog } from "../../components/entities/EntityDialog";
 import { compareCardIds } from "../../utils/cards";
+import { SummaryDialog } from "../../components/summaries/SummaryDialog";
 
 import { CardList } from "../../components/cards/CardList";
 import { CardBody } from "../../components/cards/CardBody";
@@ -61,6 +62,8 @@ export function ViewPage({ }: ViewPageProps) {
   const [isEntityDialogOpen, setEntityDialogOpen] = useState(false);
 
   const [summaries, setSummaries] = useState<SummarizeJobResponse[] | null>(null);
+  const [latestSummary, setLatestSummary] = useState<SummarizeJobResponse | null>(null);
+  const [isSummaryDialogOpen, setSummaryDialogOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -201,6 +204,13 @@ export function ViewPage({ }: ViewPageProps) {
     loadSummaries();
   }, [id, refreshTasks, refreshFiles, refreshTrigger]);
 
+  useEffect(() => {
+    if (summaries && summaries.length > 0) {
+      // Fall back to just taking the last element if no timestamp field exists
+      setLatestSummary(summaries[summaries.length - 1]);
+    }
+  }, [summaries]);
+
   return (
     <div className="max-w-3/4 mx-auto px-4 py-6">
       {error && (
@@ -302,7 +312,6 @@ export function ViewPage({ }: ViewPageProps) {
                       {summaries.map((s) => (
                         <div key={s.id} className="border-b pb-2">
                           <div className="text-xs text-gray-500">#{s.id} - {s.status}</div>
-                          {s.result && <div className="text-sm">{s.result}</div>}
                         </div>
                       ))}
                     </div>
@@ -409,6 +418,19 @@ export function ViewPage({ }: ViewPageProps) {
                   )}
 
                 </div>
+                {latestSummary && (
+                  <div>
+                    <Button onClick={() => setSummaryDialogOpen(true)}>
+                      Summary
+                    </Button>
+                    <SummaryDialog
+                      summary={latestSummary}
+                      isOpen={isSummaryDialogOpen}
+                      onClose={() => setSummaryDialogOpen(false)}
+                    />
+                  </div>
+                )}
+
                 <div className="text-xs text-gray-600 space-y-1">
                   <div>
                     <span className="font-medium">Created At:</span>
