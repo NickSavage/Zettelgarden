@@ -224,6 +224,10 @@ func main() {
 	addProtectedRoute(r, "/api/entities/{entityId}/cards/{cardId}", h.AddEntityToCardRoute, "POST")
 	addProtectedRoute(r, "/api/entities/{entityId}/cards/{cardId}", h.RemoveEntityFromCardRoute, "DELETE")
 
+	// Summarize routes
+	addProtectedRoute(r, "/api/summarize", h.CreateSummarizationRoute, "POST")
+	addProtectedRoute(r, "/api/summarize/{id}", h.GetSummarizationRoute, "GET")
+
 	// Pinned searches routes
 	addProtectedRoute(r, "/api/searches/pin", h.PinSearchRoute, "POST")
 	addProtectedRoute(r, "/api/searches/pin/{id}", h.UnpinSearchRoute, "DELETE")

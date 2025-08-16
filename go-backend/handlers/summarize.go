@@ -1,0 +1,103 @@
+package handlers
+
+import (
+	"encoding/json"
+	"go-backend/llms"
+	"go-backend/models"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/gorilla/mux"
+)
+
+type SummarizeRequest struct {
+	Text string `json:"text"`
+}
+
+type SummarizeJobResponse struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
+	Result string `json:"result,omitempty"`
+}
+
+// CreateSummarizationRoute creates a summarization job and runs it asynchronously
+func (h *Handler) CreateSummarizationRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	var req SummarizeRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	var id int
+	err := h.DB.QueryRow(`
+		INSERT INTO summarizations (user_id, input_text, status, created_at, updated_at)
+		VALUES ($1, $2, 'pending', NOW(), NOW())
+		RETURNING id
+	`, userID, req.Text).Scan(&id)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, "Failed to create summarization job", http.StatusInternalServerError)
+		return
+	}
+
+	// Spin off background summarization
+	go func(jobID int, text string, uid int) {
+		client := llms.NewDefaultClient(h.DB, uid)
+		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
+
+		result, err := llms.AnalyzeAndSummarizeText(client, text)
+		if err != nil {
+			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`, jobID, err.Error(), time.Now())
+			return
+		}
+
+		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`, jobID, result, time.Now())
+	}(id, req.Text, userID)
+
+	resp := SummarizeJobResponse{ID: id, Status: "pending"}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+// GetSummarizationRoute fetches a summarization job by id
+func (h *Handler) GetSummarizationRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	idStr := mux.Vars(r)["id"]
+	jobID, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	var job models.Summarization
+	err = h.DB.QueryRow(`
+		SELECT id, user_id, input_text, status, COALESCE(result, ''), created_at, updated_at
+		FROM summarizations
+		WHERE id=$1 AND user_id=$2
+	`, jobID, userID).Scan(
+		&job.ID,
+		&job.UserID,
+		&job.InputText,
+		&job.Status,
+		&job.Result,
+		&job.CreatedAt,
+		&job.UpdatedAt,
+	)
+	if err != nil {
+		http.Error(w, "Job not found", http.StatusNotFound)
+		return
+	}
+
+	resp := SummarizeJobResponse{
+		ID:     job.ID,
+		Status: job.Status,
+		Result: job.Result,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
