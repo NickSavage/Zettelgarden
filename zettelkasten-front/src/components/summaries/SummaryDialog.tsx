@@ -15,7 +15,7 @@ export function SummaryDialog({ summary, isOpen, onClose }: SummaryDialogProps) 
         <Dialog open={isOpen} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+                <Dialog.Panel className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
                     <Dialog.Title className="text-lg font-medium">Most Recent Summary</Dialog.Title>
                     <div className="mt-4 text-sm text-gray-700 max-h-[50vh] overflow-y-auto pr-2">
                         {summary?.result ? (
