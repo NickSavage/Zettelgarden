@@ -136,7 +136,7 @@ export function ViewPage({ }: ViewPageProps) {
     navigate('/app/card/new');
   }
 
-  async function loadSummaries(id: Number) {
+  async function loadSummaries(id: number) {
     try {
       const jobs = await fetchSummariesForCard(id);
       setSummaries(jobs);
@@ -202,7 +202,7 @@ export function ViewPage({ }: ViewPageProps) {
     setError("");
     fetchCard(id!);
     if (id) {
-      loadSummaries(Number(id));
+      loadSummaries(parseInt(id));
     }
   }, [id, refreshTasks, refreshFiles, refreshTrigger]);
 
