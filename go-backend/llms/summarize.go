@@ -235,6 +235,16 @@ Input:
 			totalPromptTokens+totalCompletionTokens,
 			totalPromptTokens, totalCompletionTokens)
 
+	const promptCostPerMillion = 1.25
+	const completionCostPerMillion = 10.0
+	promptCost := float64(totalPromptTokens) / 1_000_000 * promptCostPerMillion
+	completionCost := float64(totalCompletionTokens) / 1_000_000 * completionCostPerMillion
+	totalCost := promptCost + completionCost
+
+	summary += "\n\nEstimated Cost: " +
+		fmt.Sprintf("$%.4f (Prompt: $%.4f, Completion: $%.4f)",
+			totalCost, promptCost, completionCost)
+
 	return summary, nil
 }
 
