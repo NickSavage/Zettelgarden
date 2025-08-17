@@ -183,6 +183,7 @@ The output should be **structured, concise, and tailored to distinct audiences**
 
 ### Instructions:
 1. **Format:** Use headings, subheadings, and bullets for clarity.
+    - Do not include any other text in your output, including follow up questions or any pleasantries, just respond with the summarized info.
 
 2. **Section 1: High-Level Digest (Executive Summary)**  
    - Audience: Senior management, decision-makers, or non-specialist readers.  
