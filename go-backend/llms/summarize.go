@@ -185,7 +185,7 @@ The output should be **structured, concise, and tailored to distinct audiences**
 1. **Format:** Use headings, subheadings, and bullets for clarity.
     - Do not include any other text in your output, including follow up questions or any pleasantries, just respond with the summarized info.
 
-2. **Section 1: High-Level Digest (Executive Summary)**  
+2. **Section 1: Executive Summary**  
    - Audience: Senior management, decision-makers, or non-specialist readers.  
    - Style: Concise, strategic, and outcome-focused.  
    - Length: ~4–6 bullet points.  
@@ -195,7 +195,7 @@ The output should be **structured, concise, and tailored to distinct audiences**
      - Key trade-offs or future outlook.  
    - Avoid: Technical jargon, long lists, or granular details.
 
-3. **Section 2: Academic / Reference Summary**  
+3. **Section 2: Reference Summary**  
    - Audience: Researchers, analysts, technical leads, or specialists.  
    - Style: Well-structured, factual, and precise.  
    - Include:  
@@ -209,6 +209,7 @@ The output should be **structured, concise, and tailored to distinct audiences**
    - Focus only on what is **strategically or academically important** to understand the subject.  
    - Omit extraneous digressions, trivia, or minor historical detail.  
    - Keep each section readable on its own.  
+   - Do not return anything other than the details, no pleasantries!
    - Tone:  
      - Section 1 → plain, polished, and accessible ("boardroom-ready").  
      - Section 2 → objective, precise, and reference-style ("briefing document").  
