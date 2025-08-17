@@ -391,8 +391,20 @@ func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]mode
 	}
 
 	cards, err := models.ScanCardChunks(rows)
+	if err != nil {
+		return []models.CardChunk{}, err
+	}
 
-	return cards, err
+	seen := make(map[int]bool)
+	var deduped []models.CardChunk
+	for _, card := range cards {
+		if !seen[card.ID] {
+			seen[card.ID] = true
+			deduped = append(deduped, card)
+		}
+	}
+
+	return deduped, nil
 }
 
 func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([]models.Entity, error) {
