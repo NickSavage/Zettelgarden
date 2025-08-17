@@ -31,7 +31,7 @@ import { FileUpload } from "../../components/files/FileUpload";
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
 import { EntityDialog } from "../../components/entities/EntityDialog";
 import { compareCardIds } from "../../utils/cards";
-import { SummaryDialog } from "../../components/summaries/SummaryDialog";
+import ReactMarkdown from "react-markdown";
 
 import { CardList } from "../../components/cards/CardList";
 import { CardBody } from "../../components/cards/CardBody";
@@ -63,7 +63,7 @@ export function ViewPage({ }: ViewPageProps) {
 
   const [summaries, setSummaries] = useState<SummarizeJobResponse[] | null>(null);
   const [latestSummary, setLatestSummary] = useState<SummarizeJobResponse | null>(null);
-  const [isSummaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [showingSummary, setShowingSummary] = useState(false);
 
   const navigate = useNavigate();
 
@@ -245,12 +245,22 @@ export function ViewPage({ }: ViewPageProps) {
               {/* Card Body */}
               <div className="md:w-2/3 space-y-4">
                 <div
-                  className="bg-white rounded-lg p-6 prose shadow-sm max-w-none"
+                  className={`rounded-lg p-6 prose shadow-sm max-w-none ${showingSummary ? "bg-yellow-50 border border-yellow-200" : "bg-white"
+                    }`}
                 >
-                  <CardBody
-                    viewingCard={viewingCard}
-                    entities={viewingCard.entities}
-                  />
+                  {showingSummary && latestSummary?.result ? (
+                    <div>
+                      <div className="bg-yellow-100 text-yellow-800 font-semibold px-3 py-2 rounded-md mb-4">
+                        Summary View
+                      </div>
+                      <ReactMarkdown>{latestSummary.result}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <CardBody
+                      viewingCard={viewingCard}
+                      entities={viewingCard.entities}
+                    />
+                  )}
                 </div>
 
 
@@ -422,14 +432,9 @@ export function ViewPage({ }: ViewPageProps) {
                 </div>
                 {latestSummary && (
                   <div>
-                    <Button onClick={() => setSummaryDialogOpen(true)}>
-                      Summary
+                    <Button onClick={() => setShowingSummary(!showingSummary)}>
+                      {showingSummary ? "Show Card" : "Show Summary"}
                     </Button>
-                    <SummaryDialog
-                      summary={latestSummary}
-                      isOpen={isSummaryDialogOpen}
-                      onClose={() => setSummaryDialogOpen(false)}
-                    />
                   </div>
                 )}
 
