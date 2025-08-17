@@ -288,142 +288,145 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Navigation Links */}
-        <div className="p-2">
+        {/* Scrollable Middle Section */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Navigation Links */}
+          <div className="p-2">
 
-          <ul className="space-y-1">
-            <SidebarLink to="/app/search?recent=true">
-              <SearchIcon />
-              <span className="flex-grow">Cards</span>
-            </SidebarLink>
+            <ul className="space-y-1">
+              <SidebarLink to="/app/search?recent=true">
+                <SearchIcon />
+                <span className="flex-grow">Cards</span>
+              </SidebarLink>
 
-            <SidebarLink to="/app/tasks">
-              <TasksIcon />
-              <span className="flex-grow">Tasks</span>
-              <span className="px-2 py-1 text-xs bg-blue-100 rounded-full">
-                {todayTasks.length}
-              </span>
-            </SidebarLink>
+              <SidebarLink to="/app/tasks">
+                <TasksIcon />
+                <span className="flex-grow">Tasks</span>
+                <span className="px-2 py-1 text-xs bg-blue-100 rounded-full">
+                  {todayTasks.length}
+                </span>
+              </SidebarLink>
 
-            {/* <span onClick={() => setShowChat(!showChat)}>
+              {/* <span onClick={() => setShowChat(!showChat)}>
 
               <SidebarLink to="#">
                   <ChatIcon />
                 <span className="flex-grow">Chat</span>
               </SidebarLink>
               </span> */}
-            <SidebarLink to="/app/files">
-              <FileIcon />
-              <span className="flex-grow">Files</span>
-            </SidebarLink>
+              <SidebarLink to="/app/files">
+                <FileIcon />
+                <span className="flex-grow">Files</span>
+              </SidebarLink>
 
-          </ul>
-        </div>
-        <hr />
-        <div className="p-2">
-          <ul className="space-y-1">
-            <SidebarLink to="/app/tags">
-              <TasksIcon />
-              <span className="flex-grow">Tags</span>
-            </SidebarLink>
-
-            <SidebarLink to="/app/entities">
-              <EntityIcon />
-              <span className="flex-grow">Entities</span>
-            </SidebarLink>
-          </ul>
-        </div>
-
-        {/* Pinned Searches Section */}
-        <>
+            </ul>
+          </div>
           <hr />
           <div className="p-2">
-            <div className="flex items-center justify-between mb-2 px-2">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Pinned Searches
-              </h3>
-            </div>
-            {pinnedSearches.length > 0 ? (
-              <ul className="space-y-0.5">
-                {pinnedSearches.map((search) => (
-                  <li key={search.id} className="px-2 py-0.5 text-sm group">
-                    <div className="flex items-center">
-                      <Link
-                        to={`/app/search?term=${encodeURIComponent(search.searchTerm)}&pinned=${search.id}`}
-                        className="flex-grow hover:bg-gray-100 rounded p-1 truncate"
-                        title={search.title}
-                        onClick={() => {
-                          // This will be handled in SearchPage.tsx when it detects the pinned parameter
-                        }}
-                      >
-                        <span className="mr-1">•</span>
-                        {search.title}
-                      </Link>
-                      <button
-                        onClick={() => handleUnpinSearch(search.id)}
-                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-1"
-                        title="Unpin search"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-gray-400 px-2">No pinned searches yet</p>
-            )}
-          </div>
-        </>
+            <ul className="space-y-1">
+              <SidebarLink to="/app/tags">
+                <TasksIcon />
+                <span className="flex-grow">Tags</span>
+              </SidebarLink>
 
-        {/* Pinned Cards Section */}
-        <>
-          <hr />
-          <div className="p-2">
-            <div className="flex items-center justify-between mb-2 px-2">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Pinned Cards
-              </h3>
-              <button
-                onClick={() => setShowPinDialog(true)}
-                className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-blue-500 rounded-full"
-                title="Pin a card"
-              >
-                +
-              </button>
-            </div>
-            {pinnedCards.length > 0 ? (
-              <ul className="space-y-0.5">
-                {pinnedCards.map((card) => (
-                  <li key={card.id} className="px-2 py-0.5 text-sm group">
-                    <div className="flex items-center">
-                      <Link
-                        to={`/app/card/${card.id}`}
-                        className="flex-grow hover:bg-gray-100 rounded p-1 truncate"
-                        title={`${card.card_id} - ${card.title}`}
-                      >
-                        <span className="text-blue-500 mr-1">[{card.card_id}]</span>
-                        {card.title}
-                      </Link>
-                      <button
-                        onClick={() => handleUnpinCard(card.id)}
-                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-1"
-                        title="Unpin card"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-gray-400 px-2">No pinned cards yet</p>
-            )}
+              <SidebarLink to="/app/entities">
+                <EntityIcon />
+                <span className="flex-grow">Entities</span>
+              </SidebarLink>
+            </ul>
           </div>
-        </>
-        <hr />
+
+          {/* Pinned Searches Section */}
+          <>
+            <hr />
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-2 px-2">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Pinned Searches
+                </h3>
+              </div>
+              {pinnedSearches.length > 0 ? (
+                <ul className="space-y-0.5">
+                  {pinnedSearches.map((search) => (
+                    <li key={search.id} className="px-2 py-0.5 text-sm group">
+                      <div className="flex items-center">
+                        <Link
+                          to={`/app/search?term=${encodeURIComponent(search.searchTerm)}&pinned=${search.id}`}
+                          className="flex-grow hover:bg-gray-100 rounded p-1 truncate"
+                          title={search.title}
+                          onClick={() => {
+                            // This will be handled in SearchPage.tsx when it detects the pinned parameter
+                          }}
+                        >
+                          <span className="mr-1">•</span>
+                          {search.title}
+                        </Link>
+                        <button
+                          onClick={() => handleUnpinSearch(search.id)}
+                          className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-1"
+                          title="Unpin search"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-gray-400 px-2">No pinned searches yet</p>
+              )}
+            </div>
+          </>
+
+          {/* Pinned Cards Section */}
+          <>
+            <hr />
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-2 px-2">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Pinned Cards
+                </h3>
+                <button
+                  onClick={() => setShowPinDialog(true)}
+                  className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-blue-500 rounded-full"
+                  title="Pin a card"
+                >
+                  +
+                </button>
+              </div>
+              {pinnedCards.length > 0 ? (
+                <ul className="space-y-0.5">
+                  {pinnedCards.map((card) => (
+                    <li key={card.id} className="px-2 py-0.5 text-sm group">
+                      <div className="flex items-center">
+                        <Link
+                          to={`/app/card/${card.id}`}
+                          className="flex-grow hover:bg-gray-100 rounded p-1 truncate"
+                          title={`${card.card_id} - ${card.title}`}
+                        >
+                          <span className="text-blue-500 mr-1">[{card.card_id}]</span>
+                          {card.title}
+                        </Link>
+                        <button
+                          onClick={() => handleUnpinCard(card.id)}
+                          className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-1"
+                          title="Unpin card"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-gray-400 px-2">No pinned cards yet</p>
+              )}
+            </div>
+          </>
+          <hr />
+        </div>
         {/* Bottom icons section - Help and Settings */}
-        <div className="mt-auto p-2">
+        <div className="p-2 border-t">
           <div className="flex justify-end space-x-4 pr-2">
             <SidebarLink to="/app/help">
               <BookOpenIcon />
