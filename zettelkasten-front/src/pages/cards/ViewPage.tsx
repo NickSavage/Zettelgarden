@@ -236,6 +236,11 @@ export function ViewPage({ }: ViewPageProps) {
               </div>
             </div>
             <div className="mt-2 md:mt-0 md:ml-4 flex gap-2">
+              {latestSummary && (
+                <Button onClick={() => setShowingSummary(!showingSummary)}>
+                  {showingSummary ? "Show Card" : "Show Summary"}
+                </Button>
+              )}
               <Button onClick={handleEditCard}>Edit</Button>
             </div>
           </div>
@@ -430,13 +435,7 @@ export function ViewPage({ }: ViewPageProps) {
                   )}
 
                 </div>
-                {latestSummary && (
-                  <div>
-                    <Button onClick={() => setShowingSummary(!showingSummary)}>
-                      {showingSummary ? "Show Card" : "Show Summary"}
-                    </Button>
-                  </div>
-                )}
+
 
                 <div className="text-xs text-gray-600 space-y-1">
                   <div>
