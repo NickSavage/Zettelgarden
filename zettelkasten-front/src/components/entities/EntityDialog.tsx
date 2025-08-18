@@ -7,6 +7,8 @@ import { semanticSearchCards } from "../../api/cards";
 import { CardList } from "../cards/CardList";
 import { CardTag } from "../cards/CardTag"; // Import CardTag
 import { Button } from "../Button";
+import { FactWithCard } from "../../models/Fact";
+import { getEntityFacts } from "../../api/entities";
 
 interface EntityDialogProps {
     entity: Entity | null;
@@ -19,6 +21,9 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
     const [associatedCards, setAssociatedCards] = useState<PartialCard[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [facts, setFacts] = useState<FactWithCard[]>([]);
+    const [factsError, setFactsError] = useState<string | null>(null);
+    const [factsLoading, setFactsLoading] = useState(false);
 
     const handleEditClick = () => {
         if (entity && onEdit) {
@@ -74,6 +79,19 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                 .finally(() => {
                     setIsLoading(false);
                 });
+            // fetch facts
+            setFacts([]);
+            setFactsError(null);
+            setFactsLoading(true);
+
+            getEntityFacts(entity.id)
+                .then((res) => setFacts(res ?? []))
+                .catch((err) => {
+                    console.error("Error fetching facts:", err);
+                    setFactsError("Failed to load facts.");
+                    setFacts([]); // keep array
+                })
+                .finally(() => setFactsLoading(false));
         }
     }, [isOpen, entity]);
 
@@ -95,6 +113,32 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                             <div className="text-xs text-gray-500">
                                 <p>Created: {new Date(entity.created_at).toLocaleDateString()}</p>
                                 <p>Updated: {new Date(entity.updated_at).toLocaleDateString()}</p>
+                            </div>
+
+                            <h4 className="text-md font-medium text-gray-800 mt-4 border-t pt-3">Facts:</h4>
+                            <div className="min-h-[100px] max-h-[30vh] overflow-y-auto pr-2">
+                                {factsLoading && <p>Loading facts...</p>}
+                                {factsError && <p className="text-red-600">{factsError}</p>}
+                                {!factsLoading && !factsError && facts.length === 0 && (
+                                    <p>No facts linked to this entity.</p>
+                                )}
+                                {!factsLoading && !factsError && facts.length > 0 && (
+                                    <ul className="space-y-2">
+                                        {facts.map((f) => (
+                                            <li key={f.id}>
+                                                <p className="text-sm text-gray-700">• {f.fact}</p>
+                                                {f.card && (
+                                                    <Link
+                                                        to={`/app/card/${f.card.id}`}
+                                                        className="text-xs text-blue-600 hover:underline"
+                                                    >
+                                                        <CardTag card={f.card} showTitle={true} />
+                                                    </Link>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                             {entity.card && entity.card.id > 0 && (
                                 <div className="mt-1">
@@ -124,7 +168,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
 
                     <div className="mt-6 flex justify-end gap-3">
                         {entity && onEdit && (
-                            <Button 
+                            <Button
                                 onClick={handleEditClick}
                                 className="bg-blue-500 text-white hover:bg-blue-600"
                             >

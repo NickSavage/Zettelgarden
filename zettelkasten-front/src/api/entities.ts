@@ -1,5 +1,6 @@
 import { Entity } from "../models/Card";
 import { checkStatus } from "./common";
+import { FactWithCard } from "../models/Fact";
 
 const base_url = import.meta.env.VITE_URL;
 
@@ -162,6 +163,7 @@ export function fetchEntityById(id: number): Promise<Entity> {
     });
 }
 
+// Fetch entity by name
 export function fetchEntityByName(name: string): Promise<Entity> {
   let token = localStorage.getItem("token");
   const url = base_url + `/entities/name/${encodeURIComponent(name)}`;
@@ -179,6 +181,25 @@ export function fetchEntityByName(name: string): Promise<Entity> {
             updated_at: new Date(entity.updated_at),
           };
         });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+// Fetch facts for a given entity
+export function getEntityFacts(entityId: number): Promise<FactWithCard[]> {
+  console.log("??")
+  let token = localStorage.getItem("token");
+  const url = base_url + `/entities/${entityId}/facts`;
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((facts: FactWithCard[]) => facts);
       } else {
         return Promise.reject(new Error("Response is undefined"));
       }

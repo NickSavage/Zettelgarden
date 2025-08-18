@@ -1,9 +1,15 @@
 package handlers
 
 import (
+	"encoding/json"
 	"go-backend/llms"
 	"go-backend/models"
 	"log"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/gorilla/mux"
 )
 
 // ExtractSaveCardFacts deletes and re-inserts facts for a given card.
@@ -66,6 +72,77 @@ func (s *Handler) ExtractSaveCardFacts(userID int, card models.Card, facts []str
 	}
 
 	return nil
+}
+
+// GetEntityFacts returns all facts for a given entity, including PartialCard information
+func (s *Handler) GetEntityFacts(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+
+	entityIDStr := vars["id"]
+	entityID, err := strconv.Atoi(entityIDStr)
+	if err != nil {
+		log.Printf("err 1 %v", err)
+		http.Error(w, "Invalid entity id", http.StatusBadRequest)
+		return
+	}
+	log.Printf("entity id %v", entityID)
+
+	rows, err := s.DB.Query(`
+		SELECT f.id, f.fact, f.created_at, f.updated_at,
+		       c.id, c.card_id, c.user_id, c.title, c.parent_id,
+		       c.created_at, c.updated_at
+		FROM facts f
+		JOIN entity_fact_junction efj ON f.id = efj.fact_id
+		JOIN cards c ON f.card_pk = c.id
+		WHERE efj.entity_id = $1 AND efj.user_id = $2
+		ORDER BY f.created_at DESC
+	`, entityID, userID)
+	if err != nil {
+		log.Printf("err 2 %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+	log.Printf("rows %v", rows)
+
+	type FactWithCard struct {
+		ID        int                `json:"id"`
+		Fact      string             `json:"fact"`
+		CreatedAt time.Time          `json:"created_at"`
+		UpdatedAt time.Time          `json:"updated_at"`
+		Card      models.PartialCard `json:"card"`
+	}
+
+	var facts []FactWithCard
+
+	for rows.Next() {
+		var fact FactWithCard
+		err := rows.Scan(
+			&fact.ID,
+			&fact.Fact,
+			&fact.CreatedAt,
+			&fact.UpdatedAt,
+			&fact.Card.ID,
+			&fact.Card.CardID,
+			&fact.Card.UserID,
+			&fact.Card.Title,
+			&fact.Card.ParentID,
+			&fact.Card.CreatedAt,
+			&fact.Card.UpdatedAt,
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		facts = append(facts, fact)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(facts); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // ExtractSaveFactEntities runs entity extraction on facts and links them in entity_fact_junction
