@@ -9,6 +9,7 @@ import { CardTag } from "../cards/CardTag"; // Import CardTag
 import { Button } from "../Button";
 import { FactWithCard } from "../../models/Fact";
 import { getEntityFacts } from "../../api/entities";
+import { FactDialog } from "../facts/FactDialog";
 
 interface EntityDialogProps {
     entity: Entity | null;
@@ -24,6 +25,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
     const [facts, setFacts] = useState<FactWithCard[]>([]);
     const [factsError, setFactsError] = useState<string | null>(null);
     const [factsLoading, setFactsLoading] = useState(false);
+    const [selectedFact, setSelectedFact] = useState<FactWithCard | null>(null);
 
     const handleEditClick = () => {
         if (entity && onEdit) {
@@ -100,7 +102,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
                     <Dialog.Title className="text-lg font-medium leading-6 text-gray-900 mb-2">
                         {entity ? `Entity: ${entity.name}` : "Entity Details"}
                     </Dialog.Title>
@@ -125,15 +127,16 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                                 {!factsLoading && !factsError && facts.length > 0 && (
                                     <ul className="space-y-2">
                                         {facts.map((f) => (
-                                            <li key={f.id}>
+                                            <li
+                                                key={f.id}
+                                                onClick={() => setSelectedFact(f)}
+                                                className="cursor-pointer hover:bg-gray-100 p-1 rounded"
+                                            >
                                                 <p className="text-sm text-gray-700">• {f.fact}</p>
                                                 {f.card && (
-                                                    <Link
-                                                        to={`/app/card/${f.card.id}`}
-                                                        className="text-xs text-blue-600 hover:underline"
-                                                    >
+                                                    <span className="text-xs text-blue-600">
                                                         <CardTag card={f.card} showTitle={true} />
-                                                    </Link>
+                                                    </span>
                                                 )}
                                             </li>
                                         ))}
@@ -181,6 +184,11 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                     </div>
                 </Dialog.Panel>
             </div>
+            <FactDialog
+                fact={selectedFact}
+                isOpen={!!selectedFact}
+                onClose={() => setSelectedFact(null)}
+            />
         </Dialog>
     );
 }
