@@ -21,31 +21,6 @@ type ThesisAnalysis struct {
 	Arguments []Argument `json:"arguments"`
 }
 
-// SummarizeText: the simple version (unchanged)
-func SummarizeText(c *models.LLMClient, input string) (string, error) {
-	messages := []openai.ChatCompletionMessage{
-		{
-			Role:    openai.ChatMessageRoleSystem,
-			Content: "You are an assistant that summarizes text clearly and concisely.",
-		},
-		{
-			Role:    openai.ChatMessageRoleUser,
-			Content: input,
-		},
-	}
-
-	resp, err := ExecuteLLMRequest(c, messages)
-	if err != nil {
-		return "", err
-	}
-
-	if len(resp.Choices) == 0 {
-		return "", errors.New("no summary returned")
-	}
-
-	return resp.Choices[0].Message.Content, nil
-}
-
 // AnalyzeAndSummarizeText: the advanced pipeline
 func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []ThesisAnalysis, error) {
 	chunks := chunkText(input, 10000)

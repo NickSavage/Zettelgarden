@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"strings"
-
 	"github.com/gorilla/mux"
 )
 
@@ -94,11 +92,6 @@ type SummarizeJobResponse struct {
 func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 	// Skip during testing to avoid external LLM calls
 	if h.Server.Testing {
-		return
-	}
-
-	wordCount := len(strings.Fields(card.Body))
-	if wordCount < 100 {
 		return
 	}
 
