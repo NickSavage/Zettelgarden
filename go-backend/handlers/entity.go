@@ -333,13 +333,33 @@ func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error 
 		return fmt.Errorf("failed to merge card relationships: %w", err)
 	}
 
+	// Move all fact relationships from entity2 to entity1
+	_, err = tx.Exec(`
+		INSERT INTO entity_fact_junction (user_id, entity_id, fact_id)
+		SELECT user_id, $1, fact_id
+		FROM entity_fact_junction
+		WHERE entity_id = $2
+		ON CONFLICT (entity_id, fact_id) DO NOTHING`,
+		entity1.ID, entity2.ID)
+	if err != nil {
+		return fmt.Errorf("failed to merge fact relationships: %w", err)
+	}
+
 	// Delete entity2's relationships
 	_, err = tx.Exec(`
 		DELETE FROM entity_card_junction
 		WHERE entity_id = $1`,
 		entity2.ID)
 	if err != nil {
-		return fmt.Errorf("failed to delete entity2 relationships: %w", err)
+		return fmt.Errorf("failed to delete entity2 card relationships: %w", err)
+	}
+
+	_, err = tx.Exec(`
+		DELETE FROM entity_fact_junction
+		WHERE entity_id = $1`,
+		entity2.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete entity2 fact relationships: %w", err)
 	}
 
 	// Delete entity2
