@@ -47,7 +47,7 @@ func SummarizeText(c *models.LLMClient, input string) (string, error) {
 }
 
 // AnalyzeAndSummarizeText: the advanced pipeline
-func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, error) {
+func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []ThesisAnalysis, error) {
 	chunks := chunkText(input, 10000)
 	c.Model.ModelIdentifier = "openai/gpt-5-chat"
 
@@ -86,7 +86,7 @@ Respond ONLY in JSON with the following format:
 
 		resp, err := ExecuteLLMRequest(c, messages)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if len(resp.Choices) == 0 {
 			continue
@@ -113,7 +113,7 @@ Respond ONLY in JSON with the following format:
 	}
 
 	if len(allAnalyses) == 0 {
-		return "", errors.New("no valid analyses returned")
+		return "", nil, errors.New("no valid analyses returned")
 	}
 
 	// Aggregate all results into one string
@@ -156,10 +156,10 @@ Respond ONLY in JSON with the following format:
 	}
 	dedupResp, err := ExecuteLLMRequest(c, dedupMessages)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	if len(dedupResp.Choices) == 0 {
-		return "", errors.New("no deduplicated results returned")
+		return "", nil, errors.New("no deduplicated results returned")
 	}
 	dedupContent := strings.TrimSpace(dedupResp.Choices[0].Message.Content)
 	dedupContent = strings.TrimPrefix(dedupContent, "```json")
@@ -221,10 +221,10 @@ Input:
 
 	finalResp, err := ExecuteLLMRequest(c, finalMessages)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	if len(finalResp.Choices) == 0 {
-		return "", errors.New("no summary returned")
+		return "", nil, errors.New("no summary returned")
 	}
 	totalPromptTokens += finalResp.Usage.PromptTokens
 	totalCompletionTokens += finalResp.Usage.CompletionTokens
@@ -245,7 +245,7 @@ Input:
 		fmt.Sprintf("$%.4f (Prompt: $%.4f, Completion: $%.4f)",
 			totalCost, promptCost, completionCost)
 
-	return summary, nil
+	return summary, allAnalyses, nil
 }
 
 // chunkText splits input into segments of maxLength, breaking at sentence boundaries.

@@ -117,12 +117,19 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 		client := llms.NewDefaultClient(h.DB, userID)
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, id, time.Now())
 
-		result, err := llms.AnalyzeAndSummarizeText(client, card.Body)
+		result, analyses, err := llms.AnalyzeAndSummarizeText(client, card.Body)
 		if err != nil {
 			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
 				id, err.Error(), time.Now())
 			return
 		}
+
+		// Save facts from analyses
+		var allFacts []string
+		for _, analysis := range analyses {
+			allFacts = append(allFacts, analysis.Facts...)
+		}
+		_ = h.ExtractSaveCardFacts(userID, card, allFacts)
 
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`,
 			id, result, time.Now())
@@ -156,7 +163,7 @@ func (h *Handler) CreateSummarizationRoute(w http.ResponseWriter, r *http.Reques
 		client := llms.NewDefaultClient(h.DB, uid)
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
 
-		result, err := llms.AnalyzeAndSummarizeText(client, text)
+		result, _, err := llms.AnalyzeAndSummarizeText(client, text)
 		if err != nil {
 			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`, jobID, err.Error(), time.Now())
 			return
