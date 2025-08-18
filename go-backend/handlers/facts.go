@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"go-backend/llms"
 	"go-backend/models"
 	"log"
 )
@@ -19,10 +20,16 @@ func (s *Handler) ExtractSaveCardFacts(userID int, card models.Card, facts []str
 		if fact == "" {
 			continue
 		}
-		_, err := tx.Exec(`
-			INSERT INTO facts (card_pk, user_id, fact, created_at, updated_at)
-			VALUES ($1, $2, $3, NOW(), NOW())
-		`, card.ID, userID, fact)
+		embedding, err := llms.GetEmbedding1024(fact, false)
+		if err != nil {
+			log.Printf("error generating embedding for fact: %v", err)
+			tx.Rollback()
+			return err
+		}
+		_, err = tx.Exec(`
+			INSERT INTO facts (card_pk, user_id, fact, embedding_1024, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, NOW(), NOW())
+		`, card.ID, userID, fact, embedding)
 		if err != nil {
 			log.Printf("error inserting fact: %v", err)
 			tx.Rollback()
