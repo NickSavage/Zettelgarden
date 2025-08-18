@@ -37,5 +37,109 @@ func (s *Handler) ExtractSaveCardFacts(userID int, card models.Card, facts []str
 		}
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	// Fetch the saved facts back, now with IDs, so we can run entity extraction
+	rows, err := s.DB.Query(`SELECT id, user_id, card_pk, fact, created_at, updated_at 
+		FROM facts WHERE card_pk=$1 AND user_id=$2`, card.ID, userID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var dbFacts []models.Fact
+	for rows.Next() {
+		var f models.Fact
+		if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+			return err
+		}
+		dbFacts = append(dbFacts, f)
+	}
+
+	// Call entity extraction on the saved facts
+	if err := s.ExtractSaveFactEntities(userID, card, dbFacts); err != nil {
+		log.Printf("error extracting entities from facts: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+// ExtractSaveFactEntities runs entity extraction on facts and links them in entity_fact_junction
+func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs []models.Fact) error {
+	log.Printf("fact %v", factObjs)
+	client := llms.NewDefaultClient(s.DB, userID)
+
+	for _, fact := range factObjs {
+		if fact.Fact == "" {
+			continue
+		}
+		// Wrap fact into a CardChunk surrogate (Chunk field holds the fact text)
+		chunk := models.CardChunk{
+			ID:     fact.ID,
+			CardID: card.CardID,
+			UserID: userID,
+			Title:  card.Title,
+			Chunk:  fact.Fact,
+		}
+		entities, err := llms.FindEntities(client, chunk)
+		if err != nil {
+			log.Printf("entity extraction error for fact %d: %v", fact.ID, err)
+			return err
+		}
+		for _, entity := range entities {
+			similarEntities, err := s.FindPotentialDuplicates(userID, entity)
+			if err != nil {
+				return err
+			}
+			entity, err = llms.CheckExistingEntities(client, similarEntities, entity)
+			if err != nil {
+				log.Printf("error checking existing entities: %v", err)
+				return err
+			}
+			log.Printf("entity %v", entity.Name)
+
+			var entityID int
+			err = s.DB.QueryRow(`
+				SELECT id FROM entities WHERE user_id = $1 AND name = $2
+			`, userID, entity.Name).Scan(&entityID)
+
+			if err != nil {
+				// no entity found, insert
+				err = s.DB.QueryRow(`
+					INSERT INTO entities (user_id, name, description, type, embedding_1024, card_pk)
+					VALUES ($1, $2, $3, $4, $5, $6)
+					RETURNING id
+				`, userID, entity.Name, entity.Description, entity.Type, entity.Embedding, entity.CardPK).Scan(&entityID)
+				if err != nil {
+					log.Printf("error inserting entity (from fact): %v", err)
+					continue
+				}
+			} else {
+				// entity exists, update
+				_, err = s.DB.Exec(`
+					UPDATE entities SET description=$1, type=$2, updated_at=NOW() WHERE id=$3
+				`, entity.Description, entity.Type, entityID)
+				if err != nil {
+					log.Printf("error updating entity (from fact): %v", err)
+					continue
+				}
+			}
+
+			// link entity to fact
+			_, err = s.DB.Exec(`
+				INSERT INTO entity_fact_junction (user_id, entity_id, fact_id, created_at, updated_at)
+				VALUES ($1, $2, $3, NOW(), NOW())
+				ON CONFLICT (entity_id, fact_id) DO UPDATE SET updated_at = NOW()
+			`, userID, entityID, fact.ID)
+			if err != nil {
+				log.Printf("error linking entity to fact: %v", err)
+				continue
+			}
+		}
+	}
+	return nil
 }
