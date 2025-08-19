@@ -101,39 +101,10 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 		return
 	}
 
-	go func() {
-		var id int
-		err := h.DB.QueryRow(`
-			INSERT INTO summarizations (user_id, card_pk, input_text, status, created_at, updated_at)
-			VALUES ($1, $2, $3, 'pending', NOW(), NOW())
-			RETURNING id
-		`, userID, card.ID, card.Body).Scan(&id)
-		if err != nil {
-			log.Printf("Failed to create summarization job: %v", err)
-			return
-		}
-
-		client := llms.NewDefaultClient(h.DB, userID)
-		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, id, time.Now())
-
-		// result, analyses, err := llms.AnalyzeAndSummarizeText(client, card.Body)
-		result, _, err := llms.AnalyzeAndSummarizeText(client, card.Body)
-		if err != nil {
-			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
-				id, err.Error(), time.Now())
-			return
-		}
-
-		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`,
-			id, result, time.Now())
-		// Save facts from analyses
-		// var allFacts []string
-		// for _, analysis := range analyses {
-		// 	allFacts = append(allFacts, analysis.Facts...)
-		// }
-		// _ = h.ExtractSaveCardFacts(userID, card, allFacts)
-
-	}()
+	_, err := h.runSummarizationJob(userID, card.Body, &card.ID)
+	if err != nil {
+		log.Printf("Failed to create summarization job: %v", err)
+	}
 }
 
 // CreateSummarizationRoute creates a summarization job and runs it asynchronously
@@ -146,35 +117,57 @@ func (h *Handler) CreateSummarizationRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var id int
-	err := h.DB.QueryRow(`
-		INSERT INTO summarizations (user_id, input_text, status, created_at, updated_at)
-		VALUES ($1, $2, 'pending', NOW(), NOW())
-		RETURNING id
-	`, userID, req.Text).Scan(&id)
+	id, err := h.runSummarizationJob(userID, req.Text, nil)
 	if err != nil {
 		log.Printf("err %v", err)
 		http.Error(w, "Failed to create summarization job", http.StatusInternalServerError)
 		return
 	}
 
-	// Spin off background summarization
-	go func(jobID int, text string, uid int) {
-		client := llms.NewDefaultClient(h.DB, uid)
-		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
-
-		result, _, err := llms.AnalyzeAndSummarizeText(client, text)
-		if err != nil {
-			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`, jobID, err.Error(), time.Now())
-			return
-		}
-
-		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`, jobID, result, time.Now())
-	}(id, req.Text, userID)
-
 	resp := SummarizeJobResponse{ID: id, Status: "pending"}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+}
+
+// runSummarizationJob inserts a summarization job and runs it asynchronously.
+func (h *Handler) runSummarizationJob(userID int, text string, cardID *int) (int, error) {
+	var id int
+	var err error
+
+	if cardID != nil {
+		err = h.DB.QueryRow(`
+			INSERT INTO summarizations (user_id, card_pk, input_text, status, created_at, updated_at)
+			VALUES ($1, $2, $3, 'pending', NOW(), NOW())
+			RETURNING id
+		`, userID, *cardID, text).Scan(&id)
+	} else {
+		err = h.DB.QueryRow(`
+			INSERT INTO summarizations (user_id, input_text, status, created_at, updated_at)
+			VALUES ($1, $2, 'pending', NOW(), NOW())
+			RETURNING id
+		`, userID, text).Scan(&id)
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	// Background job
+	go func(jobID int, t string, uid int) {
+		client := llms.NewDefaultClient(h.DB, uid)
+		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
+
+		result, _, err := llms.AnalyzeAndSummarizeText(client, t)
+		if err != nil {
+			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
+				jobID, err.Error(), time.Now())
+			return
+		}
+
+		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`,
+			jobID, result, time.Now())
+	}(id, text, userID)
+
+	return id, nil
 }
 
 // GetSummarizationRoute fetches a summarization job by id
