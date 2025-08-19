@@ -17,7 +17,6 @@ func RerankSearchResults(c *models.LLMClient, query string, input []models.Searc
 	if query == "" {
 		return input, nil
 	}
-	input = input[:500] // limit to 500
 	// Convert SearchResults to strings for reranking
 	documents := make([]*cohere.RerankRequestDocumentsItem, len(input))
 	for i, result := range input {
