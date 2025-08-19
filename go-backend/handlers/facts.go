@@ -145,6 +145,46 @@ func (s *Handler) GetEntityFacts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetFactEntities returns all entities linked to a given fact
+func (s *Handler) GetFactEntities(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+
+	factIDStr := vars["id"]
+	factID, err := strconv.Atoi(factIDStr)
+	if err != nil {
+		http.Error(w, "Invalid fact id", http.StatusBadRequest)
+		return
+	}
+
+	rows, err := s.DB.Query(`
+		SELECT e.id, e.name, e.description, e.type, e.created_at, e.updated_at
+		FROM entities e
+		JOIN entity_fact_junction efj ON efj.entity_id = e.id
+		WHERE efj.fact_id = $1 AND efj.user_id = $2
+	`, factID, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var entities []models.Entity
+	for rows.Next() {
+		var e models.Entity
+		if err := rows.Scan(&e.ID, &e.Name, &e.Description, &e.Type, &e.CreatedAt, &e.UpdatedAt); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		entities = append(entities, e)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(entities); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 // ExtractSaveFactEntities runs entity extraction on facts and links them in entity_fact_junction
 func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs []models.Fact) error {
 	log.Printf("fact %v", factObjs)
