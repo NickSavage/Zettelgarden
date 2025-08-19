@@ -119,12 +119,12 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`,
 			id, result, time.Now())
-		// Save facts from analyses
-		var allFacts []string
-		for _, analysis := range analyses {
-			allFacts = append(allFacts, analysis.Facts...)
-		}
-		_ = h.ExtractSaveCardFacts(userID, card, allFacts)
+		// // Save facts from analyses
+		// var allFacts []string
+		// for _, analysis := range analyses {
+		// 	allFacts = append(allFacts, analysis.Facts...)
+		// }
+		// _ = h.ExtractSaveCardFacts(userID, card, allFacts)
 
 	}()
 }

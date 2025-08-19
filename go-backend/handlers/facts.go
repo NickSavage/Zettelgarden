@@ -194,6 +194,7 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 		if fact.Fact == "" {
 			continue
 		}
+		log.Printf("fact %v", fact)
 		// Wrap fact into a CardChunk surrogate (Chunk field holds the fact text)
 		chunk := models.CardChunk{
 			ID:     fact.ID,
