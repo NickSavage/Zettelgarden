@@ -130,16 +130,16 @@ func (h *Handler) CreateSummarizationRoute(w http.ResponseWriter, r *http.Reques
 }
 
 // runSummarizationJob inserts a summarization job and runs it asynchronously.
-func (h *Handler) runSummarizationJob(userID int, text string, cardID *int) (int, error) {
+func (h *Handler) runSummarizationJob(userID int, text string, cardPK *int) (int, error) {
 	var id int
 	var err error
 
-	if cardID != nil {
+	if cardPK != nil {
 		err = h.DB.QueryRow(`
 			INSERT INTO summarizations (user_id, card_pk, input_text, status, created_at, updated_at)
 			VALUES ($1, $2, $3, 'pending', NOW(), NOW())
 			RETURNING id
-		`, userID, *cardID, text).Scan(&id)
+		`, userID, *cardPK, text).Scan(&id)
 	} else {
 		err = h.DB.QueryRow(`
 			INSERT INTO summarizations (user_id, input_text, status, created_at, updated_at)
@@ -156,7 +156,7 @@ func (h *Handler) runSummarizationJob(userID int, text string, cardID *int) (int
 		client := llms.NewDefaultClient(h.DB, uid)
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
 
-		result, _, err := llms.AnalyzeAndSummarizeText(client, t)
+		result, analyses, err := llms.AnalyzeAndSummarizeText(client, t)
 		if err != nil {
 			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
 				jobID, err.Error(), time.Now())
@@ -165,6 +165,16 @@ func (h *Handler) runSummarizationJob(userID int, text string, cardID *int) (int
 
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`,
 			jobID, result, time.Now())
+
+		if cardPK != nil {
+			var allFacts []string
+
+			for _, analysis := range analyses {
+				allFacts = append(allFacts, analysis.Facts...)
+			}
+			_ = h.ExtractSaveCardFacts(userID, *cardPK, allFacts)
+
+		}
 	}(id, text, userID)
 
 	return id, nil

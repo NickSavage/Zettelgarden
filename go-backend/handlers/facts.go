@@ -13,9 +13,9 @@ import (
 )
 
 // ExtractSaveCardFacts deletes and re-inserts facts for a given card.
-func (s *Handler) ExtractSaveCardFacts(userID int, card models.Card, facts []string) error {
+func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) error {
 	tx, _ := s.DB.Begin()
-	_, err := tx.Exec("DELETE FROM facts WHERE card_pk = $1 AND user_id = $2", card.ID, userID)
+	_, err := tx.Exec("DELETE FROM facts WHERE card_pk = $1 AND user_id = $2", cardPK, userID)
 	if err != nil {
 		log.Printf("error deleting old facts: %v", err)
 		tx.Rollback()
@@ -35,7 +35,7 @@ func (s *Handler) ExtractSaveCardFacts(userID int, card models.Card, facts []str
 		_, err = tx.Exec(`
 			INSERT INTO facts (card_pk, user_id, fact, embedding_1024, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, NOW(), NOW())
-		`, card.ID, userID, fact, embedding)
+		`, cardPK, userID, fact, embedding)
 		if err != nil {
 			log.Printf("error inserting fact: %v", err)
 			tx.Rollback()
@@ -48,28 +48,28 @@ func (s *Handler) ExtractSaveCardFacts(userID int, card models.Card, facts []str
 		return err
 	}
 
-	// Fetch the saved facts back, now with IDs, so we can run entity extraction
-	rows, err := s.DB.Query(`SELECT id, user_id, card_pk, fact, created_at, updated_at 
-		FROM facts WHERE card_pk=$1 AND user_id=$2`, card.ID, userID)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
+	// // Fetch the saved facts back, now with IDs, so we can run entity extraction
+	// rows, err := s.DB.Query(`SELECT id, user_id, card_pk, fact, created_at, updated_at
+	// 	FROM facts WHERE card_pk=$1 AND user_id=$2`, cardPK, userID)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer rows.Close()
 
-	var dbFacts []models.Fact
-	for rows.Next() {
-		var f models.Fact
-		if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
-			return err
-		}
-		dbFacts = append(dbFacts, f)
-	}
+	// var dbFacts []models.Fact
+	// for rows.Next() {
+	// 	var f models.Fact
+	// 	if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+	// 		return err
+	// 	}
+	// 	dbFacts = append(dbFacts, f)
+	// }
 
 	// Call entity extraction on the saved facts
-	if err := s.ExtractSaveFactEntities(userID, card, dbFacts); err != nil {
-		log.Printf("error extracting entities from facts: %v", err)
-		return err
-	}
+	// if err := s.ExtractSaveFactEntities(userID, card, dbFacts); err != nil {
+	// 	log.Printf("error extracting entities from facts: %v", err)
+	// 	return err
+	// }
 
 	return nil
 }
