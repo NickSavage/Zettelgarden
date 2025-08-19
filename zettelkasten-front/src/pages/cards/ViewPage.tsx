@@ -341,7 +341,7 @@ export function ViewPage({ }: ViewPageProps) {
                 )}
 
                 {/* Facts Section */}
-                {facts.length > 0 && (
+                {facts && facts.length > 0 && (
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <HeaderSubSection text="Facts" />
                     <div className="mt-2 space-y-2">
