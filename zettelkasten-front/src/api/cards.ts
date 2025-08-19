@@ -14,18 +14,16 @@ const base_url = import.meta.env.VITE_URL;
 
 interface SearchRequestParams {
   search_term: string;
-  type: "classic" | "semantic";
   full_text?: boolean;
   show_entities?: boolean;
 }
 
-export function semanticSearchCards(searchTerm = "", useClassicSearch = false, fullText = false, showEntities = false): Promise<SearchResult[]> {
+export function semanticSearchCards(searchTerm = "", fullText = false, showEntities = false): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
 
   const params: SearchRequestParams = {
     search_term: searchTerm,
-    type: useClassicSearch ? "classic" : "semantic",
     full_text: fullText,
     show_entities: showEntities
   };
@@ -58,7 +56,7 @@ export function semanticSearchCards(searchTerm = "", useClassicSearch = false, f
 }
 
 export function fetchCards(searchTerm = "", fullText = false): Promise<Card[]> {
-  return semanticSearchCards(searchTerm, true, fullText).then((results) => {
+  return semanticSearchCards(searchTerm, fullText).then((results) => {
     if (results === null) return [];
     return results.map(result => ({
       id: Number(result.metadata?.id) || 0,
@@ -119,33 +117,6 @@ export function fetchPartialCards(
     });
 }
 
-export function fetchRelatedCards(id: string): Promise<CardChunk[]> {
-  let token = localStorage.getItem("token");
-
-  const url = base_url + `/cards/${id}/related`;
-
-  return fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(checkStatus)
-    .then((response) => {
-      if (response) {
-        return response.json().then((cards: CardChunk[]) => {
-          if (cards === null) {
-            return [];
-          }
-          let results = cards.map((card) => ({
-            ...card,
-            created_at: new Date(card.created_at),
-            updated_at: new Date(card.updated_at),
-          }));
-          return results;
-        });
-      } else {
-        return Promise.reject(new Error("Response is undefined"));
-      }
-    });
-}
 export function getCard(id: string): Promise<Card> {
   // Assuming your backend is running on the same IP and port as in previous example
   let encoded = encodeURIComponent(id);

@@ -3,22 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { Card, PartialCard, Entity } from "../../models/Card";
 import { File } from "../../models/File";
 import { removeEntityFromCard, addEntityToCard, fetchEntities } from "../../api/entities";
-import { saveExistingCard, fetchRelatedCards, getCardAuditEvents } from "../../api/cards";
+import { saveExistingCard, getCardAuditEvents } from "../../api/cards";
 
 import {
-  HeaderTop,
-  HeaderSection,
   HeaderSubSection,
 } from "../../components/Header";
 import { compareCardIds } from "../../utils/cards";
 import { isErrorResponse } from "../../models/common";
 
-import { SearchResultList } from "../../components/cards/SearchResultList";
-
 import { FileListItem } from "../../components/files/FileListItem";
 
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
-import { CardList } from "../../components/cards/CardList";
 
 interface ViewCardTabbedDisplay {
   viewingCard: Card;
@@ -133,7 +128,6 @@ export function ViewCardTabbedDisplay({
 }: ViewCardTabbedDisplay) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("Related");
-  const [relatedCards, setRelatedCards] = useState<PartialCard[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [allEntities, setAllEntities] = useState<Entity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -141,15 +135,12 @@ export function ViewCardTabbedDisplay({
   const [fileFilterString, setFileFilterString] = useState<string>("");
 
   const tabs = [
-    { label: "Related" },
     { label: "Files" },
     { label: "Entities" },
     { label: "History" },
   ];
 
   function onFileDelete(file_id: number) { }
-  function handleViewCard(card_id: number) { }
-  function openRenameModal(file: File) { }
 
   function handleTabClick(label: string) {
     setActiveTab(label);
@@ -167,20 +158,6 @@ export function ViewCardTabbedDisplay({
     let response = await saveExistingCard(editedCard);
     setViewCard(editedCard);
   }
-
-  async function handleFetchRelatedCards(id: string) {
-    let response = await fetchRelatedCards(id);
-
-    if (isErrorResponse(response)) {
-      setError(response["error"]);
-    } else {
-      setRelatedCards(response);
-    }
-  }
-
-  useEffect(() => {
-    handleFetchRelatedCards(viewingCard.id.toString());
-  }, [viewingCard]);
 
   async function handleRemoveEntity(entityId: number) {
     try {
@@ -268,7 +245,6 @@ export function ViewCardTabbedDisplay({
             {tab.label}
             {tab.label !== "History" &&
               <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
-                {tab.label === "Related" && relatedCards.length}
                 {tab.label === "Files" && viewingCard.files.length}
                 {tab.label === "Entities" && viewingCard.entities && viewingCard.entities.length}
               </span>
@@ -290,12 +266,6 @@ export function ViewCardTabbedDisplay({
               />
             </div>
           )}
-        </div>
-      )}
-      {activeTab === "Related" && (
-        <div>
-          <HeaderSubSection text="Related Cards" />
-          <CardList cards={relatedCards} />
         </div>
       )}
       {activeTab === "Files" && (

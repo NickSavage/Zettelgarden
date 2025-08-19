@@ -643,34 +643,6 @@ func TestCreateCardLinkedParentId(t *testing.T) {
 	}
 }
 
-func TestGetRelatedCardsSuccess(t *testing.T) {
-	s := setup()
-	defer tests.Teardown()
-
-	cardID := 1
-	token, _ := tests.GenerateTestJWT(1)
-
-	req, err := http.NewRequest("GET", "/api/cards/"+strconv.Itoa(cardID)+"/related", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-	req.SetPathValue("id", strconv.Itoa(cardID))
-
-	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/api/cards/{id}/related", s.JwtMiddleware(s.GetRelatedCardsRoute))
-	router.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-
-	var cards []models.PartialCard
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &cards)
-
-}
-
 func TestGetNextRootCardID(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()

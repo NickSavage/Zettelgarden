@@ -57,7 +57,7 @@ export function SearchPage({
     setSearchTerm(e.target.value);
   }
 
-  async function handleSearch(classicSearch: boolean, inputTerm: string) {
+  async function handleSearch(inputTerm: string) {
     const requestId = ++latestRequestId.current;
 
     setIsLoading(true);
@@ -67,7 +67,7 @@ export function SearchPage({
     console.log("searching for term:", term);
 
     try {
-      const results = await semanticSearchCards(term, classicSearch, searchConfig.useFullText, searchConfig.showEntities);
+      const results = await semanticSearchCards(term, searchConfig.useFullText, searchConfig.showEntities);
       if (requestId === latestRequestId.current) {
         setSearchResults(results || []);
       }
@@ -91,8 +91,6 @@ export function SearchPage({
       const term = params.get("term") || "";
       const pinnedId = params.get("pinned");
 
-      let classicSearch = searchConfig.useClassicSearch;
-
       // Check if we're loading a pinned search
       if (pinnedId) {
         try {
@@ -109,7 +107,6 @@ export function SearchPage({
 
             // Execute the search with the pinned configuration
             await handleSearch(
-              pinnedSearch.searchConfig.useClassicSearch,
               pinnedSearch.searchTerm
             );
             return; // Exit early since we've handled the search
@@ -122,20 +119,16 @@ export function SearchPage({
 
       // Regular search initialization if not a pinned search
       if (recent !== null) {
-        classicSearch = true;
         setSearchConfig({ ...searchConfig, useClassicSearch: true });
         setSearchTerm("");
-        await handleSearch(true, "");
+        await handleSearch("");
       } else if (term) {
-        classicSearch = true;
         setSearchConfig({ ...searchConfig, useClassicSearch: true });
         setSearchTerm(term);
-        await handleSearch(true, term);
+        await handleSearch(term);
       } else {
-        if (!classicSearch) {
-          setSearchConfig({ ...searchConfig, sortBy: "sortByRanking" });
-        }
-        await handleSearch(classicSearch, "");
+        setSearchConfig({ ...searchConfig, sortBy: "sortByRanking" });
+        await handleSearch("");
       }
     };
 
@@ -148,13 +141,13 @@ export function SearchPage({
 
   function handleTagClick(tagName: string) {
     setSearchTerm("#" + tagName);
-    handleSearch(searchConfig.useClassicSearch, tagName);
+    handleSearch(tagName);
   }
 
   async function handleEntityClick(entityName: string) {
     // Extract entity name from @[EntityName] format
     const cleanEntityName = entityName.replace('@[', '').replace(']', '');
-    
+
     try {
       // Fetch the real entity data from the backend
       const entity = await fetchEntityByName(cleanEntityName);
@@ -202,12 +195,11 @@ export function SearchPage({
     const newClassicSearch = event.target.checked;
     setSearchConfig({
       ...searchConfig,
-      useClassicSearch: newClassicSearch,
       sortBy: !newClassicSearch ? "sortByRanking" : searchConfig.sortBy,
       currentPage: 1
     });
     setSearchResults([]);
-    handleSearch(newClassicSearch, searchTerm);
+    handleSearch(searchTerm);
   };
 
   const handleOnlyParentCardsChange = (event) => {
@@ -220,7 +212,7 @@ export function SearchPage({
 
   const handleFullTextChange = (event) => {
     setSearchConfig({ ...searchConfig, useFullText: event.target.checked });
-    handleSearch(searchConfig.useClassicSearch, searchTerm);
+    handleSearch(searchTerm);
   };
 
   const handleShowEntitiesChange = (event) => {
@@ -240,14 +232,14 @@ export function SearchPage({
             onChange={handleSearchUpdate}
             onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
               if (event.key === "Enter") {
-                handleSearch(searchConfig.useClassicSearch, searchTerm);
+                handleSearch(searchTerm);
               }
             }}
           />
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => handleSearch(searchConfig.useClassicSearch, searchTerm)}
+              onClick={() => handleSearch(searchTerm)}
               children={"Search"}
             />
             <select value={searchConfig.sortBy} onChange={handleSortChange}>
@@ -276,17 +268,6 @@ export function SearchPage({
               </Menu.Button>
               <Menu.Items className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-10">
                 <div className="py-1">
-                  <div className="px-4 py-2 hover:bg-gray-100">
-                    <label className="flex items-center text-sm cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={searchConfig.useClassicSearch}
-                        onChange={handleCheckboxChange}
-                        className="mr-2"
-                      />
-                      Use Classic Search
-                    </label>
-                  </div>
                   <div className="px-4 py-2 hover:bg-gray-100">
                     <label className="flex items-center text-sm cursor-pointer">
                       <input

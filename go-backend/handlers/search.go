@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"go-backend/llms"
 	"go-backend/models"
@@ -11,9 +10,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/gorilla/mux"
-	"github.com/pgvector/pgvector-go"
 )
 
 type SearchParams struct {
@@ -268,145 +264,6 @@ func BuildPartialEntitySqlSearchTermString(searchString string) string {
 	return result
 }
 
-func (s *Handler) GetRelatedChunksFromEntity(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
-
-	query := `
-SELECT
-    c.id,
-    c.card_id,
-    c.user_id,
-    c.title,
-    c.body,
-    c.created_at,
-    c.updated_at,
-    c.parent_id
-FROM
-    entities e
-    INNER JOIN entity_card_junction ecj ON e.id = ecj.entity_id
-    INNER JOIN cards c ON ecj.card_pk = c.id
-WHERE
-    e.user_id = $1
-    AND c.is_deleted = FALSE
-GROUP BY
-    c.id,
-    c.card_id,
-    c.user_id,
-    c.title,
-    c.created_at,
-    c.updated_at,
-    c.parent_id
-ORDER BY
-    AVG(e.embedding_1024 <=> $2)
-LIMIT 100;
-`
-	var rows *sql.Rows
-	var err error
-	rows, err = s.DB.Query(query, userID, embedding)
-	if err != nil {
-		log.Printf("err related chunks %v", err)
-		return []models.CardChunk{}, err
-	}
-
-	cards, err := models.ScanCardChunks(rows)
-	log.Printf("err %v", err)
-
-	return cards, err
-
-	// var seen = make(map[int]bool)
-	// var results []models.CardChunk
-
-	// // for _, card := range cards {
-	// // 	if _, exists := seen[card.ID]; !exists {
-	// // 		results = append(results, card)
-	// // 		seen[card.ID] = true
-	// // 	}
-	// // }
-
-	// return results, nil
-
-}
-
-func (s *Handler) GetRelatedCards(userID int, embedding pgvector.Vector) ([]models.CardChunk, error) {
-	// Combine results from both semantic and entity-based searches
-	query := `
-	WITH semantic_scores AS (
-		SELECT 
-			c.id,
-			c.card_id,
-			c.user_id,
-			c.title,
-			cc.chunk_text as chunk,
-			c.created_at,
-			c.updated_at,
-			c.parent_id,
-			AVG(ce.embedding_1024 <=> $2) as semantic_score
-		FROM 
-			card_embeddings ce
-			INNER JOIN cards c ON ce.card_pk = c.id
-			INNER JOIN card_chunks cc ON ce.card_pk = cc.card_pk AND ce.chunk = cc.chunk_id
-		WHERE 
-			ce.user_id = $1 
-			AND c.is_deleted = FALSE
-		GROUP BY 
-			c.id, c.card_id, c.user_id, c.title, cc.chunk_text, c.created_at, c.updated_at, c.parent_id
-	),
-	entity_scores AS (
-		SELECT 
-			c.id,
-			COUNT(DISTINCT e.id) as shared_entities,
-			AVG(e.embedding_1024 <=> $2) as entity_similarity
-		FROM 
-			cards c
-			INNER JOIN entity_card_junction ecj ON c.id = ecj.card_pk
-			INNER JOIN entities e ON ecj.entity_id = e.id
-		WHERE 
-			c.user_id = $1 
-			AND c.is_deleted = FALSE
-		GROUP BY 
-			c.id
-	)
-	SELECT 
-		s.*,
-		COALESCE(es.shared_entities, 0) as shared_entities,
-		COALESCE(es.entity_similarity, 1) as entity_similarity,
-		(
-			0.4 * (1 - LEAST(s.semantic_score, 1)) + 
-			0.4 * (1 - LEAST(COALESCE(es.entity_similarity, 1), 1)) +
-			0.2 * (LEAST(COALESCE(es.shared_entities, 0) / 5.0, 1))
-		) as combined_score
-	FROM 
-		semantic_scores s
-		LEFT JOIN entity_scores es ON s.id = es.id
-	ORDER BY 
-		combined_score DESC
-	LIMIT 500;
-	`
-
-	var rows *sql.Rows
-	var err error
-	rows, err = s.DB.Query(query, userID, embedding)
-	if err != nil {
-		log.Printf("err getrelatedcards %v", err)
-		return []models.CardChunk{}, err
-	}
-
-	cards, err := models.ScanCardChunks(rows)
-	if err != nil {
-		return []models.CardChunk{}, err
-	}
-
-	seen := make(map[int]bool)
-	var deduped []models.CardChunk
-	for _, card := range cards {
-		if !seen[card.ID] {
-			seen[card.ID] = true
-			deduped = append(deduped, card)
-		}
-	}
-
-	return deduped, nil
-}
-
 func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([]models.Entity, error) {
 	searchString := BuildPartialEntitySqlSearchTermString(params.SearchTerm)
 	query := `
@@ -529,40 +386,6 @@ type SearchRequestParams struct {
 	ShowEntities bool   `json:"show_entities"`
 }
 
-func (s *Handler) SemanticCardSearch(userID int, params SearchRequestParams) ([]models.SearchResult, error) {
-
-	// Handle semantic search (existing code)
-	chunk := models.CardChunk{
-		Chunk: params.SearchTerm,
-	}
-
-	embeddings, err := llms.GenerateChunkEmbeddings1024(chunk, true)
-
-	if err != nil {
-		return []models.SearchResult{}, err
-	}
-	if len(embeddings) == 0 {
-		return []models.SearchResult{}, errors.New("search query not entered")
-	}
-	relatedCards, err := s.GetRelatedCards(userID, embeddings[0])
-	if err != nil {
-		return []models.SearchResult{}, err
-	}
-
-	searchResults := make([]models.SearchResult, len(relatedCards))
-	for i, card := range relatedCards {
-		searchResults[i] = models.CardChunkToSearchResult(card)
-	}
-	if params.SearchTerm == "" {
-		return searchResults, nil
-	}
-
-	client := llms.NewDefaultClient(s.DB, userID)
-
-	reranked, err := llms.RerankSearchResults(client, params.SearchTerm, searchResults)
-	return reranked, err
-}
-
 func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
 
 	var searchResults []models.SearchResult
@@ -664,70 +487,13 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if searchParams.SearchType == "classic" {
-
-		searchResults, err := s.ClassicSearch(searchParams, userID)
-		if err != nil {
-			log.Printf("search err %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(searchResults)
-		return
-	}
-
-	// Handle semantic search
-	searchResults, err := s.SemanticCardSearch(userID, searchParams)
+	searchResults, err := s.ClassicSearch(searchParams, userID)
 	if err != nil {
+		log.Printf("search err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(searchResults)
-}
-
-func (s *Handler) GetRelatedCardsRoute(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("current_user").(int)
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
-	if err != nil {
-		log.Printf("error %v", err)
-		http.Error(w, "Invalid id", http.StatusBadRequest)
-		return
-	}
-
-	originalCard, err := s.QueryFullCard(userID, id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	var embedding pgvector.Vector
-	query := "SELECT avg(embedding_1024) FROM card_embeddings WHERE card_pk = $1"
-	err = s.DB.QueryRow(query, originalCard.ID).Scan(&embedding)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	relatedChunks, err := s.GetRelatedCards(userID, embedding)
-
-	var results []models.CardChunk
-
-	for _, chunk := range relatedChunks {
-		if !s.checkChunkLinkedOrRelated(userID, originalCard, chunk) {
-			results = append(results, chunk)
-		}
-		if len(results) >= 10 {
-			break
-		}
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(results)
+	return
 }
