@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go-backend/models"
 	"strings"
+	"time"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -23,6 +24,7 @@ type ThesisAnalysis struct {
 
 // AnalyzeAndSummarizeText: the advanced pipeline
 func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []ThesisAnalysis, error) {
+	start := time.Now()
 	chunks := chunkText(input, 10000)
 	c.Model.ModelIdentifier = "openai/gpt-5-chat"
 
@@ -219,6 +221,9 @@ Input:
 	summary += "\n\nEstimated Cost: " +
 		fmt.Sprintf("$%.4f (Prompt: $%.4f, Completion: $%.4f)",
 			totalCost, promptCost, completionCost)
+
+	elapsed := time.Since(start)
+	summary += "\n\nTime Taken: " + elapsed.String()
 
 	return summary, allAnalyses, nil
 }
