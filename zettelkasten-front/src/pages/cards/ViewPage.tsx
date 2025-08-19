@@ -208,8 +208,21 @@ export function ViewPage({ }: ViewPageProps) {
 
   useEffect(() => {
     if (summaries && summaries.length > 0) {
-      // Fall back to just taking the last element if no timestamp field exists
-      setLatestSummary(summaries[summaries.length - 1]);
+      // Filter to only "complete" summaries
+      const completeSummaries = summaries.filter(s => s.status === "complete");
+
+      if (completeSummaries.length > 0) {
+        // Find the one with the highest ID
+        const latest = completeSummaries.reduce((max, s) =>
+          s.id > max.id ? s : max
+        );
+
+        setLatestSummary(latest);
+      } else {
+        // Optional: fallback if none are "complete"
+        console.log("No complete summaries yet");
+        setLatestSummary(null);
+      }
     }
   }, [summaries]);
 
