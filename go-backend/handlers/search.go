@@ -384,6 +384,7 @@ type SearchRequestParams struct {
 	SearchType   string `json:"type"` // "classic" or "semantic"
 	FullText     bool   `json:"full_text"`
 	ShowEntities bool   `json:"show_entities"`
+	ShowFacts    bool   `json:"show_facts"`
 }
 
 func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
@@ -461,14 +462,40 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 		})
 	}
 
+	// Include fact results if requested
+	if searchParams.ShowFacts {
+		facts, err := s.ClassicFactSearch(userID, searchParams)
+		if err != nil {
+			return nil, err
+		}
+		for _, fact := range facts {
+			metadata := map[string]interface{}{
+				"card": map[string]interface{}{
+					"id":        fact.Card.ID,
+					"card_id":   fact.Card.CardID,
+					"title":     fact.Card.Title,
+					"parent_id": fact.Card.ParentID,
+				},
+			}
+			searchResults = append(searchResults, models.SearchResult{
+				ID:        strconv.Itoa(fact.ID),
+				Type:      "fact",
+				Title:     fact.Title,
+				Preview:   fact.Preview,
+				Score:     fact.Score,
+				CreatedAt: fact.CreatedAt.Time,
+				UpdatedAt: fact.UpdatedAt.Time,
+				Metadata:  metadata,
+			})
+		}
+	}
+
 	var reranked []models.SearchResult
 	if s.Server.Testing {
 		reranked = searchResults
 	} else {
 		if len(searchResults) > 0 {
-
 			client := llms.NewDefaultClient(s.DB, userID)
-
 			reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, searchResults)
 			if err != nil {
 				return nil, err
@@ -476,6 +503,90 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 		}
 	}
 	return reranked, nil
+}
+
+// ClassicFactSearch performs embedding-based semantic search on facts
+func (s *Handler) ClassicFactSearch(userID int, params SearchRequestParams) ([]struct {
+	ID        int
+	Fact      string
+	Title     string
+	Preview   string
+	Score     float64
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+	Card      models.PartialCard
+}, error) {
+	var results []struct {
+		ID        int
+		Fact      string
+		Title     string
+		Preview   string
+		Score     float64
+		CreatedAt sql.NullTime
+		UpdatedAt sql.NullTime
+		Card      models.PartialCard
+	}
+
+	if params.SearchTerm == "" {
+		return results, nil
+	}
+	// Generate query embedding
+	embedding, err := llms.GetEmbedding1024(params.SearchTerm, false)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := s.DB.Query(`
+		SELECT f.id, f.fact, f.created_at, f.updated_at,
+		       c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at,
+		       (1 - (f.embedding_1024 <=> $2)) as score
+		FROM facts f
+		JOIN cards c ON f.card_pk = c.id
+		WHERE f.user_id = $1
+		ORDER BY f.embedding_1024 <=> $2
+		LIMIT 25
+	`, userID, embedding)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r struct {
+			ID        int
+			Fact      string
+			Title     string
+			Preview   string
+			Score     float64
+			CreatedAt sql.NullTime
+			UpdatedAt sql.NullTime
+			Card      models.PartialCard
+		}
+		err := rows.Scan(
+			&r.ID,
+			&r.Fact,
+			&r.CreatedAt,
+			&r.UpdatedAt,
+			&r.Card.ID,
+			&r.Card.CardID,
+			&r.Card.UserID,
+			&r.Card.Title,
+			&r.Card.ParentID,
+			&r.Card.CreatedAt,
+			&r.Card.UpdatedAt,
+			&r.Score,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		r.Title = r.Fact
+		r.Preview = r.Fact
+
+		results = append(results, r)
+	}
+
+	return results, nil
 }
 
 func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {

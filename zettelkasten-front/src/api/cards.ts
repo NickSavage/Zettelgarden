@@ -16,6 +16,7 @@ interface SearchRequestParams {
   search_term: string;
   full_text?: boolean;
   show_entities?: boolean;
+  show_facts?: boolean;
 }
 
 export function semanticSearchCards(searchTerm = "", fullText = false, showEntities = false): Promise<SearchResult[]> {
@@ -25,7 +26,8 @@ export function semanticSearchCards(searchTerm = "", fullText = false, showEntit
   const params: SearchRequestParams = {
     search_term: searchTerm,
     full_text: fullText,
-    show_entities: showEntities
+    show_entities: showEntities,
+    show_facts: true,
   };
 
   return fetch(url, {

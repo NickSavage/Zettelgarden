@@ -75,6 +75,7 @@ func GetEmbedding1024(text string, useForQuery bool) (pgvector.Vector, error) {
 		prompt = "Represent this sentence for searching relevant passages:" + prompt
 	}
 
+	log.Printf("prompt %v", prompt)
 	payload := map[string]string{
 		"inputs": prompt,
 	}
