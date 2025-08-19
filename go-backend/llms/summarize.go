@@ -25,7 +25,7 @@ type ThesisAnalysis struct {
 // AnalyzeAndSummarizeText: the advanced pipeline
 func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []ThesisAnalysis, error) {
 	start := time.Now()
-	chunks := chunkText(input, 10000)
+	chunks := chunkText(input, 25000)
 	c.Model.ModelIdentifier = "openai/gpt-5-chat"
 
 	totalPromptTokens := 0
