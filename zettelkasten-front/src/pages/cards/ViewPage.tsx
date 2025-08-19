@@ -37,7 +37,8 @@ import { CardList } from "../../components/cards/CardList";
 import { CardBody } from "../../components/cards/CardBody";
 import { fetchSummariesForCard, fetchSummarizations, SummarizeJobResponse } from "../../api/summarizer";
 import { getCardFacts } from "../../api/facts";
-import { Fact } from "../../models/Fact";
+import { Fact, FactWithCard } from "../../models/Fact";
+import { FactDialog } from "../../components/facts/FactDialog";
 
 interface ViewPageProps { }
 
@@ -68,6 +69,9 @@ export function ViewPage({ }: ViewPageProps) {
   const [showingSummary, setShowingSummary] = useState(false);
 
   const [facts, setFacts] = useState<Fact[]>([]);
+
+  const [selectedFact, setSelectedFact] = useState<FactWithCard | null>(null);
+  const [isFactDialogOpen, setFactDialogOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -346,7 +350,14 @@ export function ViewPage({ }: ViewPageProps) {
                     <HeaderSubSection text="Facts" />
                     <div className="mt-2 space-y-2">
                       {facts.map((fact) => (
-                        <div key={fact.id} className="border-b pb-2">
+                        <div
+                          key={fact.id}
+                          className="border-b pb-2 cursor-pointer hover:bg-gray-50"
+                          onClick={() => {
+                            setSelectedFact(fact as FactWithCard);
+                            setFactDialogOpen(true);
+                          }}
+                        >
                           <div className="text-sm text-gray-700">{fact.fact}</div>
                         </div>
                       ))}
@@ -496,6 +507,11 @@ export function ViewPage({ }: ViewPageProps) {
           </div>
         </div>
       )}
+      <FactDialog
+        fact={selectedFact}
+        isOpen={isFactDialogOpen}
+        onClose={() => setFactDialogOpen(false)}
+      />
     </div>
   );
 }
