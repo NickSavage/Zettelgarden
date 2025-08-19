@@ -4,18 +4,23 @@ import { CardIcon } from "../../assets/icons/CardIcon";
 import { PersonIcon } from "../../assets/icons/PersonIcon";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/dates";
+import { FactWithCard } from "../../models/Fact";
+import { FactDialog } from "../facts/FactDialog";
+import { useState } from "react";
 
 interface SearchResultItemProps {
   result: SearchResult;
   showPreview: boolean;
   onEntityClick?: (entityName: string) => void;
   onTagClick?: (tagName: string) => void;
+  onFactClick?: (fact: FactWithCard) => void;
 }
 
-function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: SearchResultItemProps) {
+function SearchResultItem({ result, showPreview, onEntityClick, onTagClick, onFactClick }: SearchResultItemProps) {
   const isClassicSearch = result.type === "card" && result.score === 1.0;
   const isEntity = result.type === "entity";
   const isCard = result.type === "card";
+  const isFact = result.type === "fact";
   const cardId = Number(result.metadata?.id) || 0;
   const linkedCard = isEntity ? result.metadata?.linked_card : null;
 
@@ -23,6 +28,10 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
     if (isEntity && onEntityClick) {
       e.preventDefault();
       onEntityClick(`@[${result.title}]`);
+    }
+    if (isFact && onFactClick) {
+      e.preventDefault();
+      onFactClick(result.metadata as FactWithCard);
     }
   };
 
@@ -42,17 +51,37 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick }: Se
         <div className="flex flex-col">
           <div className="flex items-center flex-wrap gap-1">
             <Link
-              to={isEntity ? "#" : `/app/card/${cardId}`}
+              to={isEntity ? "#" : isFact ? "#" : `/app/card/${cardId}`}
               onClick={handleClick}
               className="hover:underline flex-shrink-0"
             >
-              {!isEntity && (
+              {!isEntity && !isFact && (
                 <>
                   <span className="text-blue-600 hover:text-blue-800">[{result.id}]</span>
                   <span className="mx-2 text-gray-400">-</span>
                 </>
               )}
-              <span>{result.title}</span>
+              {isFact ? (
+                <>
+                  <span className="text-green-600">[Fact]</span>
+                  {result.metadata?.card && (
+                    <>
+                      <span className="mx-2 text-gray-400">→</span>
+                      <Link
+                        to={`/app/card/${result.metadata.card.id}`}
+                        className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        <div className="w-3 h-3 mr-1 text-gray-400">
+                          <CardIcon />
+                        </div>
+                        [{result.metadata.card.id}] {result.metadata.card.title}
+                      </Link>
+                    </>
+                  )}
+                </>
+              ) : (
+                <span>{result.title}</span>
+              )}
             </Link>
             {/* Show linked card for entities */}
             {isEntity && linkedCard && (
@@ -121,18 +150,34 @@ export function SearchResultList({
   onEntityClick,
   onTagClick,
 }: SearchResultListProps) {
+  const [selectedFact, setSelectedFact] = useState<FactWithCard | null>(null);
+  const [factDialogOpen, setFactDialogOpen] = useState(false);
+
+  const handleFactClick = (fact: FactWithCard) => {
+    setSelectedFact(fact);
+    setFactDialogOpen(true);
+  };
+
   return (
-    <ul className="space-y-1">
-      {results.map((result) => (
-        <li key={result.id} className="py-1 px-2 hover:bg-gray-50 rounded-lg">
-          <SearchResultItem
-            result={result}
-            showPreview={showPreview}
-            onEntityClick={onEntityClick}
-            onTagClick={onTagClick}
-          />
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="space-y-1">
+        {results.map((result) => (
+          <li key={result.id} className="py-1 px-2 hover:bg-gray-50 rounded-lg">
+            <SearchResultItem
+              result={result}
+              showPreview={showPreview}
+              onEntityClick={onEntityClick}
+              onTagClick={onTagClick}
+              onFactClick={handleFactClick}
+            />
+          </li>
+        ))}
+      </ul>
+      <FactDialog
+        fact={selectedFact}
+        isOpen={factDialogOpen}
+        onClose={() => setFactDialogOpen(false)}
+      />
+    </>
   );
 }
