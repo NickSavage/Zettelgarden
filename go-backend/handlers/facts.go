@@ -145,6 +145,46 @@ func (s *Handler) GetEntityFacts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetCardFacts returns all facts for a given card
+func (s *Handler) GetCardFacts(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+
+	cardIDStr := vars["id"]
+	cardID, err := strconv.Atoi(cardIDStr)
+	if err != nil {
+		http.Error(w, "Invalid card id", http.StatusBadRequest)
+		return
+	}
+
+	rows, err := s.DB.Query(`
+		SELECT id, fact, created_at, updated_at
+		FROM facts
+		WHERE card_pk = $1 AND user_id = $2
+		ORDER BY created_at DESC
+	`, cardID, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var facts []models.Fact
+	for rows.Next() {
+		var f models.Fact
+		if err := rows.Scan(&f.ID, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		facts = append(facts, f)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(facts); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 // GetFactEntities returns all entities linked to a given fact
 func (s *Handler) GetFactEntities(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
