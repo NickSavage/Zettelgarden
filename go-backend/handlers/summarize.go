@@ -15,7 +15,8 @@ import (
 
 // SummarizeRequest defines the payload for creating a summarization job
 type SummarizeRequest struct {
-	Text string `json:"text"`
+	Text  string `json:"text"`
+	Model string `json:"model,omitempty"`
 }
 
 // GetSummariesByCardRoute returns all summarizations for a given card_pk
@@ -85,9 +86,14 @@ func (h *Handler) ListSummarizationsRoute(w http.ResponseWriter, r *http.Request
 }
 
 type SummarizeJobResponse struct {
-	ID     int    `json:"id"`
-	Status string `json:"status"`
-	Result string `json:"result,omitempty"`
+	ID               int     `json:"id"`
+	Status           string  `json:"status"`
+	Result           string  `json:"result,omitempty"`
+	PromptTokens     int     `json:"prompt_tokens,omitempty"`
+	CompletionTokens int     `json:"completion_tokens,omitempty"`
+	TotalTokens      int     `json:"total_tokens,omitempty"`
+	Cost             float64 `json:"cost,omitempty"`
+	Model            string  `json:"model,omitempty"`
 }
 
 func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
@@ -156,15 +162,19 @@ func (h *Handler) runSummarizationJob(userID int, text string, cardPK *int) (int
 		client := llms.NewDefaultClient(h.DB, uid)
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
 
-		result, analyses, err := llms.AnalyzeAndSummarizeText(client, t)
+		result, analyses, usage, err := llms.AnalyzeAndSummarizeText(client, t)
 		if err != nil {
 			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
 				jobID, err.Error(), time.Now())
 			return
 		}
 
-		_, _ = h.DB.Exec(`UPDATE summarizations SET status='complete', result=$2, updated_at=$3 WHERE id=$1`,
-			jobID, result, time.Now())
+		modelName := client.Model.ModelIdentifier
+
+		_, _ = h.DB.Exec(`UPDATE summarizations 
+			SET status='complete', result=$2, prompt_tokens=$3, completion_tokens=$4, total_tokens=$5, cost=$6, model=$7, updated_at=$8 
+			WHERE id=$1`,
+			jobID, result, usage.PromptTokens, usage.CompletionTokens, usage.TotalTokens, usage.TotalCost, modelName, time.Now())
 
 		if cardPK != nil {
 			var allFacts []string
@@ -192,7 +202,9 @@ func (h *Handler) GetSummarizationRoute(w http.ResponseWriter, r *http.Request) 
 
 	var job models.Summarization
 	err = h.DB.QueryRow(`
-		SELECT id, user_id, input_text, status, COALESCE(result, ''), created_at, updated_at
+		SELECT id, user_id, input_text, status, COALESCE(result, ''), 
+		       prompt_tokens, completion_tokens, total_tokens, cost,
+		       created_at, updated_at
 		FROM summarizations
 		WHERE id=$1 AND user_id=$2
 	`, jobID, userID).Scan(
@@ -201,6 +213,11 @@ func (h *Handler) GetSummarizationRoute(w http.ResponseWriter, r *http.Request) 
 		&job.InputText,
 		&job.Status,
 		&job.Result,
+		&job.PromptTokens,
+		&job.CompletionTokens,
+		&job.TotalTokens,
+		&job.Cost,
+		&job.Model,
 		&job.CreatedAt,
 		&job.UpdatedAt,
 	)
@@ -210,9 +227,14 @@ func (h *Handler) GetSummarizationRoute(w http.ResponseWriter, r *http.Request) 
 	}
 
 	resp := SummarizeJobResponse{
-		ID:     job.ID,
-		Status: job.Status,
-		Result: job.Result,
+		ID:               job.ID,
+		Status:           job.Status,
+		Result:           job.Result,
+		PromptTokens:     job.PromptTokens,
+		CompletionTokens: job.CompletionTokens,
+		TotalTokens:      job.TotalTokens,
+		Cost:             job.Cost,
+		Model:            job.Model,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
