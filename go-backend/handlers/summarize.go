@@ -106,6 +106,7 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 	if wordCount < 100 {
 		go func() {
 			client := llms.NewDefaultClient(h.DB, userID)
+			client.Model.ModelIdentifier = "openai/gpt-5-chat"
 			analyses, _, err := llms.ExtractThesesAndArguments(client, card.Body)
 			if err != nil {
 				log.Printf("Fact extraction failed: %v", err)
