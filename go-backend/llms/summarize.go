@@ -29,20 +29,18 @@ type Usage struct {
 	TotalCost        float64
 }
 
-// AnalyzeAndSummarizeText: the advanced pipeline
-func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []ThesisAnalysis, Usage, error) {
-	start := time.Now()
+// ExtractThesesAndArguments processes input text into ThesisAnalysis entries,
+// aggregating theses, facts, and arguments from each chunk.
+// Returns all analyses and usage statistics.
+func ExtractThesesAndArguments(c *models.LLMClient, input string) ([]ThesisAnalysis, Usage, error) {
 	chunks := chunkText(input, 25000)
-	c.Model.ModelIdentifier = "openai/gpt-5-chat"
 
 	totalPromptTokens := 0
 	totalCompletionTokens := 0
-
 	var allAnalyses []ThesisAnalysis
 	collectedTheses := []string{}
 	collectedArguments := []Argument{}
 
-	// Helper to pretty-print arguments with importance
 	formatArguments := func(args []Argument) string {
 		var out []string
 		for _, a := range args {
@@ -54,7 +52,6 @@ func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []Thesi
 	for _, chunk := range chunks {
 		contextIntro := ""
 		if len(collectedTheses) > 0 || len(collectedArguments) > 0 {
-			contextIntro = ""
 			if len(collectedTheses) > 0 {
 				contextIntro += "Previously extracted theses:\n- " + strings.Join(collectedTheses, "\n- ") + "\n"
 			}
@@ -100,22 +97,15 @@ Format Example:
 
 		resp, err := ExecuteLLMRequest(c, messages)
 		if err != nil {
-			return "", nil, Usage{}, err
+			return nil, Usage{}, err
 		}
 		if len(resp.Choices) == 0 {
 			continue
 		}
 
-		// Clean response content by removing possible markdown code fences
-		content := resp.Choices[0].Message.Content
-		content = strings.TrimSpace(content)
-		content = strings.TrimPrefix(content, "```json")
-		content = strings.TrimPrefix(content, "```")
-		content = strings.TrimSuffix(content, "```")
-
+		content := cleanContent(resp.Choices[0].Message.Content)
 		var analysis ThesisAnalysis
 		if err := json.Unmarshal([]byte(content), &analysis); err != nil {
-			// skip invalid responses
 			continue
 		}
 		allAnalyses = append(allAnalyses, analysis)
@@ -128,8 +118,36 @@ Format Example:
 	}
 
 	if len(allAnalyses) == 0 {
-		return "", nil, Usage{}, errors.New("no valid analyses returned")
+		return nil, Usage{}, errors.New("no valid analyses returned")
 	}
+
+	return allAnalyses, Usage{
+		PromptTokens:     totalPromptTokens,
+		CompletionTokens: totalCompletionTokens,
+		TotalTokens:      totalPromptTokens + totalCompletionTokens,
+	}, nil
+}
+
+// Clean possible markdown wrappers
+func cleanContent(content string) string {
+	content = strings.TrimSpace(content)
+	content = strings.TrimPrefix(content, "```json")
+	content = strings.TrimPrefix(content, "```")
+	content = strings.TrimSuffix(content, "```")
+	return content
+}
+
+// AnalyzeAndSummarizeText: the advanced pipeline
+func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []ThesisAnalysis, Usage, error) {
+	start := time.Now()
+	c.Model.ModelIdentifier = "openai/gpt-5-chat"
+
+	allAnalyses, usage, err := ExtractThesesAndArguments(c, input)
+	if err != nil {
+		return "", nil, usage, err
+	}
+	totalPromptTokens := usage.PromptTokens
+	totalCompletionTokens := usage.CompletionTokens
 
 	// Aggregate all results into one string
 	theses := []string{}
@@ -149,9 +167,16 @@ Format Example:
 	}
 
 	// Deduplicate and rank with another LLM call
+	formatArguments := func(args []Argument) string {
+		var out []string
+		for _, a := range args {
+			out = append(out, fmt.Sprintf("(importance %d) %s", a.Importance, a.Argument))
+		}
+		return strings.Join(out, "\n- ")
+	}
 	dedupInput := "Theses: " + strings.Join(theses, "; ") +
 		"\nFacts: " + strings.Join(facts, "; ") +
-		"\nCollected Arguments (with importance):\n- " + formatArguments(collectedArguments)
+		"\nCollected Arguments (with importance):\n- " + formatArguments(flattenArguments(allAnalyses))
 
 	dedupMessages := []openai.ChatCompletionMessage{
 		{
@@ -267,14 +292,22 @@ Input (including deduplicated theses, facts, and arguments with importance/rank)
 	elapsed := time.Since(start)
 	summary += "\n\nTime Taken: " + elapsed.String()
 
-	usage := Usage{
-		PromptTokens:     totalPromptTokens,
-		CompletionTokens: totalCompletionTokens,
-		TotalTokens:      totalPromptTokens + totalCompletionTokens,
-		TotalCost:        totalCost,
-	}
+	// update usage before returning
+	usage.PromptTokens = totalPromptTokens
+	usage.CompletionTokens = totalCompletionTokens
+	usage.TotalTokens = totalPromptTokens + totalCompletionTokens
+	usage.TotalCost = totalCost
 
 	return summary, allAnalyses, usage, nil
+}
+
+// flattenArguments combines arguments from multiple analyses
+func flattenArguments(analyses []ThesisAnalysis) []Argument {
+	var args []Argument
+	for _, a := range analyses {
+		args = append(args, a.Arguments...)
+	}
+	return args
 }
 
 // chunkText splits input into segments of maxLength, breaking at sentence boundaries.
