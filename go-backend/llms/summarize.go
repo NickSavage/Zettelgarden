@@ -33,11 +33,28 @@ func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []Thesi
 
 	var allAnalyses []ThesisAnalysis
 	collectedTheses := []string{}
+	collectedArguments := []Argument{}
+
+	// Helper to pretty-print arguments with importance
+	formatArguments := func(args []Argument) string {
+		var out []string
+		for _, a := range args {
+			out = append(out, fmt.Sprintf("(importance %d) %s", a.Importance, a.Argument))
+		}
+		return strings.Join(out, "\n- ")
+	}
 
 	for _, chunk := range chunks {
 		contextIntro := ""
-		if len(collectedTheses) > 0 {
-			contextIntro = "Previously extracted theses:\n- " + strings.Join(collectedTheses, "\n- ") + "\n\n"
+		if len(collectedTheses) > 0 || len(collectedArguments) > 0 {
+			contextIntro = ""
+			if len(collectedTheses) > 0 {
+				contextIntro += "Previously extracted theses:\n- " + strings.Join(collectedTheses, "\n- ") + "\n"
+			}
+			if len(collectedArguments) > 0 {
+				contextIntro += "Previously extracted arguments:\n- " + formatArguments(collectedArguments) + "\n"
+			}
+			contextIntro += "\n"
 		}
 		userContent := contextIntro + "Now analyze the following text:\n" + chunk
 
@@ -45,7 +62,20 @@ func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []Thesi
 			{
 				Role: openai.ChatMessageRoleSystem,
 				Content: `You are an assistant that extracts theses, facts, and arguments from text.
-Respond ONLY in JSON with the following format:
+				We are trying to come up with a coherent summary of the article/podcast/book/etc. You will be looking at
+				some or all of the writing and need to extract certain things from it. You will see the previously extracted
+				theses and arguments from earlier chunks of the work. Please use this to inform yourself on where we have been
+				and based on that, where the writer has taken the arguments in this section. 
+
+Instructions:
+- Respond ONLY in pure JSON with the following format.
+- Do not add commentary, explanations, or non‑JSON text.
+- If an item cannot be extracted, return an empty string or empty list.
+- Importance must be an integer on a scale of 1–10 (10 = crucial to the central thesis, 1 = marginal).
+- Facts should be discrete, verifiable statements (events, statistics, claims of evidence).
+- Avoid duplicating previously extracted theses or arguments unless new context meaningfully alters them.
+
+Format Example:
 {
   "thesis": "...",
   "facts": ["...", "..."],
@@ -85,6 +115,7 @@ Respond ONLY in JSON with the following format:
 		if analysis.Thesis != "" {
 			collectedTheses = append(collectedTheses, analysis.Thesis)
 		}
+		collectedArguments = append(collectedArguments, analysis.Arguments...)
 		totalPromptTokens += resp.Usage.PromptTokens
 		totalCompletionTokens += resp.Usage.CompletionTokens
 	}
@@ -113,7 +144,7 @@ Respond ONLY in JSON with the following format:
 	// Deduplicate and rank with another LLM call
 	dedupInput := "Theses: " + strings.Join(theses, "; ") +
 		"\nFacts: " + strings.Join(facts, "; ") +
-		"\nImportant Arguments: " + strings.Join(args, "; ")
+		"\nCollected Arguments (with importance):\n- " + formatArguments(collectedArguments)
 
 	dedupMessages := []openai.ChatCompletionMessage{
 		{
@@ -129,6 +160,10 @@ Respond ONLY in JSON with the following format:
 		{
 			Role:    openai.ChatMessageRoleUser,
 			Content: dedupInput,
+		},
+		{
+			Role:    openai.ChatMessageRoleUser,
+			Content: "Please consider the full set of arguments (with importance values) above when performing deduplication and ranking.",
 		},
 	}
 	dedupResp, err := ExecuteLLMRequest(c, dedupMessages)
@@ -191,7 +226,7 @@ The output should be **structured, concise, and tailored to distinct audiences**
      - Section 1 → plain, polished, and accessible ("boardroom-ready").  
      - Section 2 → objective, precise, and reference-style ("briefing document").  
 
-Input:
+Input (including deduplicated theses, facts, and arguments with importance/rank):
 <analysis>\n` + aggregation,
 		},
 	}
