@@ -104,6 +104,21 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 
 	wordCount := len(strings.Fields(card.Body))
 	if wordCount < 100 {
+		go func() {
+			client := llms.NewDefaultClient(h.DB, userID)
+			analyses, _, err := llms.ExtractThesesAndArguments(client, card.Body)
+			if err != nil {
+				log.Printf("Fact extraction failed: %v", err)
+				return
+			}
+			var allFacts []string
+			for _, analysis := range analyses {
+				allFacts = append(allFacts, analysis.Facts...)
+			}
+			if len(allFacts) > 0 {
+				_ = h.ExtractSaveCardFacts(userID, card.ID, allFacts)
+			}
+		}()
 		return
 	}
 
