@@ -30,6 +30,7 @@ interface SearchPageProps {
     showEntities: boolean;
     showPreview: boolean;
     showFacts: boolean;
+    showCards: boolean;
   };
   setSearchConfig: (config: any) => void;
 }
@@ -184,7 +185,11 @@ export function SearchPage({
       .filter(result => !searchConfig.onlyParentCards || !result.id.includes("/"))
       .filter(result => searchConfig.showEntities || result.type !== "entity");
 
-    const sortedResults = sortCards(filteredResults, searchConfig.sortBy);
+    const sortedResults = sortCards(
+      filteredResults
+        .filter(result => searchConfig.showCards || result.type !== "card"),
+      searchConfig.sortBy
+    );
     const indexOfLastItem = searchConfig.currentPage * 20;
     const indexOfFirstItem = indexOfLastItem - 20;
     return sortedResults.slice(indexOfFirstItem, indexOfLastItem);
@@ -227,6 +232,10 @@ export function SearchPage({
 
   const handleShowFactsChange = (event) => {
     setSearchConfig({ ...searchConfig, showFacts: event.target.checked, currentPage: 1 });
+  };
+
+  const handleShowCardsChange = (event) => {
+    setSearchConfig({ ...searchConfig, showCards: event.target.checked, currentPage: 1 });
   };
 
   return (
@@ -331,6 +340,17 @@ export function SearchPage({
                         className="mr-2"
                       />
                       Show Facts
+                    </label>
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={searchConfig.showCards}
+                        onChange={handleShowCardsChange}
+                        className="mr-2"
+                      />
+                      Show Cards
                     </label>
                   </div>
                 </div>

@@ -42,7 +42,9 @@ function MainAppContent() {
     useFullText: false,
     onlyParentCards: false,
     showEntities: true,
-    showPreview: true
+    showPreview: true,
+    showFacts: true,
+    showCards: true,
   });
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
