@@ -203,7 +203,7 @@ func (h *Handler) GetSummarizationRoute(w http.ResponseWriter, r *http.Request) 
 	var job models.Summarization
 	err = h.DB.QueryRow(`
 		SELECT id, user_id, input_text, status, COALESCE(result, ''), 
-		       prompt_tokens, completion_tokens, total_tokens, cost,
+		       prompt_tokens, completion_tokens, total_tokens, cost, model,
 		       created_at, updated_at
 		FROM summarizations
 		WHERE id=$1 AND user_id=$2
@@ -222,6 +222,7 @@ func (h *Handler) GetSummarizationRoute(w http.ResponseWriter, r *http.Request) 
 		&job.UpdatedAt,
 	)
 	if err != nil {
+		log.Printf("summarization job error %v", err)
 		http.Error(w, "Job not found", http.StatusNotFound)
 		return
 	}
