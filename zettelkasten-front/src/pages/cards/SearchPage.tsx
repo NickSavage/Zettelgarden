@@ -29,6 +29,7 @@ interface SearchPageProps {
     onlyParentCards: boolean;
     showEntities: boolean;
     showPreview: boolean;
+    showFacts: boolean;
   };
   setSearchConfig: (config: any) => void;
 }
@@ -67,7 +68,12 @@ export function SearchPage({
     console.log("searching for term:", term);
 
     try {
-      const results = await semanticSearchCards(term, searchConfig.useFullText, searchConfig.showEntities);
+      const results = await semanticSearchCards(
+        term,
+        searchConfig.useFullText,
+        searchConfig.showEntities,
+        searchConfig.showFacts
+      );
       if (requestId === latestRequestId.current) {
         setSearchResults(results || []);
       }
@@ -219,6 +225,10 @@ export function SearchPage({
     setSearchConfig({ ...searchConfig, showEntities: event.target.checked, currentPage: 1 });
   };
 
+  const handleShowFactsChange = (event) => {
+    setSearchConfig({ ...searchConfig, showFacts: event.target.checked, currentPage: 1 });
+  };
+
   return (
     <div>
       <div>
@@ -310,6 +320,17 @@ export function SearchPage({
                         className="mr-2"
                       />
                       Show Entities
+                    </label>
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={searchConfig.showFacts}
+                        onChange={handleShowFactsChange}
+                        className="mr-2"
+                      />
+                      Show Facts
                     </label>
                   </div>
                 </div>

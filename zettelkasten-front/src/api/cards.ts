@@ -19,7 +19,12 @@ interface SearchRequestParams {
   show_facts?: boolean;
 }
 
-export function semanticSearchCards(searchTerm = "", fullText = false, showEntities = false): Promise<SearchResult[]> {
+export function semanticSearchCards(
+  searchTerm = "",
+  fullText = false,
+  showEntities = false,
+  showFacts = true
+): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
 
@@ -27,7 +32,7 @@ export function semanticSearchCards(searchTerm = "", fullText = false, showEntit
     search_term: searchTerm,
     full_text: fullText,
     show_entities: showEntities,
-    show_facts: true,
+    show_facts: showFacts,
   };
 
   return fetch(url, {
