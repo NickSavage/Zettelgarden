@@ -40,7 +40,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
             setError(null);
             setAssociatedCards([]); // Clear previous cards
 
-            semanticSearchCards(`@[${entity.name}]`, false, false)
+            semanticSearchCards(`@[${entity.name}]`, false, false, false)
                 .then((results: SearchResult[]) => {
                     if (results === null) {
                         setAssociatedCards([]);
