@@ -225,6 +225,38 @@ func (s *Handler) GetFactEntities(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetAllFacts returns all facts for the current user
+func (s *Handler) GetAllFacts(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	rows, err := s.DB.Query(`
+		SELECT id, user_id, card_pk, fact, created_at, updated_at
+		FROM facts
+		WHERE user_id = $1
+		ORDER BY created_at DESC
+	`, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var facts []models.Fact
+	for rows.Next() {
+		var f models.Fact
+		if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		facts = append(facts, f)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(facts); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 // ExtractSaveFactEntities runs entity extraction on facts and links them in entity_fact_junction
 func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs []models.Fact) error {
 	log.Printf("fact %v", factObjs)

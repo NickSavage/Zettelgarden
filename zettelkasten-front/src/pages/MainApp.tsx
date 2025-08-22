@@ -30,6 +30,7 @@ import { FileProvider } from "../contexts/FileContext";
 import { EntityPage } from "./EntityPage";
 import { CardRefreshProvider } from "../contexts/CardRefreshContext";
 import { Summarizer } from "./Summarizer";
+import { FactPage } from "./FactPage";
 
 function MainAppContent() {
   const navigate = useNavigate();
@@ -124,6 +125,7 @@ function MainAppContent() {
                 <Route path="tags" element={<TagsPage />} />
                 <Route path="entities" element={<EntityPage />} />
                 <Route path="summarizer" element={<Summarizer />} />
+                <Route path="facts" element={<FactPage />} />
                 <Route path="*" element={<DashboardPage />} />
               </>
             ) : (

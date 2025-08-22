@@ -29,8 +29,9 @@ import { getPinnedSearches, unpinSearch } from "../api/pinnedSearches";
 import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
 import { EntityIcon } from "../assets/icons/EntityIcon";
-import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { BookOpenIcon } from "../assets/icons/BookOpenIcon";
+import { SettingsIcon } from "../assets/icons/SettingsIcon";
+import { FactsIcon } from "../assets/icons/FactsIcon";
 
 
 export function Sidebar() {
@@ -332,6 +333,10 @@ export function Sidebar() {
               <SidebarLink to="/app/entities">
                 <EntityIcon />
                 <span className="flex-grow">Entities</span>
+              </SidebarLink>
+              <SidebarLink to="/app/facts">
+                <FactsIcon />
+                <span className="flex-grow">Facts</span>
               </SidebarLink>
             </ul>
           </div>

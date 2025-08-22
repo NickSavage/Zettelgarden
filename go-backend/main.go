@@ -225,6 +225,7 @@ func main() {
 	addProtectedRoute(r, "/api/entities/{entityId}/cards/{cardId}", h.RemoveEntityFromCardRoute, "DELETE")
 	addProtectedRoute(r, "/api/entities/{id}/facts", h.GetEntityFacts, "GET")
 	addProtectedRoute(r, "/api/facts/{id}/entities", h.GetFactEntities, "GET")
+	addProtectedRoute(r, "/api/facts", h.GetAllFacts, "GET")
 
 	// Summarize routes
 	addProtectedRoute(r, "/api/summarize", h.CreateSummarizationRoute, "POST")
