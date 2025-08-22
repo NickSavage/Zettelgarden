@@ -25,21 +25,16 @@ type UpdateEntityRequest struct {
 
 func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 
-	chunks, err := s.GetCardChunks(userID, card.ID)
-	if err != nil {
-		log.Printf("error in chunking %v", err)
-		return err
-	}
-
+	chunks := llms.GenerateChunks(card.Body)
 	client := llms.NewDefaultClient(s.DB, userID)
 
 	for _, chunk := range chunks {
-		entities, err := llms.FindEntities(client, chunk)
+		entities, err := llms.FindEntities(client, models.CardChunk{Title: card.Title, Chunk: chunk})
 		if err != nil {
 			log.Printf("entity error %v", err)
 			return err
 		} else {
-			err = s.UpsertEntitiesFromCards(userID, card.ID, entities, chunk)
+			err = s.UpsertEntitiesFromCards(userID, card.ID, entities)
 			if err != nil {
 				log.Printf("error upserting entities: %v", err)
 				return err
@@ -50,7 +45,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 
 }
 
-func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []models.Entity, chunk models.CardChunk) error {
+func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []models.Entity) error {
 	for _, entity := range entities {
 		// Check if a card exists with same name and same user_id
 		var matchingCardID int
@@ -117,7 +112,7 @@ func (s *Handler) UpsertEntitiesFromCards(userID int, cardPK int, entities []mod
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (entity_id, card_pk)
             DO UPDATE SET updated_at = NOW()
-        `, userID, entityID, cardPK, chunk.ID)
+        `, userID, entityID, cardPK, 0)
 		if err != nil {
 			log.Printf("error linking entity to card: %v", err)
 			continue

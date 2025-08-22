@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go-backend/llms"
 	"go-backend/models"
 	"log"
 	"net/http"
@@ -707,14 +706,9 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	backlinks := extractBacklinks(newCard.Body)
 	s.updateBacklinks(newCard.ID, backlinks)
 
-	s.ChunkCard(newCard)
-
 	if !s.Server.Testing {
 		go func() {
 			s.ExtractSaveCardEntities(userID, newCard)
-		}()
-		go func() {
-			s.ChunkEmbedCard(userID, newCard.ID)
 		}()
 		go func() {
 			s.GenerateMemory(uint(userID), newCard.Body)
@@ -772,14 +766,10 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 
 	backlinks := extractBacklinks(newCard.Body)
 	s.updateBacklinks(newCard.ID, backlinks)
-	s.ChunkCard(newCard)
 
 	if !s.Server.Testing {
 		go func() {
 			s.ExtractSaveCardEntities(userID, newCard)
-		}()
-		go func() {
-			s.ChunkEmbedCard(userID, newCard.ID)
 		}()
 		go func() {
 			s.GenerateMemory(uint(userID), newCard.Body)
@@ -792,93 +782,6 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	}
 	s.SummarizeCardIfEligible(userID, newCard)
 	return s.QueryFullCard(userID, id)
-}
-
-func (s *Handler) ChunkEmbedCard(userID, cardPK int) error {
-	chunks, err := s.GetCardChunks(userID, cardPK)
-	if err != nil {
-		log.Printf("error in chunking %v", err)
-		return err
-	}
-
-	log.Printf("process chunks for card %v user %v", cardPK, userID)
-	llms.ProcessEmbeddings(s.DB, userID, cardPK, chunks)
-	return nil
-}
-
-func (s *Handler) ChunkCard(card models.Card) error {
-	db := s.DB
-
-	tx, err := db.Begin()
-	textToChunk := "Title: " + card.Title + " - " + card.Body
-	chunks := llms.GenerateChunks(textToChunk)
-	query := `DELETE FROM card_chunks WHERE card_pk = $1 AND user_id = $2`
-	_, err = tx.Exec(query, card.ID, card.UserID)
-	if err != nil {
-		log.Printf("error %v", err)
-		tx.Rollback()
-		return fmt.Errorf("error updating card %d: %w", card.ID, err)
-	}
-	query = `INSERT INTO card_chunks (card_pk, user_id, chunk_text, chunk_id) VALUES ($1, $2, $3, $4)`
-	for i, chunk := range chunks {
-		_, err = tx.Exec(query, card.ID, card.UserID, chunk, i)
-		if err != nil {
-			log.Printf("error %v", err)
-
-			tx.Rollback()
-			return fmt.Errorf("error updating card %d: %w", card.ID, err)
-		}
-	}
-
-	tx.Commit()
-	return nil
-
-}
-func (s *Handler) GetCardChunks(userID, cardPK int) ([]models.CardChunk, error) {
-	query := `SELECT
- id, card_pk, user_id, chunk_text
-FROM card_chunks
-WHERE card_pk = $1 AND user_id = $2
-`
-	rows, err := s.DB.Query(query, cardPK, userID)
-	if err != nil {
-		log.Printf("err %v", err)
-		return []models.CardChunk{}, err
-	}
-
-	var chunks []models.CardChunk
-
-	for rows.Next() {
-		var chunk models.CardChunk
-		if err := rows.Scan(
-			&chunk.ID,
-			&chunk.ID,
-			&chunk.UserID,
-			&chunk.Chunk,
-		); err != nil {
-			log.Printf("err %v", err)
-			return chunks, err
-		}
-		chunks = append(chunks, chunk)
-
-	}
-	if err != nil {
-		log.Printf("err %v", err)
-		return []models.CardChunk{}, err
-	}
-
-	return chunks, nil
-
-}
-
-func (s *Handler) GetPartialCardsFromChunks(userID int, cardPKs []int) ([]models.PartialCard, error) {
-
-	cards := []models.PartialCard{}
-	for _, cardPK := range cardPKs {
-		card, _ := s.QueryPartialCardByID(userID, cardPK)
-		cards = append(cards, card)
-	}
-	return cards, nil
 }
 
 func (s *Handler) DeleteCard(userID int, id int) error {

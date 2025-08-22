@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"go-backend/handlers"
 	"go-backend/mail"
-	"go-backend/migrations"
 	"go-backend/models"
 	"go-backend/server"
 	"log"
@@ -144,7 +143,7 @@ func main() {
 	if os.Getenv("ZETTEL_RUN_CHUNKING_EMBEDDING") == "true" {
 		go func() {
 			start := time.Now()
-			migrations.RunEmbeddings(h)
+			//			migrations.RunEmbeddings(h)
 			elapsed := time.Since(start)
 			fmt.Printf("Operation took %v\n", elapsed)
 		}()
