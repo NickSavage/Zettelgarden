@@ -241,10 +241,45 @@ func (s *Handler) GetAllFacts(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var facts []models.Fact
-	for rows.Next() {
-		var f models.Fact
-		if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+	type FactWithCard struct {
+		ID        int                `json:"id"`
+		Fact      string             `json:"fact"`
+		CreatedAt time.Time          `json:"created_at"`
+		UpdatedAt time.Time          `json:"updated_at"`
+		Card      models.PartialCard `json:"card"`
+	}
+
+	rows2, err := s.DB.Query(`
+		SELECT f.id, f.fact, f.created_at, f.updated_at,
+		       c.id, c.card_id, c.user_id, c.title, c.parent_id,
+		       c.created_at, c.updated_at
+		FROM facts f
+		JOIN cards c ON f.card_pk = c.id
+		WHERE f.user_id = $1
+		ORDER BY f.created_at DESC
+	`, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows2.Close()
+
+	var facts []FactWithCard
+	for rows2.Next() {
+		var f FactWithCard
+		if err := rows2.Scan(
+			&f.ID,
+			&f.Fact,
+			&f.CreatedAt,
+			&f.UpdatedAt,
+			&f.Card.ID,
+			&f.Card.CardID,
+			&f.Card.UserID,
+			&f.Card.Title,
+			&f.Card.ParentID,
+			&f.Card.CreatedAt,
+			&f.Card.UpdatedAt,
+		); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

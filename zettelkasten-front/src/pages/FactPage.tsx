@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Fact } from "../models/Fact";
+import { FactWithCard } from "../models/Fact";
+import { Link } from "react-router-dom";
+import { CardIcon } from "../assets/icons/CardIcon";
 import { getAllFacts } from "../api/facts";
 import { HeaderSection } from "../components/Header";
 
 export function FactPage() {
-    const [facts, setFacts] = useState<Fact[]>([]);
-    const [filteredFacts, setFilteredFacts] = useState<Fact[]>([]);
+    const [facts, setFacts] = useState<FactWithCard[]>([]);
+    const [filteredFacts, setFilteredFacts] = useState<FactWithCard[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filterText, setFilterText] = useState("");
@@ -17,8 +19,13 @@ export function FactPage() {
     useEffect(() => {
         getAllFacts()
             .then((data) => {
-                setFacts(data);
-                setFilteredFacts(data);
+                // Cast plain Fact[] to FactWithCard[] (backend may not always attach a card)
+                const enrichedData = data.map((f: any) => ({
+                    ...f,
+                    card: f.card ?? null,
+                })) as FactWithCard[];
+                setFacts(enrichedData);
+                setFilteredFacts(enrichedData);
                 setLoading(false);
             })
             .catch((err) => {
@@ -108,7 +115,23 @@ export function FactPage() {
                     {currentFacts.map((f) => (
                         <tr key={f.id} className="hover:bg-gray-50">
                             <td className="px-4 py-2 text-sm text-gray-800">{f.id}</td>
-                            <td className="px-4 py-2 text-sm text-gray-800">{f.fact}</td>
+                            <td className="px-4 py-2 text-sm text-gray-800">
+                                {f.fact}
+                                {f.card && (
+                                    <>
+                                        <span className="ml-2 text-gray-400">→</span>
+                                        <Link
+                                            to={`/app/card/${f.card.id}`}
+                                            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                        >
+                                            <div className="w-3 h-3 mr-1 text-gray-400">
+                                                <CardIcon />
+                                            </div>
+                                            [{f.card.id}] {f.card.title}
+                                        </Link>
+                                    </>
+                                )}
+                            </td>
 
                             <td className="px-4 py-2 text-sm text-gray-800">
                                 {new Date(f.created_at).toLocaleString()}
