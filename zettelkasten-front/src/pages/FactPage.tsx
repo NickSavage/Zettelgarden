@@ -127,7 +127,7 @@ export function FactPage() {
                                             <div className="w-3 h-3 mr-1 text-gray-400">
                                                 <CardIcon />
                                             </div>
-                                            [{f.card.id}] {f.card.title}
+                                            [{f.card.card_id}] {f.card.title}
                                         </Link>
                                     </>
                                 )}
