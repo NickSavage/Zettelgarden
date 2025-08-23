@@ -102,31 +102,30 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 		return
 	}
 
+	log.Printf("asdasdasda")
 	wordCount := len(strings.Fields(card.Body))
-	if wordCount < 100 {
-		go func() {
-			client := llms.NewDefaultClient(h.DB, userID)
-			client.Model.ModelIdentifier = "openai/gpt-5-chat"
-			analyses, _, err := llms.ExtractThesesAndArguments(client, card.Body)
-			if err != nil {
-				log.Printf("Fact extraction failed: %v", err)
-				return
-			}
-			var allFacts []string
-			for _, analysis := range analyses {
-				allFacts = append(allFacts, analysis.Facts...)
-			}
-			if len(allFacts) > 0 {
-				_ = h.ExtractSaveCardFacts(userID, card.ID, allFacts)
-			}
-		}()
-		return
-	}
-
-	_, err := h.runSummarizationJob(userID, card.Body, &card.ID)
-	if err != nil {
-		log.Printf("Failed to create summarization job: %v", err)
-	}
+	log.Printf("word count %v", wordCount)
+	go func() {
+		log.Printf("starting process")
+		client := llms.NewDefaultClient(h.DB, userID)
+		client.Model.ModelIdentifier = "openai/gpt-5-chat"
+		analyses, _, err := llms.ExtractThesesAndArguments(client, card.Body)
+		if err != nil {
+			log.Printf("Fact extraction failed: %v", err)
+			return
+		}
+		var allFacts []string
+		for _, analysis := range analyses {
+			allFacts = append(allFacts, analysis.Facts...)
+		}
+		_, err = h.runSummarizationJob(userID, card.Body, &card.ID)
+		log.Printf("found facts %v", len(allFacts))
+		if len(allFacts) > 0 {
+			facts, _ := h.ExtractSaveCardFacts(userID, card.ID, allFacts)
+			_ = h.ExtractSaveFactEntities(userID, card, facts)
+		}
+	}()
+	return
 }
 
 // CreateSummarizationRoute creates a summarization job and runs it asynchronously
@@ -178,7 +177,7 @@ func (h *Handler) runSummarizationJob(userID int, text string, cardPK *int) (int
 		client := llms.NewDefaultClient(h.DB, uid)
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
 
-		result, analyses, usage, err := llms.AnalyzeAndSummarizeText(client, t)
+		result, _, usage, err := llms.AnalyzeAndSummarizeText(client, t)
 		if err != nil {
 			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
 				jobID, err.Error(), time.Now())
@@ -192,15 +191,6 @@ func (h *Handler) runSummarizationJob(userID int, text string, cardPK *int) (int
 			WHERE id=$1`,
 			jobID, result, usage.PromptTokens, usage.CompletionTokens, usage.TotalTokens, usage.TotalCost, modelName, time.Now())
 
-		if cardPK != nil {
-			var allFacts []string
-
-			for _, analysis := range analyses {
-				allFacts = append(allFacts, analysis.Facts...)
-			}
-			_ = h.ExtractSaveCardFacts(userID, *cardPK, allFacts)
-
-		}
 	}(id, text, userID)
 
 	return id, nil

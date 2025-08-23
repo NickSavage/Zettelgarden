@@ -707,9 +707,9 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	s.updateBacklinks(newCard.ID, backlinks)
 
 	if !s.Server.Testing {
-		go func() {
-			s.ExtractSaveCardEntities(userID, newCard)
-		}()
+		// go func() {
+		// 	s.ExtractSaveCardEntities(userID, newCard)
+		// }()
 		go func() {
 			s.GenerateMemory(uint(userID), newCard.Body)
 		}()
@@ -720,6 +720,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	if err != nil {
 		log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
 	}
+	log.Printf("update card")
 	s.SummarizeCardIfEligible(userID, newCard)
 	return s.QueryFullCard(userID, cardPK)
 }
@@ -768,9 +769,9 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	s.updateBacklinks(newCard.ID, backlinks)
 
 	if !s.Server.Testing {
-		go func() {
-			s.ExtractSaveCardEntities(userID, newCard)
-		}()
+		// go func() {
+		// 	s.ExtractSaveCardEntities(userID, newCard)
+		// }()
 		go func() {
 			s.GenerateMemory(uint(userID), newCard.Body)
 		}()

@@ -13,13 +13,15 @@ import (
 )
 
 // ExtractSaveCardFacts deletes and re-inserts facts for a given card.
-func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) error {
+func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) ([]models.Fact, error) {
+	var results []models.Fact
+
 	tx, _ := s.DB.Begin()
 	_, err := tx.Exec("DELETE FROM facts WHERE card_pk = $1 AND user_id = $2", cardPK, userID)
 	if err != nil {
 		log.Printf("error deleting old facts: %v", err)
 		tx.Rollback()
-		return err
+		return results, err
 	}
 
 	for _, fact := range facts {
@@ -30,7 +32,7 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) e
 		if err != nil {
 			log.Printf("error generating embedding for fact: %v", err)
 			tx.Rollback()
-			return err
+			return results, err
 		}
 		_, err = tx.Exec(`
 			INSERT INTO facts (card_pk, user_id, fact, embedding_1024, created_at, updated_at)
@@ -39,31 +41,30 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) e
 		if err != nil {
 			log.Printf("error inserting fact: %v", err)
 			tx.Rollback()
-			return err
+			return results, err
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return err
+		return results, err
 	}
 
-	// // Fetch the saved facts back, now with IDs, so we can run entity extraction
-	// rows, err := s.DB.Query(`SELECT id, user_id, card_pk, fact, created_at, updated_at
-	// 	FROM facts WHERE card_pk=$1 AND user_id=$2`, cardPK, userID)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer rows.Close()
+	// Fetch the saved facts back, now with IDs, so we can run entity extraction
+	rows, err := s.DB.Query(`SELECT id, user_id, card_pk, fact, created_at, updated_at
+		FROM facts WHERE card_pk=$1 AND user_id=$2`, cardPK, userID)
+	if err != nil {
+		return results, err
+	}
+	defer rows.Close()
 
-	// var dbFacts []models.Fact
-	// for rows.Next() {
-	// 	var f models.Fact
-	// 	if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
-	// 		return err
-	// 	}
-	// 	dbFacts = append(dbFacts, f)
-	// }
+	for rows.Next() {
+		var f models.Fact
+		if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+			return results, err
+		}
+		results = append(results, f)
+	}
 
 	// Call entity extraction on the saved facts
 	// if err := s.ExtractSaveFactEntities(userID, card, dbFacts); err != nil {
@@ -71,7 +72,7 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) e
 	// 	return err
 	// }
 
-	return nil
+	return results, nil
 }
 
 // GetEntityFacts returns all facts for a given entity, including PartialCard information
@@ -297,26 +298,24 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 	log.Printf("fact %v", factObjs)
 	client := llms.NewDefaultClient(s.DB, userID)
 
-	for _, fact := range factObjs {
-		if fact.Fact == "" {
-			continue
-		}
+	factEntities, err := llms.FindEntitiesBatch(client, factObjs)
+	if err != nil {
+		log.Printf("find entities batch err %v", err)
+	}
+	for i, entities := range factEntities {
+		fact := factObjs[i]
+		log.Printf("fact %v %v", fact.ID, fact.Fact)
 
-		entities, err := llms.FindEntities(client, card.Title, fact.Fact)
-		if err != nil {
-			log.Printf("entity extraction error for fact %d: %v", fact.ID, err)
-			return err
-		}
 		for _, entity := range entities {
-			similarEntities, err := s.FindPotentialDuplicates(userID, entity)
-			if err != nil {
-				return err
-			}
-			entity, err = llms.CheckExistingEntities(client, similarEntities, entity)
-			if err != nil {
-				log.Printf("error checking existing entities: %v", err)
-				return err
-			}
+			// similarEntities, err := s.FindPotentialDuplicates(userID, entity)
+			// if err != nil {
+			// 	return err
+			// }
+			// entity, err = llms.CheckExistingEntities(client, similarEntities, entity)
+			// if err != nil {
+			// 	log.Printf("error checking existing entities: %v", err)
+			// 	return err
+			// }
 			log.Printf("entity %v", entity.Name)
 
 			var entityID int
@@ -359,9 +358,9 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 
 			// link entity to fact
 			_, err = s.DB.Exec(`
-				INSERT INTO entity_fact_junction (user_id, entity_id, card_pk, chunk_id)
+				INSERT INTO entity_card_junction (user_id, entity_id, card_pk, chunk_id)
 				VALUES ($1, $2, $3, $4)
-				ON CONFLICT (entity_id, fact_id) DO UPDATE SET updated_at = NOW()
+				ON CONFLICT (entity_id, card_pk) DO UPDATE SET updated_at = NOW()
 			`, userID, entityID, card.ID, 0)
 			if err != nil {
 				log.Printf("error linking entity to card: %v", err)

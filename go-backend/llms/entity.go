@@ -196,3 +196,114 @@ func GenerateEntityEmbedding(c *models.LLMClient, entity models.Entity) (pgvecto
 
 	return embedding, nil
 }
+
+// FindEntitiesBatch processes multiple cards (title, body) together and returns entities per card.
+func FindEntitiesBatch(c *models.LLMClient, facts []models.Fact) ([][]models.Entity, error) {
+	systemPrompt := `You are an AI specialized in analyzing zettelkasten cards and extracting entities.
+Follow these rules strictly:
+
+1. Entity Types must be one of: person, concept, theory, book, software, place, organization, event, method
+
+2. Entity Names should be:
+   - Concise (1-5 words)
+   - Properly capitalized
+   - Specific enough to be unique
+   - Consistent with academic/professional terminology
+
+3. Descriptions should be:
+   - 10-20 words maximum
+   - Focus on relevance to the card's context
+   - Include key relationships or significance
+   - Objective and factual
+
+4. Extract entities that are:
+   - Explicitly mentioned in the text
+   - Significant to the card's main ideas
+   - Could be useful for connecting to other cards
+   - Worth tracking as separate concepts
+
+Return only valid JSON matching the specified structure.`
+
+	// Build prompt for multiple cards
+	var sb strings.Builder
+	sb.WriteString("Please analyze the following zettelkasten cards and extract meaningful entities for each.\n")
+	sb.WriteString("Return only a JSON array where each element corresponds to a card in this format:\n")
+	sb.WriteString(`{
+  "cardIndex": i,
+  "entities": [
+    {
+      "name": "entity name",
+      "description": "brief description",
+      "type": "entity type"
+    }
+  ]
+}
+`)
+	for i, fact := range facts {
+		sb.WriteString(fmt.Sprintf("\nCard %d:\nBody: %s\n", i, fact.Fact))
+	}
+
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: systemPrompt,
+		},
+		{
+			Role:    openai.ChatMessageRoleUser,
+			Content: sb.String(),
+		},
+	}
+
+	type batchEntityResponse struct {
+		CardIndex int             `json:"cardIndex"`
+		Entities  []models.Entity `json:"entities"`
+	}
+
+	var parsed []batchEntityResponse
+	var jsonErr error
+	for range 3 {
+		resp, err := ExecuteLLMRequest(c, messages)
+		if err != nil {
+			log.Printf("error getting completion: %v", err)
+			return nil, err
+		}
+		if len(resp.Choices) == 0 {
+			continue
+		}
+		content := resp.Choices[0].Message.Content
+		content = strings.TrimPrefix(content, "```json")
+		content = strings.TrimSuffix(content, "```")
+		content = strings.TrimSpace(content)
+
+		jsonErr = json.Unmarshal([]byte(content), &parsed)
+		if jsonErr == nil {
+			break
+		} else {
+			time.Sleep(1000 * time.Millisecond)
+		}
+	}
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+	log.Printf("found %v", parsed)
+
+	// Prepare results with embeddings
+	results := make([][]models.Entity, len(facts))
+	for _, resp := range parsed {
+		var entitiesWithEmb []models.Entity
+		for _, entity := range resp.Entities {
+			text := fmt.Sprintf("%v - %v - %v", entity.Name, entity.Type, entity.Description)
+			embedding, err := GetEmbedding1024(text, false)
+			if err != nil {
+				continue
+			}
+			entity.Embedding = embedding
+			entitiesWithEmb = append(entitiesWithEmb, entity)
+		}
+		if resp.CardIndex >= 0 && resp.CardIndex < len(facts) {
+			results[resp.CardIndex] = entitiesWithEmb
+		}
+	}
+
+	return results, nil
+}
