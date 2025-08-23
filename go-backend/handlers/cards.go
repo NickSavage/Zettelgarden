@@ -707,9 +707,6 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	s.updateBacklinks(newCard.ID, backlinks)
 
 	if !s.Server.Testing {
-		// go func() {
-		// 	s.ExtractSaveCardEntities(userID, newCard)
-		// }()
 		go func() {
 			s.GenerateMemory(uint(userID), newCard.Body)
 		}()
@@ -769,9 +766,6 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	s.updateBacklinks(newCard.ID, backlinks)
 
 	if !s.Server.Testing {
-		// go func() {
-		// 	s.ExtractSaveCardEntities(userID, newCard)
-		// }()
 		go func() {
 			s.GenerateMemory(uint(userID), newCard.Body)
 		}()
