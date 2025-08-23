@@ -307,3 +307,55 @@ Return only valid JSON matching the specified structure.`
 
 	return results, nil
 }
+
+func GenerateNewEntityDescription(c *models.LLMClient, e1, e2 models.Entity, newName string) (string, error) {
+	systemPrompt := `You are an AI assistant tasked with synthesizing new entities.
+Given two existing entities, propose a new entity with the provided name.
+Rules:
+- Write a description of 10–20 words.
+- Choose the most appropriate type from: person, concept, theory, book, software, place, organization, event, method
+- Return a JSON object: { "description": "..." }`
+
+	userPrompt := fmt.Sprintf(`Entity 1:
+Name: %s
+Type: %s
+Description: %s
+
+Entity 2:
+Name: %s
+Type: %s
+Description: %s
+
+New Entity Name: %s`, e1.Name, e1.Type, e1.Description, e2.Name, e2.Type, e2.Description, newName)
+
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: systemPrompt,
+		},
+		{
+			Role:    openai.ChatMessageRoleUser,
+			Content: userPrompt,
+		},
+	}
+
+	resp, err := ExecuteLLMRequest(c, messages)
+	if err != nil {
+		return "", fmt.Errorf("error generating new entity: %w", err)
+	}
+	if len(resp.Choices) == 0 {
+		return "", fmt.Errorf("empty response from LLM")
+	}
+
+	content := resp.Choices[0].Message.Content
+	content = strings.TrimPrefix(content, "```json")
+	content = strings.TrimSuffix(content, "```")
+	content = strings.TrimSpace(content)
+
+	var newEntity models.Entity
+	if err := json.Unmarshal([]byte(content), &newEntity); err != nil {
+		return "", fmt.Errorf("error parsing entity JSON: %w", err)
+	}
+
+	return newEntity.Description, nil
+}

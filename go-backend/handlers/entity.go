@@ -357,6 +357,18 @@ func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error 
 		return fmt.Errorf("failed to delete entity2 fact relationships: %w", err)
 	}
 
+	client := llms.NewDefaultClient(s.DB, userID)
+
+	newDescription, err := llms.GenerateNewEntityDescription(client, entity1, entity2, entity1.Name)
+	if err != nil {
+		newDescription = entity1.Description
+	}
+
+	_, err = tx.Exec(`UPDATE entities SET description = $1 WHERE id = $2`, newDescription, entity1.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update entity: %w", err)
+	}
+
 	// Delete entity2
 	_, err = tx.Exec(`
 		DELETE FROM entities
