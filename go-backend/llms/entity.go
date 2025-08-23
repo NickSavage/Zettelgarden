@@ -12,7 +12,7 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func FindEntities(c *models.LLMClient, chunk models.CardChunk) ([]models.Entity, error) {
+func FindEntities(c *models.LLMClient, title, body string) ([]models.Entity, error) {
 	systemPrompt := `You are an AI specialized in analyzing zettelkasten cards and extracting entities.
 Follow these rules strictly:
 
@@ -58,7 +58,7 @@ Return only valid JSON matching the specified structure.`
 		},
 		{
 			Role:    openai.ChatMessageRoleUser,
-			Content: fmt.Sprintf(prompt, chunk.Title, chunk.Chunk),
+			Content: fmt.Sprintf(prompt, title, body),
 		},
 	}
 	var entities []models.Entity

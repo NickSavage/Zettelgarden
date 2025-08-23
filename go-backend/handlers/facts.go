@@ -301,16 +301,8 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 		if fact.Fact == "" {
 			continue
 		}
-		log.Printf("fact %v", fact)
-		// Wrap fact into a CardChunk surrogate (Chunk field holds the fact text)
-		chunk := models.CardChunk{
-			ID:     fact.ID,
-			CardID: card.CardID,
-			UserID: userID,
-			Title:  card.Title,
-			Chunk:  fact.Fact,
-		}
-		entities, err := llms.FindEntities(client, chunk)
+
+		entities, err := llms.FindEntities(client, card.Title, fact.Fact)
 		if err != nil {
 			log.Printf("entity extraction error for fact %d: %v", fact.ID, err)
 			return err
@@ -362,6 +354,17 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 			`, userID, entityID, fact.ID)
 			if err != nil {
 				log.Printf("error linking entity to fact: %v", err)
+				continue
+			}
+
+			// link entity to fact
+			_, err = s.DB.Exec(`
+				INSERT INTO entity_fact_junction (user_id, entity_id, card_pk, chunk_id)
+				VALUES ($1, $2, $3, $4)
+				ON CONFLICT (entity_id, fact_id) DO UPDATE SET updated_at = NOW()
+			`, userID, entityID, card.ID, 0)
+			if err != nil {
+				log.Printf("error linking entity to card: %v", err)
 				continue
 			}
 		}

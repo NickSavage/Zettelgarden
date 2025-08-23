@@ -29,7 +29,7 @@ func (s *Handler) ExtractSaveCardEntities(userID int, card models.Card) error {
 	client := llms.NewDefaultClient(s.DB, userID)
 
 	for _, chunk := range chunks {
-		entities, err := llms.FindEntities(client, models.CardChunk{Title: card.Title, Chunk: chunk})
+		entities, err := llms.FindEntities(client, card.Title, chunk)
 		if err != nil {
 			log.Printf("entity error %v", err)
 			return err
