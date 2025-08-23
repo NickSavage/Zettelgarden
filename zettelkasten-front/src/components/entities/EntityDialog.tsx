@@ -9,37 +9,52 @@ import { CardTag } from "../cards/CardTag"; // Import CardTag
 import { Button } from "../Button";
 import { FactWithCard } from "../../models/Fact";
 import { getEntityFacts } from "../../api/entities";
+import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 interface EntityDialogProps {
-    entity: Entity | null;
-    isOpen: boolean;
     onClose: () => void;
     onEdit?: (entity: Entity, event: React.MouseEvent) => void;
 }
 
-export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogProps) {
+export function EntityDialog({ onClose, onEdit }: EntityDialogProps) {
     const [associatedCards, setAssociatedCards] = useState<PartialCard[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [facts, setFacts] = useState<FactWithCard[]>([]);
     const [factsError, setFactsError] = useState<string | null>(null);
     const [factsLoading, setFactsLoading] = useState(false);
-    const [selectedFact, setSelectedFact] = useState<FactWithCard | null>(null);
+
+    const {
+        showEntityDialog,
+        setShowEntityDialog,
+        selectedEntity,
+        setSelectedEntity,
+        showFactDialog,
+        setShowFactDialog,
+        selectedFact,
+        setSelectedFact,
+    } = useShortcutContext();
+
+    function handleFactClick(fact: FactWithCard) {
+        setSelectedFact(fact)
+        setShowFactDialog(true)
+        setShowEntityDialog(false)
+    }
 
     const handleEditClick = () => {
-        if (entity && onEdit) {
-            onEdit(entity, {} as React.MouseEvent);
+        if (selectedEntity && onEdit) {
+            onEdit(selectedEntity, {} as React.MouseEvent);
             onClose();
         }
     };
 
     useEffect(() => {
-        if (isOpen && entity) {
+        if (showEntityDialog && selectedEntity) {
             setIsLoading(true);
             setError(null);
             setAssociatedCards([]); // Clear previous cards
 
-            semanticSearchCards(`@[${entity.name}]`, false, false, false)
+            semanticSearchCards(`@[${selectedEntity.name}]`, false, false, false)
                 .then((results: SearchResult[]) => {
                     if (results === null) {
                         setAssociatedCards([]);
@@ -85,7 +100,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
             setFactsError(null);
             setFactsLoading(true);
 
-            getEntityFacts(entity.id)
+            getEntityFacts(selectedEntity.id)
                 .then((res) => setFacts(res ?? []))
                 .catch((err) => {
                     console.error("Error fetching facts:", err);
@@ -94,26 +109,26 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                 })
                 .finally(() => setFactsLoading(false));
         }
-    }, [isOpen, entity]);
+    }, [showEntityDialog, selectedEntity]);
 
     return (
-        <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+        <Dialog open={showEntityDialog} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
                     <Dialog.Title className="text-lg font-medium leading-6 text-gray-900 mb-2">
-                        {entity ? `Entity: ${entity.name}` : "Entity Details"}
+                        {selectedEntity ? `Entity: ${selectedEntity.name}` : "Entity Details"}
                     </Dialog.Title>
 
-                    {entity && (
+                    {selectedEntity && (
                         <div className="mb-4 space-y-2 text-sm">
-                            {entity.description && (
-                                <p className="text-gray-700">{entity.description}</p>
+                            {selectedEntity.description && (
+                                <p className="text-gray-700">{selectedEntity.description}</p>
                             )}
                             <div className="text-xs text-gray-500">
-                                <p>Created: {new Date(entity.created_at).toLocaleDateString()}</p>
-                                <p>Updated: {new Date(entity.updated_at).toLocaleDateString()}</p>
+                                <p>Created: {new Date(selectedEntity.created_at).toLocaleDateString()}</p>
+                                <p>Updated: {new Date(selectedEntity.updated_at).toLocaleDateString()}</p>
                             </div>
 
                             <h4 className="text-md font-medium text-gray-800 mt-4 border-t pt-3">Facts:</h4>
@@ -128,7 +143,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                                         {facts.map((f) => (
                                             <li
                                                 key={f.id}
-                                                onClick={() => setSelectedFact(f)}
+                                                onClick={() => handleFactClick(f)}
                                                 className="cursor-pointer hover:bg-gray-100 p-1 rounded"
                                             >
                                                 <p className="text-sm text-gray-700">• {f.fact}</p>
@@ -142,14 +157,14 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                                     </ul>
                                 )}
                             </div>
-                            {entity.card && entity.card.id > 0 && (
+                            {selectedEntity.card && selectedEntity.card.id > 0 && (
                                 <div className="mt-1">
                                     <span className="text-xs text-gray-600">Linked Card: </span>
                                     <Link
-                                        to={`/app/card/${entity.card.id}`}
+                                        to={`/app/card/${selectedEntity.card.id}`}
                                         className="text-blue-600 hover:text-blue-800 hover:underline"
                                     >
-                                        <CardTag card={entity.card} showTitle={true} />
+                                        <CardTag card={selectedEntity.card} showTitle={true} />
                                     </Link>
                                 </div>
                             )}
@@ -169,7 +184,7 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">
-                        {entity && onEdit && (
+                        {selectedEntity && onEdit && (
                             <Button
                                 onClick={handleEditClick}
                                 className="bg-blue-500 text-white hover:bg-blue-600"

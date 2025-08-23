@@ -10,6 +10,8 @@ import { EntityTable } from "../components/entities/EntityTable";
 import { EntityListToolbar } from "../components/entities/EntityListToolbar";
 import { EntitySelectionActions } from "../components/entities/EntitySelectionActions";
 
+import { useShortcutContext } from "../contexts/ShortcutContext";
+
 export function EntityPage() {
   const [entities, setEntities] = useState<Entity[]>([]);
   const [filteredEntities, setFilteredEntities] = useState<Entity[]>([]);
@@ -45,6 +47,20 @@ export function EntityPage() {
   const [currentPage, setCurrentPage] = useState(initial.currentPage || 1);
   const [itemsPerPage] = useState(20);
   const navigate = useNavigate();
+
+  const {
+    showCreateTaskWindow,
+    setShowCreateTaskWindow,
+    showQuickSearchWindow,
+    setShowQuickSearchWindow,
+    showEntityDialog,
+    setShowEntityDialog,
+    selectedEntity,
+    setSelectedEntity,
+    showFactDialog,
+    setShowFactDialog,
+    selectedFact,
+  } = useShortcutContext();
 
   const loadEntities = () => {
     setLoading(true);
@@ -124,7 +140,7 @@ export function EntityPage() {
       );
     });
     setFilteredEntities(filtered);
-//    setCurrentPage(1);
+    //    setCurrentPage(1);
   }, [filterText, entities]);
 
   const handleEntityClick = (entity: Entity, event: React.MouseEvent) => {
@@ -141,8 +157,8 @@ export function EntityPage() {
     } else {
       // navigate(`/app/search?term=@[${entity.name}]`); // Old navigation
       event.preventDefault(); // Prevent any default action if EntityCard is wrapped in <a> or similar
-      setSelectedEntityForDialog(entity);
-      setIsEntityDialogOpen(true);
+      setShowEntityDialog(true);
+      setSelectedEntity(entity)
     }
   };
 
@@ -503,12 +519,6 @@ export function EntityPage() {
         onDelete={handleSingleDelete}
       />
 
-      <EntityDialog
-        entity={selectedEntityForDialog}
-        isOpen={isEntityDialogOpen}
-        onClose={() => setIsEntityDialogOpen(false)}
-        onEdit={handleEditClick}
-      />
     </div>
   );
 }

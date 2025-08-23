@@ -5,7 +5,8 @@ import { Card, Entity } from "../../models/Card";
 import remarkEntity from "../../remark-entity";
 import { useNavigate } from "react-router-dom";
 import remarkGfm from "remark-gfm";
-import rehypeRaw from 'rehype-raw'
+
+import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 import { CardLinkWithPreview } from "./CardLinkWithPreview";
 import { H1, H2, H3, H4, H5, H6 } from "../Header";
@@ -17,9 +18,6 @@ import {
   TableHeader,
   TableCell
 } from "../table/TableComponents";
-import { DataviewTable } from "../dataview/DataviewTable";
-import { saveExistingCard } from "../../api/cards";
-import { EntityDialog } from "../entities/EntityDialog";
 //import { fetchEntityByName } from "../../api/entities";
 import { fetchEntityById } from "../../api/entities";
 
@@ -131,9 +129,15 @@ function renderCardTextWithDialog(
   handleViewBacklink: (card_id: number) => void,
   entities?: Entity[]
 ) {
-  const [selectedEntity, setSelectedEntity] = React.useState<Entity | null>(null);
   const [isEntityDialogOpen, setIsEntityDialogOpen] = React.useState(false);
 
+
+  const {
+    showEntityDialog,
+    setShowEntityDialog,
+    selectedEntity,
+    setSelectedEntity,
+  } = useShortcutContext();
 
   async function handleEntityClickById(id: string, name: string) {
     try {
@@ -154,18 +158,13 @@ function renderCardTextWithDialog(
       };
       setSelectedEntity(fallbackEntity);
     }
-    setIsEntityDialogOpen(true);
+    setShowEntityDialog(true);
   }
 
   const markdown = renderCardText(card, handleViewBacklink, entities, handleEntityClickById as any);
   return (
     <>
       {markdown}
-      <EntityDialog
-        entity={selectedEntity}
-        isOpen={isEntityDialogOpen}
-        onClose={() => setIsEntityDialogOpen(false)}
-      />
     </>
   );
 }

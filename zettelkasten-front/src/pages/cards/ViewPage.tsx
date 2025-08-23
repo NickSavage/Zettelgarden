@@ -37,7 +37,6 @@ import { CardBody } from "../../components/cards/CardBody";
 import { fetchSummariesForCard, fetchSummarizations, SummarizeJobResponse } from "../../api/summarizer";
 import { getCardFacts } from "../../api/facts";
 import { Fact, FactWithCard } from "../../models/Fact";
-import { FactDialog } from "../../components/facts/FactDialog";
 
 interface ViewPageProps { }
 

@@ -471,8 +471,6 @@ export function Sidebar() {
         />
       )}
       <EntityDialog
-        entity={selectedEntity}
-        isOpen={showEntityDialog}
         onClose={() => { setShowEntityDialog(false) }}
       />
       <FactDialog

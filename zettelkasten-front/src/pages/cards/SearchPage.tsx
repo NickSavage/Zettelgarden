@@ -11,10 +11,11 @@ import { SearchTagMenu } from "../../components/tags/SearchTagMenu";
 import { PinSearchDialog } from "../../components/search/PinSearchDialog";
 import { getPinnedSearches } from "../../api/pinnedSearches";
 import { useTagContext } from "../../contexts/TagContext";
-import { EntityDialog } from "../../components/entities/EntityDialog";
 import { Entity } from "../../models/Card";
 import { fetchEntityByName } from "../../api/entities";
 import { setDocumentTitle } from "../../utils/title";
+
+import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 interface SearchPageProps {
   searchTerm: string;
@@ -48,9 +49,13 @@ export function SearchPage({
   const { tags } = useTagContext();
   const [showPinSearchDialog, setShowPinSearchDialog] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [selectedEntityForDialog, setSelectedEntityForDialog] = useState<Entity | null>(null);
-  const [isEntityDialogOpen, setIsEntityDialogOpen] = useState(false);
   const latestRequestId = React.useRef(0);
+  const {
+    showEntityDialog,
+    setShowEntityDialog,
+    selectedEntity,
+    setSelectedEntity,
+  } = useShortcutContext();
 
   const params = new URLSearchParams(location.search);
   const pinnedId = params.get("pinned");
@@ -158,8 +163,8 @@ export function SearchPage({
     try {
       // Fetch the real entity data from the backend
       const entity = await fetchEntityByName(cleanEntityName);
-      setSelectedEntityForDialog(entity);
-      setIsEntityDialogOpen(true);
+      setSelectedEntity(entity);
+      setShowEntityDialog(true);
     } catch (error) {
       console.error('Failed to fetch entity details:', error);
       // Fallback: still open dialog but with minimal entity data
@@ -174,8 +179,8 @@ export function SearchPage({
         card_count: 0,
         card_pk: null,
       };
-      setSelectedEntityForDialog(fallbackEntity);
-      setIsEntityDialogOpen(true);
+      setSelectedEntity(fallbackEntity);
+      setShowEntityDialog(true);
     }
   }
 
@@ -423,12 +428,6 @@ export function SearchPage({
         />
       )}
 
-      {/* Entity Dialog */}
-      <EntityDialog
-        entity={selectedEntityForDialog}
-        isOpen={isEntityDialogOpen}
-        onClose={() => setIsEntityDialogOpen(false)}
-      />
     </div>
   );
 }

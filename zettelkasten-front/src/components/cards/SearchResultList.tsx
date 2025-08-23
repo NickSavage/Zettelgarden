@@ -5,7 +5,6 @@ import { PersonIcon } from "../../assets/icons/PersonIcon";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/dates";
 import { FactWithCard } from "../../models/Fact";
-import { FactDialog } from "../facts/FactDialog";
 import { useState } from "react";
 
 import { useShortcutContext } from "../../contexts/ShortcutContext";
