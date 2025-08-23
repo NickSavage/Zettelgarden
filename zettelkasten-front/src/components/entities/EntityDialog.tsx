@@ -9,7 +9,6 @@ import { CardTag } from "../cards/CardTag"; // Import CardTag
 import { Button } from "../Button";
 import { FactWithCard } from "../../models/Fact";
 import { getEntityFacts } from "../../api/entities";
-import { FactDialog } from "../facts/FactDialog";
 
 interface EntityDialogProps {
     entity: Entity | null;
@@ -184,11 +183,6 @@ export function EntityDialog({ entity, isOpen, onClose, onEdit }: EntityDialogPr
                     </div>
                 </Dialog.Panel>
             </div>
-            <FactDialog
-                fact={selectedFact}
-                isOpen={!!selectedFact}
-                onClose={() => setSelectedFact(null)}
-            />
         </Dialog>
     );
 }

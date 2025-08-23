@@ -8,6 +8,8 @@ import { FactWithCard } from "../../models/Fact";
 import { FactDialog } from "../facts/FactDialog";
 import { useState } from "react";
 
+import { useShortcutContext } from "../../contexts/ShortcutContext";
+
 interface SearchResultItemProps {
   result: SearchResult;
   showPreview: boolean;
@@ -150,12 +152,20 @@ export function SearchResultList({
   onEntityClick,
   onTagClick,
 }: SearchResultListProps) {
-  const [selectedFact, setSelectedFact] = useState<FactWithCard | null>(null);
-  const [factDialogOpen, setFactDialogOpen] = useState(false);
+
+  const {
+    showEntityDialog,
+    setShowEntityDialog,
+    selectedEntity,
+    showFactDialog,
+    setShowFactDialog,
+    selectedFact,
+    setSelectedFact,
+  } = useShortcutContext();
 
   const handleFactClick = (fact: FactWithCard) => {
     setSelectedFact(fact);
-    setFactDialogOpen(true);
+    setShowFactDialog(true);
   };
 
   return (
@@ -173,11 +183,6 @@ export function SearchResultList({
           </li>
         ))}
       </ul>
-      <FactDialog
-        fact={selectedFact}
-        isOpen={factDialogOpen}
-        onClose={() => setFactDialogOpen(false)}
-      />
     </>
   );
 }

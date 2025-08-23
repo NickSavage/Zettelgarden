@@ -33,6 +33,9 @@ import { BookOpenIcon } from "../assets/icons/BookOpenIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { FactsIcon } from "../assets/icons/FactsIcon";
 
+import { EntityDialog } from "./entities/EntityDialog";
+import { FactDialog } from "./facts/FactDialog";
+
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -56,6 +59,12 @@ export function Sidebar() {
     setShowCreateTaskWindow,
     showQuickSearchWindow,
     setShowQuickSearchWindow,
+    showEntityDialog,
+    setShowEntityDialog,
+    selectedEntity,
+    showFactDialog,
+    setShowFactDialog,
+    selectedFact,
   } = useShortcutContext();
 
   function getCurrentCard(): PartialCard | Card | null {
@@ -461,6 +470,14 @@ export function Sidebar() {
           setMessage={setMessage}
         />
       )}
+      <EntityDialog
+        entity={selectedEntity}
+        isOpen={showEntityDialog}
+        onClose={() => { setShowEntityDialog(false) }}
+      />
+      <FactDialog
+        onClose={() => setShowFactDialog(false)}
+      />
     </>
   );
 }

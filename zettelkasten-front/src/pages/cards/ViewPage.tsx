@@ -29,7 +29,6 @@ import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { FileUpload } from "../../components/files/FileUpload";
 
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
-import { EntityDialog } from "../../components/entities/EntityDialog";
 import { compareCardIds } from "../../utils/cards";
 import ReactMarkdown from "react-markdown";
 
@@ -56,13 +55,14 @@ export function ViewPage({ }: ViewPageProps) {
   const {
     showCreateTaskWindow,
     setShowCreateTaskWindow,
+    setShowEntityDialog,
+    setSelectedEntity,
+    setSelectedFact,
+    setShowFactDialog,
   } = useShortcutContext();
 
   const { tags } = useTagContext();
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
-
-  const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
-  const [isEntityDialogOpen, setEntityDialogOpen] = useState(false);
 
   const [summaries, setSummaries] = useState<SummarizeJobResponse[] | null>(null);
   const [latestSummary, setLatestSummary] = useState<SummarizeJobResponse | null>(null);
@@ -70,16 +70,13 @@ export function ViewPage({ }: ViewPageProps) {
 
   const [facts, setFacts] = useState<Fact[]>([]);
 
-  const [selectedFact, setSelectedFact] = useState<FactWithCard | null>(null);
-  const [isFactDialogOpen, setFactDialogOpen] = useState(false);
-
   const navigate = useNavigate();
 
   const { setLastCard, setNextCardId } = usePartialCardContext();
 
   function handleOpenEntity(entity: Entity) {
     setSelectedEntity(entity)
-    setEntityDialogOpen(true);
+    setShowEntityDialog(true);
   }
 
   async function handleTagClick(tagName: string) {
@@ -360,7 +357,7 @@ export function ViewPage({ }: ViewPageProps) {
                           className="border-b pb-2 cursor-pointer hover:bg-gray-50"
                           onClick={() => {
                             setSelectedFact(fact as FactWithCard);
-                            setFactDialogOpen(true);
+                            setShowFactDialog(true);
                           }}
                         >
                           <div className="text-sm text-gray-700">{fact.fact}</div>
@@ -486,12 +483,9 @@ export function ViewPage({ }: ViewPageProps) {
                 <div>
                   {viewingCard && viewingCard.is_pinned ? (
                     <Button onClick={handleTogglePin}>Unpin Card</Button>
-
                   ) : (
                     <Button onClick={handleTogglePin}>Pin Card</Button>
-
                   )}
-
                 </div>
 
 
@@ -513,16 +507,6 @@ export function ViewPage({ }: ViewPageProps) {
           </div>
         </div>
       )}
-      <FactDialog
-        fact={selectedFact}
-        isOpen={isFactDialogOpen}
-        onClose={() => setFactDialogOpen(false)}
-      />
-      <EntityDialog
-        entity={selectedEntity}
-        isOpen={isEntityDialogOpen}
-        onClose={() => { setEntityDialogOpen(false) }}
-      />
     </div>
   );
 }

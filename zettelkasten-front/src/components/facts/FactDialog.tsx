@@ -6,33 +6,45 @@ import { CardTag } from "../cards/CardTag";
 import { Button } from "../Button";
 import { Entity } from "../../models/Card";
 import { getFactEntities } from "../../api/entities";
+import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 interface FactDialogProps {
-    fact: FactWithCard | null;
-    isOpen: boolean;
     onClose: () => void;
 }
 
-export function FactDialog({ fact, isOpen, onClose }: FactDialogProps) {
+export function FactDialog({ onClose }: FactDialogProps) {
     const [entities, setEntities] = useState<Entity[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const {
+        setShowEntityDialog,
+        setSelectedEntity,
+        showFactDialog,
+        setShowFactDialog,
+        selectedFact,
+    } = useShortcutContext();
+
+    function handleEntityClick(entity: Entity) {
+        setShowFactDialog(false);
+        setSelectedEntity(entity)
+        setShowEntityDialog(true);
+    }
 
     useEffect(() => {
-        if (fact) {
+        if (selectedFact) {
             setLoading(true);
             setError(null);
-            getFactEntities(fact.id)
+            getFactEntities(selectedFact.id)
                 .then(setEntities)
                 .catch(() => setError("Failed to load entities"))
                 .finally(() => setLoading(false));
         } else {
             setEntities([]);
         }
-    }, [fact]);
+    }, [selectedFact]);
 
     return (
-        <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+        <Dialog open={showFactDialog} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -41,22 +53,22 @@ export function FactDialog({ fact, isOpen, onClose }: FactDialogProps) {
                         Fact Details
                     </Dialog.Title>
 
-                    {fact ? (
+                    {selectedFact ? (
                         <div className="space-y-3 text-sm text-gray-700">
-                            <p>{fact.fact}</p>
-                            {fact.card && (
+                            <p>{selectedFact.fact}</p>
+                            {selectedFact.card && (
                                 <div>
                                     <span className="text-xs text-gray-600">Linked Card: </span>
                                     <Link
-                                        to={`/app/card/${fact.card.id}`}
+                                        to={`/app/card/${selectedFact.card.id}`}
                                         className="text-blue-600 hover:text-blue-800 hover:underline"
                                     >
-                                        <CardTag card={fact.card} showTitle={true} />
+                                        <CardTag card={selectedFact.card} showTitle={true} />
                                     </Link>
                                 </div>
                             )}
                             <div className="text-xs text-gray-500">
-                                <p>ID: {fact.id}</p>
+                                <p>ID: {selectedFact.id}</p>
                             </div>
                         </div>
                     ) : (
@@ -70,10 +82,10 @@ export function FactDialog({ fact, isOpen, onClose }: FactDialogProps) {
                     {!loading && entities.length > 0 && (
                         <ul className="space-y-1 text-sm">
                             {entities.map((e) => (
-                                <li key={e.id}>
-                                    <Link to={`/app/entity/${e.id}`} className="text-blue-600 hover:underline">
+                                <li key={e.id} onClick={() => handleEntityClick(e)}>
+                                    <span className="text-xs text-blue-600 cursor-pointer">
                                         {e.name}
-                                    </Link>
+                                    </span>
                                 </li>
                             ))}
                         </ul>
