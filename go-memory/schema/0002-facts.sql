@@ -1,6 +1,0 @@
-CREATE TABLE facts (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    fact TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
