@@ -77,6 +77,11 @@ export function ViewPage({ }: ViewPageProps) {
 
   const { setLastCard, setNextCardId } = usePartialCardContext();
 
+  function handleOpenEntity(entity: Entity) {
+    setSelectedEntity(entity)
+    setEntityDialogOpen(true);
+  }
+
   async function handleTagClick(tagName: string) {
     setShowTagMenu(false);
     if (viewingCard === null) {
@@ -371,6 +376,7 @@ export function ViewPage({ }: ViewPageProps) {
                     viewingCard={viewingCard}
                     setViewCard={setViewCard}
                     setError={setError}
+                    handleOpenEntity={handleOpenEntity}
                   />
                 </div>
 
@@ -511,6 +517,11 @@ export function ViewPage({ }: ViewPageProps) {
         fact={selectedFact}
         isOpen={isFactDialogOpen}
         onClose={() => setFactDialogOpen(false)}
+      />
+      <EntityDialog
+        entity={selectedEntity}
+        isOpen={isEntityDialogOpen}
+        onClose={() => { setEntityDialogOpen(false) }}
       />
     </div>
   );

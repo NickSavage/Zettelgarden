@@ -19,6 +19,7 @@ interface ViewCardTabbedDisplay {
   viewingCard: Card;
   setViewCard: (card: Card) => void;
   setError: (error: string) => void;
+  handleOpenEntity: (entity: Entity) => void;
 }
 
 interface AuditChange {
@@ -125,6 +126,7 @@ export function ViewCardTabbedDisplay({
   viewingCard,
   setViewCard,
   setError,
+  handleOpenEntity,
 }: ViewCardTabbedDisplay) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("Related");
@@ -314,7 +316,7 @@ export function ViewCardTabbedDisplay({
                 >
                   <div
                     className="cursor-pointer flex-grow"
-                    onClick={() => navigate(`/app/search?term=@[${entity.name}]`)}
+                    onClick={() => handleOpenEntity(entity)}
                   >
                     <div className="font-semibold">{entity.name}</div>
                     <div className="text-sm text-gray-600">{entity.description}</div>
