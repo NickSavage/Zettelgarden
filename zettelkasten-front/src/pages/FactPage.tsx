@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { CardIcon } from "../assets/icons/CardIcon";
 import { getAllFacts } from "../api/facts";
 import { HeaderSection } from "../components/Header";
+import { useShortcutContext } from "../contexts/ShortcutContext";
 
 export function FactPage() {
     const [facts, setFacts] = useState<FactWithCard[]>([]);
@@ -15,6 +16,8 @@ export function FactPage() {
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(20);
+
+    const { setSelectedFact, setShowFactDialog, setSelectedEntity, setShowEntityDialog } = useShortcutContext();
 
     useEffect(() => {
         getAllFacts()
@@ -115,13 +118,20 @@ export function FactPage() {
                     {currentFacts.map((f) => (
                         <tr key={f.id} className="hover:bg-gray-50">
                             <td className="px-4 py-2 text-sm text-gray-800">{f.id}</td>
-                            <td className="px-4 py-2 text-sm text-gray-800">
+                            <td
+                                className="px-4 py-2 text-sm text-gray-800 cursor-pointer hover:underline"
+                                onClick={() => {
+                                    setSelectedFact(f);
+                                    setShowFactDialog(true);
+                                }}
+                            >
                                 {f.fact}
                                 {f.card && (
                                     <>
                                         <span className="ml-2 text-gray-400">→</span>
                                         <Link
                                             to={`/app/card/${f.card.id}`}
+                                            onClick={(e) => e.stopPropagation()}
                                             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
                                         >
                                             <div className="w-3 h-3 mr-1 text-gray-400">
