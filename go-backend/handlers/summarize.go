@@ -119,7 +119,7 @@ type SummarizeJobResponse struct {
 	Model            string  `json:"model,omitempty"`
 }
 
-func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
+func (h *Handler) ProcessEntitiesAndFacts(userID int, card models.Card) {
 	// Skip during testing to avoid external LLM calls
 	if h.Server.Testing {
 		return
@@ -132,6 +132,9 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 		analyses, usage, err := llms.ExtractThesesAndArguments(client, card.Body)
 		if err != nil {
 			log.Printf("Fact extraction failed: %v", err)
+
+			// todo think about how this should really work, this is a hack to make sure this happens regardless
+			h.LinkCardToEntityIfPossible(userID, card)
 			return
 		}
 		var allFacts []string
@@ -144,8 +147,8 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 			facts, _ := h.ExtractSaveCardFacts(userID, card.ID, allFacts)
 			_ = h.ExtractSaveFactEntities(userID, card, facts)
 		}
+		h.LinkCardToEntityIfPossible(userID, card)
 	}()
-	return
 }
 
 // runSummarizationJob inserts a summarization job and runs it asynchronously.

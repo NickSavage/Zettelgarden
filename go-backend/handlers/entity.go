@@ -865,3 +865,37 @@ func (s *Handler) GetEntityByNameRoute(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(entity)
 }
+
+func (s *Handler) LinkCardToEntityIfPossible(userID int, card models.Card) error {
+	var entityID int
+	var cardPK sql.NullInt64
+
+	log.Printf("do we run?")
+
+	err := s.DB.QueryRow(`
+        SELECT id, card_pk FROM entities
+        WHERE user_id = $1 AND name = $2
+        LIMIT 1
+    `, userID, card.Title).Scan(&entityID, &cardPK)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil // No matching entity
+		}
+		return fmt.Errorf("error querying entity for card linking: %w", err)
+	}
+
+	if cardPK.Valid {
+		return nil // Already linked
+	}
+
+	_, err = s.DB.Exec(`
+        UPDATE entities
+        SET card_pk = $1, updated_at = NOW()
+        WHERE id = $2
+    `, card.ID, entityID)
+	if err != nil {
+		return fmt.Errorf("error updating entity with card link: %w", err)
+	}
+
+	return nil
+}
