@@ -138,14 +138,10 @@ func cleanContent(content string) string {
 }
 
 // AnalyzeAndSummarizeText: the advanced pipeline
-func AnalyzeAndSummarizeText(c *models.LLMClient, input string) (string, []ThesisAnalysis, Usage, error) {
+func AnalyzeAndSummarizeText(c *models.LLMClient, allAnalyses []ThesisAnalysis, usage Usage) (string, []ThesisAnalysis, Usage, error) {
 	start := time.Now()
 	c.Model.ModelIdentifier = "openai/gpt-5-chat"
 
-	allAnalyses, usage, err := ExtractThesesAndArguments(c, input)
-	if err != nil {
-		return "", nil, usage, err
-	}
 	totalPromptTokens := usage.PromptTokens
 	totalCompletionTokens := usage.CompletionTokens
 

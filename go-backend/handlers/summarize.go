@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -85,6 +84,30 @@ func (h *Handler) ListSummarizationsRoute(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(jobs)
 }
 
+// CreateSummarizationRoute creates a summarization job and runs it asynchronously
+func (h *Handler) CreateSummarizationRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+
+	var req SummarizeRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	client := llms.NewDefaultClient(h.DB, userID)
+	client.Model.ModelIdentifier = "openai/gpt-5-chat"
+	analyses, usage, err := llms.ExtractThesesAndArguments(client, req.Text)
+	id, err := h.runSummarizationJob(userID, analyses, usage, nil)
+	if err != nil {
+		log.Printf("err %v", err)
+		http.Error(w, "Failed to create summarization job", http.StatusInternalServerError)
+		return
+	}
+
+	resp := SummarizeJobResponse{ID: id, Status: "pending"}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
 type SummarizeJobResponse struct {
 	ID               int     `json:"id"`
 	Status           string  `json:"status"`
@@ -102,14 +125,11 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 		return
 	}
 
-	log.Printf("asdasdasda")
-	wordCount := len(strings.Fields(card.Body))
-	log.Printf("word count %v", wordCount)
+	//wordCount := len(strings.Fields(card.Body))
 	go func() {
-		log.Printf("starting process")
 		client := llms.NewDefaultClient(h.DB, userID)
 		client.Model.ModelIdentifier = "openai/gpt-5-chat"
-		analyses, _, err := llms.ExtractThesesAndArguments(client, card.Body)
+		analyses, usage, err := llms.ExtractThesesAndArguments(client, card.Body)
 		if err != nil {
 			log.Printf("Fact extraction failed: %v", err)
 			return
@@ -118,7 +138,7 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 		for _, analysis := range analyses {
 			allFacts = append(allFacts, analysis.Facts...)
 		}
-		_, err = h.runSummarizationJob(userID, card.Body, &card.ID)
+		_, err = h.runSummarizationJob(userID, analyses, usage, &card.ID)
 		log.Printf("found facts %v", len(allFacts))
 		if len(allFacts) > 0 {
 			facts, _ := h.ExtractSaveCardFacts(userID, card.ID, allFacts)
@@ -128,30 +148,8 @@ func (h *Handler) SummarizeCardIfEligible(userID int, card models.Card) {
 	return
 }
 
-// CreateSummarizationRoute creates a summarization job and runs it asynchronously
-func (h *Handler) CreateSummarizationRoute(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("current_user").(int)
-
-	var req SummarizeRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
-		return
-	}
-
-	id, err := h.runSummarizationJob(userID, req.Text, nil)
-	if err != nil {
-		log.Printf("err %v", err)
-		http.Error(w, "Failed to create summarization job", http.StatusInternalServerError)
-		return
-	}
-
-	resp := SummarizeJobResponse{ID: id, Status: "pending"}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-}
-
 // runSummarizationJob inserts a summarization job and runs it asynchronously.
-func (h *Handler) runSummarizationJob(userID int, text string, cardPK *int) (int, error) {
+func (h *Handler) runSummarizationJob(userID int, analyses []llms.ThesisAnalysis, usage llms.Usage, cardPK *int) (int, error) {
 	var id int
 	var err error
 
@@ -160,24 +158,24 @@ func (h *Handler) runSummarizationJob(userID int, text string, cardPK *int) (int
 			INSERT INTO summarizations (user_id, card_pk, input_text, status, created_at, updated_at)
 			VALUES ($1, $2, $3, 'pending', NOW(), NOW())
 			RETURNING id
-		`, userID, *cardPK, text).Scan(&id)
+		`, userID, *cardPK, "").Scan(&id)
 	} else {
 		err = h.DB.QueryRow(`
 			INSERT INTO summarizations (user_id, input_text, status, created_at, updated_at)
 			VALUES ($1, $2, 'pending', NOW(), NOW())
 			RETURNING id
-		`, userID, text).Scan(&id)
+		`, userID, "").Scan(&id)
 	}
 	if err != nil {
 		return 0, err
 	}
 
 	// Background job
-	go func(jobID int, t string, uid int) {
+	go func(jobID int, analyses []llms.ThesisAnalysis, usage llms.Usage, uid int) {
 		client := llms.NewDefaultClient(h.DB, uid)
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
 
-		result, _, usage, err := llms.AnalyzeAndSummarizeText(client, t)
+		result, _, usage, err := llms.AnalyzeAndSummarizeText(client, analyses, usage)
 		if err != nil {
 			_, _ = h.DB.Exec(`UPDATE summarizations SET status='failed', result=$2, updated_at=$3 WHERE id=$1`,
 				jobID, err.Error(), time.Now())
@@ -191,7 +189,7 @@ func (h *Handler) runSummarizationJob(userID int, text string, cardPK *int) (int
 			WHERE id=$1`,
 			jobID, result, usage.PromptTokens, usage.CompletionTokens, usage.TotalTokens, usage.TotalCost, modelName, time.Now())
 
-	}(id, text, userID)
+	}(id, analyses, usage, userID)
 
 	return id, nil
 }
