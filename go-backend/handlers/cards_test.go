@@ -271,6 +271,41 @@ func TestGetCardReferencesSuccess(t *testing.T) {
 	}
 }
 
+// TestGetCardReferencesRoute validates the new dedicated references endpoint
+func TestGetCardReferencesRoute(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	token, _ := tests.GenerateTestJWT(1)
+	req, err := http.NewRequest("GET", "/api/cards/1/references", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}/references", s.JwtMiddleware(s.GetCardReferencesRoute))
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var refs []models.PartialCard
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &refs)
+	if len(refs) != 2 {
+		t.Errorf("wrong number of references returned, got %v want %v", len(refs), 2)
+	}
+	if len(refs) > 0 && refs[0].CardID != "2/A" {
+		t.Errorf("wrong card returned as first reference, got %v want %v", refs[0].CardID, "2/A")
+	}
+	if len(refs) > 1 && refs[1].CardID != "2" {
+		t.Errorf("wrong card returned as second reference, got %v want %v", refs[1].CardID, "2")
+	}
+}
+
 func TestGetCardReferencesDuplicateLinks(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()

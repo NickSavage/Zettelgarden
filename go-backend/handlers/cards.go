@@ -306,6 +306,32 @@ func (s *Handler) checkChunkLinkedOrRelated(
 	return false
 }
 
+// GetCardReferencesRoute returns the references (directlinks + backlinks) for a given card
+func (s *Handler) GetCardReferencesRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	card, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	references, err := s.getReferences(userID, card)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(references)
+}
+
+// GetCardRoute returns a specific card by ID with related details
 func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
