@@ -348,16 +348,25 @@ export function getLinkedEntitiesByCardPK(cardId: string | number): Promise<Enti
 
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then(checkStatus)
-    .then((response) => {
-      if (response) {
-        return response.json().then((entities: Entity[]) => {
-          if (entities === null) {
-            return [];
-          }
-          return entities;
-        });
-      } else {
+    .then(async (response) => {
+      if (!response) {
         return Promise.reject(new Error("Response is undefined"));
+      }
+
+      // Handle no content responses gracefully
+      if (response.status === 204) {
+        return [];
+      }
+
+      try {
+        const entities: Entity[] | null = await response.json();
+        if (!entities) {
+          return [];
+        }
+        return entities;
+      } catch (err) {
+        // In case of empty body or invalid JSON
+        return [];
       }
     });
 }

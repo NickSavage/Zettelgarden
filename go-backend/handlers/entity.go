@@ -963,7 +963,10 @@ func (s *Handler) GetEntityByLinkedCardPKRoute(w http.ResponseWriter, r *http.Re
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "Entity not found", http.StatusNotFound)
+
+			results := []models.Entity{}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(results)
 			return
 		}
 		log.Printf("error querying entity by id: %v", err)
