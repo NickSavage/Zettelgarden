@@ -177,99 +177,90 @@ func TestExtractBacklinks(t *testing.T) {
 	}
 }
 
-func TestGetCardSuccessChildren(t *testing.T) {
+func TestGetCardChildrenRoute(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
-
-	rr := makeCardRequestSuccess(s, t, 1)
-	if status := rr.Code; status != http.StatusOK {
-		log.Printf("err %v", rr.Body.String())
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-
-	var card models.Card
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
-	if len(card.Children) == 0 {
-		t.Errorf("children was empty. got %v want %v", len(card.Children), 1)
-	}
-
-	expected := "1/A"
-
-	if len(card.Children) > 0 && card.Children[0].CardID != expected {
-		t.Errorf("linked to wrong card, got %v want %v", card.Children[0].CardID, expected)
-
-	}
-
-}
-
-func TestGetCardSuccessFiles(t *testing.T) {
-	s := setup()
-	defer tests.Teardown()
-
-	rr := makeCardRequestSuccess(s, t, 1)
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-	var card models.Card
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
-	if len(card.Files) != 1 {
-		t.Errorf("wrong number of files associated with card, got %v want %v", len(card.Files), 1)
-	}
-	var buffer bytes.Buffer
-	writer := multipart.NewWriter(&buffer)
-	createTestFile(t, buffer, writer)
 
 	token, _ := tests.GenerateTestJWT(1)
-	req, err := http.NewRequest("POST", "/api/files/upload", &buffer)
+	req, err := http.NewRequest("GET", "/api/cards/1/children", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.SetPathValue("id", "1")
 
-	rr = httptest.NewRecorder()
-	handler := http.HandlerFunc(s.JwtMiddleware(s.UploadFileRoute))
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}/children", s.JwtMiddleware(s.GetCardChildrenRoute))
+	router.ServeHTTP(rr, req)
 
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusCreated {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
-	if s.Server.TestInspector.FilesUploaded != 1 {
-		t.Errorf("test inspector wrong number of files associated with card, got %v want %v", len(card.Files), 2)
-	}
-	rr = makeCardRequestSuccess(s, t, 1)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
-	if len(card.Files) != 2 {
-		t.Errorf("wrong number of files associated with card, got %v want %v", len(card.Files), 2)
+
+	var children []models.PartialCard
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &children)
+	if len(children) == 0 {
+		t.Errorf("children was empty. got %v want %v", len(children), 1)
 	}
 
+	expected := "1/A"
+	if len(children) > 0 && children[0].CardID != expected {
+		t.Errorf("linked to wrong card, got %v want %v", children[0].CardID, expected)
+	}
 }
 
-func TestGetCardReferencesSuccess(t *testing.T) {
+func TestGetCardFilesRoute(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(s, t, 1)
+	// Initial files
+	token, _ := tests.GenerateTestJWT(1)
+	req, _ := http.NewRequest("GET", "/api/cards/1/files", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}/files", s.JwtMiddleware(s.GetCardFilesRoute))
+	router.ServeHTTP(rr, req)
+
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	var card models.Card
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
-	if len(card.References) != 2 {
-		t.Errorf("wrong number of references associated with card, got %v want %v", len(card.References), 2)
-	}
-	if len(card.References) > 0 && card.References[0].CardID != "2/A" {
-		t.Errorf("wrong card returned as a reference, got %v want %v", card.References[0].CardID, "2/A")
+	var files []models.File
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &files)
+	if len(files) != 1 {
+		t.Errorf("wrong number of files associated with card, got %v want %v", len(files), 1)
 	}
 
-	if len(card.References) > 1 && card.References[1].CardID != "2" {
-		t.Errorf("wrong card returned as a reference, got %v want %v", card.References[1].CardID, "2")
+	// Upload another file
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+	createTestFile(t, buffer, writer)
+	req, _ = http.NewRequest("POST", "/api/files/upload", &buffer)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rr = httptest.NewRecorder()
+	http.HandlerFunc(s.JwtMiddleware(s.UploadFileRoute)).ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("upload returned wrong status code: got %v want %v", status, http.StatusCreated)
+	}
+
+	// Verify again
+	req, _ = http.NewRequest("GET", "/api/cards/1/files", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "1")
+	rr = httptest.NewRecorder()
+	router = mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}/files", s.JwtMiddleware(s.GetCardFilesRoute))
+	router.ServeHTTP(rr, req)
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &files)
+	if len(files) != 2 {
+		t.Errorf("wrong number of files after upload, got %v want %v", len(files), 2)
 	}
 }
+
+/* Removed legacy TestGetCardReferencesSuccess - replaced by TestGetCardReferencesRoute */
 
 // TestGetCardReferencesRoute validates the new dedicated references endpoint
 func TestGetCardReferencesRoute(t *testing.T) {
@@ -310,17 +301,27 @@ func TestGetCardReferencesDuplicateLinks(t *testing.T) {
 	s := setup()
 	defer tests.Teardown()
 
-	rr := makeCardRequestSuccess(s, t, 4)
+	token, _ := tests.GenerateTestJWT(1)
+	req, _ := http.NewRequest("GET", "/api/cards/4/references", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.SetPathValue("id", "4")
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/cards/{id}/references", s.JwtMiddleware(s.GetCardReferencesRoute))
+	router.ServeHTTP(rr, req)
+
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
-	var card models.Card
-	tests.ParseJsonResponse(t, rr.Body.Bytes(), &card)
-	if len(card.References) != 1 {
-		if len(card.References) == 2 && (card.References[0].CardID == card.References[1].CardID) {
+
+	var refs []models.PartialCard
+	tests.ParseJsonResponse(t, rr.Body.Bytes(), &refs)
+	if len(refs) != 1 {
+		if len(refs) == 2 && (refs[0].CardID == refs[1].CardID) {
 			t.Errorf("returned duplicate references to the same card")
 		} else {
-			t.Errorf("wrong number of references associated with card, got %v want %v", len(card.References), 2)
+			t.Errorf("wrong number of references associated with card, got %v want %v", len(refs), 2)
 		}
 	}
 }
