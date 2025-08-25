@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { setDocumentTitle } from "../../utils/title";
 import { CardItem } from "../../components/cards/CardItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
-import { getCard, saveExistingCard, pinCard, unpinCard, getCardReferences } from "../../api/cards";
+import { getCard, saveExistingCard, pinCard, unpinCard, getCardReferences, getCardChildren } from "../../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -173,6 +173,9 @@ export function ViewPage({ }: ViewPageProps) {
         // Also fetch references via new endpoint
         const refs = await getCardReferences(id);
         refreshed.references = refs;
+        // Also fetch children via new endpoint
+        const kids = await getCardChildren(id);
+        refreshed.children = kids;
 
         setViewCard(refreshed);
         setDocumentTitle(refreshed.card_id + " - View");
