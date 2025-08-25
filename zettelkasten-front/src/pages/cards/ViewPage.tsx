@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { setDocumentTitle } from "../../utils/title";
 import { CardItem } from "../../components/cards/CardItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
-import { getCard, saveExistingCard, pinCard, unpinCard, getCardReferences, getCardChildren, getCardFiles, getCardTags, getCardTasks, getCardEntities } from "../../api/cards";
+import { getCard, saveExistingCard, pinCard, unpinCard, getCardReferences, getCardChildren, getCardFiles, getCardTags, getCardTasks, getCardEntities, getLinkedEntitiesByCardPK } from "../../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -68,6 +68,8 @@ export function ViewPage({ }: ViewPageProps) {
   const [showingSummary, setShowingSummary] = useState(false);
 
   const [facts, setFacts] = useState<Fact[]>([]);
+
+  const [linkedEntities, setLinkedEntities] = useState<Entity[]>([]);
 
   const navigate = useNavigate();
 
@@ -188,6 +190,10 @@ export function ViewPage({ }: ViewPageProps) {
         // Also fetch entities via new endpoint
         const entities = await getCardEntities(id);
         refreshed.entities = entities;
+
+        // Also fetch linked entities via new endpoint
+        const linked = await getLinkedEntitiesByCardPK(id);
+        setLinkedEntities(linked);
 
         setViewCard(refreshed);
         setDocumentTitle(refreshed.card_id + " - View");
@@ -418,6 +424,24 @@ export function ViewPage({ }: ViewPageProps) {
                   <div>
                     <span className="font-bold">Parent</span>
                     <CardItem card={parentCard} />
+                    <hr />
+                  </div>
+                )}
+
+                {linkedEntities.length > 0 && (
+                  <div>
+                    <span className="font-bold">Linked Entities</span>
+                    <div className="mt-2 space-y-2">
+                      {linkedEntities.map(entity => (
+                        <div
+                          key={entity.id}
+                          className="text-xs text-blue-600 cursor-pointer"
+                          onClick={() => handleOpenEntity(entity)}
+                        >
+                          {entity.name}
+                        </div>
+                      ))}
+                    </div>
                     <hr />
                   </div>
                 )}

@@ -342,6 +342,26 @@ export function getCardTags(cardId: string): Promise<any[]> {
     });
 }
 
+export function getLinkedEntitiesByCardPK(cardId: string | number): Promise<Entity[]> {
+  const url = `${base_url}/cards/${encodeURIComponent(cardId)}/linked-entities`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((entities: Entity[]) => {
+          if (entities === null) {
+            return [];
+          }
+          return entities;
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export function getCardEntities(cardId: string | number): Promise<any[]> {
   const url = `${base_url}/cards/${encodeURIComponent(cardId)}/entities`;
   let token = localStorage.getItem("token");
