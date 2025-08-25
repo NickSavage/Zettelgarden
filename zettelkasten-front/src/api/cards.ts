@@ -274,6 +274,30 @@ export function getCardAuditEvents(cardId: string): Promise<any[]> {
     });
 }
 
+export function getCardReferences(cardId: string): Promise<PartialCard[]> {
+  const url = `${base_url}/cards/${encodeURIComponent(cardId)}/references`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((refs: PartialCard[]) => {
+          if (refs === null) {
+            return [];
+          }
+          return refs.map((ref) => ({
+            ...ref,
+            created_at: new Date(ref.created_at),
+            updated_at: new Date(ref.updated_at),
+          }));
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export async function getNextRootId(): Promise<NextIdResponse> {
   const url = `${base_url}/cards/next-root-id`;
   let token = localStorage.getItem("token");
