@@ -322,6 +322,26 @@ export function getCardChildren(cardId: string): Promise<PartialCard[]> {
     });
 }
 
+export function getCardTags(cardId: string): Promise<any[]> {
+  const url = `${base_url}/cards/${encodeURIComponent(cardId)}/tags`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((tags: any[]) => {
+          if (tags === null) {
+            return [];
+          }
+          return tags;
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export function getCardReferences(cardId: string): Promise<PartialCard[]> {
   const url = `${base_url}/cards/${encodeURIComponent(cardId)}/references`;
   let token = localStorage.getItem("token");
