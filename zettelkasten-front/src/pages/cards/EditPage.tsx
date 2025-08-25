@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { isCardIdUnique } from "../../utils/cards";
 import { uploadFile } from "../../api/files";
 import { parseURL } from "../../api/references";
-import { saveNewCard, saveExistingCard, getCard, getNextRootId } from "../../api/cards";
+import { saveNewCard, saveExistingCard, getCard, getNextRootId, getCardReferences, getCardChildren, getCardFiles, getCardTags, getCardTasks, getCardEntities } from "../../api/cards";
 import { editFile } from "../../api/files";
 import { getTemplates } from "../../api/templates";
 import { FileListItem } from "../../components/files/FileListItem";
@@ -24,6 +24,7 @@ import { useTagContext } from "../../contexts/TagContext";
 import { SearchTagDropdown } from "../../components/tags/SearchTagDropdown";
 import { HeaderSubSection } from "../../components/Header";
 import { setDocumentTitle } from "../../utils/title";
+import { isErrorResponse } from "../../models/common";
 
 interface EditPageProps {
   newCard: boolean;
@@ -97,9 +98,35 @@ export function EditPage({ newCard }: EditPageProps) {
   }
 
   async function fetchCard(id: string) {
-    let refreshed = await getCard(id);
-    setEditingCard(refreshed);
-    setDocumentTitle(refreshed.card_id + " - Edit")
+    try {
+      let refreshed = await getCard(id);
+
+      if (isErrorResponse(refreshed)) {
+        setError(refreshed.error);
+        return;
+      }
+
+      const [refs, kids, files, tags, tasks, entities] = await Promise.all([
+        getCardReferences(id),
+        getCardChildren(id),
+        getCardFiles(id),
+        getCardTags(id),
+        getCardTasks(id),
+        getCardEntities(id)
+      ]);
+
+      refreshed.references = refs;
+      refreshed.children = kids;
+      refreshed.files = files;
+      refreshed.tags = tags;
+      refreshed.tasks = tasks;
+      refreshed.entities = entities;
+
+      setEditingCard(refreshed);
+      setDocumentTitle(refreshed.card_id + " - Edit");
+    } catch (err: any) {
+      setError((err as Error).message || "Failed to fetch card");
+    }
   }
 
   // clear draft on save
