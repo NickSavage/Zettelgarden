@@ -342,6 +342,53 @@ export function getCardTags(cardId: string): Promise<any[]> {
     });
 }
 
+export function getCardEntities(cardId: string | number): Promise<any[]> {
+  const url = `${base_url}/cards/${encodeURIComponent(cardId)}/entities`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((entities: any[]) => {
+          if (entities === null) {
+            return [];
+          }
+          return entities;
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
+export function getCardTasks(cardId: string | number): Promise<any[]> {
+  const url = `${base_url}/cards/${encodeURIComponent(cardId)}/tasks`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((tasks: any[]) => {
+          if (tasks === null) {
+            return [];
+          }
+          return tasks.map((task) => ({
+            ...task,
+            scheduled_date: task.scheduled_date ? new Date(task.scheduled_date) : null,
+            dueDate: task.dueDate ? new Date(task.dueDate) : null,
+            created_at: new Date(task.created_at),
+            updated_at: new Date(task.updated_at),
+            completed_at: task.completed_at ? new Date(task.completed_at) : null,
+          }));
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export function getCardReferences(cardId: string): Promise<PartialCard[]> {
   const url = `${base_url}/cards/${encodeURIComponent(cardId)}/references`;
   let token = localStorage.getItem("token");

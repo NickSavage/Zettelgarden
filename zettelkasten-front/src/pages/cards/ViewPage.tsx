@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { setDocumentTitle } from "../../utils/title";
 import { CardItem } from "../../components/cards/CardItem";
 import { BacklinkInput } from "../../components/cards/BacklinkInput";
-import { getCard, saveExistingCard, pinCard, unpinCard, getCardReferences, getCardChildren, getCardFiles, getCardTags } from "../../api/cards";
+import { getCard, saveExistingCard, pinCard, unpinCard, getCardReferences, getCardChildren, getCardFiles, getCardTags, getCardTasks, getCardEntities } from "../../api/cards";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -182,6 +182,12 @@ export function ViewPage({ }: ViewPageProps) {
         // Also fetch tags via new endpoint
         const tags = await getCardTags(id);
         refreshed.tags = tags;
+        // Also fetch tasks via new endpoint
+        const tasks = await getCardTasks(id);
+        refreshed.tasks = tasks;
+        // Also fetch entities via new endpoint
+        const entities = await getCardEntities(id);
+        refreshed.entities = entities;
 
         setViewCard(refreshed);
         setDocumentTitle(refreshed.card_id + " - View");

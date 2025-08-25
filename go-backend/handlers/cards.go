@@ -356,6 +356,56 @@ func (s *Handler) GetCardTagsRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tags)
 }
 
+// GetCardTasksRoute returns the tasks for a given card
+func (s *Handler) GetCardTasksRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	card, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	tasks, err := s.QueryTasksByCard(userID, card.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tasks)
+}
+
+// GetCardEntitiesRoute returns the entities for a given card
+func (s *Handler) GetCardEntitiesRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	card, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	entities, err := s.QueryEntitiesForCard(userID, card.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(entities)
+}
+
 // GetCardChildrenRoute returns the children for a given card
 func (s *Handler) GetCardChildrenRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
@@ -437,31 +487,6 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Parent = parent
-
-	tags, err := s.QueryTagsForCard(userID, card.ID)
-	if err != nil {
-		log.Printf("err %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	card.Tags = tags
-
-	tasks, err := s.QueryTasksByCard(userID, card.ID)
-	if err != nil {
-		log.Printf("err %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	card.Tasks = tasks
-
-	entities, err := s.QueryEntitiesForCard(userID, card.ID)
-	if err != nil {
-		log.Printf("err %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	card.Entities = entities
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
