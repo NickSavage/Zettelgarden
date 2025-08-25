@@ -5,6 +5,7 @@ import (
 	"context"
 	//"encoding/json"
 	"fmt"
+	"go-backend/bootstrap"
 	"go-backend/handlers"
 	"go-backend/mail"
 	"go-backend/models"
@@ -104,23 +105,8 @@ func main() {
 		log.SetOutput(file)
 	}
 
-	s = &server.Server{}
-
-	dbConfig := models.DatabaseConfig{}
-	dbConfig.Host = os.Getenv("DB_HOST")
-	dbConfig.Port = os.Getenv("DB_PORT")
-	dbConfig.User = os.Getenv("DB_USER")
-	dbConfig.Password = os.Getenv("DB_PASS")
-	dbConfig.DatabaseName = os.Getenv("DB_NAME")
-
-	db, err := server.ConnectToDatabase(dbConfig)
-
-	if err != nil {
-		log.Fatalf("Unable to connect to the database: %v\n", err)
-	}
-	s.DB = db
-	s.SchemaDir = "./schema"
-	server.RunMigrations(s)
+	// Initialize shared server using bootstrap package
+	s = bootstrap.InitServer()
 
 	h = &handlers.Handler{
 		Server: s,
