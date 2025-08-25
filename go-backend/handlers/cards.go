@@ -306,6 +306,31 @@ func (s *Handler) checkChunkLinkedOrRelated(
 	return false
 }
 
+// GetCardFilesRoute returns the files for a given card
+func (s *Handler) GetCardFilesRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+
+	card, err := s.QueryFullCard(userID, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	files, err := s.getFilesFromCardPK(userID, card.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(files)
+}
+
 // GetCardChildrenRoute returns the children for a given card
 func (s *Handler) GetCardChildrenRoute(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
@@ -387,14 +412,6 @@ func (s *Handler) GetCardRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	card.Parent = parent
-	//card.DirectLinks = getDirectlinks(userID, card)
-	files, err := s.getFilesFromCardPK(userID, card.ID)
-	if err != nil {
-		log.Printf("err %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	card.Files = files
 
 	tags, err := s.QueryTagsForCard(userID, card.ID)
 	if err != nil {

@@ -274,6 +274,30 @@ export function getCardAuditEvents(cardId: string): Promise<any[]> {
     });
 }
 
+export function getCardFiles(cardId: string): Promise<any[]> {
+  const url = `${base_url}/cards/${encodeURIComponent(cardId)}/files`;
+  let token = localStorage.getItem("token");
+
+  return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    .then(checkStatus)
+    .then((response) => {
+      if (response) {
+        return response.json().then((files: any[]) => {
+          if (files === null) {
+            return [];
+          }
+          return files.map((file) => ({
+            ...file,
+            created_at: new Date(file.created_at),
+            updated_at: new Date(file.updated_at),
+          }));
+        });
+      } else {
+        return Promise.reject(new Error("Response is undefined"));
+      }
+    });
+}
+
 export function getCardChildren(cardId: string): Promise<PartialCard[]> {
   const url = `${base_url}/cards/${encodeURIComponent(cardId)}/children`;
   let token = localStorage.getItem("token");

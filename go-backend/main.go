@@ -177,6 +177,7 @@ func main() {
 	addProtectedRoute(r, "/api/cards/{id}/facts", h.GetCardFacts, "GET")
 	addProtectedRoute(r, "/api/cards/{id}/references", h.GetCardReferencesRoute, "GET")
 	addProtectedRoute(r, "/api/cards/{id}/children", h.GetCardChildrenRoute, "GET")
+	addProtectedRoute(r, "/api/cards/{id}/files", h.GetCardFilesRoute, "GET")
 
 	addProtectedRoute(r, "/api/templates", h.GetTemplatesRoute, "GET")
 	addProtectedRoute(r, "/api/templates", h.CreateTemplateRoute, "POST")
