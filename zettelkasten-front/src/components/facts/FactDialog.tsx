@@ -27,6 +27,7 @@ export function FactDialog({ onClose }: FactDialogProps) {
         showFactDialog,
         setShowFactDialog,
         selectedFact,
+        setSelectedFact,
     } = useShortcutContext();
 
     function handleEntityClick(entity: Entity) {
@@ -38,6 +39,11 @@ export function FactDialog({ onClose }: FactDialogProps) {
     const [similarFacts, setSimilarFacts] = useState<FactWithCard[]>([]);
     const [loadingSimilar, setLoadingSimilar] = useState(false);
     const [similarError, setSimilarError] = useState<string | null>(null);
+
+    function handleFactClick(fact: FactWithCard) {
+        setSelectedFact(fact);
+        setShowFactDialog(true);
+    }
 
     useEffect(() => {
         if (selectedFact) {
@@ -144,8 +150,12 @@ export function FactDialog({ onClose }: FactDialogProps) {
                         {!loadingSimilar && similarFacts.length > 0 && (
                             <ul className="space-y-1 text-sm">
                                 {similarFacts.map((f) => (
-                                    <li key={f.id}>
-                                        <span className="text-gray-700">{f.fact}</span>
+                                    <li
+                                        key={f.id}
+                                        onClick={() => handleFactClick(f)}
+                                        className="cursor-pointer hover:bg-gray-100 p-1 rounded"
+                                    >
+                                        <span className="text-gray-700">• {f.fact}</span>
                                     </li>
                                 ))}
                             </ul>
