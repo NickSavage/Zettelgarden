@@ -17,9 +17,24 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 	var results []models.Fact
 
 	tx, _ := s.DB.Begin()
-	_, err := tx.Exec("DELETE FROM facts WHERE card_pk = $1 AND user_id = $2", cardPK, userID)
+	// First, delete junction links for this card
+	_, err := tx.Exec("DELETE FROM fact_card_junction WHERE card_id = $1 AND user_id = $2", cardPK, userID)
 	if err != nil {
-		log.Printf("error deleting old facts: %v", err)
+		log.Printf("error deleting old fact-card links: %v", err)
+		tx.Rollback()
+		return results, err
+	}
+
+	// Then, delete orphaned facts whose origin was this card and are not linked elsewhere
+	_, err = tx.Exec(`
+		DELETE FROM facts f
+		WHERE f.card_pk = $1 AND f.user_id = $2
+		  AND NOT EXISTS (
+		    SELECT 1 FROM fact_card_junction fcj WHERE fcj.fact_id = f.id
+		  )
+	`, cardPK, userID)
+	if err != nil {
+		log.Printf("error deleting orphaned facts: %v", err)
 		tx.Rollback()
 		return results, err
 	}
@@ -34,12 +49,25 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 			tx.Rollback()
 			return results, err
 		}
-		_, err = tx.Exec(`
+		var factID int
+		err = tx.QueryRow(`
 			INSERT INTO facts (card_pk, user_id, fact, embedding_1024, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, NOW(), NOW())
-		`, cardPK, userID, fact, embedding)
+			RETURNING id
+		`, cardPK, userID, fact, embedding).Scan(&factID)
 		if err != nil {
 			log.Printf("error inserting fact: %v", err)
+			tx.Rollback()
+			return results, err
+		}
+
+		_, err = tx.Exec(`
+			INSERT INTO fact_card_junction (fact_id, card_id, user_id, is_origin, created_at, updated_at)
+			VALUES ($1, $2, $3, TRUE, NOW(), NOW())
+			ON CONFLICT (fact_id, card_id) DO UPDATE SET updated_at = NOW()
+		`, factID, cardPK, userID)
+		if err != nil {
+			log.Printf("error inserting fact_card_junction: %v", err)
 			tx.Rollback()
 			return results, err
 		}
