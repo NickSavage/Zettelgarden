@@ -3,6 +3,7 @@
 // API for fetching facts
 import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 import { Fact } from "../models/Fact";
+import { PartialCard } from "../models/Card";
 
 const base_url = import.meta.env.VITE_URL;
 
@@ -15,6 +16,20 @@ export async function getAllFacts(): Promise<Fact[]> {
   });
   if (!res.ok) {
     throw new Error("Failed to fetch facts");
+  }
+
+  return res.json();
+}
+
+export async function getFactCards(factId: number): Promise<PartialCard[]> {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${base_url}/facts/${factId}/cards`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch fact cards");
   }
   return res.json();
 }

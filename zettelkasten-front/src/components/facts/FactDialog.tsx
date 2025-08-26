@@ -6,6 +6,7 @@ import { CardTag } from "../cards/CardTag";
 import { Button } from "../Button";
 import { Entity } from "../../models/Card";
 import { getFactEntities } from "../../api/entities";
+import { getFactCards } from "../../api/facts";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 interface FactDialogProps {
@@ -16,6 +17,10 @@ export function FactDialog({ onClose }: FactDialogProps) {
     const [entities, setEntities] = useState<Entity[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [cards, setCards] = useState<any[]>([]);
+    const [loadingCards, setLoadingCards] = useState(false);
+    const [cardsError, setCardsError] = useState<string | null>(null);
+
     const {
         setShowEntityDialog,
         setSelectedEntity,
@@ -40,6 +45,16 @@ export function FactDialog({ onClose }: FactDialogProps) {
                 .finally(() => setLoading(false));
         } else {
             setEntities([]);
+        }
+        if (selectedFact) {
+            setLoadingCards(true);
+            setCardsError(null);
+            getFactCards(selectedFact.id)
+                .then(setCards)
+                .catch(() => setCardsError("Failed to load cards"))
+                .finally(() => setLoadingCards(false));
+        } else {
+            setCards([]);
         }
     }, [selectedFact]);
 
@@ -86,6 +101,25 @@ export function FactDialog({ onClose }: FactDialogProps) {
                                     <span className="text-xs text-blue-600 cursor-pointer">
                                         {e.name}
                                     </span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <h4 className="text-md font-medium text-gray-800 mt-4">Linked Cards:</h4>
+                    {loadingCards && <p>Loading cards...</p>}
+                    {cardsError && <p className="text-red-600">{cardsError}</p>}
+                    {!loadingCards && cards.length === 0 && <p>No cards linked.</p>}
+                    {!loadingCards && cards.length > 0 && (
+                        <ul className="space-y-1 text-sm">
+                            {cards.map((c) => (
+                                <li key={c.id}>
+                                    <Link
+                                        to={`/app/card/${c.id}`}
+                                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                                    >
+                                        <CardTag card={c} showTitle={true} />
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
