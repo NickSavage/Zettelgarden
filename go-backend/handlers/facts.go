@@ -18,7 +18,7 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 
 	tx, _ := s.DB.Begin()
 	// First, delete junction links for this card
-	_, err := tx.Exec("DELETE FROM fact_card_junction WHERE card_id = $1 AND user_id = $2", cardPK, userID)
+	_, err := tx.Exec("DELETE FROM fact_card_junction WHERE card_pk = $1 AND user_id = $2", cardPK, userID)
 	if err != nil {
 		log.Printf("error deleting old fact-card links: %v", err)
 		tx.Rollback()
@@ -62,7 +62,7 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 		}
 
 		_, err = tx.Exec(`
-			INSERT INTO fact_card_junction (fact_id, card_id, user_id, is_origin, created_at, updated_at)
+			INSERT INTO fact_card_junction (fact_id, card_pk, user_id, is_origin, created_at, updated_at)
 			VALUES ($1, $2, $3, TRUE, NOW(), NOW())
 			ON CONFLICT (fact_id, card_id) DO UPDATE SET updated_at = NOW()
 		`, factID, cardPK, userID)
