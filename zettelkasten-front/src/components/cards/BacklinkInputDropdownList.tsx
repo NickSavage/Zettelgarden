@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Combobox } from "@headlessui/react";
 import { PartialCard } from "../../models/Card";
 import { CardTag } from "./CardTag";
+import { semanticSearchCards } from "../../api/cards";
 
 interface BacklinkInputDropdownListProps {
   onSelect: (card: PartialCard) => void;
@@ -20,9 +21,56 @@ export function BacklinkInputDropdownList({
 }: BacklinkInputDropdownListProps) {
   const [inputValue, setInputValue] = useState<string>("");
 
+  const [searchResults, setSearchResults] = useState<PartialCard[]>([]);
+  const latestRequestId = React.useRef(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const debounceTimer = React.useRef<NodeJS.Timeout | null>(null);
+
   function handleInputChange(value: string) {
     setInputValue(value);
     onSearch(value);
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    if (!value) {
+      setSearchResults([]);
+      return;
+    }
+
+    debounceTimer.current = setTimeout(async () => {
+
+      const requestId = ++latestRequestId.current;
+      setIsLoading(true);
+      try {
+        const results = await semanticSearchCards(value, true, false, false);
+        if (requestId === latestRequestId.current) {
+          // Map SearchResult[] -> PartialCard[]
+          const mapped: PartialCard[] = (results || []).map((r: any) => ({
+            card_id: r.id,
+            title: r.title,
+            user_id: r.user_id ?? 0,
+            parent_id: r.parent_id ?? null,
+            id: r.id,
+            created_at: r.created_at ?? "",
+            updated_at: r.updated_at ?? "",
+            tags: r.tags ?? [],
+          }));
+          setSearchResults(mapped);
+        }
+      } catch (err) {
+        console.error("Search error:", err);
+        if (requestId === latestRequestId.current) {
+          setSearchResults([]);
+        }
+      } finally {
+        if (requestId === latestRequestId.current) {
+          setIsLoading(false);
+        }
+      }
+    }, 500); // 500ms debounce delay
   }
 
   function handleSelect(card: PartialCard) {
@@ -42,16 +90,17 @@ export function BacklinkInputDropdownList({
               onChange={(e) => handleInputChange(e.target.value)}
             />
           </div>
-          {(cards.length > 0 || inputValue.length > 0) && (
+          {(searchResults.length > 0 || inputValue.length > 0) && (
             <Combobox.Options className="absolute w-full mt-1 z-50 overflow-hidden bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
-              {cards.length > 0 ? (
-                cards.map((card) => (
+              {isLoading ? (
+                <div className="p-3 text-gray-500">Loading...</div>
+              ) : searchResults.length > 0 ? (
+                searchResults.map((card) => (
                   <Combobox.Option
                     key={card.card_id}
                     value={card}
                     className={({ active }) =>
-                      `cursor-pointer p-3 border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${
-                        active ? "bg-blue-50" : ""
+                      `cursor-pointer p-3 border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${active ? "bg-blue-50" : ""
                       }`
                     }
                   >
