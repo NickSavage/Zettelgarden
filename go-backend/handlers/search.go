@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/pgvector/pgvector-go"
 )
 
 type SearchParams struct {
@@ -273,9 +275,22 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 
 	log.Printf("search term params.SearchTerm %v", params.SearchTerm)
 	// Generate query embedding for semantic ordering
-	embedding, err := llms.GetEmbedding1024(params.SearchTerm, false)
-	if err != nil {
-		return nil, err
+
+	var embedding pgvector.Vector
+	var err error
+
+	if s.Server.Testing {
+		// Use a dummy embedding vector for testing
+		dummy := make([]float32, 1024)
+		for i := range dummy {
+			dummy[i] = 0.0 // all zeros
+		}
+		embedding = pgvector.NewVector(dummy)
+	} else {
+		embedding, err = llms.GetEmbedding1024(params.SearchTerm, false)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	query := `
