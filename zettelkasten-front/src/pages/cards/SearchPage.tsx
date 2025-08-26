@@ -55,21 +55,21 @@ export function SearchPage({
     setSearchTerm(e.target.value);
   }
 
-  async function handleSearch(inputTerm: string) {
+  async function handleSearch(searchTerm: string, config: SearchConfig) {
     const requestId = ++latestRequestId.current;
 
     setIsLoading(true);
     setError(null);
 
-    const term = inputTerm || "";
+    const term = searchTerm || "";
     console.log("searching for term:", term);
 
     try {
       const results = await semanticSearchCards(
         term,
-        searchConfig.useFullText,
-        searchConfig.showEntities,
-        searchConfig.showFacts
+        config.useFullText,
+        config.showEntities,
+        config.showFacts
       );
       if (requestId === latestRequestId.current) {
         setSearchResults(results || []);
@@ -100,6 +100,7 @@ export function SearchPage({
           const pinnedSearches = await getPinnedSearches();
           const pinnedSearch = pinnedSearches.find(search => search.id === parseInt(pinnedId));
 
+          console.log("search", pinnedSearch)
           if (pinnedSearch) {
             // Apply the pinned search configuration
             setSearchTerm(pinnedSearch.searchTerm);
@@ -109,9 +110,7 @@ export function SearchPage({
             });
 
             // Execute the search with the pinned configuration
-            await handleSearch(
-              pinnedSearch.searchTerm
-            );
+            await handleSearch(pinnedSearch.searchTerm, pinnedSearch.searchConfig);
             return; // Exit early since we've handled the search
           }
         } catch (error) {
@@ -122,16 +121,19 @@ export function SearchPage({
 
       // Regular search initialization if not a pinned search
       if (recent !== null) {
-        setSearchConfig({ ...searchConfig, useClassicSearch: true });
+        let config = { ...searchConfig, useClassicSearch: true }
+        setSearchConfig(config);
         setSearchTerm("");
-        await handleSearch("");
+        await handleSearch("", config);
       } else if (term) {
-        setSearchConfig({ ...searchConfig, useClassicSearch: true });
+        let config = { ...searchConfig, useClassicSearch: true }
+        setSearchConfig(config);
         setSearchTerm(term);
-        await handleSearch(term);
+        await handleSearch(term, config);
       } else {
-        setSearchConfig({ ...searchConfig, sortBy: "sortByRanking" });
-        await handleSearch("");
+        let config = { ...searchConfig, sortBy: "sortByRanking" }
+        setSearchConfig(config);
+        await handleSearch("", config);
       }
     };
 
@@ -144,7 +146,7 @@ export function SearchPage({
 
   function handleTagClick(tagName: string) {
     setSearchTerm("#" + tagName);
-    handleSearch(tagName);
+    handleSearch(tagName, searchConfig);
   }
 
   async function handleEntityClick(entityName: string) {
@@ -198,17 +200,6 @@ export function SearchPage({
     return Math.ceil(totalItems / 20);
   }
 
-  const handleCheckboxChange = (event) => {
-    const newClassicSearch = event.target.checked;
-    setSearchConfig({
-      ...searchConfig,
-      sortBy: !newClassicSearch ? "sortByRanking" : searchConfig.sortBy,
-      currentPage: 1
-    });
-    setSearchResults([]);
-    handleSearch(searchTerm);
-  };
-
   const handleOnlyParentCardsChange = (event) => {
     setSearchConfig({ ...searchConfig, onlyParentCards: event.target.checked, currentPage: 1 });
   };
@@ -218,8 +209,9 @@ export function SearchPage({
   };
 
   const handleFullTextChange = (event) => {
-    setSearchConfig({ ...searchConfig, useFullText: event.target.checked });
-    handleSearch(searchTerm);
+    let config = { ...searchConfig, useFullText: event.target.checked }
+    setSearchConfig(config);
+    handleSearch(searchTerm, config);
   };
 
   const handleShowEntitiesChange = (event) => {
@@ -247,14 +239,14 @@ export function SearchPage({
             onChange={handleSearchUpdate}
             onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
               if (event.key === "Enter") {
-                handleSearch(searchTerm);
+                handleSearch(searchTerm, searchConfig);
               }
             }}
           />
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => handleSearch(searchTerm)}
+              onClick={() => handleSearch(searchTerm, searchConfig)}
               children={"Search"}
             />
             <select value={searchConfig.sortBy} onChange={handleSortChange}>
