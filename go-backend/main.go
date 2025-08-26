@@ -220,6 +220,7 @@ func main() {
 	addProtectedRoute(r, "/api/facts", h.GetAllFacts, "GET")
 	addProtectedRoute(r, "/api/facts/{factID}/cards/{cardID}", h.LinkFactToCardHandler, "POST")
 	addProtectedRoute(r, "/api/facts/merge", h.MergeFactsRoute, "POST")
+	addProtectedRoute(r, "/api/facts/{id}/cards", h.GetFactCards, "GET")
 
 	// Summarize routes
 	addProtectedRoute(r, "/api/summarize", h.CreateSummarizationRoute, "POST")

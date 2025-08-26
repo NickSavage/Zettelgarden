@@ -522,3 +522,43 @@ func (s *Handler) LinkFactToCardHandler(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]string{"status": "linked"})
 }
+
+// GetFactCards returns all cards linked to a given fact
+func (s *Handler) GetFactCards(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+
+	factIDStr := vars["id"]
+	factID, err := strconv.Atoi(factIDStr)
+	if err != nil {
+		http.Error(w, "Invalid fact id", http.StatusBadRequest)
+		return
+	}
+
+	rows, err := s.DB.Query(`
+		SELECT c.id, c.card_id, c.user_id, c.title, c.parent_id, c.created_at, c.updated_at
+		FROM cards c
+		JOIN fact_card_junction fcj ON c.id = fcj.card_pk
+		WHERE fcj.fact_id = $1 AND fcj.user_id = $2
+	`, factID, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var cards []models.PartialCard
+	for rows.Next() {
+		var c models.PartialCard
+		if err := rows.Scan(&c.ID, &c.CardID, &c.UserID, &c.Title, &c.ParentID, &c.CreatedAt, &c.UpdatedAt); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		cards = append(cards, c)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(cards); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
