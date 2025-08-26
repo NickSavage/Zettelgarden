@@ -1,6 +1,7 @@
 // API for fetching facts
 // API for fetching facts
 // API for fetching facts
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 import { Fact } from "../models/Fact";
 
 const base_url = import.meta.env.VITE_URL;
@@ -16,6 +17,21 @@ export async function getAllFacts(): Promise<Fact[]> {
     throw new Error("Failed to fetch facts");
   }
   return res.json();
+}
+
+export async function mergeFacts(fact1Id: number, fact2Id: number): Promise<void> {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${base_url}/facts/merge`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fact1_id: fact1Id, fact2_id: fact2Id }),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to merge facts");
+  }
 }
 
 export async function getCardFacts(cardId: number): Promise<Fact[]> {
