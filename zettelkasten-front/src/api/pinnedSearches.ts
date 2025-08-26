@@ -1,4 +1,4 @@
-import { PinnedSearch } from "../models/PinnedSearch";
+import { PinnedSearch, SearchConfig } from "../models/PinnedSearch";
 import { checkStatus } from "./common";
 
 const base_url = import.meta.env.VITE_URL;
@@ -13,7 +13,7 @@ const base_url = import.meta.env.VITE_URL;
 export function pinSearch(
     title: string,
     searchTerm: string,
-    searchConfig: object
+    searchConfig: SearchConfig
 ): Promise<void> {
     const url = `${base_url}/searches/pin`;
     let token = localStorage.getItem("token");

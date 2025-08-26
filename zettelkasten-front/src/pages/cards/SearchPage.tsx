@@ -4,6 +4,7 @@ import { semanticSearchCards } from "../../api/cards";
 import { fetchUserTags } from "../../api/tags";
 import { SearchResult } from "../../models/Card";
 import { Tag } from "../../models/Tags";
+import { SearchConfig } from "../../models/PinnedSearch";
 import { sortCards } from "../../utils/cards";
 import { Button } from "../../components/Button";
 import { SearchResultList } from "../../components/cards/SearchResultList";
@@ -22,17 +23,7 @@ interface SearchPageProps {
   setSearchTerm: (searchTerm: string) => void;
   searchResults: SearchResult[];
   setSearchResults: (results: SearchResult[]) => void;
-  searchConfig: {
-    sortBy: string;
-    currentPage: number;
-    useClassicSearch: boolean;
-    useFullText: boolean;
-    onlyParentCards: boolean;
-    showEntities: boolean;
-    showPreview: boolean;
-    showFacts: boolean;
-    showCards: boolean;
-  };
+  searchConfig: SearchConfig
   setSearchConfig: (config: any) => void;
 }
 

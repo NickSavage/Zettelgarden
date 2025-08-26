@@ -1,17 +1,10 @@
 import React, { useState } from "react";
 import { pinSearch } from "../../api/pinnedSearches";
+import { SearchConfig } from "../../models/PinnedSearch";
 
 interface PinSearchDialogProps {
   searchTerm: string;
-  searchConfig: {
-    sortBy: string;
-    useClassicSearch: boolean;
-    useFullText: boolean;
-    onlyParentCards: boolean;
-    showEntities: boolean;
-    showPreview: boolean;
-    [key: string]: any;
-  };
+  searchConfig: SearchConfig;
   onClose: () => void;
   onPinSuccess: () => void;
   setMessage: (message: string) => void;
@@ -48,7 +41,7 @@ export function PinSearchDialog({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
       <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-md mx-4">
         <h3 className="text-lg font-medium mb-4">Pin Current Search</h3>
-        
+
         <div className="mb-4">
           <label htmlFor="search-title" className="block text-sm font-medium text-gray-700 mb-1">
             Title
@@ -72,6 +65,7 @@ export function PinSearchDialog({
             <p><strong>Full Text:</strong> {searchConfig.useFullText ? "Yes" : "No"}</p>
             <p><strong>Only Parent Cards:</strong> {searchConfig.onlyParentCards ? "Yes" : "No"}</p>
             <p><strong>Show Entities:</strong> {searchConfig.showEntities ? "Yes" : "No"}</p>
+            <p><strong>Show Facts:</strong> {searchConfig.showFacts ? "Yes" : "No"}</p>
           </div>
           <p className="text-xs text-gray-500 mt-1">
             These search settings will be saved and applied when you click on this pinned search.

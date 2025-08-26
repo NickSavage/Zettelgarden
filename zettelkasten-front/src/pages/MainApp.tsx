@@ -32,11 +32,13 @@ import { CardRefreshProvider } from "../contexts/CardRefreshContext";
 import { Summarizer } from "./Summarizer";
 import { FactPage } from "./FactPage";
 
+import { SearchConfig } from "../models/PinnedSearch";
+
 function MainAppContent() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [searchConfig, setSearchConfig] = useState({
+  const [searchConfig, setSearchConfig] = useState<SearchConfig>({
     sortBy: "sortRanking",
     currentPage: 1,
     useClassicSearch: false,
