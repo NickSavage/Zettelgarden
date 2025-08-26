@@ -79,8 +79,12 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 	}
 
 	// Fetch the saved facts back, now with IDs, so we can run entity extraction
-	rows, err := s.DB.Query(`SELECT id, user_id, card_pk, fact, created_at, updated_at
-		FROM facts WHERE card_pk=$1 AND user_id=$2`, cardPK, userID)
+	rows, err := s.DB.Query(`
+		SELECT f.id, f.user_id, fcj.card_pk, f.fact, f.created_at, f.updated_at
+		FROM facts f
+		JOIN fact_card_junction fcj ON f.id = fcj.fact_id
+		WHERE fcj.card_pk = $1 AND fcj.user_id = $2
+	`, cardPK, userID)
 	if err != nil {
 		return results, err
 	}
@@ -187,10 +191,11 @@ func (s *Handler) GetCardFacts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := s.DB.Query(`
-		SELECT id, fact, created_at, updated_at
-		FROM facts
-		WHERE card_pk = $1 AND user_id = $2
-		ORDER BY created_at DESC
+		SELECT f.id, f.fact, f.created_at, f.updated_at
+		FROM facts f
+		JOIN fact_card_junction fcj ON f.id = fcj.fact_id
+		WHERE fcj.card_pk = $1 AND fcj.user_id = $2
+		ORDER BY f.created_at DESC
 	`, cardID, userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -283,7 +288,8 @@ func (s *Handler) GetAllFacts(w http.ResponseWriter, r *http.Request) {
 		       c.id, c.card_id, c.user_id, c.title, c.parent_id,
 		       c.created_at, c.updated_at
 		FROM facts f
-		JOIN cards c ON f.card_pk = c.id
+		JOIN fact_card_junction fcj ON f.id = fcj.fact_id
+		JOIN cards c ON fcj.card_pk = c.id
 		WHERE f.user_id = $1
 		ORDER BY f.created_at DESC
 	`, userID)
