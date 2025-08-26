@@ -522,6 +522,54 @@ func (s *Handler) LinkFactToCardHandler(w http.ResponseWriter, r *http.Request) 
 	_ = json.NewEncoder(w).Encode(map[string]string{"status": "linked"})
 }
 
+// GetSimilarFacts returns facts with embeddings similar to a target fact
+func (s *Handler) GetSimilarFacts(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+
+	factIDStr := vars["id"]
+	factID, err := strconv.Atoi(factIDStr)
+	if err != nil {
+		http.Error(w, "Invalid fact id", http.StatusBadRequest)
+		return
+	}
+
+	limit := 10
+	if lStr := r.URL.Query().Get("limit"); lStr != "" {
+		if l, err := strconv.Atoi(lStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	rows, err := s.DB.Query(`
+		SELECT id, user_id, card_pk, fact, created_at, updated_at
+		FROM facts
+		WHERE user_id = $2 AND id != $1
+		ORDER BY embedding_1024 <-> (SELECT embedding_1024 FROM facts WHERE id=$1 AND user_id=$2)
+		LIMIT $3
+	`, factID, userID, limit)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var facts []models.Fact
+	for rows.Next() {
+		var f models.Fact
+		if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		facts = append(facts, f)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(facts); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 // GetFactCards returns all cards linked to a given fact
 func (s *Handler) GetFactCards(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)

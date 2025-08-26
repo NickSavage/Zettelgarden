@@ -2,7 +2,7 @@
 // API for fetching facts
 // API for fetching facts
 import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
-import { Fact } from "../models/Fact";
+import { Fact, FactWithCard } from "../models/Fact";
 import { PartialCard } from "../models/Card";
 
 const base_url = import.meta.env.VITE_URL;
@@ -47,6 +47,19 @@ export async function mergeFacts(fact1Id: number, fact2Id: number): Promise<void
   if (!res.ok) {
     throw new Error("Failed to merge facts");
   }
+}
+
+export async function getSimilarFacts(factId: number, limit = 10): Promise<FactWithCard[]> {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${base_url}/facts/${factId}/similar?limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch similar facts");
+  }
+  return res.json();
 }
 
 export async function getCardFacts(cardId: number): Promise<Fact[]> {

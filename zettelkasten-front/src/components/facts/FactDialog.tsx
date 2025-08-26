@@ -6,7 +6,7 @@ import { CardTag } from "../cards/CardTag";
 import { Button } from "../Button";
 import { Entity } from "../../models/Card";
 import { getFactEntities } from "../../api/entities";
-import { getFactCards } from "../../api/facts";
+import { getFactCards, getSimilarFacts } from "../../api/facts";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 interface FactDialogProps {
@@ -35,6 +35,10 @@ export function FactDialog({ onClose }: FactDialogProps) {
         setShowEntityDialog(true);
     }
 
+    const [similarFacts, setSimilarFacts] = useState<FactWithCard[]>([]);
+    const [loadingSimilar, setLoadingSimilar] = useState(false);
+    const [similarError, setSimilarError] = useState<string | null>(null);
+
     useEffect(() => {
         if (selectedFact) {
             setLoading(true);
@@ -43,18 +47,24 @@ export function FactDialog({ onClose }: FactDialogProps) {
                 .then(setEntities)
                 .catch(() => setError("Failed to load entities"))
                 .finally(() => setLoading(false));
-        } else {
-            setEntities([]);
-        }
-        if (selectedFact) {
+
             setLoadingCards(true);
             setCardsError(null);
             getFactCards(selectedFact.id)
                 .then(setCards)
                 .catch(() => setCardsError("Failed to load cards"))
                 .finally(() => setLoadingCards(false));
+
+            setLoadingSimilar(true);
+            setSimilarError(null);
+            getSimilarFacts(selectedFact.id)
+                .then(setSimilarFacts)
+                .catch(() => setSimilarError("Failed to load similar facts"))
+                .finally(() => setLoadingSimilar(false));
         } else {
+            setEntities([]);
             setCards([]);
+            setSimilarFacts([]);
         }
     }, [selectedFact]);
 
@@ -120,6 +130,22 @@ export function FactDialog({ onClose }: FactDialogProps) {
                                         >
                                             <CardTag card={c} showTitle={true} />
                                         </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    <h4 className="text-md font-medium text-gray-800 mt-4 border-t pt-3">Similar Facts:</h4>
+                    <div className="min-h-[100px] max-h-[30vh] overflow-y-auto pr-2">
+                        {loadingSimilar && <p>Loading similar facts...</p>}
+                        {similarError && <p className="text-red-600">{similarError}</p>}
+                        {!loadingSimilar && similarFacts.length === 0 && <p>No similar facts.</p>}
+                        {!loadingSimilar && similarFacts.length > 0 && (
+                            <ul className="space-y-1 text-sm">
+                                {similarFacts.map((f) => (
+                                    <li key={f.id}>
+                                        <span className="text-gray-700">{f.fact}</span>
                                     </li>
                                 ))}
                             </ul>
