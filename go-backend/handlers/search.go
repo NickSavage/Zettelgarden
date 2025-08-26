@@ -267,6 +267,11 @@ func BuildPartialEntitySqlSearchTermString(searchString string) string {
 func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([]models.Entity, error) {
 	searchString := BuildPartialEntitySqlSearchTermString(params.SearchTerm)
 
+	if params.SearchTerm == "" {
+		return nil, nil
+	}
+
+	log.Printf("search term params.SearchTerm %v", params.SearchTerm)
 	// Generate query embedding for semantic ordering
 	embedding, err := llms.GetEmbedding1024(params.SearchTerm, false)
 	if err != nil {
