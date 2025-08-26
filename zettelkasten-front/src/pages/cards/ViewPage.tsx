@@ -110,7 +110,7 @@ export function ViewPage({ }: ViewPageProps) {
   }
 
   async function handleAddBacklink(selectedCard: PartialCard) {
-    if (viewingCard === null) {
+    if (viewingCard === null || selectedCard === null) {
       return;
     }
     let text = "";
