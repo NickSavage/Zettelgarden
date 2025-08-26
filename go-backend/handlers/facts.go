@@ -288,8 +288,7 @@ func (s *Handler) GetAllFacts(w http.ResponseWriter, r *http.Request) {
 		       c.id, c.card_id, c.user_id, c.title, c.parent_id,
 		       c.created_at, c.updated_at
 		FROM facts f
-		JOIN fact_card_junction fcj ON f.id = fcj.fact_id
-		JOIN cards c ON fcj.card_pk = c.id
+		JOIN cards c ON f.card_pk = c.id
 		WHERE f.user_id = $1
 		ORDER BY f.created_at DESC
 	`, userID)
