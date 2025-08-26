@@ -63,17 +63,17 @@ export function FactDialog({ onClose }: FactDialogProps) {
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
-                    <Dialog.Title className="text-lg font-medium leading-6 text-gray-900 mb-4">
-                        Fact Details
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
+                    <Dialog.Title className="text-lg font-medium leading-6 text-gray-900 mb-2">
+                        {selectedFact ? `Fact: ${selectedFact.fact.slice(0, 50)}...` : "Fact Details"}
                     </Dialog.Title>
 
                     {selectedFact ? (
-                        <div className="space-y-3 text-sm text-gray-700">
+                        <div className="mb-4 space-y-2 text-sm text-gray-700">
                             <p>{selectedFact.fact}</p>
                             {selectedFact.card && (
                                 <div>
-                                    <span className="text-xs text-gray-600">Linked Card: </span>
+                                    <span className="text-xs text-gray-600">From: </span>
                                     <Link
                                         to={`/app/card/${selectedFact.card.id}`}
                                         className="text-blue-600 hover:text-blue-800 hover:underline"
@@ -82,50 +82,51 @@ export function FactDialog({ onClose }: FactDialogProps) {
                                     </Link>
                                 </div>
                             )}
-                            <div className="text-xs text-gray-500">
-                                <p>ID: {selectedFact.id}</p>
-                            </div>
                         </div>
                     ) : (
                         <p className="text-sm text-gray-500">No fact selected.</p>
                     )}
 
-                    <h4 className="text-md font-medium text-gray-800 mt-4">Linked Entities:</h4>
-                    {loading && <p>Loading entities...</p>}
-                    {error && <p className="text-red-600">{error}</p>}
-                    {!loading && entities.length === 0 && <p>No entities linked.</p>}
-                    {!loading && entities.length > 0 && (
-                        <ul className="space-y-1 text-sm">
-                            {entities.map((e) => (
-                                <li key={e.id} onClick={() => handleEntityClick(e)}>
-                                    <span className="text-xs text-blue-600 cursor-pointer">
-                                        {e.name}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <h4 className="text-md font-medium text-gray-800 mt-4 border-t pt-3">Linked Entities:</h4>
+                    <div className="min-h-[100px] max-h-[30vh] overflow-y-auto pr-2">
+                        {loading && <p>Loading entities...</p>}
+                        {error && <p className="text-red-600">{error}</p>}
+                        {!loading && entities.length === 0 && <p>No entities linked.</p>}
+                        {!loading && entities.length > 0 && (
+                            <ul className="space-y-1 text-sm">
+                                {entities.map((e) => (
+                                    <li key={e.id} onClick={() => handleEntityClick(e)}>
+                                        <span className="text-xs text-blue-600 cursor-pointer">
+                                            {e.name}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
 
-                    <h4 className="text-md font-medium text-gray-800 mt-4">Linked Cards:</h4>
-                    {loadingCards && <p>Loading cards...</p>}
-                    {cardsError && <p className="text-red-600">{cardsError}</p>}
-                    {!loadingCards && cards.length === 0 && <p>No cards linked.</p>}
-                    {!loadingCards && cards.length > 0 && (
-                        <ul className="space-y-1 text-sm">
-                            {cards.map((c) => (
-                                <li key={c.id}>
-                                    <Link
-                                        to={`/app/card/${c.id}`}
-                                        className="text-blue-600 hover:text-blue-800 hover:underline"
-                                    >
-                                        <CardTag card={c} showTitle={true} />
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <h4 className="text-md font-medium text-gray-800 mt-4 border-t pt-3">Linked Cards:</h4>
+                    <div className="min-h-[100px] max-h-[30vh] overflow-y-auto pr-2">
+                        {loadingCards && <p>Loading cards...</p>}
+                        {cardsError && <p className="text-red-600">{cardsError}</p>}
+                        {!loadingCards && cards.length === 0 && <p>No cards linked.</p>}
+                        {!loadingCards && cards.length > 0 && (
+                            <ul className="space-y-1 text-sm">
+                                {cards.map((c) => (
+                                    <li key={c.id}>
+                                        <Link
+                                            to={`/app/card/${c.id}`}
+                                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                                        >
+                                            <CardTag card={c} showTitle={true} />
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
 
-                    <div className="mt-6 flex justify-end">
+                    <div className="mt-6 flex justify-end gap-3">
                         <Button onClick={onClose}>Close</Button>
                     </div>
                 </Dialog.Panel>
