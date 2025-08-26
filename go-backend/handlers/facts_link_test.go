@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"go-backend/tests"
@@ -27,30 +29,63 @@ func TestLinkFactToCardHandler(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to insert fact: %v", err)
 	}
+}
 
-	// Target card to link fact to (card 2 exists in seeded test data)
-	cardID := 2
+// Test merging two facts successfully
+func TestMergeFactsRoute_Success(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	var fact1ID, fact2ID int
+	_ = s.DB.QueryRow(`INSERT INTO facts (user_id, card_pk, fact, created_at, updated_at)
+					   VALUES (1, 1, 'fact 1', NOW(), NOW()) RETURNING id`).Scan(&fact1ID)
+	_ = s.DB.QueryRow(`INSERT INTO facts (user_id, card_pk, fact, created_at, updated_at)
+					   VALUES (1, 1, 'fact 2', NOW(), NOW()) RETURNING id`).Scan(&fact2ID)
 
 	token, _ := tests.GenerateTestJWT(1)
-	url := fmt.Sprintf("/api/facts/%d/cards/%d", factID, cardID)
-	req, _ := http.NewRequest("POST", url, nil)
+	payload := fmt.Sprintf(`{"fact1_id": %d, "fact2_id": %d}`, fact1ID, fact2ID)
+	req := httptest.NewRequest("POST", "/api/facts/merge", bytes.NewReader([]byte(payload)))
 	req.Header.Set("Authorization", "Bearer "+token)
-	req.SetPathValue("factID", fmt.Sprintf("%d", factID))
-	req.SetPathValue("cardID", fmt.Sprintf("%d", cardID))
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/api/facts/{factID}/cards/{cardID}", s.JwtMiddleware(s.LinkFactToCardHandler))
+	router.HandleFunc("/api/facts/merge", s.JwtMiddleware(s.MergeFactsRoute)).Methods("POST")
 	router.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d, body: %s", rr.Code, rr.Body.String())
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
 	}
 
-	// Verify row exists in fact_card_junction
+	// Check that fact2 is deleted
 	var exists bool
-	err = s.DB.QueryRow("SELECT true FROM fact_card_junction WHERE fact_id=$1 AND card_pk=$2", factID, cardID).Scan(&exists)
-	if err != nil {
-		t.Fatalf("expected link row, got error: %v", err)
+	err := s.DB.QueryRow("SELECT true FROM facts WHERE id=$1", fact2ID).Scan(&exists)
+	if err == nil {
+		t.Fatalf("expected fact2 to be deleted but found")
+	}
+}
+
+// Test merge with same fact IDs should error
+func TestMergeFactsRoute_SelfMergeError(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	var factID int
+	_ = s.DB.QueryRow(`INSERT INTO facts (user_id, card_pk, fact, created_at, updated_at)
+					   VALUES (1, 1, 'fact x', NOW(), NOW()) RETURNING id`).Scan(&factID)
+
+	token, _ := tests.GenerateTestJWT(1)
+	payload := fmt.Sprintf(`{"fact1_id": %d, "fact2_id": %d}`, factID, factID)
+	req := httptest.NewRequest("POST", "/api/facts/merge", strings.NewReader(payload))
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/facts/merge", s.JwtMiddleware(s.MergeFactsRoute)).Methods("POST")
+	router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", rr.Code)
 	}
 }

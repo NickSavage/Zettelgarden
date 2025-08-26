@@ -405,6 +405,94 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 	return nil
 }
 
+// MergeFacts merges fact2 into fact1 for a given user and deletes fact2
+func (s *Handler) MergeFacts(userID int, fact1ID int, fact2ID int) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Ensure both facts exist and belong to the user
+	var f1, f2 models.Fact
+	err = tx.QueryRow(`SELECT id, user_id, fact FROM facts WHERE id=$1 AND user_id=$2`, fact1ID, userID).
+		Scan(&f1.ID, &f1.UserID, &f1.Fact)
+	if err != nil {
+		return err
+	}
+	err = tx.QueryRow(`SELECT id, user_id, fact FROM facts WHERE id=$1 AND user_id=$2`, fact2ID, userID).
+		Scan(&f2.ID, &f2.UserID, &f2.Fact)
+	if err != nil {
+		return err
+	}
+
+	// Move card relationships
+	_, err = tx.Exec(`
+		INSERT INTO fact_card_junction (user_id, fact_id, card_pk, is_origin, created_at, updated_at)
+		SELECT user_id, $1, card_pk, is_origin, created_at, updated_at
+		FROM fact_card_junction WHERE fact_id=$2
+		ON CONFLICT (fact_id, card_pk) DO NOTHING
+	`, fact1ID, fact2ID)
+	if err != nil {
+		return err
+	}
+
+	// Move entity relationships
+	_, err = tx.Exec(`
+		INSERT INTO entity_fact_junction (user_id, entity_id, fact_id, created_at, updated_at)
+		SELECT user_id, entity_id, $1, created_at, updated_at
+		FROM entity_fact_junction WHERE fact_id=$2
+		ON CONFLICT (entity_id, fact_id) DO NOTHING
+	`, fact1ID, fact2ID)
+	if err != nil {
+		return err
+	}
+
+	// Delete old relationships for fact2
+	_, _ = tx.Exec(`DELETE FROM fact_card_junction WHERE fact_id=$1`, fact2ID)
+	_, _ = tx.Exec(`DELETE FROM entity_fact_junction WHERE fact_id=$1`, fact2ID)
+
+	// Delete fact2
+	_, err = tx.Exec(`DELETE FROM facts WHERE id=$1 AND user_id=$2`, fact2ID, userID)
+	if err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+type MergeFactsRequest struct {
+	Fact1ID int `json:"fact1_id"`
+	Fact2ID int `json:"fact2_id"`
+}
+
+func (s *Handler) MergeFactsRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	var req MergeFactsRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	if req.Fact1ID == 0 || req.Fact2ID == 0 {
+		http.Error(w, "Both fact IDs are required", http.StatusBadRequest)
+		return
+	}
+	if req.Fact1ID == req.Fact2ID {
+		http.Error(w, "Cannot merge a fact with itself", http.StatusBadRequest)
+		return
+	}
+	if err := s.MergeFacts(userID, req.Fact1ID, req.Fact2ID); err != nil {
+		log.Printf("Error merging facts: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]string{"message": "Facts merged successfully"})
+}
+
 // LinkFactToCardHandler links an existing fact to an existing card via fact_card_junction
 func (s *Handler) LinkFactToCardHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
