@@ -64,7 +64,7 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 		_, err = tx.Exec(`
 			INSERT INTO fact_card_junction (fact_id, card_pk, user_id, is_origin, created_at, updated_at)
 			VALUES ($1, $2, $3, TRUE, NOW(), NOW())
-			ON CONFLICT (fact_id, card_id) DO UPDATE SET updated_at = NOW()
+			ON CONFLICT (fact_id, card_pk) DO UPDATE SET updated_at = NOW()
 		`, factID, cardPK, userID)
 		if err != nil {
 			log.Printf("error inserting fact_card_junction: %v", err)
@@ -397,4 +397,34 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 		}
 	}
 	return nil
+}
+
+// LinkFactToCardHandler links an existing fact to an existing card via fact_card_junction
+func (s *Handler) LinkFactToCardHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	factIDStr := vars["factID"]
+	cardIDStr := vars["cardID"]
+
+	factID, err := strconv.ParseInt(factIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid fact id", http.StatusBadRequest)
+		return
+	}
+
+	cardID, err := strconv.ParseInt(cardIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid card id", http.StatusBadRequest)
+		return
+	}
+
+	userID := r.Context().Value("current_user").(int)
+	err = models.LinkFactToCard(s.DB, factID, cardID, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]string{"status": "linked"})
 }
