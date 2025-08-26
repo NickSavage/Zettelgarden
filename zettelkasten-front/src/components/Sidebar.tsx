@@ -22,9 +22,10 @@ import { useShortcutContext } from "../contexts/ShortcutContext";
 import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
 import { PartialCard, Card } from "../models/Card";
-import { fetchPartialCards, getPinnedCards, unpinCard } from "../api/cards";
+import { fetchPartialCards, getPinnedCards, unpinCard, saveNewCard, getNextRootId } from "../api/cards";
 import { PinnedSearch } from "../models/PinnedSearch";
 import { getPinnedSearches, unpinSearch } from "../api/pinnedSearches";
+import { parseURL } from "../api/references";
 
 import { defaultCard } from "../models/Card";
 import { FileUpload } from "../components/files/FileUpload";
@@ -103,6 +104,36 @@ export function Sidebar() {
       ),
     [tasks],
   );
+
+  async function handleAddArticle() {
+    toggleNewDropdown();
+    const url = window.prompt("Enter article URL:");
+    if (!url) return;
+
+    try {
+      const parsed = await parseURL(url);
+      const nextIdResp = await getNextRootId();
+
+      if (nextIdResp.error) throw new Error("Unable to fetch next ID");
+
+      const newCard = await saveNewCard({
+        ...defaultCard,
+        card_id: nextIdResp.new_id,
+        title: parsed.title || "Untitled",
+        body: (parsed.content || "") + "\n\n#to-read #reference",
+        link: url,
+      });
+
+      if (!("error" in newCard)) {
+        navigate(`/app/card/${newCard.id}`);
+      } else {
+        setMessage("Error saving new article card");
+      }
+    } catch (error) {
+      console.error("Failed to add article:", error);
+      setMessage("Failed to add article");
+    }
+  }
 
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
@@ -271,20 +302,26 @@ export function Sidebar() {
                   onClick={handleNewStandardCard}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
-                  Create A Card
+                  Create Card
+                </button>
+                <button
+                  onClick={handleAddArticle}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Add Article (Card)
                 </button>
                 <button
                   onClick={handleNewTask}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
-                  Create A Task
+                  Create Task
                 </button>
                 <FileUpload
                   setMessage={setMessage}
                   card={defaultCard}
                 >
                   <button className="w-full text-left px-4 py-2 hover:bg-gray-100">
-                    Upload A File
+                    Upload File
                   </button>
                 </FileUpload>
                 {/* <button

@@ -266,6 +266,13 @@ func BuildPartialEntitySqlSearchTermString(searchString string) string {
 
 func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([]models.Entity, error) {
 	searchString := BuildPartialEntitySqlSearchTermString(params.SearchTerm)
+
+	// Generate query embedding for semantic ordering
+	embedding, err := llms.GetEmbedding1024(params.SearchTerm, false)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT 
 			e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at,
@@ -277,15 +284,19 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 			c.user_id as linked_card_user_id,
 			c.parent_id as linked_card_parent_id,
 			c.created_at as linked_card_created_at,
-			c.updated_at as linked_card_updated_at
+			c.updated_at as linked_card_updated_at,
+			(1 - (e.embedding_1024 <=> $2)) as score
 		FROM entities e
 		LEFT JOIN entity_card_junction ecj ON e.id = ecj.entity_id
 		LEFT JOIN cards c ON e.card_pk = c.id AND c.is_deleted = FALSE
 		WHERE e.user_id = $1` + searchString + `
 		GROUP BY e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at, e.card_pk,
-				c.id, c.card_id, c.title, c.user_id, c.parent_id, c.created_at, c.updated_at`
+				c.id, c.card_id, c.title, c.user_id, c.parent_id, c.created_at, c.updated_at, score
+		HAVING (1 - (e.embedding_1024 <=> $2)) > 0.7
+		ORDER BY score DESC
+		LIMIT 500`
 
-	rows, err := s.DB.Query(query, userID)
+	rows, err := s.DB.Query(query, userID, embedding)
 	if err != nil {
 		return nil, err
 	}
@@ -299,6 +310,7 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 		var cardUserID, cardParentID sql.NullInt64
 		var cardCreatedAt, cardUpdatedAt sql.NullTime
 
+		var score float64
 		err := rows.Scan(
 			&entity.ID,
 			&entity.UserID,
@@ -316,6 +328,7 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 			&cardParentID,
 			&cardCreatedAt,
 			&cardUpdatedAt,
+			&score,
 		)
 		if err != nil {
 			return nil, err
@@ -367,7 +380,9 @@ GROUP BY
     c.link,
     c.parent_id,
     c.created_at,
-    c.updated_at;
+    c.updated_at
+ORDER BY c.created_at DESC
+LIMIT 500;
 	`
 
 	rows, err := s.DB.Query(query, userID)
@@ -396,6 +411,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("cards %v", len(cards))
 
 	// Convert cards to SearchResults
 	for _, card := range cards {
@@ -465,6 +481,8 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 	// Include fact results if requested
 	if searchParams.ShowFacts {
 		facts, err := s.ClassicFactSearch(userID, searchParams)
+
+		log.Printf("facts %v", len(facts))
 		if err != nil {
 			return nil, err
 		}
