@@ -58,7 +58,7 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick, onFa
             >
               {!isEntity && !isFact && (
                 <>
-                  <span className="text-blue-600 hover:text-blue-800">[{result.id}]</span>
+                  <span className="text-blue-600 hover:text-blue-800">[{result.metadata.card_id}]</span>
                   <span className="mx-2 text-gray-400">-</span>
                 </>
               )}
