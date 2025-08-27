@@ -45,6 +45,7 @@ export interface Card {
   tasks: Task[];
   entities: Entity[];
   is_pinned?: boolean; // Whether the current user has pinned this card
+  process_entities_and_facts?: boolean; // Whether to process entities and facts on save
 }
 
 export interface CardChunk {
@@ -111,6 +112,7 @@ export const defaultCard: Card = {
   tasks: [],
   entities: [],
   is_pinned: false,
+  process_entities_and_facts: false,
 };
 
 export interface NextIdResponse {

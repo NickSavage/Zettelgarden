@@ -820,7 +820,11 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 		log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
 	}
 	log.Printf("update card")
-	s.ProcessEntitiesAndFacts(userID, newCard)
+	if params.ProcessEntitiesAndFacts != nil && *params.ProcessEntitiesAndFacts {
+		s.ProcessEntitiesAndFacts(userID, newCard)
+	} else {
+		log.Printf("skipping processing")
+	}
 	return s.QueryFullCard(userID, cardPK)
 }
 

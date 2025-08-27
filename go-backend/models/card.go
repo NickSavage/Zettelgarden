@@ -107,10 +107,11 @@ func ConvertCardToPartialCard(input Card) PartialCard {
 }
 
 type EditCardParams struct {
-	CardID string `json:"card_id"`
-	Title  string `json:"title"`
-	Body   string `json:"body"`
-	Link   string `json:"link"`
+	CardID                  string `json:"card_id"`
+	Title                   string `json:"title"`
+	Body                    string `json:"body"`
+	Link                    string `json:"link"`
+	ProcessEntitiesAndFacts *bool  `json:"process_entities_and_facts,omitempty"`
 }
 
 type NextIDParams struct {

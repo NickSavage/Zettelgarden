@@ -166,7 +166,8 @@ export function EditPage({ newCard }: EditPageProps) {
       setEditingCard({
         ...defaultCard,
         card_id: nextCardId || (lastCard ? lastCard.card_id : ""),
-        body: draft
+        body: draft,
+        process_entities_and_facts: false,
       });
       if (nextCardId) {
         setNextCardId(null);
@@ -383,6 +384,25 @@ export function EditPage({ newCard }: EditPageProps) {
                 </Button>
               </div>
             </div>
+
+            {!newCard && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="process_entities_and_facts"
+                    checked={editingCard.process_entities_and_facts || false}
+                    onChange={(e) =>
+                      setEditingCard({ ...editingCard, process_entities_and_facts: e.target.checked })
+                    }
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="process_entities_and_facts" className="text-sm text-gray-700">
+                    Process Entities & Facts
+                  </label>
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-3 pt-4">
               <Button onClick={handleSaveCard} variant="primary">Save</Button>
