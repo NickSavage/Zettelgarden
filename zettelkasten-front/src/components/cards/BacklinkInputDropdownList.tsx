@@ -58,7 +58,15 @@ export function BacklinkInputDropdownList({
             updated_at: r.updated_at ?? "",
             tags: r.tags ?? [],
           }));
-          setSearchResults(mapped);
+
+          // Reorder results so exact card_id match comes first
+          const ordered = mapped.sort((a, b) => {
+            if (a.card_id === value) return -1;
+            if (b.card_id === value) return 1;
+            return 0;
+          });
+
+          setSearchResults(ordered);
         }
       } catch (err) {
         console.error("Search error:", err);
