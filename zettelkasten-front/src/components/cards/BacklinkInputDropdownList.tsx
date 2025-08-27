@@ -49,11 +49,11 @@ export function BacklinkInputDropdownList({
         if (requestId === latestRequestId.current) {
           // Map SearchResult[] -> PartialCard[]
           const mapped: PartialCard[] = (results || []).map((r: any) => ({
-            card_id: r.id,
+            card_id: r.metadata.card_id,
             title: r.title,
             user_id: r.user_id ?? 0,
             parent_id: r.parent_id ?? null,
-            id: r.id,
+            id: Number(r.id),
             created_at: r.created_at ?? "",
             updated_at: r.updated_at ?? "",
             tags: r.tags ?? [],

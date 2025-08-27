@@ -440,7 +440,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 			tags, _ = s.QueryTagsForCard(userID, card.ID)
 		}
 		searchResults = append(searchResults, models.SearchResult{
-			ID:        card.CardID,
+			ID:        strconv.Itoa(card.ID),
 			Type:      "card",
 			Title:     card.Title,
 			Preview:   card.Body,
@@ -450,6 +450,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 			Tags:      tags,
 			Metadata: map[string]interface{}{
 				"id":        card.ID,
+				"card_id":   card.CardID,
 				"parent_id": card.ParentID,
 			},
 		})
