@@ -17,10 +17,18 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 	var results []models.Fact
 
 	tx, _ := s.DB.Begin()
-	// First, delete junction links for this card
-	_, err := tx.Exec("DELETE FROM fact_card_junction WHERE card_pk = $1 AND user_id = $2", cardPK, userID)
+	// First, delete junction links for this card, but only if the fact is not linked to any other cards
+	_, err := tx.Exec(`
+		DELETE FROM fact_card_junction fcj
+		WHERE fcj.card_pk = $1 AND fcj.user_id = $2
+		  AND NOT EXISTS (
+		    SELECT 1 FROM fact_card_junction fcj2
+		    WHERE fcj2.fact_id = fcj.fact_id
+		      AND fcj2.card_pk != $1
+		  )
+	`, cardPK, userID)
 	if err != nil {
-		log.Printf("error deleting old fact-card links: %v", err)
+		log.Printf("error deleting fact-card links: %v", err)
 		tx.Rollback()
 		return results, err
 	}

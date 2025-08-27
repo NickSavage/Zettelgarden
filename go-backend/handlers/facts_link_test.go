@@ -31,6 +31,74 @@ func TestLinkFactToCardHandler(t *testing.T) {
 	}
 }
 
+// Test ExtractSaveCardFacts preserves facts linked to multiple cards
+func TestExtractSaveCardFacts_MultiCardFactPreserved(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Insert a fact linked to two cards
+	var factID int
+	_ = s.DB.QueryRow(`INSERT INTO facts (user_id, card_pk, fact, created_at, updated_at)
+                        VALUES (1, 1, 'shared fact', NOW(), NOW()) RETURNING id`).Scan(&factID)
+	_, _ = s.DB.Exec(`INSERT INTO fact_card_junction (fact_id, card_pk, user_id, is_origin, created_at, updated_at)
+                       VALUES ($1, 1, 1, TRUE, NOW(), NOW())`, factID)
+	_, _ = s.DB.Exec(`INSERT INTO fact_card_junction (fact_id, card_pk, user_id, is_origin, created_at, updated_at)
+                       VALUES ($1, 2, 1, FALSE, NOW(), NOW())`, factID)
+
+	// Call ExtractSaveCardFacts on card 1
+	_, err := s.ExtractSaveCardFacts(1, 1, []string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Assert fact still exists
+	var exists bool
+	err = s.DB.QueryRow(`SELECT true FROM facts WHERE id=$1`, factID).Scan(&exists)
+	if err != nil || !exists {
+		t.Fatalf("expected fact to remain, but it was deleted")
+	}
+
+	// Assert junctions still exist for both cards
+	for _, cardPK := range []int{1, 2} {
+		err = s.DB.QueryRow(`SELECT true FROM fact_card_junction WHERE fact_id=$1 AND card_pk=$2`, factID, cardPK).Scan(&exists)
+		if err != nil || !exists {
+			t.Fatalf("expected junction for card %d to remain", cardPK)
+		}
+	}
+}
+
+// Test ExtractSaveCardFacts deletes orphaned facts only linked to one card
+func TestExtractSaveCardFacts_SingleCardFactDeleted(t *testing.T) {
+	s := setup()
+	defer tests.Teardown()
+
+	// Insert a fact linked only to card 1
+	var factID int
+	_ = s.DB.QueryRow(`INSERT INTO facts (user_id, card_pk, fact, created_at, updated_at)
+                        VALUES (1, 1, 'orphan fact', NOW(), NOW()) RETURNING id`).Scan(&factID)
+	_, _ = s.DB.Exec(`INSERT INTO fact_card_junction (fact_id, card_pk, user_id, is_origin, created_at, updated_at)
+                       VALUES ($1, 1, 1, TRUE, NOW(), NOW())`, factID)
+
+	// Call ExtractSaveCardFacts on card 1
+	_, err := s.ExtractSaveCardFacts(1, 1, []string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Assert fact is deleted
+	var exists bool
+	err = s.DB.QueryRow(`SELECT true FROM facts WHERE id=$1`, factID).Scan(&exists)
+	if err == nil {
+		t.Fatalf("expected fact to be deleted, but it still exists")
+	}
+
+	// Assert junction is deleted
+	err = s.DB.QueryRow(`SELECT true FROM fact_card_junction WHERE fact_id=$1 AND card_pk=1`, factID).Scan(&exists)
+	if err == nil {
+		t.Fatalf("expected junction to be deleted, but it still exists")
+	}
+}
+
 // Test merging two facts successfully
 func TestMergeFactsRoute_Success(t *testing.T) {
 	s := setup()
