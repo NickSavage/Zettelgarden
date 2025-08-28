@@ -189,7 +189,7 @@ export function ViewCardTabbedDisplay({
   async function loadEntities() {
     try {
       const entities = await fetchEntities();
-      setAllEntities(entities);
+      setAllEntities(entities.sort((a, b) => a.name.localeCompare(b.name)));
     } catch (error) {
       setError("Failed to load entities");
     }
@@ -316,32 +316,35 @@ export function ViewCardTabbedDisplay({
             <div className="mb-6">
               <h3 className="text-sm font-medium text-gray-700 mb-2">Attached Entities</h3>
               <ul>
-                {viewingCard.entities && viewingCard.entities.map((entity) => (
-                  <li
-                    key={entity.id}
-                    className="mb-2 p-2 hover:bg-gray-100 rounded flex justify-between items-center"
-                  >
-                    <div
-                      className="cursor-pointer flex-grow"
-                      onClick={() => handleOpenEntity(entity)}
-                    >
-                      <div className="font-semibold">{entity.name}</div>
-                      <div className="text-sm text-gray-600">{entity.description}</div>
-                      <div className="text-xs text-gray-500">Type: {entity.type}</div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveEntity(entity.id);
-                      }}
-                      className="ml-2 p-1 text-red-600 hover:bg-red-100 rounded"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </li>
-                ))}
+                {viewingCard.entities &&
+                  [...viewingCard.entities]
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((entity) => (
+                      <li
+                        key={entity.id}
+                        className="mb-2 p-2 hover:bg-gray-100 rounded flex justify-between items-center"
+                      >
+                        <div
+                          className="cursor-pointer flex-grow"
+                          onClick={() => handleOpenEntity(entity)}
+                        >
+                          <div className="font-semibold">{entity.name}</div>
+                          <div className="text-sm text-gray-600">{entity.description}</div>
+                          <div className="text-xs text-gray-500">Type: {entity.type}</div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveEntity(entity.id);
+                          }}
+                          className="ml-2 p-1 text-red-600 hover:bg-red-100 rounded"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </li>
+                    ))}
               </ul>
             </div>
           }
