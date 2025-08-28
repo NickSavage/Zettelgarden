@@ -15,11 +15,15 @@ import { FileListItem } from "../../components/files/FileListItem";
 
 import { ChildrenCards } from "../../components/cards/ChildrenCards";
 
-interface ViewCardTabbedDisplay {
+// Props interface
+import { SummarizeJobResponse } from "../../api/summarizer";
+
+interface ViewCardTabbedDisplayProps {
   viewingCard: Card;
   setViewCard: (card: Card) => void;
   setError: (error: string) => void;
   handleOpenEntity: (entity: Entity) => void;
+  summaries: SummarizeJobResponse[] | null;
 }
 
 interface AuditChange {
@@ -127,9 +131,12 @@ export function ViewCardTabbedDisplay({
   setViewCard,
   setError,
   handleOpenEntity,
-}: ViewCardTabbedDisplay) {
+  // Destructure summaries here
+  summaries,
+  // Use new props interface
+}: ViewCardTabbedDisplayProps) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<string>("Related");
+  const [activeTab, setActiveTab] = useState<string>("Entities");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [allEntities, setAllEntities] = useState<Entity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -137,8 +144,9 @@ export function ViewCardTabbedDisplay({
   const [fileFilterString, setFileFilterString] = useState<string>("");
 
   const tabs = [
-    { label: "Files" },
     { label: "Entities" },
+    { label: "Summaries" },
+    { label: "Files" },
     { label: "History" },
   ];
 
@@ -249,6 +257,7 @@ export function ViewCardTabbedDisplay({
               <span className="ml-1 text-xs font-semibold bg-gray-200 rounded-full px-2 py-0.5 text-gray-700">
                 {tab.label === "Files" && viewingCard.files.length}
                 {tab.label === "Entities" && viewingCard.entities && viewingCard.entities.length}
+                {tab.label === "Summaries" && summaries && summaries.length}
               </span>
             }
           </span>
@@ -294,7 +303,6 @@ export function ViewCardTabbedDisplay({
       )}
       {activeTab === "Entities" && (
         <div>
-          <HeaderSubSection text="Entities" />
           <div className="mb-4">
             <input
               type="text"
@@ -370,7 +378,6 @@ export function ViewCardTabbedDisplay({
       )}
       {activeTab === "History" && (
         <div className="p-4">
-          <HeaderSubSection text="Audit History" />
           <div className="space-y-4 mt-4">
             {auditEvents.map((event, index) => {
               const changes = parseAuditEvent(event);
@@ -409,6 +416,23 @@ export function ViewCardTabbedDisplay({
               <div className="text-center text-gray-500 py-8">
                 No audit events found
               </div>
+            )}
+          </div>
+        </div>
+      )}
+      {activeTab === "Summaries" && (
+        <div className="p-4">
+          <div className="mt-2 space-y-2">
+            {summaries && summaries.length > 0 ? (
+              summaries.map((s) => (
+                <div key={s.id} className="border-b pb-2">
+                  <div className="text-xs text-gray-500">
+                    #{s.id} - {s.status}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500">No summaries available</div>
             )}
           </div>
         </div>

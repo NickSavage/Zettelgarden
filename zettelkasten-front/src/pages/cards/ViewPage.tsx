@@ -398,21 +398,9 @@ export function ViewPage({ }: ViewPageProps) {
                     setViewCard={setViewCard}
                     setError={setError}
                     handleOpenEntity={handleOpenEntity}
+                    summaries={summaries}
                   />
                 </div>
-
-                {summaries && summaries.length > 0 && (
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <HeaderSubSection text="Summaries" />
-                    <div className="mt-2 space-y-2">
-                      {summaries.map((s) => (
-                        <div key={s.id} className="border-b pb-2">
-                          <div className="text-xs text-gray-500">#{s.id} - {s.status}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
               </div>
 
