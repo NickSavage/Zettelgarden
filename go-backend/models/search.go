@@ -14,6 +14,7 @@ type SearchResult struct {
 	UpdatedAt time.Time   `json:"updated_at"`
 	Metadata  interface{} `json:"metadata"`
 	Tags      []Tag       `json:"tags,omitempty"`
+	CardID    string      `json:"card_id"`
 }
 
 func CardChunkToSearchResult(chunk CardChunk) SearchResult {

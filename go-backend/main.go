@@ -121,6 +121,15 @@ func main() {
 		Queue:    mail.NewEmailQueue(),
 		DB:       s.DB,
 	}
+
+	typesenseClient, err := bootstrap.InitTypesense()
+	if err == nil {
+		s.TypesenseClient = typesenseClient
+		go func() {
+			log.Printf("updating typesense")
+			h.InitSearchCollection()
+		}()
+	}
 	log.Printf("email server: %v", s.Mail)
 	s.JwtSecretKey = []byte(os.Getenv("SECRET_KEY"))
 	config := openai.DefaultConfig(os.Getenv("ZETTEL_LLM_KEY"))

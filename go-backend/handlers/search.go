@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -10,8 +11,10 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/pgvector/pgvector-go"
+	"github.com/typesense/typesense-go/typesense/api"
 )
 
 type SearchParams struct {
@@ -21,6 +24,190 @@ type SearchParams struct {
 	NegateTerms    []string
 	Entities       []string
 	NegateEntities []string
+}
+
+func (s *Handler) InitSearchCollection() {
+	collectionName := "search_v1"
+
+	rows, err := s.DB.Query(`
+	SELECT
+
+    c.id,
+    c.card_id,
+    c.user_id,
+    c.title,
+	c.body,
+    c.created_at,
+    c.updated_at,
+	c.parent_id
+FROM cards c 
+	`)
+	if err != nil {
+		log.Printf("error querying cards: %v", err)
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var createdAtTime, updatedAtTime time.Time
+			var cardPK int
+			var cardID string
+			var userID int
+			var parentID int
+			var title, body string
+			err := rows.Scan(
+				&cardPK,
+				&cardID,
+				&userID,
+				&title,
+				&body,
+				&createdAtTime,
+				&updatedAtTime,
+				&parentID,
+			)
+			if err != nil {
+				log.Printf("error scanning fact: %v", err)
+				continue
+			}
+			doc := map[string]interface{}{
+				"fact_pk":               -1,
+				"card_id":               cardID,
+				"card_pk":               cardPK,
+				"entity_pk":             -1,
+				"user_id":               userID,
+				"type":                  "card",
+				"title":                 title,
+				"preview":               body,
+				"parent_id":             parentID,
+				"created_at":            createdAtTime.Unix(),
+				"updated_at":            updatedAtTime.Unix(),
+				"linked_card_id":        "",
+				"linked_card_pk":        -1,
+				"linked_card_title":     "",
+				"linked_card_parent_id": -1,
+			}
+
+			// Upsert (insert or overwrite if exists)
+			_, err = s.Server.TypesenseClient.Collection(collectionName).
+				Documents().
+				Upsert(context.Background(), doc)
+
+			// if err != nil {
+			// 	log.Printf("failed to upsert card ID %d: %v", cardPK, err)
+			// } else {
+			// 	log.Printf("indexed card ID %d successfully", cardPK)
+			// }
+		}
+	}
+	// Index all facts
+	rows, err = s.DB.Query(`
+		SELECT f.id, f.fact, f.created_at, f.updated_at, f.user_id,
+		       c.id, c.card_id, c.user_id, c.title, c.parent_id,
+		       c.created_at, c.updated_at
+		FROM facts f
+		JOIN cards c ON f.card_pk = c.id
+	`)
+	if err != nil {
+		log.Printf("error querying facts: %v", err)
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var factID int
+			var factText string
+			var createdAtTime, updatedAtTime time.Time
+			var cardPK int
+			var cardCardID string
+			var userID, parentID int
+			var cardTitle string
+			var cardCreatedAt, cardUpdatedAt time.Time
+			err := rows.Scan(
+				&factID, &factText, &createdAtTime, &updatedAtTime, &userID,
+				&cardPK, &cardCardID, &userID, &cardTitle, &parentID, &cardCreatedAt, &cardUpdatedAt,
+			)
+			if err != nil {
+				log.Printf("error scanning fact: %v", err)
+				continue
+			}
+			doc := map[string]interface{}{
+				"fact_pk":               factID,
+				"card_id":               "",
+				"card_pk":               -1,
+				"entity_pk":             -1,
+				"user_id":               userID,
+				"type":                  "fact",
+				"title":                 factText,
+				"preview":               cardTitle,
+				"score":                 0.0,
+				"parent_id":             -1,
+				"created_at":            createdAtTime.Unix(),
+				"updated_at":            updatedAtTime.Unix(),
+				"linked_card_id":        cardCardID,
+				"linked_card_pk":        cardPK,
+				"linked_card_title":     cardTitle,
+				"linked_card_parent_id": parentID,
+			}
+			_, err = s.Server.TypesenseClient.Collection(collectionName).Documents().Upsert(context.Background(), doc)
+			// if err != nil {
+			// 	log.Printf("failed to upsert fact ID %d: %v", factID, err)
+			// } else {
+			// 	log.Printf("indexed fact ID %d successfully", factID)
+			// }
+		}
+	}
+
+	// // Index all entities
+	rows2, err := s.DB.Query(`
+		SELECT e.id, e.name, e.description, e.type, e.created_at, e.updated_at, e.user_id,
+		c.id, c.card_id, c.title, c.parent_id
+		FROM entities e
+		LEFT JOIN cards c ON e.card_pk = c.id
+	`) // assuming user_id=1 here
+	if err != nil {
+		log.Printf("error querying entities: %v", err)
+	} else {
+		defer rows2.Close()
+		for rows2.Next() {
+			var entityID int
+			var name, description, etype string
+			var createdAtTime, updatedAtTime time.Time
+			var userID int
+			var parentID int
+			var cardPK sql.NullInt64
+			var cardCardID, cardTitle sql.NullString
+			var cardParentID sql.NullInt64
+
+			err := rows2.Scan(
+				&entityID, &name, &description, &etype, &createdAtTime,
+				&updatedAtTime, &userID, &cardPK, &cardCardID, &cardTitle, &cardParentID,
+			)
+			if err != nil {
+				log.Printf("error scanning entity: %v", err)
+				continue
+			}
+			doc := map[string]interface{}{
+				"entity_pk":             entityID,
+				"card_id":               "",
+				"card_pk":               -1,
+				"fact_pk":               -1,
+				"type":                  "entity",
+				"user_id":               userID,
+				"title":                 name,
+				"parent_id":             -1,
+				"preview":               description,
+				"score":                 0.0,
+				"created_at":            createdAtTime.Unix(),
+				"updated_at":            updatedAtTime.Unix(),
+				"linked_card_id":        cardCardID,
+				"linked_card_pk":        cardPK,
+				"linked_card_title":     cardTitle,
+				"linked_card_parent_id": parentID,
+			}
+			_, err = s.Server.TypesenseClient.Collection(collectionName).Documents().Upsert(context.Background(), doc)
+			// if err != nil {
+			// 	log.Printf("failed to upsert entity ID %d: %v", entityID, err)
+			// } else {
+			// 	log.Printf("indexed entity ID %d successfully", entityID)
+			// }
+		}
+	}
 }
 
 func contains[T comparable](collection []T, target T) bool {
@@ -402,7 +589,6 @@ GROUP BY
     c.created_at,
     c.updated_at
 ORDER BY c.created_at DESC
-LIMIT 500;
 	`
 
 	rows, err := s.DB.Query(query, userID)
@@ -420,6 +606,82 @@ type SearchRequestParams struct {
 	FullText     bool   `json:"full_text"`
 	ShowEntities bool   `json:"show_entities"`
 	ShowFacts    bool   `json:"show_facts"`
+}
+
+func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
+	perPage := 250
+	var sortBy string
+	if searchParams.SearchTerm == "" {
+		sortBy = "created_at:desc"
+	} else {
+		sortBy = "_text_match:desc"
+	}
+	filter := "user_id:=" + strconv.Itoa(userID)
+
+	var results []models.SearchResult
+
+	typesenseParams := &api.SearchCollectionParams{
+		Q:        searchParams.SearchTerm,
+		QueryBy:  "title,embedding",
+		FilterBy: &filter,
+		SortBy:   &sortBy,
+		PerPage:  &perPage,
+	}
+
+	typesenseResults, err := s.Server.TypesenseClient.Collection("search_v1").Documents().Search(context.Background(), typesenseParams)
+
+	if err != nil {
+		log.Fatalf("Search error: %v", err)
+		return results, err
+	}
+
+	fmt.Printf("Found %d docs\n", *typesenseResults.Found)
+	for i, hit := range *typesenseResults.Hits {
+		if hit.Document != nil {
+			doc := *hit.Document
+			item := models.SearchResult{
+				Title:     doc["title"].(string),
+				Type:      doc["type"].(string),
+				Preview:   doc["preview"].(string),
+				Score:     0.0,
+				CreatedAt: time.Unix(int64(doc["created_at"].(float64)), 0),
+				UpdatedAt: time.Unix(int64(doc["updated_at"].(float64)), 0),
+			}
+			resultType := doc["type"]
+			if resultType == "card" {
+
+				item.ID = strconv.FormatInt(int64(doc["card_pk"].(float64)), 10)
+				cardID := doc["card_id"].(string)
+				metadata := map[string]interface{}{
+					"id":        item.ID,
+					"card_id":   cardID,
+					"parent_id": "",
+				}
+				item.Metadata = metadata
+
+			} else if resultType == "entity" {
+				item.ID = strconv.FormatInt(int64(doc["entity_pk"].(float64)), 10)
+				metadata := map[string]interface{}{
+					"id": item.ID,
+				}
+				item.Metadata = metadata
+				// entity_pk
+
+			} else if resultType == "fact" {
+				item.ID = strconv.FormatInt(int64(doc["fact_pk"].(float64)), 10)
+				metadata := map[string]interface{}{
+					"id": item.ID,
+				}
+				item.Metadata = metadata
+				// fact_pk
+
+			}
+			results = append(results, item)
+		} else {
+			log.Printf("[%d] unexpected document format: %v", i, hit.Document)
+		}
+	}
+	return results, nil
 }
 
 func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
@@ -637,7 +899,14 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	searchResults, err := s.ClassicSearch(searchParams, userID)
+	var searchResults []models.SearchResult
+
+	if searchParams.SearchType == "typesense" {
+		searchResults, err = s.TypesenseSearch(searchParams, userID)
+	} else {
+		searchResults, err = s.ClassicSearch(searchParams, userID)
+	}
+
 	if err != nil {
 		log.Printf("search err %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
