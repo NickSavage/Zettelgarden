@@ -205,10 +205,10 @@ export function FactPage() {
                             </th>
                         )}
                         <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                            ID
+                            Fact
                         </th>
                         <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                            Fact
+                            Card
                         </th>
                         <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
                             Created At
@@ -237,23 +237,21 @@ export function FactPage() {
                                         />
                                     </td>
                                 )}
-                                <td className="px-4 py-2 text-sm text-gray-800">{f.id}</td>
                                 <td className="px-4 py-2 text-sm text-gray-800 cursor-pointer hover:underline">
                                     {f.fact}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-800">
                                     {f.card && (
-                                        <>
-                                            <span className="ml-2 text-gray-400">→</span>
-                                            <Link
-                                                to={`/app/card/${f.card.id}`}
-                                                onClick={(e) => e.stopPropagation()}
-                                                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                                            >
-                                                <div className="w-3 h-3 mr-1 text-gray-400">
-                                                    <CardIcon />
-                                                </div>
-                                                [{f.card.card_id}] {f.card.title}
-                                            </Link>
-                                        </>
+                                        <Link
+                                            to={`/app/card/${f.card.id}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                        >
+                                            <div className="w-3 h-3 mr-1 text-gray-400">
+                                                <CardIcon />
+                                            </div>
+                                            [{f.card.card_id}] {f.card.title}
+                                        </Link>
                                     )}
                                 </td>
                                 <td className="px-4 py-2 text-sm text-gray-800">
