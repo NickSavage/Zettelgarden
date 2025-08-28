@@ -116,7 +116,7 @@ export function EntityDialog({ onClose, onEdit }: EntityDialogProps) {
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-y-auto max-h-[90vh] rounded-2xl bg-white p-6 shadow-xl transition-all">
                     <Dialog.Title className="text-lg font-medium leading-6 text-gray-900 mb-2">
                         {selectedEntity ? `Entity: ${selectedEntity.name}` : "Entity Details"}
                     </Dialog.Title>
