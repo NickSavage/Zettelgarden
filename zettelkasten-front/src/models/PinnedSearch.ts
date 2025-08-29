@@ -16,4 +16,5 @@ export interface SearchConfig {
     showPreview: boolean;
     sortBy: string;
     currentPage: number;
+    searchType: string; // "classic" or "typesense"
 }

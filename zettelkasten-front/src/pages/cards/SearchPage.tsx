@@ -70,7 +70,8 @@ export function SearchPage({
         config.useFullText,
         config.showEntities,
         config.showFacts,
-        config.sortBy
+        config.sortBy,
+        config.searchType
       );
       if (requestId === latestRequestId.current) {
         setSearchResults(results || []);
@@ -181,7 +182,8 @@ export function SearchPage({
   function getPagedResults(): SearchResult[] {
     const filteredResults = searchResults
       .filter(result => !searchConfig.onlyParentCards || !result.id.includes("/"))
-      .filter(result => searchConfig.showEntities || result.type !== "entity");
+      .filter(result => searchConfig.showEntities || result.type !== "entity")
+      .filter(result => searchConfig.showFacts || result.type !== "fact");
 
     const sortedResults = sortCards(
       filteredResults
@@ -224,6 +226,13 @@ export function SearchPage({
 
   const handleShowCardsChange = (event) => {
     setSearchConfig({ ...searchConfig, showCards: event.target.checked, currentPage: 1 });
+  };
+
+  const handleSearchTypeChange = (event) => {
+    const newType = event.target.checked ? "typesense" : "classic";
+    let config = { ...searchConfig, searchType: newType };
+    setSearchConfig(config);
+    handleSearch(searchTerm, config);
   };
 
   return (
@@ -275,6 +284,17 @@ export function SearchPage({
               </Menu.Button>
               <Menu.Items className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-10">
                 <div className="py-1">
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={searchConfig.searchType === "typesense"}
+                        onChange={handleSearchTypeChange}
+                        className="mr-2"
+                      />
+                      Use Typesense Search
+                    </label>
+                  </div>
                   <div className="px-4 py-2 hover:bg-gray-100">
                     <label className="flex items-center text-sm cursor-pointer">
                       <input

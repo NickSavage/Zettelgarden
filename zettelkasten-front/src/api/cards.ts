@@ -19,6 +19,7 @@ interface SearchRequestParams {
   full_text?: boolean;
   show_entities?: boolean;
   show_facts?: boolean;
+  search_type?: string; // classic or typesense
 }
 
 export function semanticSearchCards(
@@ -26,13 +27,15 @@ export function semanticSearchCards(
   fullText = false,
   showEntities = false,
   showFacts = true,
-  sortBy = "sortByRanking"
+  sortBy = "sortByRanking",
+  searchType = "classic",
 ): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
 
   const params: SearchRequestParams = {
     search_term: searchTerm,
+    search_type: searchType,
     full_text: fullText,
     show_entities: showEntities,
     show_facts: showFacts,
