@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"sort"
 	"strconv"
@@ -814,6 +816,7 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 		}()
 	}
 
+	s.upsertCardToTypesense(newCard)
 	s.AddTagsFromCard(userID, cardPK)
 	_, err = s.DB.Exec("UPDATE users SET memory_has_changed = true WHERE id = $1", userID)
 	if err != nil {
@@ -852,6 +855,7 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	if err != nil {
 		return models.Card{}, err
 	}
+	s.upsertCardToTypesense(newCard)
 
 	// Create audit event for creation
 	err = s.CreateAuditEvent(userID, id, "card", "create", nil, newCard)
@@ -910,6 +914,8 @@ func (s *Handler) DeleteCard(userID int, id int) error {
 	if err != nil {
 		return err
 	}
+
+	s.deleteCardTypesense(card.ID)
 
 	// Create audit event for deletion
 	err = s.CreateAuditEvent(userID, id, "card", "delete", card, nil)
@@ -1278,4 +1284,48 @@ func (h *Handler) ParseURLRoute(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
+}
+
+// upsertCardToTypesense adds or updates a card document in Typesense
+func (s *Handler) upsertCardToTypesense(card models.Card) {
+	if s.Server.Testing {
+		return
+	}
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	doc := map[string]interface{}{
+		"id":                    "card-" + strconv.Itoa(card.ID),
+		"fact_pk":               -1,
+		"card_id":               card.CardID,
+		"card_pk":               card.ID,
+		"entity_pk":             -1,
+		"user_id":               card.UserID,
+		"type":                  "card",
+		"title":                 card.Title,
+		"preview":               card.Body,
+		"parent_id":             card.ParentID,
+		"created_at":            card.CreatedAt.Unix(),
+		"updated_at":            card.UpdatedAt.Unix(),
+		"linked_card_id":        "",
+		"linked_card_pk":        -1,
+		"linked_card_title":     "",
+		"linked_card_parent_id": -1,
+	}
+
+	_, err := s.Server.TypesenseClient.Collection(collectionName).
+		Documents().Upsert(context.Background(), doc)
+	if err != nil {
+		log.Printf("failed to upsert card ID %d: %v", card.ID, err)
+	}
+}
+
+func (s *Handler) deleteCardTypesense(cardPK int) {
+	if s.Server.Testing {
+		return
+	}
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	_, err := s.Server.TypesenseClient.Collection(collectionName).
+		Document("card-" + strconv.Itoa(cardPK)).Delete(context.Background())
+	if err != nil {
+		log.Printf("failed to delete card ID %d: %v", cardPK, err)
+	}
 }
