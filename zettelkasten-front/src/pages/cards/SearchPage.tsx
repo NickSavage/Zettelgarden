@@ -69,7 +69,8 @@ export function SearchPage({
         term,
         config.useFullText,
         config.showEntities,
-        config.showFacts
+        config.showFacts,
+        config.sortBy
       );
       if (requestId === latestRequestId.current) {
         setSearchResults(results || []);

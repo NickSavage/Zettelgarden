@@ -1,3 +1,4 @@
+import { stringToArray } from "linkifyjs";
 import {
   Card,
   CardChunk,
@@ -14,6 +15,7 @@ const base_url = import.meta.env.VITE_URL;
 
 interface SearchRequestParams {
   search_term: string;
+  sort?: string;
   full_text?: boolean;
   show_entities?: boolean;
   show_facts?: boolean;
@@ -23,7 +25,8 @@ export function semanticSearchCards(
   searchTerm = "",
   fullText = false,
   showEntities = false,
-  showFacts = true
+  showFacts = true,
+  sortBy = "sortByRanking"
 ): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
@@ -33,6 +36,7 @@ export function semanticSearchCards(
     full_text: fullText,
     show_entities: showEntities,
     show_facts: showFacts,
+    sort: sortBy,
   };
 
   return fetch(url, {
@@ -125,18 +129,15 @@ export function fetchPartialCards(
 }
 
 export function getCard(id: string): Promise<Card> {
-  // Assuming your backend is running on the same IP and port as in previous example
   let encoded = encodeURIComponent(id);
   const url = base_url + `/cards/${encoded}`;
 
   let token = localStorage.getItem("token");
-  // Send a GET request to the URL
   return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
     .then(checkStatus)
     .then((response) => {
       if (response) {
         return response.json().then((card: Card) => {
-          // Set the is_pinned property based on the header
           let children =
             card.children !== null
               ? card.children.map((child) => {
