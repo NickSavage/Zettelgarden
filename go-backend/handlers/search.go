@@ -140,7 +140,7 @@ FROM cards c
 				"user_id":               userID,
 				"type":                  "fact",
 				"title":                 factText,
-				"preview":               cardTitle,
+				"preview":               "",
 				"score":                 0.0,
 				"parent_id":             -1,
 				"created_at":            createdAtTime.Unix(),
