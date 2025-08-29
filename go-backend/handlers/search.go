@@ -68,6 +68,7 @@ FROM cards c
 				continue
 			}
 			doc := map[string]interface{}{
+				"id":                    "card-" + strconv.Itoa(cardPK),
 				"fact_pk":               -1,
 				"card_id":               cardID,
 				"card_pk":               cardPK,
@@ -127,6 +128,7 @@ FROM cards c
 				continue
 			}
 			doc := map[string]interface{}{
+				"id":                    "card-" + strconv.Itoa(factID),
 				"fact_pk":               factID,
 				"card_id":               "",
 				"card_pk":               -1,
@@ -183,6 +185,7 @@ FROM cards c
 				continue
 			}
 			doc := map[string]interface{}{
+				"id":                    "entity-" + strconv.Itoa(entityID),
 				"entity_pk":             entityID,
 				"card_id":               "",
 				"card_pk":               -1,
@@ -699,13 +702,25 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 				// fact_pk
 
 			}
-			log.Printf("item %v", item.ID)
 			results = append(results, item)
 		} else {
 			log.Printf("[%d] unexpected document format: %v", i, hit.Document)
 		}
 	}
-	return results, nil
+
+	var reranked []models.SearchResult
+	if s.Server.Testing {
+		reranked = results
+	} else {
+		if len(results) > 0 {
+			client := llms.NewDefaultClient(s.DB, userID)
+			reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, results)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return reranked, nil
 }
 
 func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
