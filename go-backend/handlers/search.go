@@ -9,6 +9,7 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -27,7 +28,7 @@ type SearchParams struct {
 }
 
 func (s *Handler) InitSearchCollection() {
-	collectionName := "search_v1"
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
 
 	rows, err := s.DB.Query(`
 	SELECT
@@ -606,6 +607,7 @@ type SearchRequestParams struct {
 	FullText     bool   `json:"full_text"`
 	ShowEntities bool   `json:"show_entities"`
 	ShowFacts    bool   `json:"show_facts"`
+	SortBy       string `json:"sort"`
 }
 
 func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
@@ -614,24 +616,46 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 	if searchParams.SearchTerm == "" {
 		sortBy = "created_at:desc"
 	} else {
-		sortBy = "_text_match:desc"
+		switch searchParams.SortBy {
+		case "sortByRanking":
+			sortBy = "_text_match:desc"
+		case "sortCreatedNewOld":
+			sortBy = "created_at:desc"
+		case "sortCreatedOldNew":
+			sortBy = "created_at:asc"
+		case "sortNewOld":
+			sortBy = "updated_at:desc"
+		case "sortOldNew":
+			sortBy = "updated_at:asc"
+		case "sortBigSmall":
+			sortBy = "title:asc"
+		case "sortSmallBig":
+			sortBy = "title:desc"
+		default:
+			sortBy = "_text_match:desc"
+		}
 	}
 	filter := "user_id:=" + strconv.Itoa(userID)
 
 	var results []models.SearchResult
+	searchTerm := searchParams.SearchTerm
+	if searchTerm == "" {
+		searchTerm = "*"
+	}
 
 	typesenseParams := &api.SearchCollectionParams{
-		Q:        searchParams.SearchTerm,
-		QueryBy:  "title,embedding",
+		Q:        searchTerm,
+		QueryBy:  "title, embedding",
 		FilterBy: &filter,
 		SortBy:   &sortBy,
 		PerPage:  &perPage,
 	}
-
-	typesenseResults, err := s.Server.TypesenseClient.Collection("search_v1").Documents().Search(context.Background(), typesenseParams)
+	log.Printf("%v", typesenseParams)
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	typesenseResults, err := s.Server.TypesenseClient.Collection(collectionName).Documents().Search(context.Background(), typesenseParams)
 
 	if err != nil {
-		log.Fatalf("Search error: %v", err)
+		log.Printf("Search error: %v", err)
 		return results, err
 	}
 
@@ -676,6 +700,7 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 				// fact_pk
 
 			}
+			log.Printf("item %v", item.ID)
 			results = append(results, item)
 		} else {
 			log.Printf("[%d] unexpected document format: %v", i, hit.Document)

@@ -18,7 +18,7 @@ func InitTypesense() (*typesense.Client, error) {
 		typesense.WithAPIKey(os.Getenv("TYPESENSE_PASSWORD")),
 	)
 
-	collectionName := "search_v1"
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
 
 	_, err := client.Collection(collectionName).Retrieve(ctx)
 	if err == nil {
@@ -27,7 +27,7 @@ func InitTypesense() (*typesense.Client, error) {
 		return client, nil
 	}
 	// log.Printf("delete")
-	// client.Collection("search_v1").Delete(context.Background())
+	// client.Collection(collectionName).Delete(context.Background())
 
 	sortField := "updated_at"
 	schema := &api.CollectionSchema{

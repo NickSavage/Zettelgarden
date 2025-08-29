@@ -180,7 +180,6 @@ export function SearchPage({
 
   function getPagedResults(): SearchResult[] {
     const filteredResults = searchResults
-      .filter(result => result.score > 0)
       .filter(result => !searchConfig.onlyParentCards || !result.id.includes("/"))
       .filter(result => searchConfig.showEntities || result.type !== "entity");
 
