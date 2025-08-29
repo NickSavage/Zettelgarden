@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pgvector/pgvector-go"
 	"github.com/typesense/typesense-go/typesense/api"
 )
 
@@ -464,22 +463,22 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 	log.Printf("search term params.SearchTerm %v", params.SearchTerm)
 	// Generate query embedding for semantic ordering
 
-	var embedding pgvector.Vector
+	// var embedding pgvector.Vector
 	var err error
 
-	if s.Server.Testing {
-		// Use a dummy embedding vector for testing
-		dummy := make([]float32, 1024)
-		for i := range dummy {
-			dummy[i] = 0.0 // all zeros
-		}
-		embedding = pgvector.NewVector(dummy)
-	} else {
-		embedding, err = llms.GetEmbedding1024(params.SearchTerm, false)
-		if err != nil {
-			return nil, err
-		}
-	}
+	// if s.Server.Testing {
+	// 	// Use a dummy embedding vector for testing
+	// 	dummy := make([]float32, 1024)
+	// 	for i := range dummy {
+	// 		dummy[i] = 0.0 // all zeros
+	// 	}
+	// 	embedding = pgvector.NewVector(dummy)
+	// } else {
+	// 	embedding, err = llms.GetEmbedding1024(params.SearchTerm, false)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
 	query := `
 		SELECT 
@@ -492,20 +491,20 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 			c.user_id as linked_card_user_id,
 			c.parent_id as linked_card_parent_id,
 			c.created_at as linked_card_created_at,
-			c.updated_at as linked_card_updated_at,
-			(1 - (e.embedding_1024 <=> $2)) as score
+			c.updated_at as linked_card_updated_at
+			
 		FROM entities e
 		LEFT JOIN entity_card_junction ecj ON e.id = ecj.entity_id
 		LEFT JOIN cards c ON e.card_pk = c.id AND c.is_deleted = FALSE
 		WHERE e.user_id = $1` + searchString + `
 		GROUP BY e.id, e.user_id, e.name, e.description, e.type, e.created_at, e.updated_at, e.card_pk,
-				c.id, c.card_id, c.title, c.user_id, c.parent_id, c.created_at, c.updated_at, score
-		HAVING (1 - (e.embedding_1024 <=> $2)) > 0.7
-		ORDER BY score DESC
-		LIMIT 500`
+				c.id, c.card_id, c.title, c.user_id, c.parent_id, c.created_at, c.updated_at
+			LIMIT 500
+				`
 
-	rows, err := s.DB.Query(query, userID, embedding)
+	rows, err := s.DB.Query(query, userID)
 	if err != nil {
+		log.Printf("err on searching entities %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -518,7 +517,7 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 		var cardUserID, cardParentID sql.NullInt64
 		var cardCreatedAt, cardUpdatedAt sql.NullTime
 
-		var score float64
+		//var score float64
 		err := rows.Scan(
 			&entity.ID,
 			&entity.UserID,
@@ -536,7 +535,6 @@ func (s *Handler) ClassicEntitySearch(userID int, params SearchRequestParams) ([
 			&cardParentID,
 			&cardCreatedAt,
 			&cardUpdatedAt,
-			&score,
 		)
 		if err != nil {
 			return nil, err
@@ -603,7 +601,7 @@ ORDER BY c.created_at DESC
 
 type SearchRequestParams struct {
 	SearchTerm   string `json:"search_term"`
-	SearchType   string `json:"type"` // "classic" or "semantic"
+	SearchType   string `json:"search_type"` // "classic" or "semantic"
 	FullText     bool   `json:"full_text"`
 	ShowEntities bool   `json:"show_entities"`
 	ShowFacts    bool   `json:"show_facts"`
@@ -611,6 +609,7 @@ type SearchRequestParams struct {
 }
 
 func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
+	log.Printf("typesense")
 	perPage := 250
 	var sortBy string
 	if searchParams.SearchTerm == "" {
@@ -926,6 +925,7 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 
 	var searchResults []models.SearchResult
 
+	log.Printf("type %v", searchParams.SearchType)
 	if searchParams.SearchType == "typesense" {
 		searchResults, err = s.TypesenseSearch(searchParams, userID)
 	} else {
@@ -939,5 +939,4 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(searchResults)
-	return
 }
