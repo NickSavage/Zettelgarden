@@ -27,6 +27,9 @@ type SearchParams struct {
 }
 
 func (s *Handler) InitSearchCollection() {
+	start := time.Now()
+	var cardCount, factCount, entityCount int
+
 	collectionName := os.Getenv("TYPESENSE_COLLECTION")
 
 	rows, err := s.DB.Query(`
@@ -96,6 +99,7 @@ FROM cards c
 			// } else {
 			// 	log.Printf("indexed card ID %d successfully", cardPK)
 			// }
+			cardCount++
 		}
 	}
 	// Index all facts
@@ -152,6 +156,7 @@ FROM cards c
 			// } else {
 			// 	log.Printf("indexed fact ID %d successfully", factID)
 			// }
+			factCount++
 		}
 	}
 
@@ -209,8 +214,16 @@ FROM cards c
 			// } else {
 			// 	log.Printf("indexed entity ID %d successfully", entityID)
 			// }
+			entityCount++
 		}
 	}
+
+	log.Printf(
+		"Indexed %d cards, %d facts, %d entities. Total: %d items. Took %s.",
+		cardCount, factCount, entityCount,
+		cardCount+factCount+entityCount,
+		time.Since(start),
+	)
 }
 
 func contains[T comparable](collection []T, target T) bool {
