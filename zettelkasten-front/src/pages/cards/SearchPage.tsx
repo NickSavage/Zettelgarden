@@ -288,17 +288,6 @@ export function SearchPage({
                     <label className="flex items-center text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={searchConfig.searchType === "typesense"}
-                        onChange={handleSearchTypeChange}
-                        className="mr-2"
-                      />
-                      Use Typesense Search
-                    </label>
-                  </div>
-                  <div className="px-4 py-2 hover:bg-gray-100">
-                    <label className="flex items-center text-sm cursor-pointer">
-                      <input
-                        type="checkbox"
                         checked={searchConfig.useFullText}
                         onChange={handleFullTextChange}
                         className="mr-2"
@@ -359,6 +348,17 @@ export function SearchPage({
                         className="mr-2"
                       />
                       Show Cards
+                    </label>
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100">
+                    <label className="flex items-center text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={searchConfig.searchType === "typesense"}
+                        onChange={handleSearchTypeChange}
+                        className="mr-2"
+                      />
+                      New Search (Experimental)
                     </label>
                   </div>
                 </div>
