@@ -31,20 +31,21 @@ func (s *Handler) InitSearchCollection() {
 	var cardCount, factCount, entityCount int
 
 	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	log.Printf("lets go")
 
 	rows, err := s.DB.Query(`
-	SELECT
+		SELECT
 
-    c.id,
-    c.card_id,
-    c.user_id,
-    c.title,
-	c.body,
-    c.created_at,
-    c.updated_at,
-	c.parent_id
-FROM cards c 
-	`)
+	    c.id,
+	    c.card_id,
+	    c.user_id,
+	    c.title,
+		c.body,
+	    c.created_at,
+	    c.updated_at,
+		c.parent_id
+	FROM cards c
+		`)
 	if err != nil {
 		log.Printf("error querying cards: %v", err)
 	} else {
@@ -94,15 +95,13 @@ FROM cards c
 				Documents().
 				Upsert(context.Background(), doc)
 
-			// if err != nil {
-			// 	log.Printf("failed to upsert card ID %d: %v", cardPK, err)
-			// } else {
-			// 	log.Printf("indexed card ID %d successfully", cardPK)
-			// }
+			if err != nil {
+				log.Printf("failed to upsert card ID %d: %v", cardPK, err)
+			}
 			cardCount++
 		}
 	}
-	// Index all facts
+	//Index all facts
 	rows, err = s.DB.Query(`
 		SELECT f.id, f.fact, f.created_at, f.updated_at, f.user_id,
 		       c.id, c.card_id, c.user_id, c.title, c.parent_id,
@@ -110,6 +109,7 @@ FROM cards c
 		FROM facts f
 		JOIN cards c ON f.card_pk = c.id
 	`)
+	log.Printf("?")
 	if err != nil {
 		log.Printf("error querying facts: %v", err)
 	} else {
@@ -127,12 +127,14 @@ FROM cards c
 				&factID, &factText, &createdAtTime, &updatedAtTime, &userID,
 				&cardPK, &cardCardID, &userID, &cardTitle, &parentID, &cardCreatedAt, &cardUpdatedAt,
 			)
+			log.Printf("fact %v", factID)
 			if err != nil {
 				log.Printf("error scanning fact: %v", err)
 				continue
 			}
+			log.Printf("fact %v", factID)
 			doc := map[string]interface{}{
-				"id":                    "card-" + strconv.Itoa(factID),
+				"id":                    "fact-" + strconv.Itoa(factID),
 				"fact_pk":               factID,
 				"card_id":               "",
 				"card_pk":               -1,
@@ -151,11 +153,9 @@ FROM cards c
 				"linked_card_parent_id": parentID,
 			}
 			_, err = s.Server.TypesenseClient.Collection(collectionName).Documents().Upsert(context.Background(), doc)
-			// if err != nil {
-			// 	log.Printf("failed to upsert fact ID %d: %v", factID, err)
-			// } else {
-			// 	log.Printf("indexed fact ID %d successfully", factID)
-			// }
+			if err != nil {
+				log.Printf("failed to upsert fact ID %d: %v", factID, err)
+			}
 			factCount++
 		}
 	}
@@ -167,6 +167,8 @@ FROM cards c
 		FROM entities e
 		LEFT JOIN cards c ON e.card_pk = c.id
 	`) // assuming user_id=1 here
+
+	log.Printf("?")
 	if err != nil {
 		log.Printf("error querying entities: %v", err)
 	} else {
@@ -189,6 +191,27 @@ FROM cards c
 				log.Printf("error scanning entity: %v", err)
 				continue
 			}
+
+			var linkedCardID string
+			if cardCardID.Valid {
+				linkedCardID = cardCardID.String
+			} else {
+				linkedCardID = ""
+			}
+
+			var linkedCardTitle string
+			if cardTitle.Valid {
+				linkedCardTitle = cardTitle.String
+			} else {
+				linkedCardTitle = ""
+			}
+
+			var linkedCardPK int32
+			if cardPK.Valid {
+				linkedCardPK = int32(cardPK.Int64) // Downcast to int32 since Typesense schema requires int32
+			} else {
+				linkedCardPK = -1 // or 0, depending on how you want to indicate "no value"
+			}
 			doc := map[string]interface{}{
 				"id":                    "entity-" + strconv.Itoa(entityID),
 				"entity_pk":             entityID,
@@ -203,17 +226,15 @@ FROM cards c
 				"score":                 0.0,
 				"created_at":            createdAtTime.Unix(),
 				"updated_at":            updatedAtTime.Unix(),
-				"linked_card_id":        cardCardID,
-				"linked_card_pk":        cardPK,
-				"linked_card_title":     cardTitle,
+				"linked_card_id":        linkedCardID,
+				"linked_card_pk":        linkedCardPK,
+				"linked_card_title":     linkedCardTitle,
 				"linked_card_parent_id": parentID,
 			}
 			_, err = s.Server.TypesenseClient.Collection(collectionName).Documents().Upsert(context.Background(), doc)
-			// if err != nil {
-			// 	log.Printf("failed to upsert entity ID %d: %v", entityID, err)
-			// } else {
-			// 	log.Printf("indexed entity ID %d successfully", entityID)
-			// }
+			if err != nil {
+				log.Printf("failed to upsert entity ID %d: %v", entityID, err)
+			}
 			entityCount++
 		}
 	}
