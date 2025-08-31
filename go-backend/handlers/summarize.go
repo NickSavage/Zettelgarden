@@ -139,7 +139,9 @@ func (h *Handler) ProcessEntitiesAndFacts(userID int, card models.Card) {
 		}
 		var allFacts []string
 		for _, analysis := range analyses {
-			allFacts = append(allFacts, analysis.Facts...)
+			for _, th := range analysis.Theses {
+				allFacts = append(allFacts, th.Facts...)
+			}
 		}
 		_, err = h.runSummarizationJob(userID, analyses, usage, &card.ID)
 		log.Printf("found facts %v", len(allFacts))
@@ -152,7 +154,7 @@ func (h *Handler) ProcessEntitiesAndFacts(userID int, card models.Card) {
 }
 
 // runSummarizationJob inserts a summarization job and runs it asynchronously.
-func (h *Handler) runSummarizationJob(userID int, analyses []llms.ThesisAnalysis, usage llms.Usage, cardPK *int) (int, error) {
+func (h *Handler) runSummarizationJob(userID int, analyses []llms.SectionAnalysis, usage llms.Usage, cardPK *int) (int, error) {
 	var id int
 	var err error
 
@@ -174,7 +176,7 @@ func (h *Handler) runSummarizationJob(userID int, analyses []llms.ThesisAnalysis
 	}
 
 	// Background job
-	go func(jobID int, analyses []llms.ThesisAnalysis, usage llms.Usage, uid int) {
+	go func(jobID int, analyses []llms.SectionAnalysis, usage llms.Usage, uid int) {
 		client := llms.NewDefaultClient(h.DB, uid)
 		_, _ = h.DB.Exec(`UPDATE summarizations SET status='processing', updated_at=$2 WHERE id=$1`, jobID, time.Now())
 

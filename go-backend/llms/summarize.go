@@ -16,7 +16,12 @@ type Argument struct {
 	Importance int    `json:"importance"`
 }
 
-type ThesisAnalysis struct {
+type SectionAnalysis struct {
+	Section string        `json:"section"`
+	Theses  []ThesisEntry `json:"theses"`
+}
+
+type ThesisEntry struct {
 	Thesis    string     `json:"thesis"`
 	Facts     []string   `json:"facts"`
 	Arguments []Argument `json:"arguments"`
@@ -29,15 +34,15 @@ type Usage struct {
 	TotalCost        float64
 }
 
-// ExtractThesesAndArguments processes input text into ThesisAnalysis entries,
+// ExtractThesesAndArguments processes input text into SectionAnalysis entries,
 // aggregating theses, facts, and arguments from each chunk.
 // Returns all analyses and usage statistics.
-func ExtractThesesAndArguments(c *models.LLMClient, input string) ([]ThesisAnalysis, Usage, error) {
+func ExtractThesesAndArguments(c *models.LLMClient, input string) ([]SectionAnalysis, Usage, error) {
 	chunks := chunkText(input, 25000)
 
 	totalPromptTokens := 0
 	totalCompletionTokens := 0
-	var allAnalyses []ThesisAnalysis
+	var allAnalyses []SectionAnalysis
 	collectedTheses := []string{}
 	collectedArguments := []Argument{}
 
@@ -60,7 +65,18 @@ func ExtractThesesAndArguments(c *models.LLMClient, input string) ([]ThesisAnaly
 			}
 			contextIntro += "\n"
 		}
-		userContent := contextIntro + "Now analyze the following text:\n" + chunk
+		userContent := contextIntro +
+			fmt.Sprintf("Previously, the last analyzed chunk ended in Section %s.\n",
+				func() string {
+					if len(allAnalyses) > 0 && allAnalyses[len(allAnalyses)-1].Section != "" {
+						return allAnalyses[len(allAnalyses)-1].Section
+					}
+					return "1"
+				}()) +
+			"Now analyze the following text. " +
+			"If you believe the author has started a new section, record that section number or title. " +
+			"Otherwise, continue assigning output under the previous section. " +
+			"Always include \"section\" explicitly in your JSON output.\n" + chunk
 
 		messages := []openai.ChatCompletionMessage{
 			{
@@ -81,11 +97,16 @@ Instructions:
 
 Format Example:
 {
-  "thesis": "...",
-  "facts": ["...", "..."],
-  "arguments": [
-    {"argument": "...", "importance": 8},
-    {"argument": "...", "importance": 5}
+  "section": "Section 2",
+  "theses": [
+    {
+      "thesis": "...",
+      "facts": ["...", "..."],
+      "arguments": [
+        {"argument": "...", "importance": 8},
+        {"argument": "...", "importance": 5}
+      ]
+    }
   ]
 }`,
 			},
@@ -104,15 +125,17 @@ Format Example:
 		}
 
 		content := cleanContent(resp.Choices[0].Message.Content)
-		var analysis ThesisAnalysis
+		var analysis SectionAnalysis
 		if err := json.Unmarshal([]byte(content), &analysis); err != nil {
 			continue
 		}
 		allAnalyses = append(allAnalyses, analysis)
-		if analysis.Thesis != "" {
-			collectedTheses = append(collectedTheses, analysis.Thesis)
+		for _, th := range analysis.Theses {
+			if th.Thesis != "" {
+				collectedTheses = append(collectedTheses, th.Thesis)
+			}
+			collectedArguments = append(collectedArguments, th.Arguments...)
 		}
-		collectedArguments = append(collectedArguments, analysis.Arguments...)
 		totalPromptTokens += resp.Usage.PromptTokens
 		totalCompletionTokens += resp.Usage.CompletionTokens
 	}
@@ -138,7 +161,7 @@ func cleanContent(content string) string {
 }
 
 // AnalyzeAndSummarizeText: the advanced pipeline
-func AnalyzeAndSummarizeText(c *models.LLMClient, allAnalyses []ThesisAnalysis, usage Usage) (string, []ThesisAnalysis, Usage, error) {
+func AnalyzeAndSummarizeText(c *models.LLMClient, allAnalyses []SectionAnalysis, usage Usage) (string, []SectionAnalysis, Usage, error) {
 	start := time.Now()
 	c.Model.ModelIdentifier = "openai/gpt-5-chat"
 
@@ -150,14 +173,16 @@ func AnalyzeAndSummarizeText(c *models.LLMClient, allAnalyses []ThesisAnalysis, 
 	facts := []string{}
 	args := []string{}
 
-	for _, a := range allAnalyses {
-		if a.Thesis != "" {
-			theses = append(theses, a.Thesis)
-		}
-		facts = append(facts, a.Facts...)
-		for _, arg := range a.Arguments {
-			if arg.Importance >= 7 {
-				args = append(args, arg.Argument)
+	for _, sec := range allAnalyses {
+		for _, th := range sec.Theses {
+			if th.Thesis != "" {
+				theses = append(theses, th.Thesis)
+			}
+			facts = append(facts, th.Facts...)
+			for _, arg := range th.Arguments {
+				if arg.Importance >= 7 {
+					args = append(args, arg.Argument)
+				}
 			}
 		}
 	}
@@ -239,7 +264,7 @@ The output should be **structured, concise, and tailored to distinct audiences**
    - Audience: Researchers, analysts, technical leads, or specialists.  
    - Style: Well-structured, factual, and precise.  
    - Include:  
-     - **Main Theses** (core claims or insights).  
+     - **Main Theses** (core claims or insights), organize by section.  
      - **Supporting Arguments** (reasoning behind these theses).  
      - **Key Evidence or Facts** (5–8 of the most decisive data points, milestones, or examples).  
    - Present information in a hierarchy (for each theses, show its supporting arguments → facts).  
@@ -298,10 +323,12 @@ Input (including deduplicated theses, facts, and arguments with importance/rank)
 }
 
 // flattenArguments combines arguments from multiple analyses
-func flattenArguments(analyses []ThesisAnalysis) []Argument {
+func flattenArguments(analyses []SectionAnalysis) []Argument {
 	var args []Argument
-	for _, a := range analyses {
-		args = append(args, a.Arguments...)
+	for _, sec := range analyses {
+		for _, th := range sec.Theses {
+			args = append(args, th.Arguments...)
+		}
 	}
 	return args
 }
