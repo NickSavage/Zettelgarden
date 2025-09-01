@@ -693,7 +693,7 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 
 	typesenseParams := &api.SearchCollectionParams{
 		Q:        searchTerm,
-		QueryBy:  "title, embedding",
+		QueryBy:  "card_id, title, embedding",
 		FilterBy: &filter,
 		SortBy:   &sortBy,
 		PerPage:  &perPage,
