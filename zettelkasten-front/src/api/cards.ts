@@ -20,6 +20,7 @@ interface SearchRequestParams {
   show_entities?: boolean;
   show_facts?: boolean;
   search_type?: string; // classic or typesense
+  rerank?: boolean;
 }
 
 export function semanticSearchCards(
@@ -29,6 +30,7 @@ export function semanticSearchCards(
   showFacts = true,
   sortBy = "sortByRanking",
   searchType = "classic",
+  rerank = true,
 ): Promise<SearchResult[]> {
   let token = localStorage.getItem("token");
   let url = base_url + "/search";
@@ -40,6 +42,7 @@ export function semanticSearchCards(
     show_entities: showEntities,
     show_facts: showFacts,
     sort: sortBy,
+    rerank: rerank,
   };
 
   return fetch(url, {

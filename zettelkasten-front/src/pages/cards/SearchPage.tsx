@@ -71,7 +71,8 @@ export function SearchPage({
         config.showEntities,
         config.showFacts,
         config.sortBy,
-        config.searchType
+        config.searchType,
+        config.rerank,
       );
       if (requestId === latestRequestId.current) {
         setSearchResults(results || []);

@@ -17,4 +17,5 @@ export interface SearchConfig {
     sortBy: string;
     currentPage: number;
     searchType: string; // "classic" or "typesense"
+    rerank: boolean;
 }

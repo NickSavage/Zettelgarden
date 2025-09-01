@@ -45,7 +45,8 @@ export function BacklinkInputDropdownList({
       const requestId = ++latestRequestId.current;
       setIsLoading(true);
       try {
-        const results = await semanticSearchCards(value, true, false, false);
+        const results = await semanticSearchCards(value, true, false, false, "sortByRanking", "typesense", false);
+        //const results = await semanticSearchCards(value, true, false, false);
         if (requestId === latestRequestId.current) {
           // Map SearchResult[] -> PartialCard[]
           const mapped: PartialCard[] = (results || []).map((r: any) => ({

@@ -643,6 +643,7 @@ type SearchRequestParams struct {
 	ShowEntities bool   `json:"show_entities"`
 	ShowFacts    bool   `json:"show_facts"`
 	SortBy       string `json:"sort"`
+	Rerank       bool   `json:"rerank"`
 }
 
 func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) ([]models.SearchResult, error) {
@@ -720,6 +721,9 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 				item.Metadata = metadata
 
 			} else if resultType == "entity" {
+				if !searchParams.ShowEntities {
+					continue
+				}
 				item.ID = strconv.FormatInt(int64(doc["entity_pk"].(float64)), 10)
 				metadata := map[string]interface{}{
 					"id":                    item.ID,
@@ -732,6 +736,9 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 				// entity_pk
 
 			} else if resultType == "fact" {
+				if !searchParams.ShowFacts {
+					continue
+				}
 				item.ID = strconv.FormatInt(int64(doc["fact_pk"].(float64)), 10)
 				item.Preview = item.Title
 				metadata := map[string]interface{}{
@@ -753,6 +760,8 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 
 	var reranked []models.SearchResult
 	if s.Server.Testing {
+		reranked = results
+	} else if searchParams.Rerank {
 		reranked = results
 	} else {
 		if len(results) > 0 {
