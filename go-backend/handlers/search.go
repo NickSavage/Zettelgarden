@@ -759,7 +759,7 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 			client := llms.NewDefaultClient(s.DB, userID)
 			reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, results)
 			if err != nil {
-				return nil, err
+				return results, nil
 			}
 		}
 	}
@@ -887,8 +887,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 			reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, searchResults)
 			if err != nil {
 				log.Printf("reranking error %v", err)
-				//	return searchResults, nil
-				return nil, err
+				return searchResults, nil
 			}
 		}
 	}
