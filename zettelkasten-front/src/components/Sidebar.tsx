@@ -36,6 +36,7 @@ import { FactsIcon } from "../assets/icons/FactsIcon";
 
 import { EntityDialog } from "./entities/EntityDialog";
 import { FactDialog } from "./facts/FactDialog";
+import { AddArticleDialog } from "./cards/AddArticleDialog";
 
 
 export function Sidebar() {
@@ -55,6 +56,8 @@ export function Sidebar() {
   const { setConversationId } = useChatContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const { showChat, setShowChat } = useChatContext();
+  const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
+
   const {
     showCreateTaskWindow,
     setShowCreateTaskWindow,
@@ -105,34 +108,9 @@ export function Sidebar() {
     [tasks],
   );
 
-  async function handleAddArticle() {
+  function handleAddArticle() {
     toggleNewDropdown();
-    const url = window.prompt("Enter article URL:");
-    if (!url) return;
-
-    try {
-      const parsed = await parseURL(url);
-      const nextIdResp = await getNextRootId();
-
-      if (nextIdResp.error) throw new Error("Unable to fetch next ID");
-
-      const newCard = await saveNewCard({
-        ...defaultCard,
-        card_id: nextIdResp.new_id,
-        title: parsed.title || "Untitled",
-        body: (parsed.content || "") + "\n\n#to-read #reference",
-        link: url,
-      });
-
-      if (!("error" in newCard)) {
-        navigate(`/app/card/${newCard.id}`);
-      } else {
-        setMessage("Error saving new article card");
-      }
-    } catch (error) {
-      console.error("Failed to add article:", error);
-      setMessage("Failed to add article");
-    }
+    setShowAddArticleDialog(true);
   }
 
   const handleKeyPress = (event: KeyboardEvent) => {
@@ -512,6 +490,11 @@ export function Sidebar() {
       />
       <FactDialog
         onClose={() => setShowFactDialog(false)}
+      />
+      <AddArticleDialog
+        show={showAddArticleDialog}
+        onClose={() => setShowAddArticleDialog(false)}
+        setMessage={setMessage}
       />
     </>
   );

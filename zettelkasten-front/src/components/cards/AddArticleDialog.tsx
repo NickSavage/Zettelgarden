@@ -1,0 +1,114 @@
+import { Dialog, Transition } from "@headlessui/react";
+import React, { Fragment, useState } from "react";
+import { getNextRootId, saveNewCard } from "../../api/cards";
+import { parseURL } from "../../api/references";
+import { defaultCard } from "../../models/Card";
+import { useNavigate } from "react-router-dom";
+
+interface AddArticleDialogProps {
+    show: boolean;
+    onClose: () => void;
+    setMessage: (msg: string) => void;
+}
+
+export function AddArticleDialog({ show, onClose, setMessage }: AddArticleDialogProps) {
+    const [url, setUrl] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!url) return;
+        setLoading(true);
+
+        try {
+            const parsed = await parseURL(url);
+            const nextIdResp = await getNextRootId();
+            if (nextIdResp.error) throw new Error("Unable to fetch next ID");
+
+            const newCard = await saveNewCard({
+                ...defaultCard,
+                card_id: nextIdResp.new_id,
+                title: parsed.title || "Untitled",
+                body: (parsed.content || "") + "\n\n#to-read #reference",
+                link: url,
+            });
+
+            if (!("error" in newCard)) {
+                navigate(`/app/card/${newCard.id}`);
+                onClose();
+            } else {
+                setMessage("Error saving new article card");
+            }
+        } catch (error) {
+            console.error("Failed to add article:", error);
+            setMessage("Failed to add article");
+        } finally {
+            setLoading(false);
+            setUrl("");
+        }
+    };
+
+    return (
+        <Transition appear show={show} as={Fragment}>
+            <Dialog as="div" className="relative z-[80]" onClose={onClose}>
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 bg-black bg-opacity-30" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 overflow-y-auto">
+                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                        >
+                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                                    Add Article
+                                </Dialog.Title>
+                                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                                    <input
+                                        type="url"
+                                        value={url}
+                                        onChange={(e) => setUrl(e.target.value)}
+                                        placeholder="Enter article URL"
+                                        className="w-full border rounded px-3 py-2"
+                                    />
+                                    <div className="flex justify-end space-x-2">
+                                        <button
+                                            type="button"
+                                            onClick={onClose}
+                                            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+                                        >
+                                            {loading ? "Adding..." : "Add"}
+                                        </button>
+                                    </div>
+                                </form>
+                            </Dialog.Panel>
+                        </Transition.Child>
+                    </div>
+                </div>
+            </Dialog>
+        </Transition>
+    );
+}
