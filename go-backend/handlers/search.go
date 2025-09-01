@@ -773,6 +773,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 	// Get card results
 	cards, err := s.ClassicCardSearch(userID, searchParams)
 	if err != nil {
+		log.Printf("classic card error %v", err)
 		return nil, err
 	}
 	log.Printf("cards %v", len(cards))
@@ -809,6 +810,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 	if len(params.Entities) == 0 && searchParams.ShowEntities {
 		entities, err = s.ClassicEntitySearch(userID, searchParams)
 		if err != nil {
+			log.Printf("search entity %v", err)
 			return nil, err
 		}
 	}
@@ -847,6 +849,7 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 
 		log.Printf("facts %v", len(facts))
 		if err != nil {
+			log.Printf("search facts %v", err)
 			return nil, err
 		}
 		for _, fact := range facts {
@@ -883,6 +886,8 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 			client := llms.NewDefaultClient(s.DB, userID)
 			reranked, err = llms.RerankSearchResults(client, searchParams.SearchTerm, searchResults)
 			if err != nil {
+				log.Printf("reranking error %v", err)
+				//	return searchResults, nil
 				return nil, err
 			}
 		}
@@ -979,6 +984,7 @@ func (s *Handler) SearchRoute(w http.ResponseWriter, r *http.Request) {
 	var searchParams SearchRequestParams
 	err := json.NewDecoder(r.Body).Decode(&searchParams)
 	if err != nil {
+		log.Printf("json decode error %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

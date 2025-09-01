@@ -643,7 +643,7 @@ func (s *Handler) upsertFactToTypesense(fact models.Fact, card models.PartialCar
 	collectionName := os.Getenv("TYPESENSE_COLLECTION")
 	doc := map[string]interface{}{
 		"id":                    "fact-" + strconv.Itoa(fact.ID),
-		"fact_pk":               -1,
+		"fact_pk":               fact.ID,
 		"card_id":               "",
 		"card_pk":               -1,
 		"entity_pk":             -1,

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -285,8 +287,19 @@ func (s *Handler) MergeEntities(userID int, entity1ID int, entity2ID int) error 
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	// Recalculate embedding for surviving entity
+	// Update Typesense index: upsert surviving, delete removed
 	go func() {
+		var partialCard *models.PartialCard
+		if entity1.CardPK != nil {
+			card, err := s.QueryPartialCardByID(userID, *entity1.CardPK)
+			if err == nil {
+				partialCard = &card
+			}
+		}
+		s.upsertEntityToTypesense(entity1, partialCard)
+		s.deleteEntityTypesense(entity2.ID)
+
+		// Recalculate embedding for surviving entity
 		err := s.CalculateEmbeddingForEntity(entity1)
 		if err != nil {
 			log.Printf("Error recalculating embedding for merged entity %d: %v", entity1.ID, err)
@@ -380,6 +393,9 @@ func (s *Handler) DeleteEntity(userID int, entityID int) error {
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
+
+	// Delete from Typesense after successful commit
+	go s.deleteEntityTypesense(entityID)
 
 	return nil
 }
@@ -512,6 +528,17 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 				log.Printf("Error calculating embedding for entity %d: %v", entityID, err)
 			}
 
+			// Also update Typesense with card if available
+			var partialCard *models.PartialCard
+			log.Printf("new card %v", entity.CardPK)
+			log.Printf("new card %v", params.CardPK)
+			if params.CardPK != nil {
+				card, err := s.QueryPartialCardByID(userID, *params.CardPK)
+				if err == nil {
+					partialCard = &card
+				}
+			}
+			s.upsertEntityToTypesense(entity, partialCard)
 		}()
 	}
 
@@ -870,7 +897,7 @@ func (s *Handler) LinkCardToEntityIfPossible(userID int, card models.Card) error
 	var entityID int
 	var cardPK sql.NullInt64
 
-	log.Printf("do we run?")
+	log.Printf("dwe be linking boys")
 
 	err := s.DB.QueryRow(`
         SELECT id, card_pk FROM entities
@@ -896,6 +923,25 @@ func (s *Handler) LinkCardToEntityIfPossible(userID int, card models.Card) error
 	if err != nil {
 		return fmt.Errorf("error updating entity with card link: %w", err)
 	}
+
+	// Update Typesense index after successful link
+	go func() {
+		var ent models.Entity
+		err := s.DB.QueryRow(`SELECT id, user_id, name, description, type, created_at, updated_at, card_pk
+			FROM entities WHERE id = $1`, entityID).
+			Scan(&ent.ID, &ent.UserID, &ent.Name, &ent.Description, &ent.Type, &ent.CreatedAt, &ent.UpdatedAt, &ent.CardPK)
+		if err != nil {
+			log.Printf("failed to fetch entity for typesense after link: %v", err)
+			return
+		}
+
+		partialCard, err := s.QueryPartialCardByID(ent.UserID, card.ID)
+		if err == nil {
+			s.upsertEntityToTypesense(ent, &partialCard)
+		} else {
+			s.upsertEntityToTypesense(ent, nil)
+		}
+	}()
 
 	return nil
 }
@@ -990,4 +1036,56 @@ func (s *Handler) GetEntityByLinkedCardPKRoute(w http.ResponseWriter, r *http.Re
 	results = append(results, entity)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)
+}
+
+func (s *Handler) upsertEntityToTypesense(entity models.Entity, card *models.PartialCard) {
+	if s.Server.Testing {
+		return
+	}
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	doc := map[string]interface{}{
+		"id":         "entity-" + strconv.Itoa(entity.ID),
+		"fact_pk":    -1,
+		"card_id":    "",
+		"card_pk":    -1,
+		"entity_pk":  entity.ID,
+		"user_id":    entity.UserID,
+		"type":       "entity",
+		"title":      entity.Name,
+		"preview":    entity.Description,
+		"parent_id":  -1,
+		"created_at": entity.CreatedAt.Unix(),
+		"updated_at": entity.UpdatedAt.Unix(),
+	}
+
+	doc["linked_card_id"] = ""
+	doc["linked_card_pk"] = -1
+	doc["linked_card_title"] = ""
+	doc["linked_card_parent_id"] = -1
+
+	if card != nil {
+		doc["linked_card_id"] = card.CardID
+		doc["linked_card_pk"] = card.ID
+		doc["linked_card_title"] = card.Title
+		doc["linked_card_parent_id"] = card.ParentID
+	}
+	log.Printf("upserting %v", doc)
+
+	_, err := s.Server.TypesenseClient.Collection(collectionName).
+		Documents().Upsert(context.Background(), doc)
+	if err != nil {
+		log.Printf("failed to upsert entity ID %d: %v", entity.ID, err)
+	}
+}
+
+func (s *Handler) deleteEntityTypesense(entityPK int) {
+	if s.Server.Testing {
+		return
+	}
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	_, err := s.Server.TypesenseClient.Collection(collectionName).
+		Document("entity-" + strconv.Itoa(entityPK)).Delete(context.Background())
+	if err != nil {
+		log.Printf("failed to delete entity ID %d: %v", entityPK, err)
+	}
 }
