@@ -49,6 +49,7 @@ function MainAppContent() {
     showFacts: true,
     showCards: true,
     searchType: "classic",
+    rerank: true,
   });
   const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
   const { setRefreshTasks } = useTaskContext();
