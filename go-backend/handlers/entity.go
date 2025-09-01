@@ -514,26 +514,34 @@ func (s *Handler) UpdateEntity(userID int, entityID int, params UpdateEntityRequ
 	if !s.Server.Testing {
 		// Launch goroutine to handle embedding update
 		go func() {
-
-			entity := models.Entity{
-				ID:          entityID,
-				UserID:      userID,
-				Name:        params.Name,
-				Description: params.Description,
-				Type:        params.Type,
+			var entity models.Entity
+			err := s.DB.QueryRow(`
+				SELECT id, user_id, name, description, type, created_at, updated_at, card_pk
+				FROM entities 
+				WHERE id = $1 AND user_id = $2
+			`, entityID, userID).Scan(
+				&entity.ID,
+				&entity.UserID,
+				&entity.Name,
+				&entity.Description,
+				&entity.Type,
+				&entity.CreatedAt,
+				&entity.UpdatedAt,
+				&entity.CardPK,
+			)
+			if err != nil {
+				log.Printf("Error fetching updated entity %d: %v", entityID, err)
+				return
 			}
 
-			err := s.CalculateEmbeddingForEntity(entity)
-			if err != nil {
+			if err := s.CalculateEmbeddingForEntity(entity); err != nil {
 				log.Printf("Error calculating embedding for entity %d: %v", entityID, err)
 			}
 
 			// Also update Typesense with card if available
 			var partialCard *models.PartialCard
-			log.Printf("new card %v", entity.CardPK)
-			log.Printf("new card %v", params.CardPK)
-			if params.CardPK != nil {
-				card, err := s.QueryPartialCardByID(userID, *params.CardPK)
+			if entity.CardPK != nil {
+				card, err := s.QueryPartialCardByID(userID, *entity.CardPK)
 				if err == nil {
 					partialCard = &card
 				}
