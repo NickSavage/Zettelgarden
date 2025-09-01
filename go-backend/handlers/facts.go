@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"go-backend/llms"
 	"go-backend/models"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -88,9 +90,11 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 
 	// Fetch the saved facts back, now with IDs, so we can run entity extraction
 	rows, err := s.DB.Query(`
-		SELECT f.id, f.user_id, fcj.card_pk, f.fact, f.created_at, f.updated_at
+		SELECT f.id, f.user_id, fcj.card_pk, f.fact, f.created_at, f.updated_at,
+		c.id, c.card_id, c.title, c.parent_id
 		FROM facts f
 		JOIN fact_card_junction fcj ON f.id = fcj.fact_id
+		JOIN cards c ON c.id = f.card_pk
 		WHERE fcj.card_pk = $1 AND fcj.user_id = $2
 	`, cardPK, userID)
 	if err != nil {
@@ -100,9 +104,22 @@ func (s *Handler) ExtractSaveCardFacts(userID int, cardPK int, facts []string) (
 
 	for rows.Next() {
 		var f models.Fact
-		if err := rows.Scan(&f.ID, &f.UserID, &f.CardPK, &f.Fact, &f.CreatedAt, &f.UpdatedAt); err != nil {
+		var c models.PartialCard
+		if err := rows.Scan(
+			&f.ID,
+			&f.UserID,
+			&f.CardPK,
+			&f.Fact,
+			&f.CreatedAt,
+			&f.UpdatedAt,
+			&c.ID,
+			&c.CardID,
+			&c.Title,
+			&c.ParentID,
+		); err != nil {
 			return results, err
 		}
+		s.upsertFactToTypesense(f, c)
 		results = append(results, f)
 	}
 
@@ -267,6 +284,14 @@ func (s *Handler) GetFactEntities(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type FactWithCard struct {
+	ID        int                `json:"id"`
+	Fact      string             `json:"fact"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
+	Card      models.PartialCard `json:"card"`
+}
+
 // GetAllFacts returns all facts for the current user
 func (s *Handler) GetAllFacts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
@@ -282,14 +307,6 @@ func (s *Handler) GetAllFacts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-
-	type FactWithCard struct {
-		ID        int                `json:"id"`
-		Fact      string             `json:"fact"`
-		CreatedAt time.Time          `json:"created_at"`
-		UpdatedAt time.Time          `json:"updated_at"`
-		Card      models.PartialCard `json:"card"`
-	}
 
 	rows2, err := s.DB.Query(`
 		SELECT f.id, f.fact, f.created_at, f.updated_at,
@@ -468,6 +485,7 @@ func (s *Handler) MergeFacts(userID int, fact1ID int, fact2ID int) error {
 	if err = tx.Commit(); err != nil {
 		return err
 	}
+	s.deleteFactTypesense(fact2ID)
 	return nil
 }
 
@@ -615,5 +633,48 @@ func (s *Handler) GetFactCards(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(cards); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Handler) upsertFactToTypesense(fact models.Fact, card models.PartialCard) {
+	if s.Server.Testing {
+		return
+	}
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	doc := map[string]interface{}{
+		"id":                    "fact-" + strconv.Itoa(fact.ID),
+		"fact_pk":               -1,
+		"card_id":               "",
+		"card_pk":               -1,
+		"entity_pk":             -1,
+		"user_id":               fact.UserID,
+		"type":                  "fact",
+		"title":                 fact.Fact,
+		"preview":               "",
+		"parent_id":             -1,
+		"created_at":            fact.CreatedAt.Unix(),
+		"updated_at":            fact.UpdatedAt.Unix(),
+		"linked_card_id":        card.CardID,
+		"linked_card_pk":        fact.CardPK,
+		"linked_card_title":     card.Title,
+		"linked_card_parent_id": card.ParentID,
+	}
+
+	_, err := s.Server.TypesenseClient.Collection(collectionName).
+		Documents().Upsert(context.Background(), doc)
+	if err != nil {
+		log.Printf("failed to upsert fact ID %d: %v", fact.ID, err)
+	}
+}
+
+func (s *Handler) deleteFactTypesense(factPK int) {
+	if s.Server.Testing {
+		return
+	}
+	collectionName := os.Getenv("TYPESENSE_COLLECTION")
+	_, err := s.Server.TypesenseClient.Collection(collectionName).
+		Document("fact-" + strconv.Itoa(factPK)).Delete(context.Background())
+	if err != nil {
+		log.Printf("failed to delete fact ID %d: %v", factPK, err)
 	}
 }
