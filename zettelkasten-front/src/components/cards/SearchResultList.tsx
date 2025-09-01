@@ -65,17 +65,17 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick, onFa
               {isFact ? (
                 <>
                   <span className="text-green-600">[Fact]</span>
-                  {result.metadata?.card && (
+                  {result.metadata && (
                     <>
                       <span className="mx-2 text-gray-400">→</span>
                       <Link
-                        to={`/app/card/${result.metadata.card.id}`}
+                        to={`/app/card/${result.metadata.linked_card_pk}`}
                         className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
                       >
                         <div className="w-3 h-3 mr-1 text-gray-400">
                           <CardIcon />
                         </div>
-                        [{result.metadata.card.id}] {result.metadata.card.title}
+                        [{result.metadata.linked_card_id}] {result.metadata.linked_card_title}
                       </Link>
                     </>
                   )}
@@ -85,17 +85,17 @@ function SearchResultItem({ result, showPreview, onEntityClick, onTagClick, onFa
               )}
             </Link>
             {/* Show linked card for entities */}
-            {isEntity && linkedCard && (
+            {isEntity && (
               <>
                 <span className="mx-2 text-gray-400">→</span>
                 <Link
-                  to={`/app/card/${linkedCard.id}`}
+                  to={`/app/card/${result.metadata.linked_card_pk}`}
                   className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
                 >
                   <div className="w-3 h-3 mr-1 text-gray-400">
                     <CardIcon />
                   </div>
-                  [{linkedCard.card_id}] {linkedCard.title}
+                  [{result.metadata.linked_card_id}] {result.metadata.linked_card_title}
                 </Link>
               </>
             )}

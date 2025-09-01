@@ -722,15 +722,24 @@ func (s *Handler) TypesenseSearch(searchParams SearchRequestParams, userID int) 
 			} else if resultType == "entity" {
 				item.ID = strconv.FormatInt(int64(doc["entity_pk"].(float64)), 10)
 				metadata := map[string]interface{}{
-					"id": item.ID,
+					"id":                    item.ID,
+					"linked_card_id":        doc["linked_card_id"].(string),
+					"linked_card_pk":        strconv.FormatInt(int64(doc["linked_card_pk"].(float64)), 10),
+					"linked_card_title":     doc["linked_card_title"].(string),
+					"linked_card_parent_id": strconv.FormatInt(int64(doc["linked_card_parent_id"].(float64)), 10),
 				}
 				item.Metadata = metadata
 				// entity_pk
 
 			} else if resultType == "fact" {
 				item.ID = strconv.FormatInt(int64(doc["fact_pk"].(float64)), 10)
+				item.Preview = item.Title
 				metadata := map[string]interface{}{
-					"id": item.ID,
+					"id":                    item.ID,
+					"linked_card_id":        doc["linked_card_id"].(string),
+					"linked_card_pk":        strconv.FormatInt(int64(doc["linked_card_pk"].(float64)), 10),
+					"linked_card_title":     doc["linked_card_title"].(string),
+					"linked_card_parent_id": strconv.FormatInt(int64(doc["linked_card_parent_id"].(float64)), 10),
 				}
 				item.Metadata = metadata
 				// fact_pk
@@ -814,12 +823,10 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 
 		// Include linked card information if it exists
 		if entity.Card != nil {
-			metadata["linked_card"] = map[string]interface{}{
-				"id":        entity.Card.ID,
-				"card_id":   entity.Card.CardID,
-				"title":     entity.Card.Title,
-				"parent_id": entity.Card.ParentID,
-			}
+			metadata["linked_card_pk"] = entity.Card.ID
+			metadata["linked_card_id"] = entity.Card.CardID
+			metadata["linked_card_title"] = entity.Card.Title
+			metadata["linked_card_parent_id"] = entity.Card.ParentID
 		}
 
 		searchResults = append(searchResults, models.SearchResult{
@@ -851,6 +858,10 @@ func (s *Handler) ClassicSearch(searchParams SearchRequestParams, userID int) ([
 					"parent_id": fact.Card.ParentID,
 				},
 			}
+			metadata["linked_card_pk"] = fact.Card.ID
+			metadata["linked_card_id"] = fact.Card.CardID
+			metadata["linked_card_title"] = fact.Card.Title
+			metadata["linked_card_parent_id"] = fact.Card.ParentID
 			searchResults = append(searchResults, models.SearchResult{
 				ID:        strconv.Itoa(fact.ID),
 				Type:      "fact",
