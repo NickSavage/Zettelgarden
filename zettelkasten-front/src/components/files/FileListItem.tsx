@@ -110,6 +110,9 @@ export function FileListItem({
     setShowMenu(false);
   }
 
+  //<span className="text-xs">Created At: {file.created_at}</span>
+
+  console.log("rendering file", file)
   return (
     <li key={file.id}>
       <div className="flex">
@@ -145,7 +148,6 @@ export function FileListItem({
             )}
           </div>
           <div>
-            <span className="text-xs">Created At: {file.created_at}</span>
           </div>
         </div>
 
