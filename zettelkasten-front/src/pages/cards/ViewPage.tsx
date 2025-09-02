@@ -35,8 +35,7 @@ import ReactMarkdown from "react-markdown";
 import { CardList } from "../../components/cards/CardList";
 import { CardBody } from "../../components/cards/CardBody";
 import { fetchSummariesForCard, fetchSummarizations, SummarizeJobResponse } from "../../api/summarizer";
-import { getCardFacts } from "../../api/facts";
-import { Fact, FactWithCard } from "../../models/Fact";
+import { FactWithCard } from "../../models/Fact";
 
 interface ViewPageProps { }
 
@@ -67,7 +66,6 @@ export function ViewPage({ }: ViewPageProps) {
   const [latestSummary, setLatestSummary] = useState<SummarizeJobResponse | null>(null);
   const [showingSummary, setShowingSummary] = useState(false);
 
-  const [facts, setFacts] = useState<Fact[]>([]);
 
   const [linkedEntities, setLinkedEntities] = useState<Entity[]>([]);
 
@@ -147,14 +145,6 @@ export function ViewPage({ }: ViewPageProps) {
     navigate('/app/card/new');
   }
 
-  async function fetchFacts(id: number) {
-    try {
-      const f = await getCardFacts(id);
-      setFacts(f);
-    } catch (error) {
-      console.error("Failed to fetch facts", error);
-    }
-  }
 
   async function loadSummaries(id: number) {
     try {
@@ -246,7 +236,6 @@ export function ViewPage({ }: ViewPageProps) {
     fetchCard(id!);
     if (id) {
       loadSummaries(parseInt(id));
-      fetchFacts(parseInt(id));
     }
   }, [id, refreshTasks, refreshFiles, refreshTrigger]);
 
@@ -370,28 +359,8 @@ export function ViewPage({ }: ViewPageProps) {
                   </div>
                 )}
 
-                {/* Facts Section */}
-                {facts && facts.length > 0 && (
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <HeaderSubSection text="Facts" />
-                    <div className="mt-2 space-y-2">
-                      {facts.map((fact) => (
-                        <div
-                          key={fact.id}
-                          className="border-b pb-2 cursor-pointer hover:bg-gray-50"
-                          onClick={() => {
-                            setSelectedFact(fact as FactWithCard);
-                            setShowFactDialog(true);
-                          }}
-                        >
-                          <div className="text-sm text-gray-700">{fact.fact}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* Tabbed Display */}
+                {/* Tabbed Display (now also contains Facts) */}
                 <div className="bg-white rounded-lg shadow-sm">
                   <ViewCardTabbedDisplay
                     viewingCard={viewingCard}
@@ -399,6 +368,8 @@ export function ViewPage({ }: ViewPageProps) {
                     setError={setError}
                     handleOpenEntity={handleOpenEntity}
                     summaries={summaries}
+                    setSelectedFact={setSelectedFact}
+                    setShowFactDialog={setShowFactDialog}
                   />
                 </div>
 
@@ -536,7 +507,8 @@ export function ViewPage({ }: ViewPageProps) {
 
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

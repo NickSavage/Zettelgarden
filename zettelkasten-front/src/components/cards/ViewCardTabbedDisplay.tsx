@@ -10,6 +10,8 @@ import {
 } from "../../components/Header";
 import { compareCardIds } from "../../utils/cards";
 import { isErrorResponse } from "../../models/common";
+import { getCardFacts } from "../../api/facts";
+import { Fact, FactWithCard } from "../../models/Fact";
 
 import { FileListItem } from "../../components/files/FileListItem";
 
@@ -24,6 +26,8 @@ interface ViewCardTabbedDisplayProps {
   setError: (error: string) => void;
   handleOpenEntity: (entity: Entity) => void;
   summaries: SummarizeJobResponse[] | null;
+  setSelectedFact: (fact: FactWithCard | null) => void;
+  setShowFactDialog: (show: boolean) => void;
 }
 
 interface AuditChange {
@@ -134,6 +138,8 @@ export function ViewCardTabbedDisplay({
   // Destructure summaries here
   summaries,
   // Use new props interface
+  setSelectedFact,
+  setShowFactDialog,
 }: ViewCardTabbedDisplayProps) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("Entities");
@@ -142,11 +148,13 @@ export function ViewCardTabbedDisplay({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [auditEvents, setAuditEvents] = useState<any[]>([]);
   const [fileFilterString, setFileFilterString] = useState<string>("");
+  const [facts, setFacts] = useState<Fact[]>([]);
 
   const tabs = [
     { label: "Entities" },
     { label: "Summaries" },
     { label: "Files" },
+    { label: "Facts" },
     { label: "History" },
   ];
 
@@ -184,6 +192,7 @@ export function ViewCardTabbedDisplay({
 
   useEffect(() => {
     loadEntities();
+    fetchFactsForCard();
   }, []);
 
   async function loadEntities() {
@@ -192,6 +201,15 @@ export function ViewCardTabbedDisplay({
       setAllEntities(entities.sort((a, b) => a.name.localeCompare(b.name)));
     } catch (error) {
       setError("Failed to load entities");
+    }
+  }
+
+  async function fetchFactsForCard() {
+    try {
+      const f = await getCardFacts(viewingCard.id);
+      setFacts(f);
+    } catch {
+      setError("Failed to fetch facts");
     }
   }
 
@@ -256,6 +274,7 @@ export function ViewCardTabbedDisplay({
                 {tab.label === "Files" && viewingCard.files.length}
                 {tab.label === "Entities" && viewingCard.entities && viewingCard.entities.length}
                 {tab.label === "Summaries" && summaries && summaries.length}
+                {tab.label === "Facts" && facts && facts.length}
               </span>
             }
           </span>
@@ -437,6 +456,26 @@ export function ViewCardTabbedDisplay({
               <div className="text-gray-500">No summaries available</div>
             )}
           </div>
+        </div>
+      )}
+      {activeTab === "Facts" && (
+        <div className="p-4">
+          {facts.length > 0 ? (
+            facts.map((fact) => (
+              <div
+                key={fact.id}
+                className="border-b pb-2 cursor-pointer hover:bg-gray-50"
+                onClick={() => {
+                  setSelectedFact(fact as FactWithCard);
+                  setShowFactDialog(true);
+                }}
+              >
+                <div className="text-sm text-gray-700">{fact.fact}</div>
+              </div>
+            ))
+          ) : (
+            <div className="text-gray-500">No facts available</div>
+          )}
         </div>
       )}
     </div>
