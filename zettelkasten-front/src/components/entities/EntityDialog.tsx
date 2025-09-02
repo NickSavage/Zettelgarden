@@ -62,7 +62,7 @@ export function EntityDialog({ onClose, onEdit }: EntityDialogProps) {
                     }
                     const cards: PartialCard[] = results.map(result => ({
                         id: Number(result.metadata?.id) || 0,
-                        card_id: result.id, // This is the string ID like "1.1"
+                        card_id: result.metadata?.card_id || "", // This is the string ID like "1.1"
                         title: result.title,
                         body: result.preview || "", // Or handle if preview is not what's needed
                         link: "", // Or construct a link if necessary
