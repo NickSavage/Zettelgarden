@@ -92,7 +92,8 @@ Instructions:
 - Do not add commentary, explanations, or non‑JSON text.
 - If an item cannot be extracted, return an empty string or empty list.
 - Importance must be an integer on a scale of 1–10 (10 = crucial to the central thesis, 1 = marginal).
-- Facts should be discrete, verifiable statements (events, statistics, claims of evidence).
+- Facts should be discrete, verifiable statements (events, statistics, claims of evidence). 
+- Do not use pronouns (he, she, this, that, etc) unless it directly refers to an object in the fact. Facts will likely be viewed out of context and will not make sense otherwise.
 - Avoid duplicating previously extracted theses or arguments unless new context meaningfully alters them.
 
 Format Example:
