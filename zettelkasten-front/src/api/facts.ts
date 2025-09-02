@@ -74,3 +74,17 @@ export async function getCardFacts(cardId: number): Promise<Fact[]> {
   }
   return res.json();
 }
+
+export async function linkFactToCard(factId: number, cardId: number): Promise<void> {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${base_url}/facts/${factId}/cards/${cardId}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to link fact to card");
+  }
+}

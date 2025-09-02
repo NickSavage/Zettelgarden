@@ -6,7 +6,9 @@ import { CardTag } from "../cards/CardTag";
 import { Button } from "../Button";
 import { Entity } from "../../models/Card";
 import { getFactEntities } from "../../api/entities";
-import { getFactCards, getSimilarFacts } from "../../api/facts";
+import { getFactCards, getSimilarFacts, linkFactToCard } from "../../api/facts";
+import { BacklinkInputDropdownList } from "../cards/BacklinkInputDropdownList";
+import { PartialCard } from "../../models/Card";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
 
 interface FactDialogProps {
@@ -74,6 +76,18 @@ export function FactDialog({ onClose }: FactDialogProps) {
         }
     }, [selectedFact]);
 
+    async function handleCardSelect(card: PartialCard) {
+        if (!selectedFact) return;
+        try {
+            await linkFactToCard(selectedFact.id, card.id);
+            const updatedCards = await getFactCards(selectedFact.id);
+            setCards(updatedCards);
+        } catch (err) {
+            setCardsError("Failed to link card");
+            console.error(err);
+        }
+    }
+
     return (
         <Dialog open={showFactDialog} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -122,6 +136,15 @@ export function FactDialog({ onClose }: FactDialogProps) {
                     </div>
 
                     <h4 className="text-md font-medium text-gray-800 mt-4 border-t pt-3">Linked Cards:</h4>
+
+                    <BacklinkInputDropdownList
+                        onSelect={handleCardSelect}
+                        onSearch={() => { }}
+                        cards={cards}
+                        placeholder="Link a card..."
+                        className="mb-2"
+                    />
+
                     <div className="min-h-[100px] max-h-[30vh] overflow-y-auto pr-2">
                         {loadingCards && <p>Loading cards...</p>}
                         {cardsError && <p className="text-red-600">{cardsError}</p>}
