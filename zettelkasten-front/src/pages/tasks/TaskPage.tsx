@@ -26,7 +26,7 @@ type SortField = "updated_at" | "title" | "priority" | "id";
 type SortDirection = "asc" | "desc";
 
 export function TaskPage({ }: TaskListProps) {
-  const { tasks, showCompleted } = useTaskContext(); // setRefreshTasks is not used
+  const { tasks, showCompleted, setShowCompleted } = useTaskContext(); // setRefreshTasks is not used
   // Load any saved settings from localStorage
   const savedSettings = useMemo(() => {
     try {
@@ -287,6 +287,17 @@ export function TaskPage({ }: TaskListProps) {
                       <option value="list">List View</option>
                       <option value="matrix">Eisenhower Matrix</option>
                     </select>
+                  </div>
+                  <div className="mb-2">
+                    <label className="flex items-center gap-2 text-xs font-semibold">
+                      <input
+                        type="checkbox"
+                        checked={showCompleted}
+                        onChange={() => setShowCompleted(!showCompleted)}
+                        className="rounded"
+                      />
+                      Show Completed Tasks
+                    </label>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold mb-1">Sort By</label>

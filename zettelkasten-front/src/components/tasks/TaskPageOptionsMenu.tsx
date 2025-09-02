@@ -17,7 +17,7 @@ export function TaskPageOptionsMenu({
   tasks,
 }: TaskPageOptionsMenu) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
-  const { setRefreshTasks, showCompleted, setShowCompleted } = useTaskContext();
+  const { setRefreshTasks } = useTaskContext();
   const [showTagMenu, setShowTagMenu] = useState<boolean>(false);
   const [showBulkEdit, setShowBulkEdit] = useState<boolean>(false);
 
@@ -37,12 +37,6 @@ export function TaskPageOptionsMenu({
     setShowBulkEdit(true);
   }
 
-  function toggleViewCompleted() {
-    setShowCompleted(!showCompleted);
-    setRefreshTasks(true);
-    setShowMenu(false);
-  }
-
   return (
     <div className="relative">
       <div className="dropdown">
@@ -54,12 +48,6 @@ export function TaskPageOptionsMenu({
         </button>
         {showMenu && (
           <div className="popup-menu w-64 absolute right-0">
-            {showCompleted ? (
-              <button onClick={toggleViewCompleted}>Hide Completed</button>
-            ) : (
-              <button onClick={toggleViewCompleted}>View Completed</button>
-            )}
-
             <button onClick={toggleTagMenu}>Add Tags</button>
             <button onClick={toggleBulkEdit}>Bulk Edit Date</button>
           </div>
