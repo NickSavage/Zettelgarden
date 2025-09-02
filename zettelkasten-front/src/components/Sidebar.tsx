@@ -234,9 +234,9 @@ export function Sidebar() {
       <div
         className={`
     fixed md:relative
-    w-64
-    min-w-[16rem]    // Add this to set minimum width
-    max-w-[16rem]    // Add this to set maximum width
+    w-72
+    min-w-[18rem]    // Increased minimum width
+    max-w-[18rem]    // Increased maximum width
     flex-shrink-0    // Add this to prevent shrinking
     h-screen
     bg-white
