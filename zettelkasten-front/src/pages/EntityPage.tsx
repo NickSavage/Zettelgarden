@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Entity } from "../models/Card";
 import { fetchEntities, mergeEntities, deleteEntity } from "../api/entities";
 import { HeaderSection } from "../components/Header";
-import { useNavigate } from "react-router-dom";
 import { Dialog } from "@headlessui/react";
 import { EditEntityDialog } from "../components/entities/EditEntityDialog";
-import { EntityDialog } from "../components/entities/EntityDialog"; // Import the new dialog
 import { EntityTable } from "../components/entities/EntityTable";
 import { EntityListToolbar } from "../components/entities/EntityListToolbar";
 import { EntitySelectionActions } from "../components/entities/EntitySelectionActions";
+import { setDocumentTitle } from "../utils/title";
 
 import { useShortcutContext } from "../contexts/ShortcutContext";
 
@@ -42,24 +41,12 @@ export function EntityPage() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [entityToDelete, setEntityToDelete] = useState<Entity | null>(null);
-  const [selectedEntityForDialog, setSelectedEntityForDialog] = useState<Entity | null>(null); // State for the new dialog
-  const [isEntityDialogOpen, setIsEntityDialogOpen] = useState(false); // State for new dialog visibility
   const [currentPage, setCurrentPage] = useState(initial.currentPage || 1);
   const [itemsPerPage] = useState(20);
-  const navigate = useNavigate();
 
   const {
-    showCreateTaskWindow,
-    setShowCreateTaskWindow,
-    showQuickSearchWindow,
-    setShowQuickSearchWindow,
-    showEntityDialog,
     setShowEntityDialog,
-    selectedEntity,
     setSelectedEntity,
-    showFactDialog,
-    setShowFactDialog,
-    selectedFact,
   } = useShortcutContext();
 
   const loadEntities = () => {
@@ -78,6 +65,7 @@ export function EntityPage() {
   };
 
   useEffect(() => {
+    setDocumentTitle("Entities");
     loadEntities();
 
     // Restore scroll

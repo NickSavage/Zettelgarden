@@ -6,6 +6,7 @@ import { getAllFacts, mergeFacts, deleteFact } from "../api/facts";
 import { Dialog } from "@headlessui/react";
 import { HeaderSection } from "../components/Header";
 import { useShortcutContext } from "../contexts/ShortcutContext";
+import { setDocumentTitle } from "../utils/title";
 
 export function FactPage() {
     const [facts, setFacts] = useState<FactWithCard[]>([]);
@@ -88,6 +89,7 @@ export function FactPage() {
     };
 
     useEffect(() => {
+        setDocumentTitle("Facts");
         getAllFacts()
             .then((data) => {
                 // Cast plain Fact[] to FactWithCard[] (backend may not always attach a card)
