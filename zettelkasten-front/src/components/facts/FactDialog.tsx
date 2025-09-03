@@ -6,7 +6,7 @@ import { CardTag } from "../cards/CardTag";
 import { Button } from "../Button";
 import { Entity } from "../../models/Card";
 import { getFactEntities } from "../../api/entities";
-import { getFactCards, getSimilarFacts, linkFactToCard } from "../../api/facts";
+import { getFactCards, getSimilarFacts, linkFactToCard, mergeFacts } from "../../api/facts";
 import { BacklinkInputDropdownList } from "../cards/BacklinkInputDropdownList";
 import { PartialCard } from "../../models/Card";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
@@ -85,6 +85,38 @@ export function FactDialog({ onClose }: FactDialogProps) {
         } catch (err) {
             setCardsError("Failed to link card");
             console.error(err);
+        }
+    }
+
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [factToMerge, setFactToMerge] = useState<FactWithCard | null>(null);
+    const [isMerging, setIsMerging] = useState(false);
+    const [mergeError, setMergeError] = useState<string | null>(null);
+
+    function handleInitiateMerge(fact: FactWithCard) {
+        setFactToMerge(fact);
+        setShowConfirmDialog(true);
+    }
+
+    async function handleConfirmMerge() {
+        if (!selectedFact || !factToMerge) return;
+        setIsMerging(true);
+        setMergeError(null);
+        try {
+            await mergeFacts(selectedFact.id, factToMerge.id);
+            const updatedEntities = await getFactEntities(selectedFact.id);
+            const updatedCards = await getFactCards(selectedFact.id);
+            const updatedSimilar = await getSimilarFacts(selectedFact.id);
+            setEntities(updatedEntities);
+            setCards(updatedCards);
+            setSimilarFacts(updatedSimilar);
+            setShowConfirmDialog(false);
+            setFactToMerge(null);
+        } catch (err) {
+            setMergeError("Failed to merge facts");
+            console.error(err);
+        } finally {
+            setIsMerging(false);
         }
     }
 
@@ -175,10 +207,20 @@ export function FactDialog({ onClose }: FactDialogProps) {
                                 {similarFacts.map((f) => (
                                     <li
                                         key={f.id}
-                                        onClick={() => handleFactClick(f)}
-                                        className="cursor-pointer hover:bg-gray-100 p-1 rounded"
+                                        className="flex items-center justify-between hover:bg-gray-100 p-1 rounded"
                                     >
-                                        <span className="text-gray-700">• {f.fact}</span>
+                                        <span
+                                            onClick={() => handleFactClick(f)}
+                                            className="text-gray-700 cursor-pointer"
+                                        >
+                                            • {f.fact}
+                                        </span>
+                                        <Button
+                                            className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded"
+                                            onClick={() => handleInitiateMerge(f)}
+                                        >
+                                            Merge
+                                        </Button>
                                     </li>
                                 ))}
                             </ul>
@@ -190,6 +232,47 @@ export function FactDialog({ onClose }: FactDialogProps) {
                     </div>
                 </Dialog.Panel>
             </div>
+            {showConfirmDialog && factToMerge && (
+                <Dialog
+                    open={showConfirmDialog}
+                    onClose={() => setShowConfirmDialog(false)}
+                    className="fixed inset-0 z-50 flex items-center justify-center"
+                >
+                    <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
+                    <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto relative">
+                        <Dialog.Title className="text-lg font-semibold mb-4">
+                            Confirm Merge
+                        </Dialog.Title>
+                        <div className="mb-4">
+                            <p className="font-medium text-green-600 mb-2">
+                                Primary Fact (will be kept):<br />
+                                {selectedFact?.fact}
+                            </p>
+                            <p className="text-gray-600 mb-2">This fact will be merged into the primary:</p>
+                            <p className="text-gray-800">• {factToMerge.fact}</p>
+                        </div>
+                        <p className="text-red-600 text-sm mb-4">
+                            This action cannot be undone. The merged fact will be deleted.
+                        </p>
+                        {mergeError && <p className="text-red-600 mb-2">{mergeError}</p>}
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setShowConfirmDialog(false)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmMerge}
+                                disabled={isMerging}
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                {isMerging ? "Merging..." : "Merge"}
+                            </button>
+                        </div>
+                    </Dialog.Panel>
+                </Dialog>
+            )}
         </Dialog>
     );
 }

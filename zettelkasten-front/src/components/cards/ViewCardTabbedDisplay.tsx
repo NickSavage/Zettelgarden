@@ -460,7 +460,7 @@ export function ViewCardTabbedDisplay({
       )}
       {activeTab === "Facts" && (
         <div className="p-4">
-          {facts.length > 0 ? (
+          {facts && facts.length > 0 ? (
             facts.map((fact) => (
               <div
                 key={fact.id}
