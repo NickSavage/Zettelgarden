@@ -231,6 +231,7 @@ func main() {
 	addProtectedRoute(r, "/api/facts/merge", h.MergeFactsRoute, "POST")
 	addProtectedRoute(r, "/api/facts/{id}/cards", h.GetFactCards, "GET")
 	addProtectedRoute(r, "/api/facts/{id}/similar", h.GetSimilarFacts, "GET")
+	addProtectedRoute(r, "/api/facts/{id}", h.DeleteFactRoute, "DELETE")
 
 	// Summarize routes
 	addProtectedRoute(r, "/api/summarize", h.CreateSummarizationRoute, "POST")

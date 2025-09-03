@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FactWithCard } from "../models/Fact";
 import { Link } from "react-router-dom";
 import { CardIcon } from "../assets/icons/CardIcon";
-import { getAllFacts, mergeFacts } from "../api/facts";
+import { getAllFacts, mergeFacts, deleteFact } from "../api/facts";
 import { Dialog } from "@headlessui/react";
 import { HeaderSection } from "../components/Header";
 import { useShortcutContext } from "../contexts/ShortcutContext";
@@ -24,6 +24,35 @@ export function FactPage() {
 
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [isMerging, setIsMerging] = useState(false);
+
+
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDeleteClick = () => {
+        if (selectedFacts.length === 0) return;
+        setShowDeleteConfirm(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        setIsDeleting(true);
+        try {
+            for (let id of selectedFacts) {
+                await deleteFact(id);
+            }
+            const data = await getAllFacts();
+            const enrichedData = data.map((f: any) => ({ ...f, card: f.card ?? null })) as FactWithCard[];
+            setFacts(enrichedData);
+            setFilteredFacts(enrichedData);
+            setSelectedFacts([]);
+        } catch (err) {
+            setError("Failed to delete facts");
+            console.error("Error deleting facts:", err);
+        } finally {
+            setIsDeleting(false);
+            setShowDeleteConfirm(false);
+        }
+    };
 
     const handleMergeClick = () => {
         if (selectedFacts.length < 2) return;
@@ -156,6 +185,15 @@ export function FactPage() {
                         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm font-medium"
                     >
                         {isMerging ? "Merging..." : "Merge Selected"}
+                    </button>
+                )}
+                {selectionMode && selectedFacts.length > 0 && (
+                    <button
+                        onClick={handleDeleteClick}
+                        disabled={isDeleting}
+                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium"
+                    >
+                        {isDeleting ? "Deleting..." : "Delete Selected"}
                     </button>
                 )}
                 <input
@@ -334,6 +372,37 @@ export function FactPage() {
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                             >
                                 Merge
+                            </button>
+                        </div>
+                    </Dialog.Panel>
+                </Dialog>
+            )}
+
+            {showDeleteConfirm && (
+                <Dialog
+                    open={showDeleteConfirm}
+                    onClose={() => setShowDeleteConfirm(false)}
+                    className="fixed inset-0 z-50 flex items-center justify-center"
+                >
+                    <div className="fixed inset-0 bg-black bg-opacity-30" aria-hidden="true" />
+                    <Dialog.Panel className="bg-white p-6 rounded-lg max-w-md mx-auto relative">
+                        <Dialog.Title className="text-lg font-semibold mb-4">Confirm Delete</Dialog.Title>
+                        <p className="text-gray-700 mb-4">
+                            Are you sure you want to delete {selectedFacts.length} fact(s)?
+                            This action cannot be undone.
+                        </p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmDelete}
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                Delete
                             </button>
                         </div>
                     </Dialog.Panel>

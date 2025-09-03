@@ -597,6 +597,55 @@ func (s *Handler) GetSimilarFacts(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetFactCards returns all cards linked to a given fact
+// DeleteFactRoute deletes a fact and its relationships
+func (s *Handler) DeleteFactRoute(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("current_user").(int)
+	vars := mux.Vars(r)
+	factIDStr := vars["id"]
+
+	factID, err := strconv.Atoi(factIDStr)
+	if err != nil {
+		http.Error(w, "Invalid fact id", http.StatusBadRequest)
+		return
+	}
+
+	tx, err := s.DB.Begin()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// Verify fact belongs to user
+	var exists bool
+	err = tx.QueryRow(`SELECT true FROM facts WHERE id=$1 AND user_id=$2`, factID, userID).Scan(&exists)
+	if err != nil {
+		http.Error(w, "Fact not found", http.StatusNotFound)
+		return
+	}
+
+	// Delete relationships
+	_, _ = tx.Exec(`DELETE FROM fact_card_junction WHERE fact_id=$1 AND user_id=$2`, factID, userID)
+	_, _ = tx.Exec(`DELETE FROM entity_fact_junction WHERE fact_id=$1 AND user_id=$2`, factID, userID)
+
+	// Delete fact
+	_, err = tx.Exec(`DELETE FROM facts WHERE id=$1 AND user_id=$2`, factID, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	s.deleteFactTypesense(factID)
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]string{"status": "deleted"})
+}
+
 func (s *Handler) GetFactCards(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("current_user").(int)
 	vars := mux.Vars(r)
