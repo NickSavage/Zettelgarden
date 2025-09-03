@@ -7,6 +7,7 @@ import { Button } from "../Button";
 import { Entity } from "../../models/Card";
 import { getFactEntities } from "../../api/entities";
 import { getFactCards, getSimilarFacts, linkFactToCard, mergeFacts } from "../../api/facts";
+import { CardIcon } from "../../assets/icons/CardIcon";
 import { BacklinkInputDropdownList } from "../cards/BacklinkInputDropdownList";
 import { PartialCard } from "../../models/Card";
 import { useShortcutContext } from "../../contexts/ShortcutContext";
@@ -138,9 +139,12 @@ export function FactDialog({ onClose }: FactDialogProps) {
                                     <span className="text-xs text-gray-600">From: </span>
                                     <Link
                                         to={`/app/card/${selectedFact.card.id}`}
-                                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                                        className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
                                     >
-                                        <CardTag card={selectedFact.card} showTitle={true} />
+                                        <div className="w-4 h-4 mr-1 text-gray-400">
+                                            <CardIcon />
+                                        </div>
+                                        [{selectedFact.card.card_id}] {selectedFact.card.title}
                                     </Link>
                                 </div>
                             )}
