@@ -45,7 +45,8 @@ function LandingPage() {
     setDocumentTitle();
   }, []);
 
-  const subscriptionEnabled = import.meta.env.VITE_FEATURE_SUBSCRIPTION === "true";
+  //  const subscriptionEnabled = import.meta.env.VITE_FEATURE_SUBSCRIPTION === "true";
+  const subscriptionEnabled = false
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-green-50">
