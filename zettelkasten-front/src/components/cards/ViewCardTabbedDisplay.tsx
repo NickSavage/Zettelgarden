@@ -152,10 +152,10 @@ export function ViewCardTabbedDisplay({
 
   const tabs = [
     { label: "Entities" },
-    { label: "Summaries" },
-    { label: "Files" },
     { label: "Facts" },
     { label: "History" },
+    { label: "Summaries" },
+    { label: "Files" },
   ];
 
   function onFileDelete(file_id: number) { }
@@ -335,35 +335,37 @@ export function ViewCardTabbedDisplay({
             <div className="mb-6">
               <h3 className="text-sm font-medium text-gray-700 mb-2">Attached Entities</h3>
               <ul>
-                {viewingCard.entities &&
-                  [...viewingCard.entities]
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((entity) => (
-                      <li
-                        key={entity.id}
-                        className="mb-2 p-2 hover:bg-gray-100 rounded flex justify-between items-center"
-                      >
-                        <div
-                          className="cursor-pointer flex-grow"
-                          onClick={() => handleOpenEntity(entity)}
+                <div className="max-h-96 overflow-y-auto border rounded-md p-2">
+                  {viewingCard.entities &&
+                    [...viewingCard.entities]
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((entity) => (
+                        <li
+                          key={entity.id}
+                          className="mb-2 p-2 hover:bg-gray-100 rounded flex justify-between items-center"
                         >
-                          <div className="font-semibold">{entity.name}</div>
-                          <div className="text-sm text-gray-600">{entity.description}</div>
-                          <div className="text-xs text-gray-500">Type: {entity.type}</div>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveEntity(entity.id);
-                          }}
-                          className="ml-2 p-1 text-red-600 hover:bg-red-100 rounded"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </li>
-                    ))}
+                          <div
+                            className="cursor-pointer flex-grow"
+                            onClick={() => handleOpenEntity(entity)}
+                          >
+                            <div className="font-semibold">{entity.name}</div>
+                            <div className="text-sm text-gray-600">{entity.description}</div>
+                            <div className="text-xs text-gray-500">Type: {entity.type}</div>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveEntity(entity.id);
+                            }}
+                            className="ml-2 p-1 text-red-600 hover:bg-red-100 rounded"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </li>
+                      ))}
+                </div>
               </ul>
             </div>
           }
@@ -461,18 +463,20 @@ export function ViewCardTabbedDisplay({
       {activeTab === "Facts" && (
         <div className="p-4">
           {facts && facts.length > 0 ? (
-            facts.map((fact) => (
-              <div
-                key={fact.id}
-                className="border-b pb-2 cursor-pointer hover:bg-gray-50"
-                onClick={() => {
-                  setSelectedFact(fact as FactWithCard);
-                  setShowFactDialog(true);
-                }}
-              >
-                <div className="text-sm text-gray-700">{fact.fact}</div>
-              </div>
-            ))
+            <div className="max-h-96 overflow-y-auto border rounded-md p-2">
+              {facts.map((fact) => (
+                <div
+                  key={fact.id}
+                  className="border-b pb-2 cursor-pointer hover:bg-gray-50"
+                  onClick={() => {
+                    setSelectedFact(fact as FactWithCard);
+                    setShowFactDialog(true);
+                  }}
+                >
+                  <div className="text-sm text-gray-700">{fact.fact}</div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-gray-500">No facts available</div>
           )}
