@@ -167,9 +167,11 @@ func (s *Handler) GetUserSubscriptionRoute(w http.ResponseWriter, r *http.Reques
 	}
 
 	user, err := s.QueryUser(userID)
-	if user.ID != id || !user.IsAdmin {
-		http.Error(w, "unauthorized", http.StatusForbidden)
-		return
+	if user.ID != id {
+		if !user.IsAdmin {
+			http.Error(w, "unauthorized", http.StatusForbidden)
+			return
+		}
 	}
 
 	err = s.DB.QueryRow(`
