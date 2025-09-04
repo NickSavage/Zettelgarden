@@ -57,8 +57,8 @@ func (s *Handler) CreateSubscriptionRoute(w http.ResponseWriter, r *http.Request
 
 	// Map plan string to Stripe Price ID
 	planToPriceID := map[string]string{
-		"monthly": "price_1Q7aKhCT2XDlG7vRYh33Hm2B",
-		"annual":  "price_1Q7aK3CT2XDlG7vRObLXH8Nl",
+		"monthly": os.Getenv("STRIPE_MONTH_PRICE"),
+		"annual":  os.Getenv("STRIPE_YEAR_PRICE"),
 	}
 
 	priceID, ok := planToPriceID[body.Plan]
@@ -88,6 +88,17 @@ func (s *Handler) CreateSubscriptionRoute(w http.ResponseWriter, r *http.Request
 	}
 
 	resp := SubscribeResponse{CheckoutURL: sess.URL}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+type BillingPortalResponse struct {
+	URL string `json:"url"`
+}
+
+// GET /api/billing/portal
+func (s *Handler) BillingPortalRoute(w http.ResponseWriter, r *http.Request) {
+	resp := BillingPortalResponse{URL: os.Getenv("STRIPE_BILLING_URL")}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }

@@ -198,6 +198,7 @@ func main() {
 	addRoute(r, "/api/users", h.CreateUserRoute, "POST")
 	addProtectedRoute(r, "/api/users/{id}/subscription", h.GetUserSubscriptionRoute, "GET")
 	addProtectedRoute(r, "/api/billing/subscribe", h.CreateSubscriptionRoute, "POST")
+	addProtectedRoute(r, "/api/billing/portal", h.BillingPortalRoute, "GET")
 	addRoute(r, "/api/stripe/webhook", h.StripeWebhookRoute, "POST")
 
 	addProtectedRoute(r, "/api/user/memory", h.GetUserMemoryRoute, "GET")

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserSubscription, getCurrentUser, editUser, getUserMemory } from "../api/users";
+import { getBillingPortalUrl } from "../api/billing";
 import { requestPasswordReset } from "../api/auth";
 import { User, EditUserParams, UserSubscription } from "../models/User";
 import { useAuth } from "../contexts/AuthContext";
@@ -16,6 +17,7 @@ export function UserSettingsPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [userMemory, setUserMemory] = useState<string | null>(null);
+  const [billingUrl, setBillingUrl] = useState<string | null>(null);
 
 
   const navigate = useNavigate();
@@ -104,9 +106,18 @@ export function UserSettingsPage() {
 
       }
     }
+    async function fetchBillingUrl() {
+      try {
+        const response = await getBillingPortalUrl();
+        setBillingUrl(response.url);
+      } catch (error) {
+        console.error("Failed to fetch billing URL:", error);
+      }
+    }
 
     setDocumentTitle("Settings");
     fetchUserAndSubscription();
+    fetchBillingUrl();
   }, []);
 
   return (
@@ -169,7 +180,7 @@ export function UserSettingsPage() {
                 <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
                 <p>Plan: <span className="font-medium">{subscription.stripe_subscription_frequency}</span></p>
                 <a
-                  href="https://billing.stripe.com/p/login/test_28og184xZe4b51ecMM"
+                  href={billingUrl || "#"}
                   className="text-blue-500 hover:underline"
                 >
                   Manage Subscription →
