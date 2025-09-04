@@ -178,7 +178,6 @@ export function UserSettingsPage() {
             {subscription && subscription.stripe_subscription_status === "active" ? (
               <div className="space-y-2">
                 <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
-                <p>Plan: <span className="font-medium">{subscription.stripe_subscription_frequency}</span></p>
                 <a
                   href={billingUrl || "#"}
                   className="text-blue-500 hover:underline"

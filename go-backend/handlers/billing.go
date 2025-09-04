@@ -103,6 +103,17 @@ func (s *Handler) BillingPortalRoute(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+type StripePublicKeyResponse struct {
+	Key string `json:"key"`
+}
+
+// GET /api/billing/public-key
+func (s *Handler) StripePublicKeyRoute(w http.ResponseWriter, r *http.Request) {
+	resp := StripePublicKeyResponse{Key: os.Getenv("STRIPE_PUBLISHABLE_KEY")}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
 // POST /api/stripe/webhook
 func (s *Handler) StripeWebhookRoute(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)

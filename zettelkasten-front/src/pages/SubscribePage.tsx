@@ -1,14 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { useNavigate } from "react-router-dom";
+import { getStripePublicKey } from "../api/billing";
 
 const base_url = import.meta.env.VITE_URL;
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
 export default function SubscribePage() {
+  const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchStripeKey() {
+      try {
+        const response = await getStripePublicKey();
+        setStripePromise(loadStripe(response.key));
+      } catch (error) {
+        console.error("Failed to fetch Stripe public key:", error);
+      }
+    }
+    fetchStripeKey();
+  }, []);
 
   const startSubscription = async (plan: "monthly" | "annual") => {
     setLoading(true);

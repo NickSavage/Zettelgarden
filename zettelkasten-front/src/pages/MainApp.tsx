@@ -13,8 +13,6 @@ import { EmailValidationBanner } from "../components/EmailValidationBanner";
 import Success from "./Success";
 import Cancel from "./Cancel";
 import SubscribePage from "./SubscribePage";
-import { BillingSuccess } from "./BillingSuccess";
-import { BillingCancelled } from "./BillingCancelled";
 import { DashboardPage } from "./DashboardPage";
 import { GettingStartedPage } from "./GettingStartedPage";
 import { Card, PartialCard, SearchResult } from "../models/Card";
