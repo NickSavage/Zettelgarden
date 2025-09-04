@@ -15,7 +15,7 @@ import (
 )
 
 type SubscribeRequest struct {
-	PriceID string `json:"price_id"`
+	Plan string `json:"plan"`
 }
 
 type SubscribeResponse struct {
@@ -55,15 +55,27 @@ func (s *Handler) CreateSubscriptionRoute(w http.ResponseWriter, r *http.Request
 		user.StripeCustomerID = c.ID
 	}
 
+	// Map plan string to Stripe Price ID
+	planToPriceID := map[string]string{
+		"monthly": "price_1Q7aKhCT2XDlG7vRYh33Hm2B",
+		"annual":  "price_1Q7aK3CT2XDlG7vRObLXH8Nl",
+	}
+
+	priceID, ok := planToPriceID[body.Plan]
+	if !ok || priceID == "" {
+		http.Error(w, "Invalid plan", http.StatusBadRequest)
+		return
+	}
+
 	// Create checkout session
 	params := &stripe.CheckoutSessionParams{
 		SuccessURL: stripe.String(fmt.Sprintf("%s/app/settings/billing/success?session_id={CHECKOUT_SESSION_ID}", os.Getenv("ZETTEL_URL"))),
-		CancelURL:  stripe.String(fmt.Sprintf("%s/app/settings/billing/cancel", os.Getenv("ZETTEL_URL"))),
+		CancelURL:  stripe.String(fmt.Sprintf("%s/app/subscription", os.Getenv("ZETTEL_URL"))),
 		Mode:       stripe.String("subscription"),
 		Customer:   stripe.String(user.StripeCustomerID),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price:    stripe.String(body.PriceID),
+				Price:    stripe.String(priceID),
 				Quantity: stripe.Int64(1),
 			},
 		},

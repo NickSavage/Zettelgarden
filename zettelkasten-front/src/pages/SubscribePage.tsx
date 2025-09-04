@@ -8,6 +8,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 export default function SubscribePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [plan, setPlan] = useState<"monthly" | "annual">("monthly");
 
   const startSubscription = async () => {
     setLoading(true);
@@ -20,7 +21,7 @@ export default function SubscribePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`, // adjust auth storage as needed
         },
-        body: JSON.stringify({ price_id: "price_1Qjf7ICT2XDlG7vRIhvmi9HR" }), // replace with real Stripe price ID
+        body: JSON.stringify({ plan }),
       });
 
       if (!res.ok) {
@@ -44,12 +45,26 @@ export default function SubscribePage() {
     <div className="flex flex-col gap-4 items-center mt-10">
       <h1 className="text-2xl font-bold">Subscribe to Pro</h1>
       <p>Get full access to Zettelgarden by subscribing.</p>
+      <div className="flex gap-2 my-4">
+        <button
+          onClick={() => setPlan("monthly")}
+          className={`px-4 py-2 rounded ${plan === "monthly" ? "bg-indigo-700 text-white" : "bg-gray-200"}`}
+        >
+          Monthly
+        </button>
+        <button
+          onClick={() => setPlan("annual")}
+          className={`px-4 py-2 rounded ${plan === "annual" ? "bg-indigo-700 text-white" : "bg-gray-200"}`}
+        >
+          Annual
+        </button>
+      </div>
       <button
         onClick={startSubscription}
         disabled={loading}
         className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
       >
-        {loading ? "Redirecting..." : "Subscribe"}
+        {loading ? "Redirecting..." : `Subscribe (${plan})`}
       </button>
       {error && <p className="text-red-600">{error}</p>}
     </div>
