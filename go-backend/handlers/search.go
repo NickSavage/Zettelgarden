@@ -127,12 +127,10 @@ func (s *Handler) InitSearchCollection() {
 				&factID, &factText, &createdAtTime, &updatedAtTime, &userID,
 				&cardPK, &cardCardID, &userID, &cardTitle, &parentID, &cardCreatedAt, &cardUpdatedAt,
 			)
-			log.Printf("fact %v", factID)
 			if err != nil {
 				log.Printf("error scanning fact: %v", err)
 				continue
 			}
-			log.Printf("fact %v", factID)
 			doc := map[string]interface{}{
 				"id":                    "fact-" + strconv.Itoa(factID),
 				"fact_pk":               factID,

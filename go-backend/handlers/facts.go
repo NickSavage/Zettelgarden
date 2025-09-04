@@ -353,7 +353,6 @@ func (s *Handler) GetAllFacts(w http.ResponseWriter, r *http.Request) {
 
 // ExtractSaveFactEntities runs entity extraction on facts and links them in entity_fact_junction
 func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs []models.Fact) error {
-	log.Printf("fact %v", factObjs)
 	client := llms.NewDefaultClient(s.DB, userID)
 
 	factEntities, err := llms.FindEntitiesBatch(client, factObjs)
@@ -362,7 +361,6 @@ func (s *Handler) ExtractSaveFactEntities(userID int, card models.Card, factObjs
 	}
 	for i, entities := range factEntities {
 		fact := factObjs[i]
-		log.Printf("fact %v %v", fact.ID, fact.Fact)
 
 		for _, entity := range entities {
 			// similarEntities, err := s.FindPotentialDuplicates(userID, entity)
