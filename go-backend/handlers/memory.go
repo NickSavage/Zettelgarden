@@ -9,11 +9,24 @@ import (
 )
 
 func (s *Handler) GenerateMemory(userID uint, cardContent string) {
-	client := llms.NewDefaultClient(s.DB, int(userID))
-	_, err := llms.GenerateUserMemory(s.DB, client, userID, cardContent)
-	if err != nil {
-		log.Printf("error generating user memory: %v", err)
+
+	if !s.Server.Testing {
+		return
 	}
+
+	go func() {
+		client := llms.NewDefaultClient(s.DB, int(userID))
+		_, err := llms.GenerateUserMemory(s.DB, client, userID, cardContent)
+		if err != nil {
+			log.Printf("error generating user memory: %v", err)
+			return
+		}
+		_, err = s.DB.Exec("UPDATE users SET memory_has_changed = true WHERE id = $1", userID)
+		if err != nil {
+			log.Printf("failed to update memory_has_changed flag for user %d: %v", userID, err)
+			return
+		}
+	}()
 }
 
 func (s *Handler) GetUserMemoryRoute(w http.ResponseWriter, r *http.Request) {
