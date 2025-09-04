@@ -77,6 +77,8 @@ export function UserSettingsPage() {
     }
   };
 
+  const subscriptionEnabled = import.meta.env.VITE_FEATURE_SUBSCRIPTION === "true";
+
   useEffect(() => {
     async function fetchUserAndSubscription() {
       let userResponse = await getCurrentUser();
@@ -159,19 +161,31 @@ export function UserSettingsPage() {
         </div>
 
         {/* Subscription Card */}
-        {subscription && (
+        {subscriptionEnabled && (
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Subscription</h2>
-            <div className="space-y-2">
-              <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
-              <p>Plan: <span className="font-medium">{subscription.stripe_subscription_frequency}</span></p>
-              <a
-                href="https://billing.stripe.com/p/login/test_28og184xZe4b51ecMM"
-                className="text-blue-500 hover:underline"
-              >
-                Manage Subscription →
-              </a>
-            </div>
+            {subscription ? (
+              <div className="space-y-2">
+                <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
+                <p>Plan: <span className="font-medium">{subscription.stripe_subscription_frequency}</span></p>
+                <a
+                  href="https://billing.stripe.com/p/login/test_28og184xZe4b51ecMM"
+                  className="text-blue-500 hover:underline"
+                >
+                  Manage Subscription →
+                </a>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p>You don’t have a subscription yet.</p>
+                <button
+                  onClick={() => navigate("/app/subscription")}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Upgrade to Pro →
+                </button>
+              </div>
+            )}
           </div>
         )}
 
