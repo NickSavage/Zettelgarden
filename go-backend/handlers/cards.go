@@ -806,12 +806,14 @@ func (s *Handler) UpdateCard(userID int, cardPK int, params models.EditCardParam
 	backlinks := extractBacklinks(newCard.Body)
 	s.updateBacklinks(newCard.ID, backlinks)
 
-	s.GenerateMemory(uint(userID), newCard.Body)
-
 	s.upsertCardToTypesense(newCard)
+
 	s.AddTagsFromCard(userID, cardPK)
-	if params.ProcessEntitiesAndFacts != nil && *params.ProcessEntitiesAndFacts {
-		s.ProcessEntitiesAndFacts(userID, newCard)
+	if s.UserHasSubscription(userID) {
+		s.GenerateMemory(uint(userID), newCard.Body)
+		if params.ProcessEntitiesAndFacts != nil && *params.ProcessEntitiesAndFacts {
+			s.ProcessEntitiesAndFacts(userID, newCard)
+		}
 	}
 	return s.QueryFullCard(userID, cardPK)
 }
@@ -856,9 +858,12 @@ func (s *Handler) CreateCard(userID int, params models.EditCardParams) (models.C
 	backlinks := extractBacklinks(newCard.Body)
 	s.updateBacklinks(newCard.ID, backlinks)
 
-	s.GenerateMemory(uint(userID), newCard.Body)
 	s.AddTagsFromCard(userID, id)
-	s.ProcessEntitiesAndFacts(userID, newCard)
+
+	if s.UserHasSubscription(userID) {
+		s.GenerateMemory(uint(userID), newCard.Body)
+		s.ProcessEntitiesAndFacts(userID, newCard)
+	}
 	return s.QueryFullCard(userID, id)
 }
 

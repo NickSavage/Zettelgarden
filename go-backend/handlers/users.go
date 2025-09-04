@@ -576,6 +576,20 @@ func (s *Handler) sendEmailValidation(user models.User) error {
 	return nil
 }
 
+func (s *Handler) UserHasSubscription(userID int) bool {
+	if s.Server.Testing {
+		return true
+	}
+	if os.Getenv("VITE_FEATURE_SUBSCRIPTION") != "true" {
+		return true
+	}
+	user, err := s.QueryUser(userID)
+	if err != nil {
+		return false
+	}
+	return user.StripeSubscriptionStatus == "active" || user.StripeSubscriptionStatus == "trial"
+}
+
 func (s *Handler) UpdateLastSeen(userID int) error {
 	query := `
 		UPDATE users 
