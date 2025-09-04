@@ -183,8 +183,8 @@ function LandingPage() {
                 and early access to new features.
               </p>
 
-              <div className="flex flex-col md:flex-row gap-8 justify-center flex-wrap">
-                <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm">
+              <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch flex-wrap">
+                <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm flex flex-col">
                   <h3 className="text-xl font-semibold text-indigo-700 mb-2">Free</h3>
                   <p className="text-gray-700 mb-4">$0 / forever</p>
                   <ul className="text-left mb-6 space-y-2">
@@ -194,12 +194,12 @@ function LandingPage() {
                   </ul>
                   <button
                     onClick={() => navigate("/app")}
-                    className="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                    className="mt-auto w-full bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
                   >
                     Get Started Free
                   </button>
                 </div>
-                <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm">
+                <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm flex flex-col">
                   <h3 className="text-xl font-semibold text-indigo-700 mb-2">Monthly</h3>
                   <p className="text-gray-700 mb-4">$10 / month</p>
                   <ul className="text-left mb-6 space-y-2">
@@ -212,12 +212,12 @@ function LandingPage() {
                   </ul>
                   <button
                     onClick={() => navigate("/subscribe")}
-                    className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                    className="mt-auto w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
                   >
                     Choose Monthly
                   </button>
                 </div>
-                <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm">
+                <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm flex flex-col">
                   <h3 className="text-xl font-semibold text-indigo-700 mb-2">Annual</h3>
                   <p className="text-gray-700 mb-1">$100 / year <span className="text-green-600">(Save 20%)</span></p>
                   <ul className="text-left mb-6 space-y-2">
@@ -230,7 +230,7 @@ function LandingPage() {
                   </ul>
                   <button
                     onClick={() => navigate("/subscribe")}
-                    className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                    className="mt-auto w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
                   >
                     Choose Annual
                   </button>

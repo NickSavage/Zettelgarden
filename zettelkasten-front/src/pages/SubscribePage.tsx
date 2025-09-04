@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
+import { useNavigate } from "react-router-dom";
 
 const base_url = import.meta.env.VITE_URL;
-
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
 export default function SubscribePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [plan, setPlan] = useState<"monthly" | "annual">("monthly");
+  const navigate = useNavigate();
 
-  const startSubscription = async () => {
+  const startSubscription = async (plan: "monthly" | "annual") => {
     setLoading(true);
     setError(null);
 
@@ -19,7 +19,7 @@ export default function SubscribePage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // adjust auth storage as needed
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ plan }),
       });
@@ -42,68 +42,75 @@ export default function SubscribePage() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 text-center mt-10">
-      <h1 className="text-3xl font-bold text-indigo-700">Upgrade to Pro</h1>
-      <p className="text-gray-600 mt-2">
-        Unlock your full potential with Zettelgarden Pro.
+    <div className="max-w-5xl mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold text-center mb-6 text-indigo-700">Simple, Transparent Pricing</h1>
+      <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+        Upgrade to Zettelgarden Pro to unlock advanced AI summarization, fact extraction, and early access to new features.
       </p>
 
-      <ul className="text-left mt-6 space-y-2">
-        <li className="flex items-center">
-          <span className="text-green-600 mr-2">✓</span> AI-Powered Entity and Fact Extraction
-        </li>
-        <li className="flex items-center">
-          <span className="text-green-600 mr-2">✓</span> Card Summarization and Analysis
-        </li>
-        <li className="flex items-center">
-          <span className="text-green-600 mr-2">✓</span> Early Access To New Features
-        </li>
-      </ul>
+      <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch flex-wrap">
+        {/* Free Plan */}
+        <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm flex flex-col">
+          <h3 className="text-xl font-semibold text-indigo-700 mb-2">Free</h3>
+          <p className="text-gray-700 mb-4">$0 / forever</p>
+          <ul className="text-left mb-6 space-y-2">
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Create and Organize Cards</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Knowledge Linking and Organization</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Manage your Todos With Your Cards</li>
+          </ul>
+          <button
+            disabled
+            className="mt-auto w-full bg-gray-300 text-gray-600 px-4 py-3 rounded-lg font-medium cursor-not-allowed"
+          >
+            Current Plan
+          </button>
+        </div>
 
-      <div className="flex gap-4 justify-center my-6">
-        <button
-          onClick={() => setPlan("monthly")}
-          className={`px-4 py-2 rounded-lg border ${
-            plan === "monthly"
-              ? "bg-indigo-700 text-white border-indigo-700"
-              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-          }`}
-        >
-          <div className="flex flex-col">
-            <span className="font-medium">Monthly</span>
-            <span className="text-sm text-gray-200 md:text-gray-100 text-opacity-90">
-              $10 / month
-            </span>
-          </div>
-        </button>
-        <button
-          onClick={() => setPlan("annual")}
-          className={`px-4 py-2 rounded-lg border ${
-            plan === "annual"
-              ? "bg-indigo-700 text-white border-indigo-700"
-              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-          }`}
-        >
-          <div className="flex flex-col">
-            <span className="font-medium">Annual</span>
-            <span className="text-sm">
-              $100 / year{" "}
-              <span className="text-green-600">(Save 20%)</span>
-            </span>
-          </div>
-        </button>
+        {/* Monthly Plan */}
+        <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm flex flex-col">
+          <h3 className="text-xl font-semibold text-indigo-700 mb-2">Monthly</h3>
+          <p className="text-gray-700 mb-4">$10 / month</p>
+          <ul className="text-left mb-6 space-y-2">
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Create and Organize Cards</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Knowledge Linking and Organization</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Manage your Todos With Your Cards</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> AI-Powered Entity and Fact Extraction</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Card Summarization and Analysis</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Early Access To New Features</li>
+          </ul>
+          <button
+            onClick={() => startSubscription("monthly")}
+            disabled={loading}
+            className="mt-auto w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          >
+            {loading ? "Redirecting..." : "Choose Monthly"}
+          </button>
+        </div>
+
+        {/* Annual Plan */}
+        <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-sm flex flex-col">
+          <h3 className="text-xl font-semibold text-indigo-700 mb-2">Annual</h3>
+          <p className="text-gray-700 mb-1">$100 / year <span className="text-green-600">(Save 20%)</span></p>
+          <ul className="text-left mb-6 space-y-2">
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Create and Organize Cards</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Knowledge Linking and Organization</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Manage your Todos With Your Cards</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> AI-Powered Entity and Fact Extraction</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Card Summarization and Analysis</li>
+            <li className="flex items-center"><span className="text-green-600 mr-2">✓</span> Early Access To New Features</li>
+          </ul>
+          <button
+            onClick={() => startSubscription("annual")}
+            disabled={loading}
+            className="mt-auto w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          >
+            {loading ? "Redirecting..." : "Choose Annual"}
+          </button>
+        </div>
       </div>
 
-      <button
-        onClick={startSubscription}
-        disabled={loading}
-        className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
-      >
-        {loading ? "Redirecting..." : `Subscribe (${plan})`}
-      </button>
-
       {error && (
-        <p className="mt-4 text-red-600 bg-red-50 p-2 rounded border border-red-200">
+        <p className="mt-4 text-red-600 bg-red-50 p-2 rounded border border-red-200 text-center">
           {error}
         </p>
       )}

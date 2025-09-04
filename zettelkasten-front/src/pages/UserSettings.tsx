@@ -164,7 +164,7 @@ export function UserSettingsPage() {
         {subscriptionEnabled && (
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Subscription</h2>
-            {subscription ? (
+            {subscription && subscription.stripe_subscription_status === "active" ? (
               <div className="space-y-2">
                 <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
                 <p>Plan: <span className="font-medium">{subscription.stripe_subscription_frequency}</span></p>
@@ -212,8 +212,8 @@ export function UserSettingsPage() {
         {/* User Memory Card */}
         {userMemory && (
           <div className="bg-white rounded-lg shadow p-6">
-            <EditableMemory 
-              memory={userMemory || ""} 
+            <EditableMemory
+              memory={userMemory || ""}
               onMemoryUpdate={(newMemory) => setUserMemory(newMemory)}
             />
           </div>
