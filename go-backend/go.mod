@@ -52,6 +52,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sony/gobreaker v1.0.0 // indirect
+	github.com/stripe/stripe-go/v82 v82.5.0 // indirect
 	github.com/typesense/typesense-go v1.1.0 // indirect
 	github.com/typesense/typesense-go/v3 v3.2.0 // indirect
 	golang.org/x/text v0.20.0 // indirect

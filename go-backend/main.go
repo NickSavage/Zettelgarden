@@ -19,6 +19,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/stripe/stripe-go/v82"
 )
 
 var s *server.Server
@@ -113,6 +114,9 @@ func main() {
 		DB:     s.DB,
 	}
 
+	// Initialize Stripe
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+
 	s.S3 = h.CreateS3Client()
 
 	s.Mail = &mail.MailClient{
@@ -191,6 +195,9 @@ func main() {
 	addProtectedRoute(r, "/api/users", h.GetUsersRoute, "GET")
 	addRoute(r, "/api/users", h.CreateUserRoute, "POST")
 	addProtectedRoute(r, "/api/users/{id}/subscription", h.GetUserSubscriptionRoute, "GET")
+	addProtectedRoute(r, "/api/billing/subscribe", h.CreateSubscriptionRoute, "POST")
+	addRoute(r, "/api/stripe/webhook", h.StripeWebhookRoute, "POST")
+
 	addProtectedRoute(r, "/api/user/memory", h.GetUserMemoryRoute, "GET")
 	addProtectedRoute(r, "/api/user/memory", h.UpdateUserMemoryRoute, "PUT")
 	addProtectedRoute(r, "/api/current", h.GetCurrentUserRoute, "GET")
