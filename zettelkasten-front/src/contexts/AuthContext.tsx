@@ -16,6 +16,7 @@ interface AuthContextType {
   isAdmin: boolean;
   hasSubscription: boolean;
   loginUser: (data: LoginResponse) => void;
+  loginUserFromToken: (token: string) => void;
   logoutUser: () => void;
   currentUser: User | null;
 }
@@ -62,6 +63,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsAuthenticated(true);
   };
 
+  const loginUserFromToken = (token: string) => {
+    localStorage.setItem("token", token);
+    setIsAuthenticated(true);
+  };
+
   const logoutUser = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
@@ -76,6 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isAdmin,
         hasSubscription,
         loginUser,
+        loginUserFromToken,
         logoutUser,
         currentUser,
       }}

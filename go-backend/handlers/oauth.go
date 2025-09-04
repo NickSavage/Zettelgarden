@@ -146,7 +146,7 @@ func (s *Handler) GitHubCallbackRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect back to frontend with token
-	frontendURL := os.Getenv("FRONTEND_URL")
+	frontendURL := os.Getenv("ZETTEL_URL")
 	redirect := fmt.Sprintf("%s/login?token=%s", frontendURL, token)
 	http.Redirect(w, r, redirect, http.StatusFound)
 }
