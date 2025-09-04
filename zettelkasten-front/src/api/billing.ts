@@ -5,7 +5,7 @@ export async function createCheckoutSession(interval: string) {
   let token = localStorage.getItem("token"); // Retrieve the JWT token from local storage
 
   // Define the API endpoint
-  const url = `${base_url}/billing/create_checkout_session`;
+  const url = `${base_url}/api/billing/subscribe`;
 
   try {
     // Send a GET request to the server

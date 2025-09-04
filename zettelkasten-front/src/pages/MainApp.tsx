@@ -10,9 +10,11 @@ import { useAuth } from "../contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
+import Success from "./Success";
+import Cancel from "./Cancel";
+import SubscribePage from "./SubscribePage";
 import { BillingSuccess } from "./BillingSuccess";
 import { BillingCancelled } from "./BillingCancelled";
-import { SubscriptionPage } from "./SubscriptionPage";
 import { DashboardPage } from "./DashboardPage";
 import { GettingStartedPage } from "./GettingStartedPage";
 import { Card, PartialCard, SearchResult } from "../models/Card";
@@ -87,17 +89,11 @@ function MainAppContent() {
         <div className="">
           {hasSubscription ? <EmailValidationBanner /> : <div></div>}
           <Routes>
-            {!hasSubscription && (
+            {hasSubscription && (
               <>
-                <Route path="subscription" element={<SubscriptionPage />} />
-                <Route
-                  path="settings/billing/success"
-                  element={<BillingSuccess />}
-                />
-                <Route
-                  path="settings/billing/cancelled"
-                  element={<BillingCancelled />}
-                />
+                <Route path="subscription" element={<SubscribePage />} />
+                <Route path="settings/billing/success" element={<Success />} />
+                <Route path="settings/billing/cancel" element={<Cancel />} />
               </>
             )}
             {hasSubscription ? (

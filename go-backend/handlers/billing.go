@@ -57,8 +57,8 @@ func (s *Handler) CreateSubscriptionRoute(w http.ResponseWriter, r *http.Request
 
 	// Create checkout session
 	params := &stripe.CheckoutSessionParams{
-		SuccessURL: stripe.String(fmt.Sprintf("%s/success?session_id={CHECKOUT_SESSION_ID}", os.Getenv("ZETTEL_URL"))),
-		CancelURL:  stripe.String(fmt.Sprintf("%s/cancel", os.Getenv("ZETTEL_URL"))),
+		SuccessURL: stripe.String(fmt.Sprintf("%s/app/settings/billing/success?session_id={CHECKOUT_SESSION_ID}", os.Getenv("ZETTEL_URL"))),
+		CancelURL:  stripe.String(fmt.Sprintf("%s/app/settings/billing/cancel", os.Getenv("ZETTEL_URL"))),
 		Mode:       stripe.String("subscription"),
 		Customer:   stripe.String(user.StripeCustomerID),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{

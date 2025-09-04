@@ -5,6 +5,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@hello-pangea/dnd": "^18.0.1",
+    "@stripe/stripe-js": "^7.9.0",
     "@tanstack/match-sorter-utils": "^8.19.4",
     "@tanstack/react-table": "^8.20.6",
     "@testing-library/jest-dom": "^5.17.0",
