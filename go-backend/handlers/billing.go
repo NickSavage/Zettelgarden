@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/stripe/stripe-go/v82"
 	"github.com/stripe/stripe-go/v82/checkout/session"
@@ -190,6 +191,33 @@ func (s *Handler) StripeWebhookRoute(w http.ResponseWriter, r *http.Request) {
 			if dberr != nil {
 				log.Printf("DB update error: %v", dberr)
 			}
+		}
+	case "invoice.payment_succeeded":
+		var inv stripe.Invoice
+		if err := json.Unmarshal(event.Data.Raw, &inv); err == nil {
+			if inv.Customer != nil && inv.AmountPaid > 0 {
+				var userID int
+				var subscriptionID string
+				err := s.DB.QueryRow(`SELECT id, stripe_subscription_id FROM users WHERE stripe_customer_id=$1`, inv.Customer.ID).Scan(&userID, &subscriptionID)
+				if err == nil && subscriptionID != "" {
+					paymentDate := time.Now()
+					if inv.StatusTransitions != nil && inv.StatusTransitions.PaidAt > 0 {
+						paymentDate = time.Unix(inv.StatusTransitions.PaidAt, 0)
+					}
+					_, dberr := s.DB.Exec(
+						`INSERT INTO revenue (user_id, stripe_subscription_id, stripe_invoice_id, amount_cents, currency, description, payment_date)
+						 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+						userID, subscriptionID, inv.ID, inv.AmountPaid, inv.Currency, "Subscription payment", paymentDate,
+					)
+					if dberr != nil {
+						log.Printf("DB insert revenue error: %v", dberr)
+					}
+				} else {
+					log.Printf("User or subscription not found for customer %s: %v", inv.Customer.ID, err)
+				}
+			}
+		} else {
+			log.Printf("error parsing event: %v", err)
 		}
 	}
 

@@ -285,7 +285,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 
 	users := []models.User{}
 	rows, err := s.DB.Query(`
-		SELECT 
+		SELECT
 	u.id, u.username, u.email, u.created_at, u.updated_at,
 	u.is_admin, u.email_validated, u.can_upload_files,
 	u.stripe_subscription_status, u.max_file_storage, u.last_login,
@@ -293,8 +293,9 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 	(SELECT COUNT(*) FROM cards c WHERE c.user_id = u.id) as cards,
 	(SELECT COUNT(*) FROM tasks t WHERE t.user_id = u.id) as tasks,
 	(SELECT COUNT(*) FROM files f WHERE f.created_by = u.id) as files,
-	COALESCE((SELECT SUM(l.cost_usd) FROM llm_query_log l WHERE l.user_id = u.id), 0) as cost
-	FROM users u 
+	COALESCE((SELECT SUM(l.cost_usd) FROM llm_query_log l WHERE l.user_id = u.id), 0) as cost,
+	COALESCE((SELECT SUM(r.amount_cents) FROM revenue r WHERE r.user_id = u.id), 0) / 100.0 as revenue
+	FROM users u
 	GROUP BY u.id
 	ORDER BY u.id
 	`)
@@ -322,6 +323,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.TaskCount,
 			&user.FileCount,
 			&user.LLMCost,
+			&user.Revenue,
 		); err != nil {
 			return users, err
 		}

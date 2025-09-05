@@ -102,6 +102,10 @@ export function AdminUserIndex() {
         header: "Files",
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor("revenue", {
+        header: "Revenue",
+        cell: (info) => `$${Number(info.getValue() || 0).toFixed(2)}`,
+      }),
       columnHelper.accessor("llm_cost", {
         header: "Cost",
         cell: (info) => `$${Number(info.getValue() || 0).toFixed(4)}`,

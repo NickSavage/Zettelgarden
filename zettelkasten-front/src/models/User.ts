@@ -22,6 +22,7 @@ export interface User {
   task_count: number;
   file_count: number;
   llm_cost: number;
+  revenue: number;
 }
 export const defaultUser: User = {
   id: 0,
@@ -47,6 +48,7 @@ export const defaultUser: User = {
   task_count: 0,
   file_count: 0,
   llm_cost: 0,
+  revenue: 0,
 };
 
 export interface UserSubscription {
