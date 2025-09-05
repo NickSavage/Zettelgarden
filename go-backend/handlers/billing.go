@@ -44,18 +44,34 @@ func (s *Handler) CreateSubscriptionRoute(w http.ResponseWriter, r *http.Request
 
 	// Ensure customer exists
 	if user.StripeCustomerID == "" {
-		params := &stripe.CustomerParams{
-			Email: stripe.String(user.Email),
+		// Search for existing customer by email
+		searchParams := &stripe.CustomerSearchParams{
+			SearchParams: stripe.SearchParams{
+				Query: `email:'` + user.Email + `'`,
+			},
 		}
-		c, err := customer.New(params)
-		if err != nil {
-			log.Printf("Stripe customer create failed: %v", err)
-			http.Error(w, "Stripe customer creation failed", http.StatusInternalServerError)
-			return
+		iter := customer.Search(searchParams)
+		var c *stripe.Customer
+		if iter.Next() {
+			c = iter.Customer()
+		} else {
+			// Create a new customer if not found
+			params := &stripe.CustomerParams{
+				Email: stripe.String(user.Email),
+			}
+			newCustomer, err := customer.New(params)
+			if err != nil {
+				log.Printf("Stripe customer create failed: %v", err)
+				http.Error(w, "Stripe customer creation failed", http.StatusInternalServerError)
+				return
+			}
+			c = newCustomer
 		}
+
 		_, err = s.DB.Exec(`UPDATE users SET stripe_customer_id=$1 WHERE id=$2`, c.ID, user.ID)
 		if err != nil {
 			log.Printf("DB update customer id failed: %v", err)
+			// Don't kill the request, maybe it gets fixed later
 		}
 		user.StripeCustomerID = c.ID
 	}
