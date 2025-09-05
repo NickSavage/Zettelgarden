@@ -82,56 +82,50 @@ function MainAppContent() {
   }
   return (
     <div className="flex h-screen overflow-hidden">
-      {hasSubscription ? <Sidebar /> : <div></div>}
+      <Sidebar />
       <div className="flex-grow overflow-y-auto">
         <div className="">
-          {hasSubscription ? <EmailValidationBanner /> : <div></div>}
+          <EmailValidationBanner />
           <Routes>
-            {hasSubscription && (
-              <>
-                <Route path="subscription" element={<SubscribePage />} />
-                <Route path="settings/billing/success" element={<Success />} />
-                <Route path="settings/billing/cancel" element={<Cancel />} />
-              </>
-            )}
-            {hasSubscription ? (
-              <>
-                <Route
-                  path="search"
-                  element={
-                    <SearchPage
-                      searchTerm={searchTerm}
-                      setSearchTerm={setSearchTerm}
-                      searchResults={searchResults}
-                      setSearchResults={setSearchResults}
-                      searchConfig={searchConfig}
-                      setSearchConfig={setSearchConfig}
-                    />
-                  }
-                />
-                <Route path="card/:id" element={<ViewPage />} />
-                <Route
-                  path="card/:id/edit"
-                  element={<EditPage newCard={false} />}
-                />
-
-                <Route path="card/new" element={<EditPage newCard={true} />} />
-                <Route path="settings" element={<UserSettingsPage />} />
-                <Route path="help" element={<GettingStartedPage />} />
-                <Route path="files" element={<FileVault />} />
-                <Route path="tasks" element={<TaskPage />} />
-                <Route path="tags" element={<TagsPage />} />
-                <Route path="entities" element={<EntityPage />} />
-                <Route path="summarizer" element={<Summarizer />} />
-                <Route path="facts" element={<FactPage />} />
-                <Route path="*" element={<DashboardPage />} />
-              </>
-            ) : (
+            <Route path="subscription" element={<SubscribePage />} />
+            <Route path="settings/billing/success" element={<Success />} />
+            <Route path="settings/billing/cancel" element={<Cancel />} />
+            <>
               <Route
-                path="*"
-                element={<Navigate to="/app/subscription" replace />}
+                path="search"
+                element={
+                  <SearchPage
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    searchResults={searchResults}
+                    setSearchResults={setSearchResults}
+                    searchConfig={searchConfig}
+                    setSearchConfig={setSearchConfig}
+                  />
+                }
               />
-            )}
+              <Route path="card/:id" element={<ViewPage />} />
+              <Route
+                path="card/:id/edit"
+                element={<EditPage newCard={false} />}
+              />
+
+              <Route path="card/new" element={<EditPage newCard={true} />} />
+              <Route path="settings" element={<UserSettingsPage />} />
+              <Route path="help" element={<GettingStartedPage />} />
+              <Route path="files" element={<FileVault />} />
+              <Route path="tasks" element={<TaskPage />} />
+              <Route path="tags" element={<TagsPage />} />
+              <Route path="entities" element={<EntityPage />} />
+              <Route path="summarizer" element={<Summarizer />} />
+              <Route path="facts" element={<FactPage />} />
+              <Route path="*" element={<DashboardPage />} />
+            </>
+            ) : (
+            <Route
+              path="*"
+              element={<Navigate to="/app/subscription" replace />}
+            />
           </Routes>
         </div>
       </div>

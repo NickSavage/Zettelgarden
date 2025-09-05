@@ -17,6 +17,7 @@ import { ChatIcon } from "../assets/icons/ChatIcon";
 import { MenuIcon } from "../assets/icons/MenuIcon";
 import { Button } from "./Button";
 import { ConversationSummary } from "../models/Chat";
+import { useAuth } from "../contexts/AuthContext";
 
 import { useShortcutContext } from "../contexts/ShortcutContext";
 import { QuickSearchWindow } from "./cards/QuickSearchWindow";
@@ -57,6 +58,7 @@ export function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const { showChat, setShowChat } = useChatContext();
   const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
+  const { hasSubscription } = useAuth();
 
   const {
     showCreateTaskWindow,
@@ -357,10 +359,16 @@ export function Sidebar() {
               <SidebarLink to="/app/entities">
                 <EntityIcon />
                 <span className="flex-grow">Entities</span>
+                {!hasSubscription && (
+                  <span className="ml-2 bg-purple-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">PRO</span>
+                )}
               </SidebarLink>
               <SidebarLink to="/app/facts">
                 <FactsIcon />
                 <span className="flex-grow">Facts</span>
+                {!hasSubscription && (
+                  <span className="ml-2 bg-purple-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">PRO</span>
+                )}
               </SidebarLink>
             </ul>
           </div>

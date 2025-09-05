@@ -46,8 +46,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const currentUser = await getCurrentUser();
         setCurrentUser(currentUser);
         console.log("user", currentUser);
-        // setHasSubscription(currentUser.stripe_subscription_status === "active");
-        setHasSubscription(true)
+        setHasSubscription(currentUser.stripe_subscription_status === "active");
+        //setHasSubscription(true)
       }
       setIsLoading(false);
     };
