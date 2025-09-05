@@ -23,7 +23,9 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 
 export function AdminUserIndex() {
   const [users, setUsers] = useState<User[]>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "last_seen", desc: true }
+  ]);
   const [globalFilter, setGlobalFilter] = useState("");
 
   useEffect(() => {
