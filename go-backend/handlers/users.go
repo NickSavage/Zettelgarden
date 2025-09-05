@@ -292,7 +292,8 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 	u.last_seen, u.dashboard_card_pk,
 	(SELECT COUNT(*) FROM cards c WHERE c.user_id = u.id) as cards,
 	(SELECT COUNT(*) FROM tasks t WHERE t.user_id = u.id) as tasks,
-	(SELECT COUNT(*) FROM files f WHERE f.created_by = u.id) as files
+	(SELECT COUNT(*) FROM files f WHERE f.created_by = u.id) as files,
+	COALESCE((SELECT SUM(l.cost_usd) FROM llm_query_log l WHERE l.user_id = u.id), 0) as cost
 	FROM users u 
 	GROUP BY u.id
 	ORDER BY u.id
@@ -320,6 +321,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.CardCount,
 			&user.TaskCount,
 			&user.FileCount,
+			&user.LLMCost,
 		); err != nil {
 			return users, err
 		}

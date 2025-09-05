@@ -26,6 +26,7 @@ type User struct {
 	TaskCount                   int        `json:"task_count"`
 	FileCount                   int        `json:"file_count"`
 	MemoryHasChanged            bool       `json:"memory_has_changed"`
+	LLMCost                     float64    `json:"llm_cost"`
 }
 
 type UserSubscription struct {
