@@ -479,6 +479,7 @@ func (s *Handler) createDefaultCards(userID int) error {
 		log.Printf("error creating default cards: %v", err)
 		return err
 	}
+	s.ProcessEntitiesAndFacts(userID, card)
 	query := `UPDATE users SET dashboard_card_pk = $1 WHERE id = $2`
 	_, err = s.DB.Exec(query, card.ID, userID)
 	if err != nil {
@@ -582,9 +583,6 @@ func (s *Handler) sendEmailValidation(user models.User) error {
 
 func (s *Handler) UserHasSubscription(userID int) bool {
 	if s.Server.Testing {
-		return true
-	}
-	if os.Getenv("VITE_FEATURE_SUBSCRIPTION") != "true" {
 		return true
 	}
 	user, err := s.QueryUser(userID)
