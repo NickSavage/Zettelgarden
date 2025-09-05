@@ -7,8 +7,10 @@ import { Dialog } from "@headlessui/react";
 import { HeaderSection } from "../components/Header";
 import { useShortcutContext } from "../contexts/ShortcutContext";
 import { setDocumentTitle } from "../utils/title";
+import { useAuth } from "../contexts/AuthContext";
 
 export function FactPage() {
+    const { hasSubscription } = useAuth();
     const [facts, setFacts] = useState<FactWithCard[]>([]);
     const [filteredFacts, setFilteredFacts] = useState<FactWithCard[]>([]);
     const [loading, setLoading] = useState(true);
@@ -165,6 +167,16 @@ export function FactPage() {
         <div className="p-4">
             <HeaderSection text="Facts" />
 
+            {!hasSubscription &&
+                (
+                    <div className="text-center text-gray-500 mt-8">
+                        Automatic fact extraction is a Pro feature. You are currently viewing default facts.
+                        <br />
+                        <Link to="/app/subscribe" className="text-blue-500 hover:underline">
+                            Upgrade to Pro to automatically populate this page from your notes.
+                        </Link>
+                    </div>
+                )}
             <div className="mb-4 flex gap-2 items-center">
                 <button
                     onClick={toggleSelectionMode}

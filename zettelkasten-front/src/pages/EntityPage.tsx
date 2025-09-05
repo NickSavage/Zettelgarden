@@ -7,11 +7,14 @@ import { EditEntityDialog } from "../components/entities/EditEntityDialog";
 import { EntityTable } from "../components/entities/EntityTable";
 import { EntityListToolbar } from "../components/entities/EntityListToolbar";
 import { EntitySelectionActions } from "../components/entities/EntitySelectionActions";
+import { Link } from "react-router-dom";
 import { setDocumentTitle } from "../utils/title";
 
+import { useAuth } from "../contexts/AuthContext";
 import { useShortcutContext } from "../contexts/ShortcutContext";
 
 export function EntityPage() {
+  const { hasSubscription } = useAuth();
   const [entities, setEntities] = useState<Entity[]>([]);
   const [filteredEntities, setFilteredEntities] = useState<Entity[]>([]);
   const STORAGE_KEY = "entityPageState";
@@ -290,10 +293,21 @@ export function EntityPage() {
     ? entities.find((e) => e.id === selectedEntities[0])
     : null;
 
+
   return (
     <div className="p-4">
       <HeaderSection text="Entities" />
 
+      {!hasSubscription &&
+        (
+          <div className="text-center text-gray-500 mt-8">
+            Automatic entity extraction is a Pro feature. You are currently viewing default entities.
+            <br />
+            <Link to="/app/subscribe" className="text-blue-500 hover:underline">
+              Upgrade to Pro to automatically populate this page from your notes.
+            </Link>
+          </div>
+        )}
       <EntityListToolbar
         filterText={filterText}
         onFilterChange={setFilterText}
