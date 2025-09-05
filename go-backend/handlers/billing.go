@@ -37,6 +37,11 @@ func (s *Handler) CreateSubscriptionRoute(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if user.StripeSubscriptionStatus == "active" {
+		http.Error(w, "User already has an active subscription", http.StatusBadRequest)
+		return
+	}
+
 	// Ensure customer exists
 	if user.StripeCustomerID == "" {
 		params := &stripe.CustomerParams{
