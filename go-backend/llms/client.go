@@ -78,10 +78,27 @@ func ExecuteLLMRequest(c *models.LLMClient, messages []openai.ChatCompletionMess
 func logLLMRequest(c *models.LLMClient, resp openai.ChatCompletionResponse) {
 	// fire and forget
 	go func() {
+		// simple model pricing table (per 1k tokens in USD)
+		var modelPricing = map[string]struct {
+			PromptPer1K     float64
+			CompletionPer1K float64
+		}{
+			"google/gemini-2.5-flash": {PromptPer1K: 0.0003, CompletionPer1K: 0.0025},
+			"google/gemini-2.5-pro":   {PromptPer1K: 0.00125, CompletionPer1K: 0.010},
+			"openai/gpt-5-chat":       {PromptPer1K: 0.00125, CompletionPer1K: 0.010},
+		}
+
+		var cost *float64
+		if pricing, ok := modelPricing[c.Model.ModelIdentifier]; ok {
+			est := float64(resp.Usage.PromptTokens)/1000.0*pricing.PromptPer1K +
+				float64(resp.Usage.CompletionTokens)/1000.0*pricing.CompletionPer1K
+			cost = &est
+		}
+
 		_, err := c.DB.Exec(`
-		INSERT INTO llm_query_log (user_id, model, prompt_tokens, completion_tokens)
-		VALUES ($1, $2, $3, $4)
-	`, c.UserID, c.Model.ModelIdentifier, resp.Usage.PromptTokens, resp.Usage.CompletionTokens)
+			INSERT INTO llm_query_log (user_id, model, prompt_tokens, completion_tokens, cost_usd)
+			VALUES ($1, $2, $3, $4, $5)
+		`, c.UserID, c.Model.ModelIdentifier, resp.Usage.PromptTokens, resp.Usage.CompletionTokens, cost)
 		if err != nil {
 			log.Printf("Error logging llm request: %v", err)
 		}
