@@ -23,6 +23,7 @@ export interface User {
   file_count: number;
   llm_cost: number;
   revenue: number;
+  has_seen_getting_started: boolean;
 }
 export const defaultUser: User = {
   id: 0,
@@ -49,6 +50,7 @@ export const defaultUser: User = {
   file_count: 0,
   llm_cost: 0,
   revenue: 0,
+  has_seen_getting_started: false,
 };
 
 export interface UserSubscription {
@@ -66,6 +68,7 @@ export interface EditUserParams {
   email: string;
   is_admin: boolean;
   dashboard_card_pk: number;
+  has_seen_getting_started: boolean;
 }
 
 export interface CreateUserParams {

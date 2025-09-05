@@ -5,7 +5,7 @@ import React, {
   useContext,
   ReactNode,
 } from "react";
-import { checkAdmin } from "../api/users";
+import { checkAdmin, updateUser as apiUpdateUser } from "../api/users";
 import { getCurrentUser } from "../api/users";
 import { LoginResponse } from "../models/Auth";
 import { User } from "../models/User";
@@ -19,6 +19,8 @@ interface AuthContextType {
   loginUserFromToken: (token: string) => void;
   logoutUser: () => void;
   currentUser: User | null;
+  user: User | null;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +35,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true); // Added loading state
   const [hasSubscription, setHasSubscription] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  const updateUser = async (updatedUser: User) => {
+    const response = await apiUpdateUser(updatedUser);
+    setUser(response);
+    setCurrentUser(response);
+  };
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -45,6 +54,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsAdmin(adminStatus);
         const currentUser = await getCurrentUser();
         setCurrentUser(currentUser);
+        setUser(currentUser);
         console.log("user", currentUser);
         setHasSubscription(currentUser.stripe_subscription_status === "active");
         //setHasSubscription(true)
@@ -85,6 +95,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         loginUserFromToken,
         logoutUser,
         currentUser,
+        user,
+        updateUser,
       }}
     >
       {children}

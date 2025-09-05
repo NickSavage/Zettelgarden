@@ -7,6 +7,7 @@ import { ViewPage } from "./cards/ViewPage";
 import { EditPage } from "./cards/EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
+import { Dialog } from "../components/Dialog";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
@@ -36,6 +37,7 @@ import { SearchConfig } from "../models/PinnedSearch";
 
 function MainAppContent() {
   const navigate = useNavigate();
+  const [showGettingStarted, setShowGettingStarted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchConfig, setSearchConfig] = useState<SearchConfig>({
@@ -51,7 +53,14 @@ function MainAppContent() {
     searchType: "typesense",
     rerank: true,
   });
-  const { isAuthenticated, isLoading, hasSubscription, logoutUser } = useAuth();
+  const {
+    isAuthenticated,
+    isLoading,
+    hasSubscription,
+    logoutUser,
+    user,
+    updateUser,
+  } = useAuth();
   const { setRefreshTasks } = useTaskContext();
   const { setRefreshPartialCards } = usePartialCardContext();
   const { showChat, setShowChat } = useChatContext();
@@ -61,6 +70,20 @@ function MainAppContent() {
   async function handleNewCard(cardType: string) {
     navigate("/app/card/new", { state: { cardType: cardType } });
   }
+
+  async function handleCloseGettingStarted() {
+    setShowGettingStarted(false);
+    if (user) {
+      user.has_seen_getting_started = true;
+      updateUser(user);
+    }
+  }
+
+  useEffect(() => {
+    if (user && !user.has_seen_getting_started) {
+      setShowGettingStarted(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
@@ -83,6 +106,9 @@ function MainAppContent() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
+      <Dialog isOpen={showGettingStarted} onClose={handleCloseGettingStarted}>
+        <GettingStartedPage />
+      </Dialog>
       <div className="flex-grow overflow-y-auto">
         <div className="">
           <EmailValidationBanner />

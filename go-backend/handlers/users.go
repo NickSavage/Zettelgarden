@@ -289,7 +289,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 	u.id, u.username, u.email, u.created_at, u.updated_at,
 	u.is_admin, u.email_validated, u.can_upload_files,
 	u.stripe_subscription_status, u.max_file_storage, u.last_login,
-	u.last_seen, u.dashboard_card_pk,
+	u.last_seen, u.dashboard_card_pk, u.has_seen_getting_started,
 	(SELECT COUNT(*) FROM cards c WHERE c.user_id = u.id) as cards,
 	(SELECT COUNT(*) FROM tasks t WHERE t.user_id = u.id) as tasks,
 	(SELECT COUNT(*) FROM files f WHERE f.created_by = u.id) as files,
@@ -319,6 +319,7 @@ func (s *Handler) QueryUsers() ([]models.User, error) {
 			&user.LastLogin,
 			&user.LastSeen,
 			&user.DashboardCardPK,
+			&user.HasSeenGettingStarted,
 			&user.CardCount,
 			&user.TaskCount,
 			&user.FileCount,
@@ -345,11 +346,11 @@ func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 
 	var user models.User
 	err := s.DB.QueryRow(`
-	SELECT 
-	id, username, email, password, created_at, updated_at, 
-	is_admin, email_validated, can_upload_files, 
+	SELECT
+	id, username, email, password, created_at, updated_at,
+	is_admin, email_validated, can_upload_files,
 	stripe_subscription_status, max_file_storage, last_login,
-	last_seen, dashboard_card_pk
+	last_seen, dashboard_card_pk, has_seen_getting_started
 	FROM users WHERE email = $1
 	`, email).Scan(
 		&user.ID,
@@ -366,6 +367,7 @@ func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 		&user.LastLogin,
 		&user.LastSeen,
 		&user.DashboardCardPK,
+		&user.HasSeenGettingStarted,
 	)
 	if err != nil {
 		log.Printf("err %v", err)
@@ -382,11 +384,11 @@ func (s *Handler) QueryUserByEmail(email string) (models.User, error) {
 func (s *Handler) QueryUser(id int) (models.User, error) {
 	var user models.User
 	err := s.DB.QueryRow(`
-	SELECT 
-	id, username, email, password, created_at, updated_at, 
-	is_admin, email_validated, can_upload_files, 
+	SELECT
+	id, username, email, password, created_at, updated_at,
+	is_admin, email_validated, can_upload_files,
 	stripe_subscription_status, max_file_storage, last_login,
-	last_seen, dashboard_card_pk
+	last_seen, dashboard_card_pk, has_seen_getting_started
 	FROM users WHERE id = $1
 	`, id).Scan(
 		&user.ID,
@@ -403,6 +405,7 @@ func (s *Handler) QueryUser(id int) (models.User, error) {
 		&user.LastLogin,
 		&user.LastSeen,
 		&user.DashboardCardPK,
+		&user.HasSeenGettingStarted,
 	)
 	if err != nil {
 		log.Printf("errsd %v", err)
@@ -421,9 +424,9 @@ func (s *Handler) UpdateUser(id int, user models.User, params models.EditUserPar
 
 	query := `
 	UPDATE users SET username = $1, email = $2, is_admin = $3, updated_at = NOW(),
-        dashboard_card_pk = $4
+        dashboard_card_pk = $4, has_seen_getting_started = $5
 	WHERE
-	id = $5
+	id = $6
 	`
 	_, err := s.DB.Exec(
 		query,
@@ -431,6 +434,7 @@ func (s *Handler) UpdateUser(id int, user models.User, params models.EditUserPar
 		params.Email,
 		params.IsAdmin,
 		params.DashboardCardPK,
+		params.HasSeenGettingStarted,
 		id,
 	)
 	if err != nil {

@@ -28,6 +28,7 @@ type User struct {
 	MemoryHasChanged            bool       `json:"memory_has_changed"`
 	LLMCost                     float64    `json:"llm_cost"`
 	Revenue                     float64    `json:"revenue"`
+	HasSeenGettingStarted       bool       `json:"has_seen_getting_started"`
 }
 
 type UserSubscription struct {
@@ -41,10 +42,11 @@ type UserSubscription struct {
 }
 
 type EditUserParams struct {
-	Username        string `json:"username"`
-	Email           string `json:"email"`
-	IsAdmin         bool   `json:"is_admin"`
-	DashboardCardPK int    `json:"dashboard_card_pk"`
+	Username              string `json:"username"`
+	Email                 string `json:"email"`
+	IsAdmin               bool   `json:"is_admin"`
+	DashboardCardPK       int    `json:"dashboard_card_pk"`
+	HasSeenGettingStarted bool   `json:"has_seen_getting_started"`
 }
 
 type CreateUserParams struct {

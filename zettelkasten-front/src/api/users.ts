@@ -80,6 +80,16 @@ export function getUsers(): Promise<User[]> {
     });
 }
 
+export async function updateUser(user: User): Promise<User> {
+  return editUser(user.id.toString(), {
+    username: user.username,
+    email: user.email,
+    is_admin: user.is_admin,
+    dashboard_card_pk: user.dashboard_card_pk,
+    has_seen_getting_started: user.has_seen_getting_started,
+  });
+}
+
 export async function editUser(
   userId: string,
   updateData: EditUserParams,
