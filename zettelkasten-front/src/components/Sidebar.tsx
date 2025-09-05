@@ -250,7 +250,6 @@ export function Sidebar() {
     transition-transform
     duration-300
     ease-in-out
-    z-[50]
   `}
       >
         {/* Upper Section */}

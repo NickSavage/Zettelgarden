@@ -10,7 +10,7 @@ interface DialogProps {
 export function Dialog({ isOpen, onClose, children }: DialogProps) {
     return (
         <Transition appear show={isOpen} as={Fragment}>
-            <HeadlessDialog as="div" className="relative z-10" onClose={onClose}>
+            <HeadlessDialog as="div" className="relative z-1000" onClose={onClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
