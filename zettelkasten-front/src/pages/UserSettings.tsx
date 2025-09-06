@@ -8,7 +8,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { H6 } from "../components/Header";
 import { TemplatesList } from "../components/templates/TemplatesList";
 import { setDocumentTitle } from "../utils/title";
-import { EditableMemory } from "../components/memory/EditableMemory";
 import { TagList } from "../components/tags/TagList";
 import { FileVault } from "./FileVault";
 
