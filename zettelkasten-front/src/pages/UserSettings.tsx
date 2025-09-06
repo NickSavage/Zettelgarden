@@ -9,8 +9,13 @@ import { H6 } from "../components/Header";
 import { TemplatesList } from "../components/templates/TemplatesList";
 import { setDocumentTitle } from "../utils/title";
 import { EditableMemory } from "../components/memory/EditableMemory";
+import { TagList } from "../components/tags/TagList";
+import { FileVault } from "./FileVault";
+
+type Tab = "profile" | "templates" | "tags" | "files";
 
 export function UserSettingsPage() {
+  const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -120,114 +125,142 @@ export function UserSettingsPage() {
     fetchBillingUrl();
   }, []);
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-
-      <div className="space-y-6">
-        <div>
-          <div>
-            <H6 children="Settings" />
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label>
-                Username:
-                <input
-                  type="text"
-                  name="username"
-                  defaultValue={user?.username}
-                />
-              </label>
-            </div>
-            <div>
-              <label>
-                Email:
-                <input type="email" name="email" defaultValue={user?.email} />
-              </label>
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-              Save Changes
-            </button>
-          </form>
-        </div>
-
-        {/* Password Settings Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Password Settings</h2>
-          <p className="text-gray-600 mb-4">
-            To change your password, we'll send a password reset link to your email address.
-          </p>
-          <button
-            onClick={handlePasswordReset}
-            disabled={isLoading}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-          >
-            {isLoading ? "Sending..." : "Send Password Reset Link"}
-          </button>
-          {success && <div className="mt-2 text-green-600 text-sm">{success}</div>}
-          {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
-        </div>
-
-        {/* Subscription Card */}
-        {subscriptionEnabled && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Subscription</h2>
-            {subscription && subscription.stripe_subscription_status === "active" ? (
-              <div className="space-y-2">
-                <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
-                <a
-                  href={billingUrl || "#"}
-                  className="text-blue-500 hover:underline"
-                >
-                  Manage Subscription →
-                </a>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p>You don’t have a subscription yet.</p>
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "profile":
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Profile Settings</h2>
+              <form onSubmit={handleSubmit}>
+                <div>
+                  <label>
+                    Username:
+                    <input
+                      type="text"
+                      name="username"
+                      defaultValue={user?.username}
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label>
+                    Email:
+                    <input type="email" name="email" defaultValue={user?.email} />
+                  </label>
+                </div>
                 <button
-                  onClick={() => navigate("/app/subscription")}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
                 >
-                  Upgrade to Pro →
+                  Save Changes
                 </button>
+              </form>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Password Settings</h2>
+              <p className="text-gray-600 mb-4">
+                To change your password, we'll send a password reset link to your email address.
+              </p>
+              <button
+                onClick={handlePasswordReset}
+                disabled={isLoading}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+              >
+                {isLoading ? "Sending..." : "Send Password Reset Link"}
+              </button>
+              {success && <div className="mt-2 text-green-600 text-sm">{success}</div>}
+              {error && <div className="mt-2 text-red-600 text-sm">{error}</div>}
+            </div>
+
+            {subscriptionEnabled && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">Subscription</h2>
+                {subscription && subscription.stripe_subscription_status === "active" ? (
+                  <div className="space-y-2">
+                    <p>Status: <span className="font-medium">{subscription.stripe_subscription_status}</span></p>
+                    <a
+                      href={billingUrl || "#"}
+                      className="text-blue-500 hover:underline"
+                    >
+                      Manage Subscription →
+                    </a>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p>You don’t have a subscription yet.</p>
+                    <button
+                      onClick={() => navigate("/app/subscription")}
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                      Upgrade to Pro →
+                    </button>
+                  </div>
+                )}
               </div>
             )}
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Account Actions</h2>
+              <button
+                onClick={() => {
+                  logoutUser();
+                  navigate('/');
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </div>
           </div>
-        )}
-
-        {/* Logout Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Account Actions</h2>
-          <button
-            onClick={() => {
-              logoutUser();
-              navigate('/');
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
-        </div>
-
-        {/* Templates Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Card Templates</h2>
-          <TemplatesList />
-        </div>
-
-        {/* User Memory Card */}
-        {userMemory && (
+        );
+      case "templates":
+        return (
           <div className="bg-white rounded-lg shadow p-6">
-            <EditableMemory
-              memory={userMemory || ""}
-              onMemoryUpdate={(newMemory) => setUserMemory(newMemory)}
-            />
+            <h2 className="text-xl font-semibold mb-4">Card Templates</h2>
+            <TemplatesList />
           </div>
-        )}
+        );
+      case "tags":
+        return <div className="bg-white rounded-lg shadow p-6"><TagList /></div>;
+      case "files":
+        return <FileVault />;
+    }
+  };
+
+
+  return (
+    <div className="p-6">
+      <H6 children="Settings" />
+      <div className="flex border-b">
+        <button
+          className={`px-4 py-2 text-sm font-medium ${activeTab === "profile" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+          onClick={() => setActiveTab("profile")}
+        >
+          Profile
+        </button>
+        <button
+          className={`px-4 py-2 text-sm font-medium ${activeTab === "templates" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+          onClick={() => setActiveTab("templates")}
+        >
+          Templates
+        </button>
+        <button
+          className={`px-4 py-2 text-sm font-medium ${activeTab === "tags" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+          onClick={() => setActiveTab("tags")}
+        >
+          Tags
+        </button>
+        <button
+          className={`px-4 py-2 text-sm font-medium ${activeTab === "files" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+          onClick={() => setActiveTab("files")}
+        >
+          Files
+        </button>
+      </div>
+      <div className="mt-4">
+        {renderTabContent()}
       </div>
     </div>
   );

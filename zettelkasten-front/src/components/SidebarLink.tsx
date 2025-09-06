@@ -13,9 +13,8 @@ export function SidebarLink({ to, children }: SidebarLinkProps) {
   return (
     <Link
       to={to}
-      className={`flex items-center px-2 py-1 text-md font-medium rounded-md hover:bg-gray-100 ${
-        isActive ? "bg-gray-100" : ""
-      }`}
+      className={`flex items-center px-2 py-1  font-medium rounded-md hover:bg-gray-100 ${isActive ? "bg-gray-100" : ""
+        }`}
     >
       {/* Add icon wrapper for first child */}
       {React.Children.map(children, (child, index) => {

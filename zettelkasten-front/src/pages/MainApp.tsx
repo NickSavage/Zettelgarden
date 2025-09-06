@@ -18,7 +18,6 @@ import { DashboardPage } from "./DashboardPage";
 import { GettingStartedPage } from "./GettingStartedPage";
 import { Card, PartialCard, SearchResult } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
-import { TagsPage } from "./TagsPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
 import { TagProvider } from "../contexts/TagContext";
 import { ChatProvider, useChatContext } from "../contexts/ChatContext";
@@ -32,6 +31,7 @@ import { EntityPage } from "./EntityPage";
 import { CardRefreshProvider } from "../contexts/CardRefreshContext";
 import { Summarizer } from "./Summarizer";
 import { FactPage } from "./FactPage";
+import { MemoryPage } from "./MemoryPage";
 
 import { SearchConfig } from "../models/PinnedSearch";
 
@@ -143,10 +143,10 @@ function MainAppContent() {
                 <Route path="help" element={<GettingStartedPage />} />
                 <Route path="files" element={<FileVault />} />
                 <Route path="tasks" element={<TaskPage />} />
-                <Route path="tags" element={<TagsPage />} />
                 <Route path="entities" element={<EntityPage />} />
                 <Route path="summarizer" element={<Summarizer />} />
                 <Route path="facts" element={<FactPage />} />
+                <Route path="memory" element={<MemoryPage />} />
                 <Route path="*" element={<DashboardPage />} />
               </>
               ) : (

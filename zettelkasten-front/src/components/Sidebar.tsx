@@ -34,6 +34,7 @@ import { EntityIcon } from "../assets/icons/EntityIcon";
 import { BookOpenIcon } from "../assets/icons/BookOpenIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { FactsIcon } from "../assets/icons/FactsIcon";
+import { MemoryIcon } from "../assets/icons/MemoryIcon";
 
 import { EntityDialog } from "./entities/EntityDialog";
 import { FactDialog } from "./facts/FactDialog";
@@ -322,7 +323,7 @@ export function Sidebar() {
             <ul className="space-y-1">
               <SidebarLink to="/app/search?recent=true">
                 <SearchIcon />
-                <span className="flex-grow">Cards</span>
+                <span className="flex-grow">Search</span>
               </SidebarLink>
 
               <SidebarLink to="/app/tasks">
@@ -340,20 +341,11 @@ export function Sidebar() {
                 <span className="flex-grow">Chat</span>
               </SidebarLink>
               </span> */}
-              <SidebarLink to="/app/files">
-                <FileIcon />
-                <span className="flex-grow">Files</span>
-              </SidebarLink>
-
             </ul>
           </div>
           <hr />
           <div className="p-2">
             <ul className="space-y-1">
-              <SidebarLink to="/app/tags">
-                <TasksIcon />
-                <span className="flex-grow">Tags</span>
-              </SidebarLink>
 
               <SidebarLink to="/app/entities">
                 <EntityIcon />
@@ -368,6 +360,10 @@ export function Sidebar() {
                 {!hasSubscription && (
                   <span className="ml-2 bg-purple-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">PRO</span>
                 )}
+              </SidebarLink>
+              <SidebarLink to="/app/memory">
+                <MemoryIcon />
+                <span className="flex-grow">Memory</span>
               </SidebarLink>
             </ul>
           </div>
