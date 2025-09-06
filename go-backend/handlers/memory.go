@@ -15,7 +15,6 @@ func (s *Handler) GenerateMemory(userID uint, cardContent string) {
 	}
 
 	go func() {
-		log.Printf("generating memory")
 		client := llms.NewDefaultClient(s.DB, int(userID))
 		_, err := llms.GenerateUserMemory(s.DB, client, userID, cardContent)
 		if err != nil {

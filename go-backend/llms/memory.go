@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-backend/models"
 	"log"
+	"strings"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -83,7 +84,11 @@ You must follow this process precisely:
 		return "", fmt.Errorf("no response from AI")
 	}
 
-	err = UpdateUserMemory(db, uint(userID), response.Choices[0].Message.Content)
+	content := response.Choices[0].Message.Content
+	content = strings.TrimPrefix(content, "```json")
+	content = strings.TrimSuffix(content, "```")
+
+	err = UpdateUserMemory(db, uint(userID), content)
 	if err != nil {
 		return "", err
 	}
