@@ -103,12 +103,12 @@ function MainAppContent() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+  {/* <Dialog isOpen={showGettingStarted} onClose={handleCloseGettingStarted}>
+        <GettingStartedPage />
+      </Dialog> */}
   return (
     <div>
 
-      <Dialog isOpen={showGettingStarted} onClose={handleCloseGettingStarted}>
-        <GettingStartedPage />
-      </Dialog>
       <div className="flex h-screen overflow-hidden">
         <Sidebar />
         <div className="flex-grow overflow-y-auto">

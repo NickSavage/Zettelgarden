@@ -237,6 +237,7 @@ export function Sidebar() {
       <div
         className={`
     fixed md:relative
+    z-[50]
     w-72
     min-w-[18rem]    // Increased minimum width
     max-w-[18rem]    // Increased maximum width
