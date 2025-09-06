@@ -520,7 +520,7 @@ export function Sidebar() {
       {showGettingStarted && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]"
-          onClick={() => setShowGettingStarted(false)}
+          onClick={() => handleCloseGettingStarted()}
         >
           <div
             className="bg-white p-5 rounded-md shadow-lg max-w-4xl w-[90%] max-h-[90vh] overflow-y-auto"
