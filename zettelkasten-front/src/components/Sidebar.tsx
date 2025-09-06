@@ -19,6 +19,8 @@ import { Button } from "./Button";
 import { ConversationSummary } from "../models/Chat";
 import { useAuth } from "../contexts/AuthContext";
 
+import { GettingStartedPage } from "../pages/GettingStartedPage";
+
 import { useShortcutContext } from "../contexts/ShortcutContext";
 import { QuickSearchWindow } from "./cards/QuickSearchWindow";
 
@@ -59,8 +61,9 @@ export function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const { showChat, setShowChat } = useChatContext();
   const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
-  const { hasSubscription } = useAuth();
+  const { hasSubscription, user, updateUser } = useAuth();
 
+  const [showGettingStarted, setShowGettingStarted] = useState(false);
   const {
     showCreateTaskWindow,
     setShowCreateTaskWindow,
@@ -115,6 +118,20 @@ export function Sidebar() {
     toggleNewDropdown();
     setShowAddArticleDialog(true);
   }
+
+  async function handleCloseGettingStarted() {
+    setShowGettingStarted(false);
+    if (user) {
+      user.has_seen_getting_started = true;
+      updateUser(user);
+    }
+  }
+
+  useEffect(() => {
+    if (user && !user.has_seen_getting_started) {
+      setShowGettingStarted(true);
+    }
+  }, [user]);
 
   const handleKeyPress = (event: KeyboardEvent) => {
     // if this is true, the user is using a system shortcut, don't do anything with it
@@ -324,12 +341,12 @@ export function Sidebar() {
             <ul className="space-y-1">
               <SidebarLink to="/app/search?recent=true">
                 <SearchIcon />
-                <span className="flex-grow">Search</span>
+                <span className="px-2 flex-grow">Search</span>
               </SidebarLink>
 
               <SidebarLink to="/app/tasks">
                 <TasksIcon />
-                <span className="flex-grow">Tasks</span>
+                <span className="px-2 flex-grow">Tasks</span>
                 <span className="px-2 py-1 text-xs bg-blue-100 rounded-full">
                   {todayTasks.length}
                 </span>
@@ -350,21 +367,21 @@ export function Sidebar() {
 
               <SidebarLink to="/app/entities">
                 <EntityIcon />
-                <span className="flex-grow">Entities</span>
+                <span className="px-2 flex-grow">Entities</span>
                 {!hasSubscription && (
                   <span className="ml-2 bg-purple-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">PRO</span>
                 )}
               </SidebarLink>
               <SidebarLink to="/app/facts">
                 <FactsIcon />
-                <span className="flex-grow">Facts</span>
+                <span className="px-2 flex-grow">Facts</span>
                 {!hasSubscription && (
                   <span className="ml-2 bg-purple-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">PRO</span>
                 )}
               </SidebarLink>
               <SidebarLink to="/app/memory">
                 <MemoryIcon />
-                <span className="flex-grow">Memory</span>
+                <span className="px-2 flex-grow">Memory</span>
               </SidebarLink>
             </ul>
           </div>
@@ -500,6 +517,19 @@ export function Sidebar() {
         onClose={() => setShowAddArticleDialog(false)}
         setMessage={setMessage}
       />
+      {showGettingStarted && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]"
+          onClick={() => setShowGettingStarted(false)}
+        >
+          <div
+            className="bg-white p-5 rounded-md shadow-lg max-w-4xl w-[90%] max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GettingStartedPage />
+          </div>
+        </div>
+      )}
     </>
   );
 }

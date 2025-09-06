@@ -7,7 +7,6 @@ import { ViewPage } from "./cards/ViewPage";
 import { EditPage } from "./cards/EditPage";
 import { Sidebar } from "../components/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
-import { Dialog } from "../components/Dialog";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Route, Routes } from "react-router-dom";
 import { EmailValidationBanner } from "../components/EmailValidationBanner";
@@ -15,7 +14,6 @@ import Success from "./Success";
 import Cancel from "./Cancel";
 import SubscribePage from "./SubscribePage";
 import { DashboardPage } from "./DashboardPage";
-import { GettingStartedPage } from "./GettingStartedPage";
 import { Card, PartialCard, SearchResult } from "../models/Card";
 import { TaskPage } from "./tasks/TaskPage";
 import { TaskProvider, useTaskContext } from "../contexts/TaskContext";
@@ -32,12 +30,12 @@ import { CardRefreshProvider } from "../contexts/CardRefreshContext";
 import { Summarizer } from "./Summarizer";
 import { FactPage } from "./FactPage";
 import { MemoryPage } from "./MemoryPage";
+import { GettingStartedPage } from "../pages/GettingStartedPage";
 
 import { SearchConfig } from "../models/PinnedSearch";
 
 function MainAppContent() {
   const navigate = useNavigate();
-  const [showGettingStarted, setShowGettingStarted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchConfig, setSearchConfig] = useState<SearchConfig>({
@@ -71,20 +69,6 @@ function MainAppContent() {
     navigate("/app/card/new", { state: { cardType: cardType } });
   }
 
-  async function handleCloseGettingStarted() {
-    setShowGettingStarted(false);
-    if (user) {
-      user.has_seen_getting_started = true;
-      updateUser(user);
-    }
-  }
-
-  useEffect(() => {
-    if (user && !user.has_seen_getting_started) {
-      setShowGettingStarted(true);
-    }
-  }, [user]);
-
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       logoutUser();
@@ -103,9 +87,6 @@ function MainAppContent() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  {/* <Dialog isOpen={showGettingStarted} onClose={handleCloseGettingStarted}>
-        <GettingStartedPage />
-      </Dialog> */}
   return (
     <div>
 
